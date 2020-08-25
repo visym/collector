@@ -1,5 +1,7 @@
 [![PyPI version](https://badge.fury.io/py/pycollector.svg)](https://badge.fury.io/py/pycollector)
 
+[![iOS](https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg)](http://visym.com)
+
 VISYM COLLECTOR
 -------------------
 Consented and On-demand Visual Datasets    
