@@ -1,6 +1,6 @@
 ![Collector](http://i3.ytimg.com/vi/HjNa7_T-Xkc/maxresdefault.jpg)
 
-[![iOS](https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg)](https://visym.com/collector)  [![Android](https://lh3.googleusercontent.com/cjsqrWQKJQp9RFO7-hJ9AfpKzbUb_Y84vXfjlP0iRHBvladwAfXih984olktDhPnFqyZ0nu9A5jvFwOEQPXzv7hr3ce3QVsLN8kQ2Ao=s0)](https://visym.com/collector)  [![Github](http://pngimg.com/uploads/github/github_PNG40.png)](https://github.com/visym/collector)
+[![iOS](https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg)](https://visym.com/collector)  [![Android](https://lh3.googleusercontent.com/cjsqrWQKJQp9RFO7-hJ9AfpKzbUb_Y84vXfjlP0iRHBvladwAfXih984olktDhPnFqyZ0nu9A5jvFwOEQPXzv7hr3ce3QVsLN8kQ2Ao=s0)](https://visym.com/collector)  [![Github](http://pngimg.com/uploads/github/github_PNG40.png | height=50)](https://github.com/visym/collector)
 
 ## Visym Collector
 
