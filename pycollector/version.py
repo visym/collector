@@ -3,17 +3,19 @@ MINOR = 2
 RELEASE = 0
 VERSION = '%d.%d.%d' % (MAJOR, MINOR, RELEASE)
 
-GLOBALS = {'API_VERSION': 'v2'}
+
+def num(versionstring=VERSION):
+    (major, minor, release) = versionstring.split('.')    
+    return 100*100*int(major) + 100*int(minor) + int(release)
 
 
-def api(version=None):
-    if version is not None:
-        assert version in ['v1', 'v2', 'v2-android']
-        GLOBALS['API_VERSION'] = version
-    return GLOBALS['API_VERSION'] 
-    
+def at_least_version(versionstring):
+    """Is versionstring='X.Y.Z' at least the current version?"""
+    return num(VERSION) >= num(versionstring)
 
-def isapi(version):
-    return version in GLOBALS['API_VERSION']
+
+def is_at_least(versionstring):
+    """Synonym for at_least_version"""
+    return num(VERSION) >= num(versionstring)    
 
 

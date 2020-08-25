@@ -15,6 +15,8 @@ setup(
     download_url='https://github.com/visym/collector/archive/%s.tar.gz' % version,
     install_requires=[
         "vipy",
+        "boto3",
+        "xml2dict"
     ],
     keywords=['vision', 'learning', 'ML', 'CV'],
     classifiers=[

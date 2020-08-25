@@ -1,65 +1,42 @@
 import os
 import random
+
 import vipy
-from vipy.util import (
-    readjson,
-    isS3url,
-    tempjson,
-    tempdir,
-    totempdir,
-    remkdir,
-    flatlist,
-    tolist,
-    groupbyasdict,
-    writecsv,
-    filebase,
-    filetail,
-    filepath,
-    fileext,
-    isurl,
-    tolist
-)
+from vipy.util import readjson, isS3url, tempjson,tempdir, totempdir, remkdir
+from vipy.util import flatlist, tolist, groupbyasdict, writecsv, filebase, filetail, filepath, fileext, isurl, tolist
 from vipy.object import Track
 import vipy.version
-
 from vipy.activity import Activity as vipy_Activity
 from vipy.video import Scene
 from vipy.geometry import BoundingBox
 import vipy.downloader
 import vipy.version
+
 import warnings
 from datetime import datetime, timedelta
 import numpy as np
-import collector.admin
+#import collector.admin
 import pandas as pd
 from boto3.dynamodb.conditions import Key, Attr
-import collector.util
-from collector.util import (
-    allmondays_since,
-    yyyymmdd_to_date,
-    is_email_address,
-    isday,
-    is_more_recent_than,
-    nextday,
-    lastmonday,
-    lowerif,
-    timestamp,
-    fromdate, ismonday
-)
-from collector.ddb_util import delete_by_data
+from pycollector.util import allmondays_since, yyyymmdd_to_date, is_email_address, isday, is_more_recent_than, nextday, lastmonday
+from pycollector.util import lowerif, timestamp, fromdate, ismonday
+
 import copy
 import decimal
 from decimal import Decimal
 import calendar
 import pytz
 import hashlib
-from collector.review import score_verified_instance_by_id
+#from collector.review import score_verified_instance_by_id
 import uuid
-from collector.gsheets import Gsheets
-import collector 
-from collector.workforce import Collectors
+#from collector.gsheets import Gsheets
+import pycollector as collector
+#from collector.workforce import Collectors
 import urllib
+from pycollector.globals import isapi
+import pycollector.globals
 
+import xmltodict  
 
 
 class Instance(object):
@@ -68,34 +45,32 @@ class Instance(object):
        An Instance() is an observed Activity() collected as part of a CollectionInstance() and spcified by a Collection()
     """
 
-    def __init__(self, quicklookurl=None, instanceid=None, strict=True, query=None):
-        assert (quicklookurl is None or
-                isurl(quicklookurl)), "Input must be a quicklook URL of the form: https://diva-str-prod-data-public.s3.amazonaws.com/Quicklooks/20200507_172502444708376634347184_quicklook_P004_P004C005_Abandoning_0.jpg"
+    def __init__(self, instanceid=None, quicklookurl=None, strict=True, query=None):
+        assert (quicklookurl is None or isurl(quicklookurl)), "Input must be a quicklook URL of the form: https://diva-str-prod-data-public.s3.amazonaws.com/Quicklooks/20200507_172502444708376634347184_quicklook_P004_P004C005_Abandoning_0.jpg"
         assert (quicklookurl is not None or instanceid is not None or query is not None), "Must provide one input"
-
+        co_Instances = pycollector.globals.backend().instances
+        
         if quicklookurl is not None:
             videoid = filebase(quicklookurl).split("_quicklook_")[0]
             instances = co_Instances.query(
-                IndexName=lowerif("Video_ID-index", collector.version.isapi('v2')),
-                KeyConditionExpression=Key(lowerif("Video_ID", collector.version.isapi('v2'))).eq(videoid),
+                IndexName=lowerif("Video_ID-index", isapi('v2')),
+                KeyConditionExpression=Key(lowerif("Video_ID", isapi('v2'))).eq(videoid),
             )["Items"]
 
-            instances = [i for i in instances if i[lowerif("S3_Path", collector.version.isapi('v2'))] == quicklookurl]
+            instances = [i for i in instances if i[lowerif("S3_Path", isapi('v2'))] == quicklookurl]
             if strict:
                 assert len(instances) == 1, "Instance not found"
 
         elif instanceid is not None:
             instances = co_Instances.query(
-                IndexName=lowerif("Instance_ID-index", collector.version.isapi('v2')),
-                KeyConditionExpression=Key(lowerif("Instance_ID", collector.version.isapi('v2'))).eq(instanceid),
+                IndexName=lowerif("Instance_ID-index", isapi('v2')),
+                KeyConditionExpression=Key(lowerif("Instance_ID", isapi('v2'))).eq(instanceid),
             )["Items"]
             if strict:
                 assert len(instances) == 1, "Instance not found"
 
         elif query is not None:
-            instances = [
-                query
-            ]  # this is the output from a query to the co_Instances table
+            instances = [query]  # this is the output from a query to the co_Instances table
 
         else:
             raise ValueError("Invalid Input")
@@ -105,10 +80,7 @@ class Instance(object):
             self._instance = {k.lower():v for (k,v) in self._instance.items()}
         
     def __repr__(self):
-        return str(
-            "<collector.project.Instance: category=%s, videoid=%s, instanceid=%s>"
-            % (self.shortname(), self.videoid(), self.instanceid())
-        )
+        return str("<collector.video.instance: category=%s, videoid=%s, instanceid=%s>" % (self.shortname(), self.videoid(), self.instanceid()))
 
     def dict(self):
         return self._instance
@@ -170,12 +142,12 @@ class Instance(object):
         return any([v>0 for (k,v) in self._instance.items() if '_score' in k])
     
     def rating(self):
-        video_ratings = [{k.lower():v for (k,v) in r.items()} for r in co_Rating.query(IndexName=lowerif("Video_ID-index", collector.version.isapi('v2')),
-                                                                                       KeyConditionExpression=Key(lowerif("Video_ID", collector.version.isapi('v2'))).eq(self.videoid()))["Items"]]
+        video_ratings = [{k.lower():v for (k,v) in r.items()} for r in co_Rating.query(IndexName=lowerif("Video_ID-index", isapi('v2')),
+                                                                                       KeyConditionExpression=Key(lowerif("Video_ID", isapi('v2'))).eq(self.videoid()))["Items"]]
         return [v for v in video_ratings if v["id"] == self.instanceid()]
 
     def finalized(self, state=None):
-        assert collector.version.api() == 'v2'
+        assert isapi('v2')
         
         if state is None:
             return self._instance["rating_score_finalized"]
@@ -183,6 +155,7 @@ class Instance(object):
             assert isinstance(state, bool)
             self._instance["rating_score_finalized"] = state
 
+            co_Instances = pycollector.globals.backend().instances            
             co_Instances.update_item(
                 Key={
                     "id": self._instance["id"],
@@ -201,8 +174,9 @@ class Instance(object):
         return self.isgood(score_threshold)
 
     def rate(self, good=None):
-        assert collector.version.api() == 'v2'        
-
+        assert isapi('v2')
+        raise;  # FIXME
+        
         assert self.isvalid()
         ratings = self.rating()
         assert len(ratings) > 0, "Rating must be present in DDB"
@@ -218,11 +192,12 @@ class Instance(object):
                     for (k, v) in item.items()
                 }
                 co_Rating.put_item(Item=item)
-                score_verified_instance_by_id(instance_id=self.instanceid())
+                score_verified_instance_by_id(instance_id=self.instanceid())  # FIXME
 
     def add_rating(self, reviewer_id, true_rating):
-        assert collector.version.api() == 'v2'                
-
+        assert isapi('v2')        
+        raise;  # FIXME
+        
         item_keys = [
             "bad_box_big",
             "bad_box_small",
@@ -238,9 +213,7 @@ class Instance(object):
         item["week"] = lastmonday(str(datetime.now().date()))
         item["id"] = self.instanceid()
         item["video_id"] = self.videoid()
-        item["updated_time"] = (
-            datetime.now().astimezone(et).strftime("%m/%d/%Y, %I:%M:%S %p")
-        )
+        item["updated_time"] = (datetime.now().astimezone(et).strftime("%m/%d/%Y, %I:%M:%S %p"))
         item["reviewer_id"] = reviewer_id
         for k in item_keys:
             if k in true_rating:
@@ -248,7 +221,7 @@ class Instance(object):
             else:
                 item[k] = Decimal(False)
         co_Rating.put_item(Item=item)
-        score_verified_instance_by_id(instance_id=self.instanceid())
+        score_verified_instance_by_id(instance_id=self.instanceid())  # FIXME
 
     def quicklookurl(self):
         assert self.isvalid()
@@ -276,7 +249,7 @@ class Instance(object):
 
 
 class Video(Scene):
-    """collector.project.Video class
+    """pycollector.video.Video class
     
     """
 
@@ -293,63 +266,47 @@ class Video(Scene):
         verbose=False,
         attributes=None,
     ):
-        assert (
-            mp4file is not None or mp4url is not None or videoid is not None
-        ), "Invalid input - Must provide either mp4file or mp4url or videoid"
-        assert (
-            jsonurl is not None or jsonfile is not None or videoid is not None
-        ), "Invalid input - Must provide either jsonurl, videoid or jsonfile"
-        assert mp4url is None or isS3url(
-            mp4url
-        ), "Invalid input - mp4url must be of the form 's3://BUCKETNAME.s3.amazonaws.com/path/to/OBJECTNAME.mp4'"
-        assert jsonurl is None or isS3url(
-            jsonurl
-        ), "Invalid input - jsonurl must be of the form 's3://BUCKETNAME.s3.amazonaws.com/path/to/OBJECTNAME.json'"
+        assert (mp4file is not None or mp4url is not None or videoid is not None), "Invalid input - Must provide either mp4file or mp4url or videoid"
+        assert (jsonurl is not None or jsonfile is not None or videoid is not None), "Invalid input - Must provide either jsonurl, videoid or jsonfile"
+        assert mp4url is None or isS3url(mp4url), "Invalid input - mp4url must be of the form 's3://BUCKETNAME.s3.amazonaws.com/path/to/OBJECTNAME.mp4'"
+        assert jsonurl is None or isS3url(jsonurl), "Invalid input - jsonurl must be of the form 's3://BUCKETNAME.s3.amazonaws.com/path/to/OBJECTNAME.json'"
         if videoid is not None:
             assert (mp4url is None and jsonurl is None), "Invalid input - must provide either videoid or URLs, not both"        
         assert vipy.version.at_least_version("0.7.4"), "vipy >= 0.7.4 required"
         
-        if videoid is not None and 'v2' in collector.version.api():
-            v = co_Video.query(IndexName="video_id-index",
-                               KeyConditionExpression=Key('video_id').eq(videoid))['Items']
+        if videoid is not None and isapi('v2'):
+            v = pycollector.globals.backend().video.query(IndexName="video_id-index",
+                                                          KeyConditionExpression=Key('video_id').eq(videoid))['Items']
             if len(v) == 0:
                 raise ValueError('Video ID "%s" not found' % videoid)
             v = v[0]
-            mp4url = 's3://%s.s3.amazonaws.com/%s' % (s3_bucket, v['raw_video_file_path'])
-            jsonurl = 's3://%s.s3.amazonaws.com/%s' % (s3_bucket, v['annotation_file_path'])
+            mp4url = 's3://%s.s3.amazonaws.com/%s' % (pycollector.globals.backend().s3_bucket, v['raw_video_file_path'])
+            jsonurl = 's3://%s.s3.amazonaws.com/%s' % (pycollector.globals.backend().s3_bucket, v['annotation_file_path'])
             videoid = None
         
-        elif videoid is not None and collector.version.isapi('v1'):
-            jsonurl = (
-                "s3://diva-prod-data-lake.s3.amazonaws.com/temp/%s.json" % videoid
-            ) 
+        elif videoid is not None and isapi('v1'):
+            jsonurl = ("s3://diva-prod-data-lake.s3.amazonaws.com/temp/%s.json" % videoid) 
             mp4url = "s3://diva-prod-data-lake.s3.amazonaws.com/temp/%s.mp4" % videoid
+            
         elif mp4file is not None:
             videoid = mp4file.split('/')[-1].replace('.mp4','')
             
-            jsonurl = (
-                "s3://diva-prod-data-lake.s3.amazonaws.com/temp/%s.json" % videoid
-            ) 
+            jsonurl = ("s3://diva-prod-data-lake.s3.amazonaws.com/temp/%s.json" % videoid) 
             mp4url = "s3://diva-prod-data-lake.s3.amazonaws.com/temp/%s.mp4" % videoid
 
-
-            
+        # FIXME: why is this here?
         if "VISYM_COLLECTOR_AWS_ACCESS_KEY_ID" in os.environ:
-            os.environ["VIPY_AWS_ACCESS_KEY_ID"] = os.environ[
-                "VISYM_COLLECTOR_AWS_ACCESS_KEY_ID"
-            ]
+            os.environ["VIPY_AWS_ACCESS_KEY_ID"] = os.environ["VISYM_COLLECTOR_AWS_ACCESS_KEY_ID"]
         if "VISYM_COLLECTOR_AWS_SECRET_ACCESS_KEY" in os.environ:
-            os.environ["VIPY_AWS_SECRET_ACCESS_KEY"] = os.environ[
-                "VISYM_COLLECTOR_AWS_SECRET_ACCESS_KEY"
-            ]
+            os.environ["VIPY_AWS_SECRET_ACCESS_KEY"] = os.environ["VISYM_COLLECTOR_AWS_SECRET_ACCESS_KEY"]
 
-        # Constructor
-        mp4url = mp4url.replace('+',' ') if mp4url is not None else mpp4url  # for cut and paste from AWS console
+        # Vipy constructor
+        mp4url = mp4url.replace('+',' ') if mp4url is not None else mp4url  # for cut and paste from AWS console
         jsonurl = jsonurl.replace('+',' ') if jsonurl is not None else jsonurl  # for cut and paste from AWS console        
         super(Video, self).__init__(url=mp4url, filename=mp4file, attributes=attributes)
 
         # Video attributes
-        self._quicklook_url = "https://diva-str-prod-data-public.s3.amazonaws.com/Quicklooks/%s_quicklook_%s_%d.jpg"
+        self._quicklook_url = "https://diva-str-prod-data-public.s3.amazonaws.com/Quicklooks/%s_quicklook_%s_%d.jpg"  # FIXME
         self._jsonurl = jsonurl
         self._jsonfile = jsonfile
         self._dt = dt
@@ -374,13 +331,11 @@ class Video(Scene):
         jsonfile = self._jsonfile
         if jsonfile is not None and os.path.getsize(jsonfile) != 0:
             if self._verbose:
-                print('[collector.Video]:  Parsing "%s"' % jsonfile)
+                print('[collector.video]:  Parsing "%s"' % jsonfile)
 
             d = readjson(jsonfile)
             if "collection_id" not in d["metadata"]:
-                d["metadata"]["collection_id"] = d["metadata"][
-                    "video_id"
-                ]  # android 1.1.1(3) bug
+                d["metadata"]["collection_id"] = d["metadata"]["video_id"]  # android 1.1.1(3) bug
 
             for obj in d["object"]:
                 if "label" not in obj:
@@ -403,9 +358,7 @@ class Video(Scene):
                 pass
 
             if "device_type" in d["metadata"] and "device_identifier" == "ios":
-                d["metadata"][
-                    "rotate"
-                ] = "rot90ccw"  # iOS (7) bug, different than iOS (6)
+                d["metadata"]["rotate"] = "rot90ccw"  # iOS (7) bug, different than iOS (6)
 
             # FIXME: "collected_date":"2020-06-19T18:34:33+0000" on both now
             try:
@@ -422,7 +375,7 @@ class Video(Scene):
                         d["metadata"]["collected_date"], "%Y-%m-%dT%H:%M:%S%z"
                     )  # android 1.1.1 (3)
 
-            if collector.version.isapi('v1'):
+            if isapi('v1'):
                 d["metadata"]["collected_date"] = uploaded.strftime(
                     "%Y-%m-%d %H:%M:%S"
                 )
@@ -432,7 +385,7 @@ class Video(Scene):
                 
 
         else:
-            print('[collector.project.Video]: empty JSON "%s" - SKIPPING' % jsonfile)
+            print('[collector.video]: empty JSON "%s" - SKIPPING' % jsonfile)
             d = None
 
         # Import JSON into scene
@@ -469,27 +422,20 @@ class Video(Scene):
 
                 badboxes = [bb for bb in keyboxes if not bb.isvalid()]
                 if len(badboxes) > 0:
-                    print(
-                        '[collector.Video]: Removing %d bad keyboxes "%s" for videoid=%s'
-                        % (len(badboxes), str(badboxes), d["metadata"]["video_id"])
-                    )
+                    print('[collector.Video]: Removing %d bad keyboxes "%s" for videoid=%s' % (len(badboxes), str(badboxes), d["metadata"]["video_id"]))
                 if len(badboxes) == len(keyboxes):
                     raise ValueError("all keyboxes in track are invalid")
 
                 t = Track(
                     category=obj["label"],
                     framerate=float(d["metadata"]["frame_rate"]),
-                    keyframes=[
-                        f for (f, bb) in zip(keyframes, keyboxes) if bb.isvalid()
-                    ],
+                    keyframes=[f for (f, bb) in zip(keyframes, keyboxes) if bb.isvalid()],
                     boxes=[bb for (f, bb) in zip(keyframes, keyboxes) if bb.isvalid()],
                     boundary="strict",
                 )
 
                 if vipy.version.is_at_least("0.8.3"):
-                    self.add(
-                        t, rangecheck=False
-                    )  # no rangecheck since all tracks are guarnanteed to be within image rectangle
+                    self.add(t, rangecheck=False)  # no rangecheck since all tracks are guarnanteed to be within image rectangle
                 else:
                     self.add(t)
                 d_trackid_to_track[t.id()] = t
@@ -497,22 +443,12 @@ class Video(Scene):
             # Import activities
             for a in d["activity"]:
                 try:
-                    if (
-                        d["metadata"]["collection_id"] == "P004C009"
-                        and d["metadata"]["device_identifier"] == "android"
-                    ):
+                    if (d["metadata"]["collection_id"] == "P004C009" and d["metadata"]["device_identifier"] == "android"):
                         shortlabel = "Buying (Machine)"
-                    elif (
-                        d["metadata"]["collection_id"] == "P004C008"
-                        and d["metadata"]["device_identifier"] == "ios"
-                        and "Purchasing" in a["label"]
-                    ):
+                    elif (d["metadata"]["collection_id"] == "P004C008" and d["metadata"]["device_identifier"] == "ios" and "Purchasing" in a["label"]):
                         # BUG: iOS (11) reports wrong collection id for "purchase something from a machine" as P004C008 instead of P004C009
                         shortlabel = "Buying (Machine)"
-                    elif (
-                        d["metadata"]["collection_id"] == "P004C009"
-                        and d["metadata"]["device_identifier"] == "ios"
-                    ):
+                    elif (d["metadata"]["collection_id"] == "P004C009" and d["metadata"]["device_identifier"] == "ios"):
                         # BUG: iOS (11) reports wrong collection id for "pickup and dropoff with bike messenger" as P004C009 instead of P004C010
                         shortlabel = a["label"]  # unchanged
                     elif d["metadata"]["collection_id"] == "P005C003":
@@ -582,7 +518,6 @@ class Video(Scene):
 
     def geolocation(self):
         assert 'ipAddress' in self.metadata()
-        import xmltodict  
         url = 'http://api.geoiplookup.net/?query=%s' % self.metadata()['ipAddress']
         with urllib.request.urlopen(url) as f:
             response = f.read().decode('utf-8')
@@ -623,14 +558,14 @@ class Video(Scene):
                 filetail(self._jsonurl),
             )
             if not os.path.exists(self._jsonfile):
-                print('[collector.Video]:  Fetching "%s"' % self._jsonurl)
+                print('[collector.video]:  Fetching "%s"' % self._jsonurl)
                 try:
                     vipy.downloader.s3(self._jsonurl, self._jsonfile)
                 except KeyboardInterrupt:
                     raise
                 except Exception as e:
                     print(
-                        '[collector.project.Video]: S3 download error "%s" - SKIPPING'
+                        '[collector.video]: S3 download error "%s" - SKIPPING'
                         % str(e)
                     )
                     jsonfile = None
@@ -647,7 +582,7 @@ class Video(Scene):
         return self.fetch().hasfilename()
 
     def __repr__(self):
-        return str("<collector.Video: collector=%s, uploaded=%s, activities=%s, scene=%s>" % (str(self._load_json().collectorid()),
+        return str("<collector.video: collector=%s, uploaded=%s, activities=%s, scene=%s>" % (str(self._load_json().collectorid()),
                                                                                               self.timestamp().strftime("%Y-%m-%d %H:%M")
                                                                                               if self.timestamp() is not None
                                                                                               else str(None),
@@ -659,18 +594,7 @@ class Video(Scene):
         self._load_json()
         return set([a.category() for a in self._load_json().activities().values()])
 
-    def get_instance_geometrics_info(self):
-        """
-        return 
-        
-        """
-        return [
-            a.boundingbox().xywh()
-            + (a.boundingbox().xywh()[2] * a.boundingbox().xywh()[3],)
-            for clip in self._load_json().activityclip()
-            for a in clip.activities().values()
-        ]
-
+    
     def quicklooks(self, n=9, dilate=1.5, mindim=256, fontsize=10, context=True):
         """Return a vipy.image.Image object containing a montage quicklook for each of the activities in this video.  
         
@@ -680,7 +604,7 @@ class Video(Scene):
         
         """
         assert vipy.version.is_at_least("0.8.2")
-        print('[collector.project.quicklooks]: Generating quicklooks for video "%s"' % self.videoid())
+        print('[collector.video.quicklooks]: Generating quicklooks for video "%s"' % self.videoid())
         return [a.quicklook(n=n,
                             dilate=dilate,
                             mindim=mindim,
@@ -721,7 +645,7 @@ class Video(Scene):
         """Return collected_date from json as a datetime object,          
            WARNING:  older veresion of the app do not include timezone info in this string, so this datetime is not offset aware
         """
-        if collector.version.isapi('v1'):
+        if isapi('v1'):
             return (
                 datetime.strptime(self.attributes["collected_date"], "%Y-%m-%d %H:%M:%S")
                 if "collected_date" in self._load_json().attributes
@@ -808,17 +732,19 @@ class Video(Scene):
         # guararanteed to be order preserving.  If you are running python 3.7 this does not matter.
         assert vipy.version.is_at_least("0.8.0")
 
+        co_Rating = pycollector.globals.backend().rating
         video_ratings = co_Rating.query(
-            IndexName=lowerif("Video_ID-index", collector.version.isapi('v2')), 
-            KeyConditionExpression=Key(lowerif("Video_ID", collector.version.isapi('v2'))).eq(self.videoid()),
+            IndexName=lowerif("Video_ID-index", isapi('v2')), 
+            KeyConditionExpression=Key(lowerif("Video_ID", isapi('v2'))).eq(self.videoid()),
         )["Items"]
 
+        co_Instances = pycollector.globals.backend().instances
         instance_ratings = []
         for v in video_ratings:
             rating = co_Instances.query(
-                IndexName=lowerif("Instance_ID-index", collector.version.isapi('v2')),
-                ProjectionExpression=lowerif("Bad_Label_Score, Bad_Viewpoint_Score, Instance_ID, Review_Reason, Verified, Rating_Score, Bad_Timing_Score, S3_Path, Bad_Box_Big_Score,  Bad_Box_Small_Score", collector.version.isapi('v2')),
-                KeyConditionExpression=Key(lowerif("Instance_ID", collector.version.isapi('v2'))).eq(v[lowerif("ID", collector.version.isapi('v2'))]),
+                IndexName=lowerif("Instance_ID-index", isapi('v2')),
+                ProjectionExpression=lowerif("Bad_Label_Score, Bad_Viewpoint_Score, Instance_ID, Review_Reason, Verified, Rating_Score, Bad_Timing_Score, S3_Path, Bad_Box_Big_Score,  Bad_Box_Small_Score", isapi('v2')),
+                KeyConditionExpression=Key(lowerif("Instance_ID", isapi('v2'))).eq(v[lowerif("ID", isapi('v2'))]),
             )["Items"][0]
             rating.update(v)
             instance_ratings.append(rating)
@@ -826,12 +752,13 @@ class Video(Scene):
 
     def isgood(self):
         """'Good' is defined as a video with at least one instance rated good in the video"""
+        co_Rating = pycollector.globals.backend().rating        
         ratings = co_Rating.query(
-            IndexName=lowerif("Video_ID-index", collector.version.isapi('v2')), 
-            ProjectionExpression=lowerif("Up", collector.version.isapi('v2')), 
-            KeyConditionExpression=Key(lowerif("Video_ID", collector.version.isapi('v2'))).eq(self.videoid()),
+            IndexName=lowerif("Video_ID-index", isapi('v2')), 
+            ProjectionExpression=lowerif("Up", isapi('v2')), 
+            KeyConditionExpression=Key(lowerif("Video_ID", isapi('v2'))).eq(self.videoid()),
         )["Items"]
-        return any([lowerif("Up", collector.version.isapi('v2')) in r and r[lowerif("Up", collector.version.isapi('v2'))] > 0 for r in ratings])
+        return any([lowerif("Up", isapi('v2')) in r and r[lowerif("Up", isapi('v2'))] > 0 for r in ratings])
             
     def downcast(self):
         """Convert from collector.project.Video to vipy.video.Scene by downcasting class"""
@@ -841,9 +768,10 @@ class Video(Scene):
 
     def instances(self):
         """Return all instances for this video"""
+        co_Instances = pycollector.globals.backend().instances
         instances = co_Instances.query(
-            IndexName=lowerif("Video_ID-index", collector.version.isapi('v2')), 
-            KeyConditionExpression=Key(lowerif("Video_ID", collector.version.isapi('v2'))).eq(self.videoid()),
+            IndexName=lowerif("Video_ID-index", isapi('v2')), 
+            KeyConditionExpression=Key(lowerif("Video_ID", isapi('v2'))).eq(self.videoid()),
         )["Items"]            
         return [Instance(query=i, strict=False) for i in instances]
 
@@ -868,16 +796,17 @@ class Project(object):
         since=None,
         alltime=False,
         Video_IDs=None,
-        backend=collector.admin.Backend(),
         before=None,
         week=None
     ):
 
-        self._backend = backend
+        co_Program = pycollector.globals.backend().program
+        co_Video = pycollector.globals.backend().video        
+        
         self._projects = None
         self._programid = program_id
         if program_id != "MEVA":
-            response = co_Program.query(KeyConditionExpression=Key(lowerif("ID", collector.version.isapi('v2')).eq(program_id)))
+            response = co_Program.query(KeyConditionExpression=Key(lowerif("ID", isapi('v2')).eq(program_id)))
             if response["Count"] == 0:
                 raise ValueError('Unknown programid "%s"' % program_id)
             assert response["Count"] == 1
@@ -895,7 +824,7 @@ class Project(object):
             )
             self._backend = backend
 
-            fe = Attr(lowerif("Uploaded_Date", collector.version.isapi('v2'))).gte("2020-03-18")  # Remove junk data
+            fe = Attr(lowerif("Uploaded_Date", isapi('v2'))).gte("2020-03-18")  # Remove junk data
 
             response = co_Video.scan(FilterExpression=fe)
             items = response["Items"]
@@ -915,10 +844,10 @@ class Project(object):
             assert (
                 monthsago is None and weeksago is None
             ), "Invalid input - must specify only since"
-            assert collector.util.isday(since), (
+            assert isday(since), (
                 "Invalid date input - use 'YYYY-MM-DD' not '%s'" % since
             )
-            assert collector.util.is_more_recent_than(since, "2020-03-18")
+            assert is_more_recent_than(since, "2020-03-18")
             assert before is None or (
                 isday(before) and is_more_recent_than(before, since)
             ), "Invalid before date"
@@ -930,9 +859,9 @@ class Project(object):
                     else "since %s" % (since)
                 )
             )
-            fe = Attr(lowerif("Uploaded_Date", collector.version.isapi('v2'))).gte(since)  # Remove junk data
+            fe = Attr(lowerif("Uploaded_Date", isapi('v2'))).gte(since)  # Remove junk data
             if before is not None and isday(before):
-                fe = fe & Attr(lowerif("Uploaded_Date", collector.version.isapi('v2'))).lte(
+                fe = fe & Attr(lowerif("Uploaded_Date", isapi('v2'))).lte(
                     nextday(before)
                 )  # inclusive endpoint, add one day
 
@@ -955,7 +884,7 @@ class Project(object):
             days += 7 * weeksago if weeksago is not None else 0
             days += (365 / 12.0) * monthsago if monthsago is not None else 0
             since = (datetime.now() - timedelta(days=days)).strftime("%Y-%m-%d")
-            assert collector.util.is_more_recent_than(since, "2020-03-18")
+            assert is_more_recent_than(since, "2020-03-18")
             print(
                 "[collector.project.Project]:  Return every video uploaded in the last %d months, %d weeks, %d days (since %s)"
                 % (
@@ -965,7 +894,7 @@ class Project(object):
                     since,
                 )
             )
-            fe = Attr(lowerif("Uploaded_Date", collector.version.isapi('v2'))).gte(since)
+            fe = Attr(lowerif("Uploaded_Date", isapi('v2'))).gte(since)
             
             response = co_Video.scan(FilterExpression=fe)
             items = response["Items"]
@@ -991,7 +920,7 @@ class Project(object):
 
             for video_ids in video_ids_list:
 
-                fe = Attr(lowerif("Video_ID", collector.version.isapi('v2'))).is_in(video_ids)
+                fe = Attr(lowerif("Video_ID", isapi('v2'))).is_in(video_ids)
                 response = vo_Video.scan(FilterExpression=fe)
                 items = response["Items"]
                 while (
@@ -1037,7 +966,7 @@ class Project(object):
         
     def _s3_bucketpath_to_url(self, path):
         """Convert BUCKETNAME/path/to/objectname.ext -> s3://BUCKETNAME.s3.amazonaws.com/path/to/objectname.ext"""
-        assert collector.version.isapi('v1'), "Migrate me to v2"
+        assert isapi('v1'), "Migrate me to v2"
         (bucketname, objectname) = path.split("/", 1)
         return "s3://%s.s3.amazonaws.com/%s" % (bucketname, objectname)
 
@@ -1060,7 +989,7 @@ class Project(object):
                 for (k, r) in self.df.iterrows()]
                 
     def projects(self):
-        assert collector.version.isapi('v1'), "Migrate me to v2"
+        assert isapi('v1'), "Migrate me to v2"
         
         if self._projects is not None:
             return self._projects
@@ -1126,7 +1055,7 @@ class Project(object):
 
     def activities(self):
         return (
-            set([x for a in (self.df.activities_list if collector.version.isapi('v2') else self.df.activities) for x in tolist(a)])
+            set([x for a in (self.df.activities_list if isapi('v2') else self.df.activities) for x in tolist(a)])
             if len(self.df) > 0
             else set()
         )
@@ -1162,7 +1091,7 @@ class Project(object):
         return f
 
     def _filter_week(self, week):
-        assert collector.util.ismonday(week)
+        assert ismonday(week)
         self.df = pd.DataFrame([row for (index, row) in self.df.iterrows() if row["week"] == week])
         return self
     
@@ -1235,7 +1164,7 @@ class Project(object):
         mindate = mindate if mindate != "yesterday" else str((datetime.now().astimezone(et) - timedelta(days=1)).date())
         mindate = mindate if mindate != "thisweek" else str((datetime.now().astimezone(et) - timedelta(days=7)).date())
 
-        assert collector.util.isday(mindate), "Date must be 'YYYY-MM-DD' string"
+        assert isday(mindate), "Date must be 'YYYY-MM-DD' string"
         assert yyyymmdd_to_date(mindate) >= yyyymmdd_to_date(self._since), (
             "Date '%s' must be greater than or equal to the date range of constructor '%s'"
             % (mindate, self._since)
@@ -1243,7 +1172,7 @@ class Project(object):
         self.df = pd.DataFrame([row for (index, row) in self.df.iterrows() if pd.to_datetime(row["uploaded_date"]).astimezone(et).date() >= yyyymmdd_to_date(mindate)])
         
         if maxdate is not None:
-            assert collector.util.isday(maxdate), "Date must be 'YYYY-MM-DD' string"
+            assert isday(maxdate), "Date must be 'YYYY-MM-DD' string"
             assert yyyymmdd_to_date(maxdate) >= yyyymmdd_to_date(self._since), (
                 "Date '%s' must be greater than or equal to the date range of constructor '%s'"
                 % (maxdate, self._since)
@@ -1320,14 +1249,14 @@ class Project(object):
         instances_result = []
         for sub_week in self.df['week'].unique():
             response = co_Instances.query(
-                IndexName=lowerif("week-uploaded_date-index", collector.version.isapi('v2')),
-                KeyConditionExpression=Key(lowerif("Week", collector.version.isapi('v2'))).eq(sub_week),
+                IndexName=lowerif("week-uploaded_date-index", isapi('v2')),
+                KeyConditionExpression=Key(lowerif("Week", isapi('v2'))).eq(sub_week),
             )
             instances_result.extend(response["Items"])  # may be empty      
             while ("LastEvaluatedKey" in response and response["LastEvaluatedKey"] is not None):
                 response = co_Instances.query(
-                    IndexName=lowerif("week-uploaded_date-index", collector.version.isapi('v2')),
-                    KeyConditionExpression=Key(lowerif("Week", collector.version.isapi('v2'))).eq(sub_week),
+                    IndexName=lowerif("week-uploaded_date-index", isapi('v2')),
+                    KeyConditionExpression=Key(lowerif("Week", isapi('v2'))).eq(sub_week),
                     ExclusiveStartKey=response["LastEvaluatedKey"]
                 )
                 instances_result.extend(response["Items"])  # may be empty                
@@ -1342,28 +1271,28 @@ class Project(object):
         ratinglist = []
         for sub_week in self.df['week'].unique():
             response = co_Rating.query(
-                IndexName=lowerif("week-index", collector.version.isapi('v2')),  # "week" for ratings table is derived from instance upload not when rating was given
-                KeyConditionExpression=Key(lowerif("Week", collector.version.isapi('v2'))).eq(sub_week),
+                IndexName=lowerif("week-index", isapi('v2')),  # "week" for ratings table is derived from instance upload not when rating was given
+                KeyConditionExpression=Key(lowerif("Week", isapi('v2'))).eq(sub_week),
             )
             ratinglist.extend(response["Items"])  # may be empty            
 
             while ("LastEvaluatedKey" in response and response["LastEvaluatedKey"] is not None):
                 response = co_Rating.query(
-                    IndexName=lowerif("week-index", collector.version.isapi('v2')),
-                    KeyConditionExpression=Key(lowerif("Week", collector.version.isapi('v2'))).eq(sub_week),
+                    IndexName=lowerif("week-index", isapi('v2')),
+                    KeyConditionExpression=Key(lowerif("Week", isapi('v2'))).eq(sub_week),
                     ExclusiveStartKey=response["LastEvaluatedKey"]
                 )
                 ratinglist.extend(response["Items"])  # may be empty                
                 
         ratings = sorted(
             [{k: v for (k, v) in r.items()} for r in ratinglist],
-            key=lambda x: x[lowerif("Week", collector.version.isapi('v2'))],
+            key=lambda x: x[lowerif("Week", isapi('v2'))],
         )
         if reviewer is not None:
-            assert collector.util.is_email_address(reviewer)
-            ratings = [r for r in ratings if r[lowerif("Reviewer_ID", collector.version.isapi('v2'))] == reviewer]
+            assert is_email_address(reviewer)
+            ratings = [r for r in ratings if r[lowerif("Reviewer_ID", isapi('v2'))] == reviewer]
         if badonly is True:
-            ratings = [r for r in ratings if r[lowerif("Up", collector.version.isapi('v2'))] == False]
+            ratings = [r for r in ratings if r[lowerif("Up", isapi('v2'))] == False]
 
         return [{k.lower():v for (k,v) in r.items()} for r in ratings]  # canonicalize
 
@@ -1537,7 +1466,7 @@ class Project(object):
         )  # time range from project (ET)
         csv = [
             [
-                r["collecgtor_id" if collector.version.isapi('v1') else "collector_email"],
+                r["collecgtor_id" if isapi('v1') else "collector_email"],
                 pd.to_datetime(r["uploaded_date"]).date().isoformat(),  # FIXME: EST?
                 "good"
                 if float(r["rating_score"]) > 0
