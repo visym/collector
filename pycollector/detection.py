@@ -2,28 +2,27 @@ import os
 import sys
 import torch
 import vipy
-assert vipy.version.is_at_least('0.8.12')
-from vipy.util import remkdir, filetail, readlist, tolist
-from collector.project import Video
 import shutil
-
-# https://github.com/visym/PyTorch-YOLOv3
-# FIXME: pip install -e . 
-# Assumes relative path /path/to/collector and /path/to/PyTorch-YOLOv3
-PYTORCH_YOLOV3_DIR = os.path.join(vipy.util.filepath(os.path.abspath(__file__)), '../../PyTorch-YOLOv3')
-sys.path.append(PYTORCH_YOLOV3_DIR)  # FIXME
-from yolov3.models import Darknet
-from yolov3.utils.utils import non_max_suppression
+from vipy.util import remkdir, filetail, readlist, tolist, filepath
+from collector.project import Video
+from pycollector.yolov3.models import Darknet
 
 
 class Proposal(object):
     def __init__(self, batchsize=1):
-        self._mindim = 416        
-        self._model = Darknet(os.path.join(PYTORCH_YOLOV3_DIR, 'config/yolov3.cfg'), img_size=self._mindim)
-        self._model.load_darknet_weights(os.path.join(PYTORCH_YOLOV3_DIR, 'weights/yolov3.weights'))
+        self._mindim = 416
+        indir = os.path.join(filepath(os.path.abspath(__file__)), 'yolov3')
+        weightfile = os.path.join(indir, 'yolov3.weights')
+        cfgfile = os.path.join(indir, 'yolov3.cfg')
+        self._model = Darknet(cfgfile, img_size=self._mindim)
+        if not os.path.exists(weightfile) or not vipy.downloader.verify_sha1(weightfile, '520878f12e97cf820529daea502acca380f1cb8e'):
+            #vipy.downloader.download('https://www.dropbox.com/s/ve9cpuozbxh601r/yolov3.weights', os.path.join(indir, 'yolov3.weights'))
+            print('[pycollector.detection]: Downloading object detector weights ...')
+            os.system('wget -c https://www.dropbox.com/s/ve9cpuozbxh601r/yolov3.weights -O %s' % weightfile)  # FIXME: replace with better solution
+        self._model.load_darknet_weights(os.path.join(indir, 'yolov3.weights'))
         self._model.eval()  # Set in evaluation mode
         self._batchsize = batchsize        
-        self._cls2index = {c:k for (k,c) in enumerate(readlist(os.path.join(PYTORCH_YOLOV3_DIR, 'data', 'coco.names')))}
+        self._cls2index = {c:k for (k,c) in enumerate(readlist(os.path.join(indir, 'coco.names')))}
         self.gpu(vipy.globals.gpuindex())
 
     def __call__(self, im, conf=1E-1, iou=0.8):
