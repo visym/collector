@@ -1700,3 +1700,15 @@ class Project(object):
         )
 
         return d
+
+
+def search():
+    """Return all videos for a python user"""
+
+    # this should:
+    # ask the user to login, triggered by accessing pycollector.backend.Backend() without credentials
+    # If the user has previously logged in, we save a credentials.pkl file containing their access token so that this does not need login the next time
+    # query the video table for this user using the pycollector.video.Project() tools
+    # Return a list of pycollector.video.Video() objects
+    
+    pass

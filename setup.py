@@ -16,7 +16,8 @@ setup(
     install_requires=[
         "vipy",
         "boto3",
-        "xml2dict"
+        "xml2dict",
+        "pandas"
     ],
     keywords=['vision', 'learning', 'ML', 'CV'],
     classifiers=[
