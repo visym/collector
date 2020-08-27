@@ -9,10 +9,10 @@ from pycollector.yolov3.models import Darknet
 
 
 class Proposal(object):
-    def __init__(self, batchsize=1):
+    def __init__(self, batchsize=1, weightfile=None):
         self._mindim = 416
         indir = os.path.join(filepath(os.path.abspath(__file__)), 'yolov3')
-        weightfile = os.path.join(indir, 'yolov3.weights')
+        weightfile = os.path.join(indir, 'yolov3.weights') if weightfile is None else weightfile
         cfgfile = os.path.join(indir, 'yolov3.cfg')
         self._model = Darknet(cfgfile, img_size=self._mindim)
         if not os.path.exists(weightfile) or not vipy.downloader.verify_sha1(weightfile, '520878f12e97cf820529daea502acca380f1cb8e'):
@@ -20,7 +20,7 @@ class Proposal(object):
             print('[pycollector.detection]: Downloading object detector weights ...')
             os.system('wget -c https://www.dropbox.com/s/ve9cpuozbxh601r/yolov3.weights -O %s' % weightfile)  # FIXME: replace with better solution
         assert vipy.downloader.verify_sha1(weightfile, '520878f12e97cf820529daea502acca380f1cb8e'), "Object detector download failed"
-        self._model.load_darknet_weights(os.path.join(indir, 'yolov3.weights'))
+        self._model.load_darknet_weights(weightfile)
         self._model.eval()  # Set in evaluation mode
         self._batchsize = batchsize        
         self._cls2index = {c:k for (k,c) in enumerate(readlist(os.path.join(indir, 'coco.names')))}

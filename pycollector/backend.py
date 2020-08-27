@@ -4,17 +4,30 @@ import getpass
 from pycollector.util import is_email_address
 
 
-
 class Backend(object):
     """Standard interface for project administration on Collector backend
 
         User will need to set up their local environment variables         
     """
 
-    def __init__(self, region=None, verbose=True):
+    def __init__(self, region=None, verbose=True, cache=True):
         self._region = region
         self._verbose = verbose
+        self._cache = cache
 
+        self._s3_bucket = None
+        self._ddb_video = None
+        self._ddb_instance = None
+        self._ddb_rating = None
+        self._ddb_program = None
+        self._ddb_collection = None
+        self._ddb_project = None
+        self._ddb_activity = None
+                
+        self._program = None
+        self._collection = None
+        self._activity = None
+        
         # TODO - Will add to conditional checks on initialize the backend. Which also help to fail gracefully.
 
         # Check if running local with environment variables
@@ -75,9 +88,48 @@ class Backend(object):
     def login(self, email):
         assert is_email_address(email)
         password = getpass.getpass()
-        
+
+
+    def label(self):
+        pass
         
 
+    def program(self):
+        import pycollector.project  # avoid circular import
+        self._program = pycollector.project.Program(self._ddb_program.scan()['Items']) if (self._program is None or self._cache is False) else self._program
+        return self._program
+        
+    def activity(self):
+        import pycollector.project  # avoid circular imports
+        self._activity = pycollector.project.Activity(self._ddb_activity.scan()['Items']) if (self._activity is None or self._cache is False) else self._activity
+        return self._activity
+        
+    def collection(self):
+        import pycollector.project  # avoid circular imports
+        self._collection = pycollector.project.Collection(self._ddb_collection.scan()['Items']) if (self._collection is None or self._cache is False) else self._collection
+        return self._collection
+        
+    def __getattr__(self, name):
+        if name == 'table':
+            # For dotted attribute access to named DDB tables
+            class _PyCollector_Backend_Tables(object):
+                def __init__(self, program, project, collection, activity, video, instance):
+                    self.program = program
+                    self.project = project
+                    self.collection = collection
+                    self.activity = activity                    
+                    self.video = video
+                    self.instance = instance
+            return _PyCollector_Backend_Tables(self._ddb_program,
+                                               self._ddb_project,
+                                               self._ddb_collection,
+                                               self._ddb_activity,  
+                                               self._ddb_video,                                               
+                                               self._ddb_instance)
+        else:
+            return self.__getattribute__(name)
+    
+    
 class Test(object):
     def __init__(self):
         pass
@@ -89,21 +141,21 @@ class Dev(object):
 class Prod_v1(Backend):
     def __init__(self):
         super(Prod_v1, self).__init__()
-        self.instances = self._dynamodb_resource.Table("co_Instances_dev")
-        self.rating = self._dynamodb_resource.Table("co_Rating")
-        self.program = self._dynamodb_resource.Table("co_Programs")
-        self.video = self._dynamodb_resource.Table('co_Videos')    
+        self._ddb_instance = self._dynamodb_resource.Table("co_Instances_dev")
+        self._ddb_rating = self._dynamodb_resource.Table("co_Rating")
+        self._ddb_program = self._dynamodb_resource.Table("co_Programs")
+        self._ddb_video = self._dynamodb_resource.Table('co_Videos')    
         
     
 class Prod(Backend):
     def __init__(self):
         super(Prod, self).__init__()        
-        self.s3_bucket = 'diva-prod-data-lake174516-visym'
-        self.video = self._dynamodb_resource.Table('strVideos-hirn6lrwxfcrvl65xnxdejvftm-visym')
-        self.instances = self._dynamodb_resource.Table("strInstances-hirn6lrwxfcrvl65xnxdejvftm-visym")
-        self.rating = self._dynamodb_resource.Table("strRating-hirn6lrwxfcrvl65xnxdejvftm-visym")
-        self.program = self._dynamodb_resource.Table("strProgram-hirn6lrwxfcrvl65xnxdejvftm-visym")
-        self.collection = self._dynamodb_resource.Table("strCollections-hirn6lrwxfcrvl65xnxdejvftm-visym")
-        self.projects = self._dynamodb_resource.Table("strProjects-hirn6lrwxfcrvl65xnxdejvftm-visym")    
-        self.activity = self._dynamodb_resource.Table("strActivities-hirn6lrwxfcrvl65xnxdejvftm-visym")
+        self._s3_bucket = 'diva-prod-data-lake174516-visym'
+        self._ddb_video = self._dynamodb_resource.Table('strVideos-hirn6lrwxfcrvl65xnxdejvftm-visym')
+        self._ddb_instance = self._dynamodb_resource.Table("strInstances-hirn6lrwxfcrvl65xnxdejvftm-visym")
+        self._ddb_rating = self._dynamodb_resource.Table("strRating-hirn6lrwxfcrvl65xnxdejvftm-visym")
+        self._ddb_program = self._dynamodb_resource.Table("strProgram-hirn6lrwxfcrvl65xnxdejvftm-visym")
+        self._ddb_collection = self._dynamodb_resource.Table("strCollections-hirn6lrwxfcrvl65xnxdejvftm-visym")
+        self._ddb_project = self._dynamodb_resource.Table("strProjects-hirn6lrwxfcrvl65xnxdejvftm-visym")    
+        self._ddb_activity = self._dynamodb_resource.Table("strActivities-hirn6lrwxfcrvl65xnxdejvftm-visym")
             

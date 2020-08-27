@@ -1,5 +1,10 @@
 import vipy
 import numpy as np
+import pycollector.detection
+
+
+def tocsv(pklfile):
+    pass
 
 
 def isdataset(indir):
@@ -26,10 +31,10 @@ def resize_dataset(indir, outdir, dilate=1.2, maxdim=256, maxsquare=True):
     return outdir
 
 
-def boundingbox_refinement(V)
+def boundingbox_refinement(V):
     # Proposals:  Improve collector proposal for each video with an optimal object proposal.  This will result in filtering away a small number of hard positives.
     print('[prepare_pip]: betterbox %d videos' % (len(V)))
-    model = collector.detection.VideoProposalRefinement(batchsize=batchsize)  # =8 (0046) =20 (0053)
+    model = pycollector.detection.VideoProposalRefinement(batchsize=batchsize)  # =8 (0046) =20 (0053)
     B = Batch(V, ngpu=8)
     V = B.scattermap(lambda net,v: net(v, proposalconf=5E-2, proposaliou=0.8, miniou=0.2, dt=3, mincover=0.8, byclass=True, shapeiou=0.7, smoothing='spline', splinefactor=None, strict=True), model).result()  
     V = [v.activityfilter(lambda a: any([a.hastrack(t) and len(t)>5 and t.during(a.startframe(), a.endframe()) for t in v.tracklist()])) for v in V]  # get rid of activities without tracks greater than dt
