@@ -19,6 +19,7 @@ class Proposal(object):
             #vipy.downloader.download('https://www.dropbox.com/s/ve9cpuozbxh601r/yolov3.weights', os.path.join(indir, 'yolov3.weights'))
             print('[pycollector.detection]: Downloading object detector weights ...')
             os.system('wget -c https://www.dropbox.com/s/ve9cpuozbxh601r/yolov3.weights -O %s' % weightfile)  # FIXME: replace with better solution
+        assert vipy.downloader.verify_sha1(weightfile, '520878f12e97cf820529daea502acca380f1cb8e'), "Object detector download failed"
         self._model.load_darknet_weights(os.path.join(indir, 'yolov3.weights'))
         self._model.eval()  # Set in evaluation mode
         self._batchsize = batchsize        
