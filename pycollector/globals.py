@@ -39,3 +39,6 @@ def api(version):
 
 def isapi(version):
     return GLOBALS['BACKEND_VERSION'] == version
+
+def isprod():
+    return GLOBALS['BACKEND_ENVIRONMENT'] == 'prod'

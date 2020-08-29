@@ -227,10 +227,12 @@ class Instance(object):
         score_verified_instance_by_id(instance_id=self.instanceid())  # FIXME
 
     def quicklookurl(self):
+        assert pycollector.globals.backend().isprod(), "Only valid for production environment"
         assert self.isvalid()
         return self._instance["s3_path"]
 
     def animated_quicklookurl(self):
+        assert pycollector.globals.backend().isprod(), "Only valid for production environment"        
         return self._instance['animation_s3_path'] if ('animation_s3_path' in self._instance and isurl(self._instance['animation_s3_path'])) else None
     
     def clip(self, padframes=0):
@@ -309,7 +311,7 @@ class Video(Scene):
         super(Video, self).__init__(url=mp4url, filename=mp4file, attributes=attributes)
 
         # Video attributes
-        self._quicklook_url = "https://diva-str-prod-data-public.s3.amazonaws.com/Quicklooks/%s_quicklook_%s_%d.jpg"  # FIXME
+        self._quicklook_url = "https://%s.s3.amazonaws.com/Quicklooks/%%s_quicklook_%%s_%%d.jpg" % (pycollector.globals.backend().s3_bucket())  
         self._jsonurl = jsonurl
         self._jsonfile = jsonfile
         self._dt = dt
@@ -707,6 +709,8 @@ class Video(Scene):
         return self.annotate().saveas(outfile).filename()        
 
     def quicklookurls(self, show=False):
+        assert pycollector.globals.isprod(), "Quicklook URLs only available in production environment"
+        
         urls = [
             self._quicklook_url % (self.videoid(), a.category(), k)
             for (k, a) in enumerate(self._load_json().activities().values())

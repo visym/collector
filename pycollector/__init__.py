@@ -5,4 +5,5 @@ import pycollector.util
 import pycollector.version
 import pycollector.backend
 import pycollector.dataset
+import pycollector.project
 

@@ -135,7 +135,10 @@ class Backend(object):
                                                self._ddb_collector)
         else:
             return self.__getattribute__(name)
-    
+
+    def s3_bucket(self):
+        return self._s3_bucket
+        
 class Test(Backend):
     def __init__(self):
         super(Test, self).__init__()        
@@ -147,6 +150,9 @@ class Test(Backend):
         self._ddb_collection = self._dynamodb_resource.Table("strCollections-uxt26i4hcjb3zg4zth4uaed4cy-visymtest")
         self._ddb_project = self._dynamodb_resource.Table("strProjects-uxt26i4hcjb3zg4zth4uaed4cy-visymtest")    
         self._ddb_activity = self._dynamodb_resource.Table("strActivities-uxt26i4hcjb3zg4zth4uaed4cy-visymtest")
+        self._ddb_subject = self._dynamodb_resource.Table("strSubject-uxt26i4hcjb3zg4zth4uaed4cy-visymtest")
+        self._ddb_collector = self._dynamodb_resource.Table("strCollector-uxt26i4hcjb3zg4zth4uaed4cy-visymtest")
+
         
 class Dev(object):
     def __init__(self):
