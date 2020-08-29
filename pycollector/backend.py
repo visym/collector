@@ -130,10 +130,18 @@ class Backend(object):
             return self.__getattribute__(name)
     
     
-class Test(object):
+class Test(Backend):
     def __init__(self):
-        pass
-
+        super(Test, self).__init__()        
+        self._s3_bucket = 'diva-prod-data-lake232615-visymtest'
+        self._ddb_video = self._dynamodb_resource.Table('strVideos-uxt26i4hcjb3zg4zth4uaed4cy-visymtest')
+        self._ddb_instance = self._dynamodb_resource.Table("strInstances-uxt26i4hcjb3zg4zth4uaed4cy-visymtest")
+        self._ddb_rating = self._dynamodb_resource.Table("strRating-uxt26i4hcjb3zg4zth4uaed4cy-visymtest")
+        self._ddb_program = self._dynamodb_resource.Table("strProgram-uxt26i4hcjb3zg4zth4uaed4cy-visymtest")
+        self._ddb_collection = self._dynamodb_resource.Table("strCollections-uxt26i4hcjb3zg4zth4uaed4cy-visymtest")
+        self._ddb_project = self._dynamodb_resource.Table("strProjects-uxt26i4hcjb3zg4zth4uaed4cy-visymtest")    
+        self._ddb_activity = self._dynamodb_resource.Table("strActivities-uxt26i4hcjb3zg4zth4uaed4cy-visymtest")
+        
 class Dev(object):
     def __init__(self):
         pass

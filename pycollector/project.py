@@ -782,7 +782,6 @@ class Project(object):
                 '[pycollector.project]: Scan the entire database and return every video uploaded for program "%s" since 2020-07-20...'
                 % program_id
             )
-            self._backend = backend
 
             fe = Attr(lowerif("Uploaded_Date", isapi('v2'))).gte("2020-03-18")  # Remove junk data
 
