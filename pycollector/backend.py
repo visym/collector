@@ -113,23 +113,32 @@ class Backend(object):
         if name == 'table':
             # For dotted attribute access to named DDB tables
             class _PyCollector_Backend_Tables(object):
-                def __init__(self, program, project, collection, activity, video, instance):
+                def __init__(self, program, project, collection, activity, video, instance, rating, subject, collector):
                     self.program = program
                     self.project = project
                     self.collection = collection
                     self.activity = activity                    
                     self.video = video
                     self.instance = instance
+                    self.rating = rating
+                    self.subject = subject
+                    self.collector = collector
+
             return _PyCollector_Backend_Tables(self._ddb_program,
                                                self._ddb_project,
                                                self._ddb_collection,
                                                self._ddb_activity,  
                                                self._ddb_video,                                               
-                                               self._ddb_instance)
+                                               self._ddb_instance,
+                                               self._ddb_rating,
+                                               self._ddb_subject,
+                                               self._ddb_collector)
         else:
             return self.__getattribute__(name)
     
-    
+    def s3_bucket(self):
+        return self._s3_bucket
+
 class Test(object):
     def __init__(self):
         pass
@@ -158,4 +167,6 @@ class Prod(Backend):
         self._ddb_collection = self._dynamodb_resource.Table("strCollections-hirn6lrwxfcrvl65xnxdejvftm-visym")
         self._ddb_project = self._dynamodb_resource.Table("strProjects-hirn6lrwxfcrvl65xnxdejvftm-visym")    
         self._ddb_activity = self._dynamodb_resource.Table("strActivities-hirn6lrwxfcrvl65xnxdejvftm-visym")
+        self._ddb_subject = self._dynamodb_resource.Table("strSubject-hirn6lrwxfcrvl65xnxdejvftm-visym")
+        self._ddb_collector = self._dynamodb_resource.Table("strCollector-hirn6lrwxfcrvl65xnxdejvftm-visym")
             

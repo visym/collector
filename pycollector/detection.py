@@ -52,8 +52,11 @@ class VideoProposal(Proposal):
         assert isinstance(v, vipy.video.Video), "Invalid input - must be vipy.video.Video not '%s'" % (str(type(v)))
         self.gpu(vipy.globals.gpuindex())
 
-        # Optional target class:  "Person" or "Vehicle" for now
-        c = {'person':[self._cls2index['person']], 'vehicle':[self._cls2index['car'], self._cls2index['motorbike'], self._cls2index['truck']]}
+        # Optional target class:  "Person" or "Vehicle" or "Car" or "Motorcycle" for now
+        c = {'person':[self._cls2index['person']], 
+             'vehicle':[self._cls2index['car'], self._cls2index['motorbike'], self._cls2index['truck']], 
+             'car':[self._cls2index['car'], self._cls2index['truck']],
+             'motorcycle':[self._cls2index['motorbike']]}
         assert target is None or (isinstance(target, list) and all([t in c.keys() for t in target]))
 
         # Parameters to undo
@@ -88,7 +91,7 @@ class VideoProposal(Proposal):
 class VideoProposalRefinement(VideoProposal):
     def __call__(self, v, proposalconf=5E-2, proposaliou=0.8, miniou=0.2, dt=1, meanfilter=15, mincover=0.8, shapeiou=0.7, smoothing='spline', splinefactor=None, strict=True, byclass=True):
         """Replace proposal in v by best (maximum overlap and confidence) object proposal in vc.  If no proposal exists, delete the proposal."""
-        assert all([c.lower() in ['person', 'vehicle'] for c in v.objectlabels()])  # for now
+        assert all([c.lower() in ['person', 'vehicle', 'car', 'motorcycle'] for c in v.objectlabels()])  # for now
 
         vp = super(VideoProposalRefinement, self).__call__(v, proposalconf, proposaliou, dt=dt, activitybox=True, dilate=4.0, target=[c.lower() for c in v.objectlabels()] if byclass else None)  # subsampled proposals
         vc = v.clone(rekey=True, flushforward=True, flushbackward=True).trackfilter(lambda t: len(t) > dt)
