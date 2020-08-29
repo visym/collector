@@ -391,6 +391,11 @@ class Video(Scene):
             print('[collector.video]: empty JSON "%s" - SKIPPING' % jsonfile)
             d = None
 
+        # Valid collection?
+        if not pycollector.globals.backend().collection().isvalid(d["metadata"]["collection_id"]):
+            print('[collector.video]: invalid collection "%s" - SKIPPING' % d["metadata"]["collection_id"])
+            d = None
+
         # Import JSON into scene
         if d is not None:
             collection_name = pycollector.globals.backend().collection().id_to_name(d["metadata"]["collection_id"])

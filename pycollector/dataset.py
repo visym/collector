@@ -12,6 +12,15 @@ def isdataset(indir):
     assert os.path.isdir(indir) and len(jsonlist(indir))>0
 
 
+def disjoint_activities(V, activitylist):    
+    assert all([isinstance(v, vipy.video.Video) for v in V])
+    assert isinstance(activitylist, list) and len(activitylist)>0 and len(activitylist[0]) == 2
+    for (after, before) in activitylist:
+        V = [v.activitymap(lambda a: a.disjoint([sa for sa in v.activitylist() if sa.category() == after]) if a.category() == before else a) for v in V]  
+    V = [v.activityfilter(lambda a: len(a)>0) for v in V]  # some activities may be zero length after disjoint
+    return V
+
+
 def resize_dataset(indir, outdir, dilate=1.2, maxdim=256, maxsquare=True):
     """Convert redistributable dataset by resizing the activity tube.
     
@@ -31,11 +40,11 @@ def resize_dataset(indir, outdir, dilate=1.2, maxdim=256, maxsquare=True):
     return outdir
 
 
-def boundingbox_refinement(V):
+def boundingbox_refinement(V, ngpu, batchsize):
     # Proposals:  Improve collector proposal for each video with an optimal object proposal.  This will result in filtering away a small number of hard positives.
     print('[prepare_pip]: betterbox %d videos' % (len(V)))
     model = pycollector.detection.VideoProposalRefinement(batchsize=batchsize)  # =8 (0046) =20 (0053)
-    B = Batch(V, ngpu=8)
+    B = vipy.batch.Batch(V, ngpu=ngpu)
     V = B.scattermap(lambda net,v: net(v, proposalconf=5E-2, proposaliou=0.8, miniou=0.2, dt=3, mincover=0.8, byclass=True, shapeiou=0.7, smoothing='spline', splinefactor=None, strict=True), model).result()  
     V = [v.activityfilter(lambda a: any([a.hastrack(t) and len(t)>5 and t.during(a.startframe(), a.endframe()) for t in v.tracklist()])) for v in V]  # get rid of activities without tracks greater than dt
     B.shutdown()  # garbage collect GPU resources
@@ -46,7 +55,7 @@ def split_dataset(A, trainfraction=0.7, testfraction=0.1, valfraction=0.2, seed=
     assert all([isinstance(a, vipy.video.Video) for a in A]), "Invalid input"
     
     np.random.seed(seed)
-    d = groupbyasdict(A, lambda a: a.category())
+    d = vipy.util.groupbyasdict(A, lambda a: a.category())
     (trainset, testset, valset) = ([],[],[])
     for (c,v) in d.items():
         np.random.shuffle(v)
@@ -54,7 +63,7 @@ def split_dataset(A, trainfraction=0.7, testfraction=0.1, valfraction=0.2, seed=
             print('[collector-backend.dataset]: skipping category "%s" with too few examples' % c)
             continue
 
-        (testlist, vallist, trainlist) = dividelist(v, (testfraction, valfraction, trainfraction))
+        (testlist, vallist, trainlist) = vipy.util.dividelist(v, (testfraction, valfraction, trainfraction))
         testset.extend(testlist)
         valset.extend(vallist)  
         trainset.extend(trainlist)
@@ -134,7 +143,7 @@ def tohtml(pklfile, outfile, mindim=512, datapath=None, title='Visualization'):
     vipy.globals.max_workers(24)
     dataset = vipy.util.load(pklfile) if datapath is None else vipy.util.distload(pklfile, datapath)
     dataset = dataset if not isinstance(dataset, tuple) else dataset[0]  # backwards compatible
-    quicklist = Batch(dataset).map(lambda v: (v.load().quicklook(), v.flush().print()))
+    quicklist = vipy.batch.Batch(dataset).map(lambda v: (v.load().quicklook(), v.flush().print()))
     quicklooks = [imq for (imq, v) in quicklist]  # for HTML display purposes
     provenance = [{'clip':str(v), 'activities':str(';'.join([str(a) for a in v.activitylist()])), 'category':v.category()} for (imq, v) in quicklist]
     (quicklooks, provenance) = zip(*sorted([(q,p) for (q,p) in zip(quicklooks, provenance)], key=lambda x: x[1]['category']))  # sorted in category order

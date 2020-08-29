@@ -306,22 +306,28 @@ class Activity(object):
         def enable(self):
             self._item['active'] = True
             self._item['updated_date'] = timestamp()        
-            co_Activity.put_item(Item=self._item)
+            pycollector.globals.backend().table.activity.put_item(Item=self._item)
             return self
 
         def disable(self):
             self._item['active'] = False
             self._item['updated_date'] = timestamp()        
-            co_Activity.put_item(Item=self._item)
+            pycollector.globals.backend().table.activity.put_item(Item=self._item)
             return self
 
-        def short_name(self, shortnName):
-            assert isinstance(shortnName, str), "shortn name must be a string"
-            self._item['short_name'] = shortnName
-            self._item['updated_date'] = timestamp()        
-            co_Activity.put_item(Item=self._item)
-            return self
+        def short_name(self, name=None):
+            if name is not None:
+                assert isinstance(name, str), "shortn name must be a string"
+                self._item['short_name'] = name
+                self._item['updated_date'] = timestamp()        
+                pycollector.globals.backend().table.activity.put_item(Item=self._item)
+                return self
+            else:
+                return self._item['short_name']
     
+        def name(self):
+            return self._item['name']
+        
     def __repr__(self):
         return str('<pycollector.project.Activity: activities=%d>' % len(self._itemdict))
     
@@ -335,6 +341,14 @@ class Activity(object):
     def activitiesids(self):
         return set(self._itemdict.keys())
     
+    def to_shortname(self, a):
+        d = {v['name']:v['short_name'] for (k,v) in self._itemdict.items()}
+        assert a in d, "Activity '%s' not found" % a
+        return d[a]
+        
+    def labels(self):
+        return set([v['name'] for v in self._itemdict.values()])
+
     def ids(self):
         return self.activitiesids()
     
@@ -407,6 +421,10 @@ class Collection(object):
         def shortname_to_activity(self, shortname):
             assert shortname.lower() in self.shortnames(), 'Shortname "%s" not in instance "%s"' % (shortname, str(self.shortnames()))    
             return self.activities()[self.shortnames().index(shortname.lower())]
+
+        def activity_to_shortname(self, a):
+            assert a.lower() in self.activities(), 'Activity "%s" not found in "%s"' % (a, str(self.activities()))
+            return self.shortnames()[self.activities().index(a.lower())]
         
         def dict(self):
             return self._item
@@ -477,6 +495,13 @@ class Collection(object):
     
     def collectionids(self):
         return set([v['collection_id'] for v in self._itemdict.values()])
+
+    def isvalid(self, name):
+        try:
+            self.__getitem__(name)
+            return True
+        except:
+            return False
 
     def collection(self, name):
         return self.__getitem__(name)
