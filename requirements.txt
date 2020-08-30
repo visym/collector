@@ -23,7 +23,6 @@ pickleshare==0.7.5
 Pillow==7.2.0
 prompt-toolkit==3.0.6
 ptyprocess==0.6.0
--e git+git@github.com:visym/collector.git@b6b8719b543fb259b76e67ab8de2a93f0ccb9686#egg=pycollector
 Pygments==2.6.1
 pyparsing==2.4.7
 python-dateutil==2.8.1
@@ -34,5 +33,4 @@ traitlets==4.3.3
 urllib3==1.25.10
 vipy==1.8.22
 wcwidth==0.2.5
-XML2Dict==0.2.2
 xmltodict==0.12.0
