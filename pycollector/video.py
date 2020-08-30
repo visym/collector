@@ -195,7 +195,8 @@ class Instance(object):
                 }
                 co_Rating = pycollector.globals.backend().table.rating
                 co_Rating.put_item(Item=item)
-                score_verified_instance_by_id(instance_id=self.instanceid())  # FIXME
+
+                #score_verified_instance_by_id(instance_id=self.instanceid())  # FIXME
 
     def add_rating(self, reviewer_id, true_rating):
         assert isapi('v2')        
@@ -224,7 +225,8 @@ class Instance(object):
             else:
                 item[k] = Decimal(False)
         co_Rating.put_item(Item=item)
-        score_verified_instance_by_id(instance_id=self.instanceid())  # FIXME
+
+        #score_verified_instance_by_id(instance_id=self.instanceid())  # FIXME
 
     def quicklookurl(self):
         assert pycollector.globals.backend().isprod(), "Only valid for production environment"

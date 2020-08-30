@@ -4,7 +4,7 @@ import torch
 import vipy
 import shutil
 from vipy.util import remkdir, filetail, readlist, tolist, filepath
-from collector.project import Video
+from pycollector.video import Video
 from pycollector.yolov3.models import Darknet
 
 

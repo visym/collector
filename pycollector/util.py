@@ -16,9 +16,9 @@ def isday(yyyymmdd):
         return False
 
     
-def isdate(yyymmdd):
+def isdate(yyyymmdd):
     """Alias for isday"""
-    return isday(yymmdd)
+    return isday(yyyymmdd)
 
 
 def fromdate(yyyymmdd):

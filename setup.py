@@ -17,7 +17,8 @@ setup(
         "vipy",
         "boto3",
         "xmltodict",
-        "pandas"
+        "pandas",
+        "torch"
     ],
     keywords=['vision', 'learning', 'ML', 'CV'],
     classifiers=[
