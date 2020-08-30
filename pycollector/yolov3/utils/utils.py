@@ -1,7 +1,6 @@
 from __future__ import division
 import math
 import time
-#import tqdm
 from vipy.util import try_import
 import torch
 import torch.nn as nn
@@ -72,6 +71,7 @@ def ap_per_class(tp, conf, pred_cls, target_cls):
         The average precision as computed in py-faster-rcnn.
     """
     try_import('tqdm', 'tqdm')
+    import tqdm
     
     # Sort by objectness
     i = np.argsort(-conf)
