@@ -32,7 +32,7 @@ six==1.15.0
 torch==1.6.0
 traitlets==4.3.3
 urllib3==1.25.10
-vipy==1.8.22
+vipy==1.8.25
 wcwidth==0.2.5
 XML2Dict==0.2.2
 xmltodict==0.12.0

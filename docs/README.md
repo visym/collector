@@ -15,7 +15,6 @@ Visym Collector provides:
 
 ## Dataset Releases
 
-
 * link 1
 * link 2
 * link 3   
