@@ -82,7 +82,7 @@ def _v1_applabel_to_piplabel(k=None):
 
 
 def piplabel_to_mevalabel():
-    d = {v: v for (k, v) in applabel_to_piplabel().items()}
+    d = {v: v for (k, v) in _v1_applabel_to_piplabel().items()}
 
     d = {k: "hand_interacts_with_person" if "hand" in v else v for (k, v) in d.items()}
     d = {
@@ -214,15 +214,15 @@ def piplabel_to_index():
     }
 
 
-def _applabel_to_longlabel():
-    """FIXME: this mapping should be baked into the app"""
-    assert isapi('v1')
-    print(
-        '[collector.dataset.applabel_to_longlabel]:  Scanning table "co_Activities_Mobile_ID_Dict_Dev"'
-    )
-    t = collector.admin.Backend()._dynamodb_resource.Table(
-        "co_Activities_Mobile_ID_Dict_Dev"
-    )
-    return {d["Mobile_ID"]: d["Instance_ID"] for d in t.scan()["Items"]}
+#def _applabel_to_longlabel():
+#    """FIXME: this mapping should be baked into the app"""
+#    assert isapi('v1')
+#    print(
+#        '[collector.dataset.applabel_to_longlabel]:  Scanning table "co_Activities_Mobile_ID_Dict_Dev"'
+#    )
+#    t = collector.admin.Backend()._dynamodb_resource.Table(
+#        "co_Activities_Mobile_ID_Dict_Dev"
+#    )
+#    return {d["Mobile_ID"]: d["Instance_ID"] for d in t.scan()["Items"]}
 
 

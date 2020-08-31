@@ -15,6 +15,9 @@ import hashlib
 import uuid
 import urllib
 
+import vipy
+assert vipy.version.is_at_least('1.8.24')
+from vipy.globals import print
 from vipy.util import (
     readjson,
     isS3url,
@@ -40,7 +43,6 @@ from vipy.video import Scene
 from vipy.geometry import BoundingBox
 import vipy.downloader
 
-#import collector.admin
 import pycollector.util
 from pycollector.util import (
     allmondays_since,
@@ -52,179 +54,12 @@ from pycollector.util import (
     lastmonday,
     lowerif,
     timestamp,
-    fromdate, ismonday
+    fromdate, ismonday, fromtimestamp
 )
-#from collector.ddb_util import delete_by_data
-#from collector.review import score_verified_instance_by_id
-
-#from collector.gsheets import Gsheets
-#import collector 
-#from collector.workforce import Collectors
 import pycollector.globals
 from pycollector.globals import isapi
 from pycollector.video import Video, Instance
 
-
-class CollectorAssignment(object):
-    """ class for collector assignment
-
-    Args:
-        object ([type]): [description]
-    """
-
-    def __init__(self, program_name=None, project_name=None,):
-        
-        self.program_name = program_name
-        self.project_name = project_name
-
-        # Get Program information
-        self.program = Program(name=self.program_name)
-        # Get Project information
-        self.project = ProgramProjects()
-
-        # Set program and project dataframe
-        program_df = self.program.to_df()
-        project_df = self.project.get_all_projects_in_df()
-
-        self._program_df = program_df[['name','program_id']]
-        self._project_df = project_df[['project_id','name']]
-
-        self._program_df.rename(columns={"name" : "program_name"}, inplace=True)
-        self._project_df.rename(columns={"name": "project_name"}, inplace=True)
-
-        # Get Collections
-        self._collections = Collections()
-        collections_df = self._collections.to_df()
-
-        # Filter for active collections
-        self._collections_df = collections_df[collections_df.active == True]
-
-        # Get all active collectors
-        dashboard = collector.dashboard.MevaDashboard()
-        self._active_collector_emails = dashboard.active_collectors()
-        
-        # Get all collectors from DDB
-        collectors = Collectors()
-        all_collectors_df = collectors.get_collectors(as_dataframe=True)
-        active_collectors_df = all_collectors_df[all_collectors_df.collector_email.isin(self._active_collector_emails)]
-
-        # Filtered by is_consented
-        active_collectors_df = active_collectors_df[active_collectors_df['is_consented'] == True]
-        # Fill NaN with 0
-        active_collectors_df.fillna(0, inplace=True)
-
-        # Get active_collectors_ids
-        self._active_collectors_ids = list(active_collectors_df.collector_id)
-
-        # Set co_Collections_Collectors_df
-        co_Collections_Collectors_df = pd.merge(self._collections_df, self._program_df, how='left', on='program_name')
-        co_Collections_Collectors_df = pd.merge(self._collections_df, self._project_df, how='left', on='project_name')
-
-        # Filtered by program and project 
-        if program_name:
-            co_Collections_Collectors_df = co_Collections_Collectors_df[co_Collections_Collectors_df['program_name'] == program_name]
-        if project_name:
-            co_Collections_Collectors_df = co_Collections_Collectors_df[co_Collections_Collectors_df['project_name'] == project_name]
-
-        # TEMP for now - TODO remove these once we recreate the new collections with new attributes
-        co_Collections_Collectors_df['isTrainingVideoEnabled'] = co_Collections_Collectors_df['show_training_video'] 
-        co_Collections_Collectors_df['isConsentRequired'] = True
-        co_Collections_Collectors_df['consent_overlay_text'] = 'Please select the record button, say "I consent to this video collection”'
-
-        co_Collections_Collectors_df['assigned_date'] = datetime.now(pytz.timezone("US/Eastern")).isoformat()
-        co_Collections_Collectors_df.rename(columns={'name':'collection_name'}, inplace=True)
-        co_Collections_Collectors_df.drop(columns=['id'],inplace=True)
-
-        # Set assignment 
-        collection_assignment_dfs =[] 
-
-        for c_id in self._active_collectors_ids:
-            this_co_Collections_df_filtered = co_Collections_Collectors_df.copy()
-            this_co_Collections_df_filtered['collector_id'] = c_id
-            collection_assignment_dfs.append(this_co_Collections_df_filtered)
-        
-        self.collection_assignment_df = pd.concat(collection_assignment_dfs)
-        self.collection_assignment_df.fillna('None',inplace=True)
-
-
-    def delete_current_assignments_in_DDB(self):
-        """ Batch delete current collectioin assiignment to DDB 
-        """
-        delete_by_data(co_Collections_assignment_table,self.collection_assignment_df.to_dict(orient='records'),PKey='collector_id', SKey='collection_name')
-
-
-    def batch_insert_collection_assignment_to_DDB(self):
-        """ Batch insert current collectioin assiignment to DDB 
-        """
-        # Batch Update with insert
-        with co_Collections_assignment_table.batch_writer() as batch:
-            for row in self.collection_assignment_df.iterrows():
-                item = row[1].to_dict()
-                batch.put_item(Item=item)
-
-
-    
-class ProgramProject(object):
-    """ collector.project.ProgramProject
-
-        A single project definition, as specified in the Projects table.
-    """
-    
-    def __init__(self, item=None, name=None):
-        self._item = [k for k in co_Projects.scan()["Items"] if k['name'] == name][0] if name is not None else item
-        assert isinstance(self._item, dict) and 'name' in self._item, "invalid item"
-        
-    def __repr__(self):
-        return str('<collector.project.ProgramProject: "%s", name=%s, project_id=%s,  created_date=%s>' % (self._item['name'], self._item['name'], self._item['program_id'], self._item['created_date']))
-
-    def dict(self):
-        return self._item
-
-    def to_df(self):
-        return pd.DataFrame([self._item])
-
-
-class ProgramProjects(object):
-    """ collector.project.ProgramProjects
-
-        An interface to the Projects table
-    """
-        
-    def __init__(self):
-        self._itemdict = {k['name']:k for k in co_Projects.scan()["Items"]}
-    
-    def dict(self):
-        return self._itemdict
-
-    def __getitem__(self, name):
-        assert name in self._itemdict, "Unknown project name '%s'" % name
-        return ProgramProject(self._itemdict[name])
-
-    def get_all_projects_in_df(self):
-        return pd.DataFrame([ v for k, v in  self._itemdict.items()])
-
-    def new(self, program_name, project_name):
-        """ Add new project (if not present). Check with the latest state in DynamoDB
-
-        Args:
-            name (str): name of the program
-            client (str): the client associate with the program
-        """
-        # Add new project (if not present)
-        # Check with the latest state of programs in DDB 
-        response = co_Projects.query(KeyConditionExpression=Key("id").eq(program_name))
-        if not any([x['name'] == project_name for x in response['Items']]):
-            item = {'id':program_name,
-                    'name':project_name,
-                    'created_date':timestamp(),
-                    'mobile_id':project_name,
-                    'project_id':str(uuid.uuid4())}
-            co_Projects.put_item(Item=item)    
-            print("Created New Project: ", project_name)
-        else:
-            print("This project %s is already exists. " % name)    
-
-            
 
 class Program(object):
     """ collector.project.Programs
@@ -665,7 +500,7 @@ class Rating(object):
     def updated(self):
         assert 'updated_time' in self._item, "'updated_time' not present in '%s'" % (str(self._item))
         try:
-            return collector.util.fromtimestamp(self._item['updated_time'])  
+            return fromtimestamp(self._item['updated_time'])  
         except:
             try:                
                 return datetime.strptime(self._item['updated_time'], "%Y-%m-%dT%H:%M:%S%z")  # 2020-08-10T22:47:53-04:00 format
@@ -807,7 +642,6 @@ class Project(object):
                 '[pycollector.project]: Scan the entire database and return every video uploaded for program "%s" since 2020-07-20...'
                 % program_id
             )
-            self._backend = backend
 
             fe = Attr(lowerif("Uploaded_Date", isapi('v2'))).gte("2020-03-18")  # Remove junk data
 
@@ -906,7 +740,7 @@ class Project(object):
             for video_ids in video_ids_list:
 
                 fe = Attr(lowerif("Video_ID", isapi('v2'))).is_in(video_ids)
-                response = vo_Video.scan(FilterExpression=fe)
+                response = co_Video.scan(FilterExpression=fe)
                 items = response["Items"]
                 while (
                     "LastEvaluatedKey" in response
@@ -976,33 +810,6 @@ class Project(object):
     def projects(self):
         assert isapi('v1'), "Migrate me to v2"
         
-        if self._projects is not None:
-            return self._projects
-
-        t = self._backend._dynamodb_resource.Table("co_Projects")
-        response = t.query(KeyConditionExpression=Key("ID").eq(self._programid))
-        projectlist = set([r["Name"] for r in response["Items"]])
-        d = {}
-        for p in projectlist:
-            d[p] = {}
-            t = self._backend._dynamodb_resource.Table("co_Collections")
-            response = t.query(
-                KeyConditionExpression=Key("ID").eq("%s_%s" % (self._programid, p))
-            )
-            collections = [r["Name"] for r in response["Items"]]
-            for c in collections:
-                t = self._backend._dynamodb_resource.Table("co_Activities")
-                response = t.query(
-                    KeyConditionExpression=Key("ID").eq(
-                        "%s_%s_%s" % (self._programid, p, c)
-                    )
-                )
-                activities = [r["Name"] for r in response["Items"]]
-                d[p][c] = activities
-
-        self._projects = d
-        return d
-
     def collectorID(self):
         return set(self.df.collector_id) if len(self.df) > 0 else []
 
@@ -1338,179 +1145,6 @@ class Project(object):
         )
         return csv if outfile is None else writecsv(csv, outfile)
 
-    def stats(self, refresh=False):
-        """Return a dictionary of useful statistics about this project for dashboarding.  Requires accessing the Collections()"""
-
-        # Totals: by week
-        data = {'byweek':[], 'alltime':None}
-        for w in allmondays_since(self.since()):
-            P = self.filter(week=w)
-            if len(P) > 0:
-                cinst = P.collectioninstances()
-                inst = P.instances()
-                d_byweek = {'Week':w,
-                            'Active Collectors': len(P.collectors()),
-                            'Collected Videos': len(cinst),
-                            'Rated Videos': sum([v.has_rating() for v in cinst]),
-                            'Verified Videos': sum([v.is_good() for v in cinst]),
-                            'Collected Instances': len(inst),
-                            'Rated Instances': sum([i.has_rating() for i in inst]),
-                            'Verified Instances': sum([i.is_good() for i in inst]),                      
-                            'Last Updated':timestamp()}                      
-                data['byweek'].append(d_byweek)
-
-        # Totals: alltime        
-        cinst = self.collectioninstances()
-        inst = self.instances()
-        data['alltime'] = {'Active Collectors': len(self.collectors()),
-                           'Collected Videos': len(cinst),
-                           'Rated Videos': sum([v.has_rating() for v in cinst]),
-                           'Verified Videos': sum([v.is_good() for v in cinst]),
-                           'Collected Instances': len(inst),
-                           'Rated Instances': sum([i.has_rating() for i in inst]),
-                           'Verified Instances': sum([i.is_good() for i in inst]),                      
-                           'Last Updated':timestamp()}
-
-        # Totals: by category (requires activity to collection query for this campaign)
-        inst = self.instances()
-        C = collector.project.Collections()
-        d_collected_bycategory = vipy.util.countby(inst, lambda i: C[i.collection()].shortname_to_activity(i.shortname()))
-        d_rated_bycategory = vipy.util.countby([i for i in inst if i.has_rating()], lambda i: C[i.collection()].shortname_to_activity(i.shortname()))
-        d_verified_bycategory = vipy.util.countby([i for i in inst if i.is_good()], lambda i: C[i.collection()].shortname_to_activity(i.shortname()))
-        data['bycategory'] = {'collected':d_collected_bycategory,
-                              'rated':d_rated_bycategory,
-                              'verified':d_verified_bycategory}
-
-        # Ratings refresh (sanity check the rating score)
-        return data
-    
-        
-    def collectordashboard(
-        self,
-        outfile=None,
-        header=True,
-        Project_IDs=[],
-        Collection_IDs=[],
-        ex_Project_IDs=[],
-        ex_Collection_IDs=[],
-    ):
-        """Return a CSV of (collector_id, uploaded_date, rating_score, rating_reason activity_name, quicklook URL) for the time range defined in the constructor. Used to sync the collector dashboard
-           This function does not use any of the data in Project(), so it does not really need to be in here.         
-        """
- 
-        # This function is for legacy dashboarding only.       
-        warnings.warn('collector.project.Project().collectordashboard() has been deprecated')
-        
-        C = collector.admin.Instance()
-        assert (
-            len(allmondays_since(self._since)) <= 5
-        ), "Too many instances requested, keep this to one month"
-        instances = [
-            C.get_activity_instances(week=w) for w in allmondays_since(self._since)
-        ]  # iterated query by date
-
-        R = collector.admin.Report()
-
-        activity_long_names_dict = R.get_activity_long_names_dict()
-
-        def _f_badrating_to_description(
-            badlabel,
-            box,
-            badbox_big,
-            badbox_small,
-            badviewpoint,
-            badtiming,
-            badalignment,
-            badvisibility,
-            baddiversity,
-            badvideo,
-        ):
-            desc = [
-                "label" if badlabel > 0 else "",
-                "box" if box > 0 else "",
-                "box(too big)" if badbox_big > 0 else "",
-                "box(too small)" if badbox_small > 0 else "",
-                "viewpoint" if badviewpoint > 0 else "",
-                "timing" if badtiming > 0 else "",
-                "subject centric alignment" if badalignment > 0 else "",
-                "visibility for objects" if badvisibility > 0 else "",
-                "diversity for settings and activities" if baddiversity > 0 else "",
-                "video content" if badvideo > 0 else "",
-            ]
-            desc = [d for d in desc if len(d) > 0]
-
-            desc = (
-                "incorrect " + " and ".join(desc)
-                if len(desc) > 0
-                else "verification error"
-            )
-
-            return desc.rstrip()
-
-        et = pytz.timezone("US/Eastern")
-        (mindate, maxdate) = (
-            min(self.uploaded()),
-            max(self.uploaded()),
-        )  # time range from project (ET)
-        csv = [
-            [
-                r["collecgtor_id" if isapi('v1') else "collector_email"],
-                pd.to_datetime(r["uploaded_date"]).date().isoformat(),  # FIXME: EST?
-                "good"
-                if float(r["rating_score"]) > 0
-                else "needs improvement"
-                if r["verified"]
-                else "Pending for verification"
-                if r["project_id"] not in ex_Project_IDs
-                else "Video not from the valid Projects"
-                if r["collection_id"] not in ex_Collection_IDs
-                else "Video not from the valid Collection",
-                "good"
-                if float(r["rating_score"]) > 0
-                else _f_badrating_to_description(
-                    float(r["bad_label_score"]),
-                    float(r["bad_box_score"]),
-                    float(r["bad_box_big_score"]),
-                    float(r["bad_box_small_score"]),
-                    float(r["bad_viewpoint_score"]),
-                    float(r["bad_timing_score"]),
-                    float(r["bad_alignment_score"]),
-                    float(r["bad_visibility_score"]),
-                    float(r["bad_diversity_score"]),
-                    float(r["bad_video_score"]),
-                )
-                if r["verified"]
-                else "Pending for verification"
-                if r["project_id"] not in ex_Project_IDs
-                else "Video not from the valid Projects"
-                if r["collection_id"] not in ex_Collection_IDs
-                else "Video not from the valid Collection",
-                activity_long_names_dict[r["id"]],
-                '=HYPERLINK("%s")' % (r["s3_path"]),
-            ]
-            for i in instances
-            for (index, r) in i.iterrows()
-            if pd.to_datetime(r["uploaded_date"]).astimezone(et) >= mindate
-            and pd.to_datetime(r["uploaded_date"]).astimezone(et) <= maxdate
-        ]
-        csv = sorted(csv, key=lambda x: x[0])
-
-        csv = (
-            [
-                [
-                    "collectorid",
-                    "uploaded",
-                    "rating",
-                    "rating reason",
-                    "activity name",
-                    "quicklook URL",
-                ]
-            ]
-            + csv
-            if header
-            else csv
-        )
-        return csv if outfile is None else writecsv(csv, outfile)
 
     def quickhtml(self, outfile=None, display=True):
         """Generate a quicklook HTML file to show all quicklooks in the current project.  This is useful for filtering by collector and regenerating quicklooks on demand.  
@@ -1540,154 +1174,6 @@ class Project(object):
         urls = [url for v in self.videos() for url in v.fetchjson().quicklookurls()]
         vipy.visualize.urls(urls, outfile=outfile, display=display)
         return urls
-
-    def analysis(self, outdir=None):
-        """Return a set of useful statistics and plots for this dataset, saved in outdir"""
-        import vipy.metrics
-
-        outdir = tempdir() if outdir is None else outdir
-        videos = self.videos()  # fetch JSON
-        ratings = [r for r in self.ratings()]
-        activities = [a for v in videos for a in v.activitylist()]
-        tracks = [t for v in videos for t in v.tracklist()]
-        uploaded = self.uploaded()
-        d_newcategory = applabel_to_longlabel()
-        activities = [a.category(d_newcategory[a.category()]) for a in activities]
-
-        d = {
-            "since": self._since,
-            "program": "MEVA",
-            "num_videos": len(self.videoid()),
-            "mean_duration": self.mean_duration(),
-            "bestcollectors": self.bestcollectors()[0:3],
-            "ratings": {
-                "good": len([r for r in ratings if "up" in r and r["up"] is True]),
-                "good_for_training": len([r for r in ratings if "good_for_training" in r and r["good_for_training"] is True]),
-                "bad_box_big": len(
-                    [
-                        r
-                        for r in ratings
-                        if "bad_box_big" in r and r["bad_box_big"] is True
-                    ]
-                ),
-                "bad_box_small": len(
-                    [
-                        r
-                        for r in ratings
-                        if "bad_box_small" in r and r["bad_box_small"] is True
-                    ]
-                ),
-                "bad_label": len(
-                    [r for r in ratings if "bad_label" in r and r["bad_label"] is True]
-                ),
-                "bad_alignment": len(
-                    [
-                        r
-                        for r in ratings
-                        if "bad_alignment" in r and r["bad_alignment"] is True
-                    ]
-                ),
-                "bad_video": len(
-                    [r for r in ratings if "bad_video" in r and r["bad_video"] is True]
-                ),
-                "bad_viewpoint": len(
-                    [
-                        r
-                        for r in ratings
-                        if "bad_viewpoint" in r and r["bad_viewpoint"] is True
-                    ]
-                ),
-                "bad_timing": len(
-                    [
-                        r
-                        for r in ratings
-                        if "bad_timing" in r and r["bad_timing"] is True
-                    ]
-                ),
-                "bad_visibility": len(
-                    [
-                        r
-                        for r in ratings
-                        if "bad_visibility" in r and r["bad_visibility"] is True
-                    ]
-                ),
-                "bad_diversity": len(
-                    [
-                        r
-                        for r in ratings
-                        if "bad_diversity" in r and r["bad_diversity"] is True
-                    ]
-                ),
-            },
-        }
-
-        d["activity_categories"] = set([a.category() for a in activities])
-        d["object_categories"] = set([t.category() for t in tracks])
-        d["num_activities"] = sorted(
-            [
-                (k, len(v))
-                for (k, v) in groupbyasdict(activities, lambda a: a.category()).items()
-            ],
-            key=lambda x: x[1],
-        )
-
-        # Histogram of instances
-        (categories, freq) = zip(*reversed(d["num_activities"]))
-        barcolors = ["blue" if not "vehicle" in c else "green" for c in categories]
-        d["num_activities_histogram"] = vipy.metrics.histogram(
-            freq,
-            categories,
-            barcolors=barcolors,
-            outfile=os.path.join(outdir, "num_activities_histogram.pdf"),
-            ylabel="Collected Instances",
-        )
-
-        # Pie chart of ratings
-        labels = [k for (k, v) in d["ratings"].items()]
-        counts = [d["ratings"][k] for k in labels]
-        explode = [0.1 if k == "good" else 0.0 for k in labels]
-        d["ratings_pie"] = vipy.metrics.pie(
-            counts,
-            labels,
-            explode=explode,
-            outfile=os.path.join(outdir, "ratings_pie.pdf"),
-        )
-
-        # Histogram of upload times for videos
-        (categories, freq) = zip(
-            *[
-                ("%d:00" % k, len(v))
-                for (k, v) in groupbyasdict(uploaded, lambda t: t.hour).items()
-            ]
-        )
-        d["uploaded_time_histogram"] = vipy.metrics.histogram(
-            freq,
-            categories,
-            barcolors=None,
-            outfile=os.path.join(outdir, "uploaded_time_histogram.pdf"),
-            ylabel="Collected Videos",
-            title="Hour of day (EDT)",
-        )
-
-        # Histogram of upload weekdays for videos
-        (categories, freq) = zip(
-            *[
-                (calendar.day_name[k], len(v))
-                for (k, v) in groupbyasdict(
-                    uploaded, lambda t: t.date().weekday()
-                ).items()
-            ]
-        )
-        d["uploaded_weekday_histogram"] = vipy.metrics.histogram(
-            freq,
-            categories,
-            barcolors=None,
-            outfile=os.path.join(outdir, "uploaded_weekday_histogram.pdf"),
-            ylabel="Collected Videos",
-            xrot=45,
-        )
-
-        return d
 
 
 def search():

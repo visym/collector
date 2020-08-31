@@ -1,43 +1,37 @@
 import os
 import random
-
-import vipy
-from vipy.util import readjson, isS3url, tempjson,tempdir, totempdir, remkdir
-from vipy.util import flatlist, tolist, groupbyasdict, writecsv, filebase, filetail, filepath, fileext, isurl, tolist
-from vipy.object import Track
-import vipy.version
-import vipy.activity
-#from vipy.activity import Activity as vipy_Activity
-from vipy.video import Scene
-from vipy.geometry import BoundingBox
-import vipy.downloader
-import vipy.version
-
 import warnings
 from datetime import datetime, timedelta
 import numpy as np
-#import collector.admin
 import pandas as pd
-from boto3.dynamodb.conditions import Key, Attr
-from pycollector.util import allmondays_since, yyyymmdd_to_date, is_email_address, isday, is_more_recent_than, nextday, lastmonday
-from pycollector.util import lowerif, timestamp, fromdate, ismonday
-
 import copy
 import decimal
 from decimal import Decimal
 import calendar
 import pytz
 import hashlib
-#from collector.review import score_verified_instance_by_id
 import uuid
-#from collector.gsheets import Gsheets
-import pycollector as collector
-#from collector.workforce import Collectors
 import urllib
+import xmltodict  
+from boto3.dynamodb.conditions import Key, Attr
+
+import vipy
+assert vipy.version.is_at_least('1.8.24')
+from vipy.globals import print
+from vipy.util import readjson, isS3url, tempjson,tempdir, totempdir, remkdir
+from vipy.util import flatlist, tolist, groupbyasdict, writecsv, filebase, filetail, filepath, fileext, isurl, tolist
+from vipy.object import Track
+import vipy.version
+import vipy.activity
+from vipy.video import Scene
+from vipy.geometry import BoundingBox
+import vipy.downloader
+import vipy.version
+
+from pycollector.util import allmondays_since, yyyymmdd_to_date, is_email_address, isday, is_more_recent_than, nextday, lastmonday
+from pycollector.util import lowerif, timestamp, fromdate, ismonday
 from pycollector.globals import isapi
 import pycollector.globals
-
-import xmltodict  
 
 
 class Instance(object):
@@ -195,7 +189,8 @@ class Instance(object):
                 }
                 co_Rating = pycollector.globals.backend().table.rating
                 co_Rating.put_item(Item=item)
-                score_verified_instance_by_id(instance_id=self.instanceid())  # FIXME
+
+                #score_verified_instance_by_id(instance_id=self.instanceid())  # FIXME
 
     def add_rating(self, reviewer_id, true_rating):
         assert isapi('v2')        
@@ -224,13 +219,16 @@ class Instance(object):
             else:
                 item[k] = Decimal(False)
         co_Rating.put_item(Item=item)
-        score_verified_instance_by_id(instance_id=self.instanceid())  # FIXME
+
+        #score_verified_instance_by_id(instance_id=self.instanceid())  # FIXME
 
     def quicklookurl(self):
+        assert pycollector.globals.backend().isprod(), "Only valid for production environment"
         assert self.isvalid()
         return self._instance["s3_path"]
 
     def animated_quicklookurl(self):
+        assert pycollector.globals.backend().isprod(), "Only valid for production environment"        
         return self._instance['animation_s3_path'] if ('animation_s3_path' in self._instance and isurl(self._instance['animation_s3_path'])) else None
     
     def clip(self, padframes=0):
@@ -309,7 +307,7 @@ class Video(Scene):
         super(Video, self).__init__(url=mp4url, filename=mp4file, attributes=attributes)
 
         # Video attributes
-        self._quicklook_url = "https://diva-str-prod-data-public.s3.amazonaws.com/Quicklooks/%s_quicklook_%s_%d.jpg"  # FIXME
+        self._quicklook_url = "https://%s.s3.amazonaws.com/Quicklooks/%%s_quicklook_%%s_%%d.jpg" % (pycollector.globals.backend().s3_bucket())  
         self._jsonurl = jsonurl
         self._jsonfile = jsonfile
         self._dt = dt
@@ -707,6 +705,8 @@ class Video(Scene):
         return self.annotate().saveas(outfile).filename()        
 
     def quicklookurls(self, show=False):
+        assert pycollector.globals.isprod(), "Quicklook URLs only available in production environment"
+        
         urls = [
             self._quicklook_url % (self.videoid(), a.category(), k)
             for (k, a) in enumerate(self._load_json().activities().values())
