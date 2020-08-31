@@ -496,17 +496,17 @@ class Video(Scene):
 
             # Minimum dimension of video for reasonably fast interactions (must happen after JSON load to get frame size from JSON)
             if self._mindim is not None:
-                if "frame_width" in self.metadata():  # older JSON bug
-                    self.rescale(
-                        self._mindim
-                        / min(
-                            int(self.metadata()["frame_width"]),
-                            int(self.metadata()["frame_height"]),
-                        )
-                    )  # does not require load
+                if "frame_width" in self.metadata() and "frame_height" in self.metadata():  # older JSON bug
+                    s = float(min(int(self.metadata()["frame_width"]), int(self.metadata()["frame_height"])))
+                    if s > 256:
+                        self.rescale(self._mindim / float(s))  # does not require load
+                    else:
+                        print('[collector.video]: Filtering Invalid JSON (height, width)')
+                        self._is_json_loaded = False
                 else:
                     assert vipy.version.is_at_least("0.8.0")
                     self.clear()  # remove this old video from consideration
+                    self._is_json_loaded = False
         else:
             self._is_json_loaded = False
 
