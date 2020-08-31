@@ -43,7 +43,6 @@ from vipy.video import Scene
 from vipy.geometry import BoundingBox
 import vipy.downloader
 
-#import collector.admin
 import pycollector.util
 from pycollector.util import (
     allmondays_since,
@@ -57,12 +56,6 @@ from pycollector.util import (
     timestamp,
     fromdate, ismonday, fromtimestamp
 )
-#from collector.ddb_util import delete_by_data
-#from collector.review import score_verified_instance_by_id
-
-#from collector.gsheets import Gsheets
-#import collector 
-#from collector.workforce import Collectors
 import pycollector.globals
 from pycollector.globals import isapi
 from pycollector.video import Video, Instance

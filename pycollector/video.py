@@ -1,5 +1,19 @@
 import os
 import random
+import warnings
+from datetime import datetime, timedelta
+import numpy as np
+import pandas as pd
+import copy
+import decimal
+from decimal import Decimal
+import calendar
+import pytz
+import hashlib
+import uuid
+import urllib
+import xmltodict  
+from boto3.dynamodb.conditions import Key, Attr
 
 import vipy
 assert vipy.version.is_at_least('1.8.24')
@@ -9,37 +23,15 @@ from vipy.util import flatlist, tolist, groupbyasdict, writecsv, filebase, filet
 from vipy.object import Track
 import vipy.version
 import vipy.activity
-#from vipy.activity import Activity as vipy_Activity
 from vipy.video import Scene
 from vipy.geometry import BoundingBox
 import vipy.downloader
 import vipy.version
 
-import warnings
-from datetime import datetime, timedelta
-import numpy as np
-#import collector.admin
-import pandas as pd
-from boto3.dynamodb.conditions import Key, Attr
 from pycollector.util import allmondays_since, yyyymmdd_to_date, is_email_address, isday, is_more_recent_than, nextday, lastmonday
 from pycollector.util import lowerif, timestamp, fromdate, ismonday
-
-import copy
-import decimal
-from decimal import Decimal
-import calendar
-import pytz
-import hashlib
-#from collector.review import score_verified_instance_by_id
-import uuid
-#from collector.gsheets import Gsheets
-import pycollector as collector
-#from collector.workforce import Collectors
-import urllib
 from pycollector.globals import isapi
 import pycollector.globals
-
-import xmltodict  
 
 
 class Instance(object):
