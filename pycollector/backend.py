@@ -11,8 +11,8 @@ class Backend(object):
         User will need to set up their local environment variables         
     """
 
-    def __init__(self, region=None, verbose=True, cache=True):
-        self._region = region
+    def __init__(self, region='us-east-1', verbose=True, cache=True):
+        self._region = os.environ["VISYM_COLLECTOR_AWS_REGION_NAME"] if 'VISYM_COLLECTOR_AWS_REGION_NAME' in os.environ else region
         self._verbose = verbose
         self._cache = cache
 
@@ -28,6 +28,7 @@ class Backend(object):
         self._program = None
         self._collection = None
         self._activity = None
+
         
         # TODO - Will add to conditional checks on initialize the backend. Which also help to fail gracefully.
 
@@ -35,51 +36,39 @@ class Backend(object):
         if "VISYM_COLLECTOR_AWS_ACCESS_KEY_ID" in os.environ:
             self._s3_client = boto3.client(
                 "s3",
-                region_name=os.environ["VISYM_COLLECTOR_AWS_REGION_NAME"],
+                region_name=self._region,
                 aws_access_key_id=os.environ["VISYM_COLLECTOR_AWS_ACCESS_KEY_ID"],
-                aws_secret_access_key=os.environ[
-                    "VISYM_COLLECTOR_AWS_SECRET_ACCESS_KEY"
-                ],
+                aws_secret_access_key=os.environ["VISYM_COLLECTOR_AWS_SECRET_ACCESS_KEY"],
             )
 
             self._dynamodb_client = boto3.client(
                 "dynamodb",
-                region_name=os.environ["VISYM_COLLECTOR_AWS_REGION_NAME"],
+                region_name=self._region,
                 aws_access_key_id=os.environ["VISYM_COLLECTOR_AWS_ACCESS_KEY_ID"],
-                aws_secret_access_key=os.environ[
-                    "VISYM_COLLECTOR_AWS_SECRET_ACCESS_KEY"
-                ],
+                aws_secret_access_key=os.environ["VISYM_COLLECTOR_AWS_SECRET_ACCESS_KEY"],
             )
 
             self._dynamodb_resource = boto3.resource(
                 "dynamodb",
-                region_name=os.environ["VISYM_COLLECTOR_AWS_REGION_NAME"],
+                region_name=self._region,
                 aws_access_key_id=os.environ["VISYM_COLLECTOR_AWS_ACCESS_KEY_ID"],
-                aws_secret_access_key=os.environ[
-                    "VISYM_COLLECTOR_AWS_SECRET_ACCESS_KEY"
-                ],
+                aws_secret_access_key=os.environ["VISYM_COLLECTOR_AWS_SECRET_ACCESS_KEY"],
             )
 
             self._cognitoidP_client = boto3.client(
                 "cognito-idp",
-                region_name=os.environ["VISYM_COLLECTOR_AWS_REGION_NAME"],
+                region_name=self._region,
                 aws_access_key_id=os.environ["VISYM_COLLECTOR_AWS_ACCESS_KEY_ID"],
-                aws_secret_access_key=os.environ[
-                    "VISYM_COLLECTOR_AWS_SECRET_ACCESS_KEY"
-                ],
+                aws_secret_access_key=os.environ["VISYM_COLLECTOR_AWS_SECRET_ACCESS_KEY"],
             )
 
-            self._cognitoUserPoolid = os.environ[
-                "VISYM_COLLECTOR_AWS_COGNITO_USER_POOL_ID"
-            ]
-            self._cognitoAppClientlid = os.environ[
-                "VISYM_COLLECTOR_AWS_COGNITO_APP_CLIENT_ID"
-            ]
-            self._cognitoAppClientlSecret = os.environ[
-                "VISYM_COLLECTOR_AWS_COGNITO_APP_CLIENT_SECRET"
-            ]
-        # Else if running on AWS Lambda or using AWS CLI config
+            self._cognitoUserPoolid = os.environ["VISYM_COLLECTOR_AWS_COGNITO_USER_POOL_ID"]
+            self._cognitoAppClientlid = os.environ["VISYM_COLLECTOR_AWS_COGNITO_APP_CLIENT_ID"]
+            self._cognitoAppClientlSecret = os.environ["VISYM_COLLECTOR_AWS_COGNITO_APP_CLIENT_SECRET"]
+            
+
         else:
+            # Else if running on AWS Lambda or using AWS CLI config            
             self._s3_client = boto3.client("s3")
             self._dynamodb_client = boto3.client("dynamodb")
             self._dynamodb_resource = boto3.resource("dynamodb")
