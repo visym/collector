@@ -1,10 +1,17 @@
 import os
 import boto3
 import getpass
-from pycollector.util import is_email_address, mergedict
+from pycollector.util import is_email_address, mergedict, timestamp, fromtimestamp
 from vipy.globals import print
-from vipy.util import groupbyasdict
+from vipy.util import groupbyasdict, tolist, isurl
 import pycollector.globals
+import pandas as pd
+from boto3.dynamodb.conditions import Key, Attr
+import uuid
+from datetime import datetime, timedelta
+import pytz
+from pycollector.video import Video, Instance
+import vipy
 
 
 class Backend(object):
@@ -168,11 +175,16 @@ class CollectionAssignment(object):
         return self._tabledict[collectorid] if collectorid in self._tabledict else []
 
     def assign(self, collectorid, collectionlist, training=True):
+
         C = pycollector.globals.backend().collection()
         assert all([c in C.collectionids() for c in collectionlist]), "Invalid collection id"
         assert training == True, "FIXME: disable training for certain collectors"
         assert not is_email_address(collectorid)
-        self._dirty_tabledict[collectorid] = [mergedict(C[k].dict(), {'collector_id':collectorid, 'collection_name':C[k].name(), 'active':True, 'isTrainingVideoEnabled':True, 'isConsentRequired':True, 'consent_overlay_text':'Please select the record button, say "I consent to this video collection”'}) for k in collectionlist]
+        self._dirty_tabledict[collectorid] = [mergedict(C[k].dict(), {'collector_id':collectorid, 'collection_name':C[k].name(), 'active':True, 'isTrainingVideoEnabled':'true', 'isConsentRequired':True, 'consent_overlay_text':'Please select the record button, say "I consent to this video collection”'}) for k in collectionlist]
+        for d in self._dirty_tabledict[collectorid]:
+            del d['name']
+            del d['id']
+
         return self
 
     def unassign(self, collectorid):
@@ -190,9 +202,9 @@ class CollectionAssignment(object):
         with table.batch_writer() as batch:
             for collectorid in self._dirty_tabledict.keys():
                 for item in self._dirty_tabledict[collectorid]:
-                    print(item['collection_name'])
                     batch.put_item(Item=item)
 
+        self._dirty_tabledict = {}
 
 
 class Project(object):
@@ -251,7 +263,7 @@ class Project(object):
             co_Project.put_item(Item=item)    
             print("Created New Project: ", project_name)
         else:
-            print("This project %s is already exists. " % name)    
+            print("This project %s is already exists. " % project_name)    
 
             
 

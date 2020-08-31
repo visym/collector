@@ -107,6 +107,17 @@ class Project(object):
 
             fe = Attr(lowerif("Uploaded_Date", isapi('v2'))).gte("2020-03-18")  # Remove junk data
 
+            response = co_Video.scan(FilterExpression=fe)
+            items = response["Items"]
+            while (
+                "LastEvaluatedKey" in response
+                and response["LastEvaluatedKey"] is not None
+            ):
+                response = co_Video.scan(
+                    FilterExpression=fe, ExclusiveStartKey=response["LastEvaluatedKey"]
+                )
+                items.extend(response["Items"])
+
             self.df = pd.DataFrame(items)
             self._since = "2020-03-18"
 
