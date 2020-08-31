@@ -30,6 +30,7 @@ Installation
 -------------------
 
 ```python
+pip install --upgrade setuptools wheel twine
 pip install pycollector
 ```
 
