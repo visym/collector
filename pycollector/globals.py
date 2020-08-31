@@ -21,8 +21,9 @@ class TestBackend(Backend):
         self._ddb_activity = self._dynamodb_resource.Table("strActivities-uxt26i4hcjb3zg4zth4uaed4cy-visymtest")
         self._ddb_subject = self._dynamodb_resource.Table("strSubject-uxt26i4hcjb3zg4zth4uaed4cy-visymtest")
         self._ddb_collector = self._dynamodb_resource.Table("strCollector-uxt26i4hcjb3zg4zth4uaed4cy-visymtest")
-
+        self._ddb_collection_assignment = self._dynamodb_resource.Table("strCollectionsAssignment-uxt26i4hcjb3zg4zth4uaed4cy-visymtest")
         
+
 class DevBackend(object):
     def __init__(self):
         pass
@@ -50,7 +51,7 @@ class ProdBackend(Backend):
         self._ddb_activity = self._dynamodb_resource.Table("strActivities-hirn6lrwxfcrvl65xnxdejvftm-visym")
         self._ddb_subject = self._dynamodb_resource.Table("strSubject-hirn6lrwxfcrvl65xnxdejvftm-visym")
         self._ddb_collector = self._dynamodb_resource.Table("strCollector-hirn6lrwxfcrvl65xnxdejvftm-visym")
-
+        self._ddb_collection_assignment = self._dynamodb_resource.Table("strCollectionsAssignment-hirn6lrwxfcrvl65xnxdejvftm-visym")
 
 def verbose(b=None):
     if b is not None:

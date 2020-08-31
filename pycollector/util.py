@@ -1,6 +1,14 @@
 import os
 from datetime import datetime, timedelta, date
 import pytz
+import copy
+
+
+def mergedict(d1, d2):
+    assert isinstance(d1, dict) and isinstance(d2, dict)
+    d = copy.deepcopy(d1)
+    d.update(d2)
+    return d
 
 
 def lowerif(s, b):

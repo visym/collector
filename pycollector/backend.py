@@ -1,9 +1,10 @@
 import os
 import boto3
 import getpass
-from pycollector.util import is_email_address
+from pycollector.util import is_email_address, mergedict
 from vipy.globals import print
 from vipy.util import groupbyasdict
+import pycollector.globals
 
 
 class Backend(object):
@@ -21,6 +22,7 @@ class Backend(object):
         self._project = None
         self._collection = None
         self._activity = None
+        self._collection_assignment = None
 
         # Overloaded by specific backend
         self._s3_bucket = None
@@ -86,28 +88,40 @@ class Backend(object):
     def label(self):
         pass
         
+        
+    def _scan(self, table):
+        response = table.scan()
+        items = response["Items"]
+        while ("LastEvaluatedKey" in response and response["LastEvaluatedKey"] is not None):
+            response = table.scan(ExclusiveStartKey=response["LastEvaluatedKey"])
+            items.extend(response["Items"])
+        return items        
 
     def program(self):
-        self._program = Program(self._ddb_program.scan()['Items']) if (self._program is None or self._cache is False) else self._program
+        self._program = Program(self._scan(self._ddb_program)) if (self._program is None or self._cache is False) else self._program
         return self._program
 
     def project(self):
-        self._project = Project(self._ddb_project.scan()['Items']) if (self._project is None or self._cache is False) else self._project
+        self._project = Project(self._scan(self._ddb_project)) if (self._project is None or self._cache is False) else self._project
         return self._project
         
     def activity(self):
-        self._activity = Activity(self._ddb_activity.scan()['Items']) if (self._activity is None or self._cache is False) else self._activity
+        self._activity = Activity(self._scan(self._ddb_activity)) if (self._activity is None or self._cache is False) else self._activity
         return self._activity
         
     def collection(self):
-        self._collection = Collection(self._ddb_collection.scan()['Items']) if (self._collection is None or self._cache is False) else self._collection
+        self._collection = Collection(self._scan(self._ddb_collection)) if (self._collection is None or self._cache is False) else self._collection
         return self._collection
         
+    def collection_assignment(self):
+        self._collection_assignment = CollectionAssignment(self._scan(self._ddb_collection_assignment)) if (self._collection_assignment is None or self._cache is False) else self._collection_assignment
+        return self._collection_assignment
+
     def __getattr__(self, name):
         if name == 'table':
             # For dotted attribute access to named DDB tables
             class _PyCollector_Backend_Tables(object):
-                def __init__(self, program, project, collection, activity, video, instance, rating, subject, collector):
+                def __init__(self, program, project, collection, activity, video, instance, rating, subject, collector, collection_assignment):
                     self.program = program
                     self.project = project
                     self.collection = collection
@@ -117,6 +131,7 @@ class Backend(object):
                     self.rating = rating
                     self.subject = subject
                     self.collector = collector
+                    self.collection_assignment = collection_assignment
 
             return _PyCollector_Backend_Tables(self._ddb_program,
                                                self._ddb_project,
@@ -126,7 +141,9 @@ class Backend(object):
                                                self._ddb_instance,
                                                self._ddb_rating,
                                                self._ddb_subject,
-                                               self._ddb_collector)
+                                               self._ddb_collector,
+                                               self._ddb_collection_assignment)
+                                               
         else:
             return self.__getattribute__(name)
 
@@ -135,102 +152,46 @@ class Backend(object):
 
     
             
-class CollectorAssignment(object):
+class CollectionAssignment(object):
     """ class for collector assignment
 
     Args:
         object ([type]): [description]
     """
 
-    def __init__(self, program_name=None, project_name=None):
-        
-        self.program_name = program_name
-        self.project_name = project_name
 
-        # Get Program information
-        self.program = pycollector.globals.backend().program()[self.program_name]
-        # Get Project information
-        self.project = pycollector.globals.backend().project()
+    def __init__(self, tablescan):
+        self._tabledict = groupbyasdict(tablescan, lambda d: d['collector_id'])
+        self._dirty_tabledict = {}
 
-        # Set program and project dataframe
-        program_df = self.program.to_df()
-        project_df = self.project.get_all_projects_in_df()
+    def assigned(self, collectorid):
+        return self._tabledict[collectorid] if collectorid in self._tabledict else []
 
-        self._program_df = program_df[['name','program_id']]
-        self._project_df = project_df[['project_id','name']]
+    def assign(self, collectorid, collectionlist, training=True):
+        C = pycollector.globals.backend().collection()
+        assert all([c in C.collectionids() for c in collectionlist]), "Invalid collection id"
+        assert training == True, "FIXME: disable training for certain collectors"
+        assert not is_email_address(collectorid)
+        self._dirty_tabledict[collectorid] = [mergedict(C[k].dict(), {'collector_id':collectorid, 'collection_name':C[k].name(), 'active':True}) for k in collectionlist]
+        return self
 
-        self._program_df.rename(columns={"name" : "program_name"}, inplace=True)
-        self._project_df.rename(columns={"name": "project_name"}, inplace=True)
+    def unassign(self, collectorid):
+        self._dirty_tabledict[collectorid] = []
+        return self
 
-        # Get Collections
-        self._collections = pycollector.globals.backend().collection()
-        collections_df = self._collections.to_df()
+    def sync(self):
+        table = pycollector.globals.backend().table.collection_assignment
+        with table.batch_writer() as batch:
+            for collectorid in self._dirty_tabledict.keys():
+                print('[pycollector.backend.CollectionAssignment]: syncing %s' % (collectorid))
+                for d in self.assigned(collectorid):
+                    batch.delete_item(Key={'collector_id': collectorid, 'collection_name': d['collection_name']})
 
-        # Filter for active collections
-        self._collections_df = collections_df[collections_df.active == True]
-
-        # Get all active collectors
-        dashboard = collector.dashboard.MevaDashboard()
-        self._active_collector_emails = dashboard.active_collectors()
-        
-        # Get all collectors from DDB
-        collectors = Collectors()
-        all_collectors_df = collectors.get_collectors(as_dataframe=True)
-        active_collectors_df = all_collectors_df[all_collectors_df.collector_email.isin(self._active_collector_emails)]
-
-        # Filtered by is_consented
-        active_collectors_df = active_collectors_df[active_collectors_df['is_consented'] == True]
-        # Fill NaN with 0
-        active_collectors_df.fillna(0, inplace=True)
-
-        # Get active_collectors_ids
-        self._active_collectors_ids = list(active_collectors_df.collector_id)
-
-        # Set co_Collections_Collectors_df
-        co_Collections_Collectors_df = pd.merge(self._collections_df, self._program_df, how='left', on='program_name')
-        co_Collections_Collectors_df = pd.merge(self._collections_df, self._project_df, how='left', on='project_name')
-
-        # Filtered by program and project 
-        if program_name:
-            co_Collections_Collectors_df = co_Collections_Collectors_df[co_Collections_Collectors_df['program_name'] == program_name]
-        if project_name:
-            co_Collections_Collectors_df = co_Collections_Collectors_df[co_Collections_Collectors_df['project_name'] == project_name]
-
-        # TEMP for now - TODO remove these once we recreate the new collections with new attributes
-        co_Collections_Collectors_df['isTrainingVideoEnabled'] = co_Collections_Collectors_df['show_training_video'] 
-        co_Collections_Collectors_df['isConsentRequired'] = True
-        co_Collections_Collectors_df['consent_overlay_text'] = 'Please select the record button, say "I consent to this video collection”'
-
-        co_Collections_Collectors_df['assigned_date'] = datetime.now(pytz.timezone("US/Eastern")).isoformat()
-        co_Collections_Collectors_df.rename(columns={'name':'collection_name'}, inplace=True)
-        co_Collections_Collectors_df.drop(columns=['id'],inplace=True)
-
-        # Set assignment 
-        collection_assignment_dfs =[] 
-
-        for c_id in self._active_collectors_ids:
-            this_co_Collections_df_filtered = co_Collections_Collectors_df.copy()
-            this_co_Collections_df_filtered['collector_id'] = c_id
-            collection_assignment_dfs.append(this_co_Collections_df_filtered)
-        
-        self.collection_assignment_df = pd.concat(collection_assignment_dfs)
-        self.collection_assignment_df.fillna('None',inplace=True)
-
-
-    def delete_current_assignments_in_DDB(self):
-        """ Batch delete current collectioin assiignment to DDB 
-        """
-        delete_by_data(co_Collections_assignment_table,self.collection_assignment_df.to_dict(orient='records'),PKey='collector_id', SKey='collection_name')
-
-
-    def batch_insert_collection_assignment_to_DDB(self):
-        """ Batch insert current collectioin assiignment to DDB 
-        """
-        # Batch Update with insert
-        with co_Collections_assignment_table.batch_writer() as batch:
-            for row in self.collection_assignment_df.iterrows():
-                item = row[1].to_dict()
-                batch.put_item(Item=item)
+        with table.batch_writer() as batch:
+            for collectorid in self._dirty_tabledict.keys():
+                for item in self._dirty_tabledict[collectorid]:
+                    print(item['collection_name'])
+                    batch.put_item(Item=item)
 
 
 
@@ -462,10 +423,10 @@ class Collection(object):
         """
     
         def __init__(self, itemdict):
-            self._item = itemdict
+            self._item = itemdict            
             assert isinstance(self._item, dict) and 'name' in self._item, "invalid item"
             assert len(self.shortnames()) == len(self.activities())
-        
+
         def __repr__(self):
             return str('<pycollector.backend.Collection: "%s", activities=%d, project=%s>' % (self.name(), self.num_activities(), self.project()))
 
