@@ -172,7 +172,7 @@ class CollectionAssignment(object):
         assert all([c in C.collectionids() for c in collectionlist]), "Invalid collection id"
         assert training == True, "FIXME: disable training for certain collectors"
         assert not is_email_address(collectorid)
-        self._dirty_tabledict[collectorid] = [mergedict(C[k].dict(), {'collector_id':collectorid, 'collection_name':C[k].name(), 'active':True}) for k in collectionlist]
+        self._dirty_tabledict[collectorid] = [mergedict(C[k].dict(), {'collector_id':collectorid, 'collection_name':C[k].name(), 'active':True, 'isTrainingVideoEnabled':True, 'isConsentRequired':True, 'consent_overlay_text':'Please select the record button, say "I consent to this video collection”'}) for k in collectionlist]
         return self
 
     def unassign(self, collectorid):
