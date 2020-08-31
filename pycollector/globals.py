@@ -4,8 +4,16 @@ import pycollector.backend
 
 GLOBALS = {'BACKEND_VERSION': 'v2',
            'BACKEND_ENVIRONMENT': 'prod',           
-           'BACKEND':None}
+           'BACKEND':None,
+           'VERBOSE':True}
 
+
+def verbose(b=None):
+    if b is not None:
+        GLOBALS['VERBOSE'] = b
+    return GLOBALS['VERBOSE']
+    
+    
 def backend(env=None, version=None, flush=False):
     if version is not None:
         assert version in ['v1', 'v2']

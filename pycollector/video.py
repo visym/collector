@@ -2,6 +2,8 @@ import os
 import random
 
 import vipy
+assert vipy.version.is_at_least('1.8.24')
+from vipy.globals import print
 from vipy.util import readjson, isS3url, tempjson,tempdir, totempdir, remkdir
 from vipy.util import flatlist, tolist, groupbyasdict, writecsv, filebase, filetail, filepath, fileext, isurl, tolist
 from vipy.object import Track

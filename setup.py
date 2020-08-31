@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, find_namespace_packages
 
 version = '0.0.1'
 
@@ -7,7 +7,7 @@ setup(
     author='Visym Labs',
     author_email='info@visym.com',
     version=version,
-    packages=find_packages(),
+    packages=find_namespace_packages(include=['pycollector.*']),
     description='Visym Collector',
     long_description="Visym Collector",
     long_description_content_type="text/markdown",

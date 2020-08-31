@@ -15,6 +15,9 @@ import hashlib
 import uuid
 import urllib
 
+import vipy
+assert vipy.version.is_at_least('1.8.24')
+from vipy.globals import print
 from vipy.util import (
     readjson,
     isS3url,

@@ -76,11 +76,6 @@ def fromtimestamp_YYYYMMDD_HHMMSS(ts):
     return datetime.strptime(ts, "%Y-%m-%d %H:%M:%S")
 
 
-def timestamp_for_gsheets():
-    """Datetime stamp in eastern timezone suitable to write so that gsheets data validation of date does not throw a warning"""        
-    return timestamp_YYYYMMDD_HHMMSS()
-
-
 def timestamp():
     """Datetime stamp in eastern timezone with microsecond resolution"""    
     return datetime.now().astimezone(pytz.timezone("US/Eastern")).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
@@ -139,14 +134,6 @@ def nextsunday(yyyymmdd=None):
 def nextday(yyyymmdd=None):
     return str(yyyymmdd_to_date(yyyymmdd) + timedelta(days=1))
 
-
-#def get_reviewer_id(reviewer_id=None):
-#    if reviewer_id is None and 'VISYM_COLLECTOR_REVIEWER_ID' in os.environ:
-#        reviewer_id = os.environ['VISYM_COLLECTOR_REVIEWER_ID']
-#    elif reviewer_id is None:
-#        raise ValueError("Please set up environment variable: VISYM_COLLECTOR_REVIEWER_ID with a valid email address")
-#    assert is_email_address(reviewer_id), "Invalid email address '%s'" % reviewer_id
-#    return reviewer_id
 
     
 

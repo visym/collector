@@ -22,7 +22,7 @@ Visym Collector provides:
 
 Requirements
 -------------------
-python 3.*  
+python >= 3.3  
 ffmpeg (required for videos)  
 
 

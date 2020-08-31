@@ -2,6 +2,7 @@ import os
 import boto3
 import getpass
 from pycollector.util import is_email_address
+from vipy.globals import print
 
 
 class Backend(object):
@@ -138,7 +139,8 @@ class Backend(object):
 
     def s3_bucket(self):
         return self._s3_bucket
-        
+
+    
 class Test(Backend):
     def __init__(self):
         super(Test, self).__init__()        
@@ -158,6 +160,7 @@ class Dev(object):
     def __init__(self):
         pass
 
+    
 class Prod_v1(Backend):
     def __init__(self):
         super(Prod_v1, self).__init__()
