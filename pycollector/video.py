@@ -170,7 +170,7 @@ class Instance(object):
             return self
 
     def isgood(self, score_threshold=0.0):
-        return self._instance['rating_score'] > score_threshold
+        return 'rating_score' in self._instance and self._instance['rating_score'] > score_threshold
 
     def is_good(self, score_threshold=0.0):
         return self.isgood(score_threshold)
