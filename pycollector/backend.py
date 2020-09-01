@@ -157,6 +157,8 @@ class Backend(object):
     def s3_bucket(self):
         return self._s3_bucket
 
+    def s3_client(self):
+        return self._s3_client
 
 
 class Test(Backend):
