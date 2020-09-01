@@ -29,7 +29,7 @@ setup(
     author_email='info@visym.com',
     version=version,
     namespace_packages=['pycollector'],
-    packages=find_packages()
+    packages=find_packages(),
     description='Visym Collector',
     long_description="Visym Collector Python Tools for Live Visual Datasets",
     long_description_content_type="text/markdown",
