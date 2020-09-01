@@ -224,15 +224,30 @@ class CollectionAssignment(object):
 
     def assign(self, collectorid, collectionlist, training=True):
 
+        
         C = pycollector.globals.backend().collection()
+        #P = pycollector.globals.backend().project()
+        #G = pycollector.globals.backend().program()        
+        
         assert all([c in C.collectionids() for c in collectionlist]), "Invalid collection id"
         assert training == True, "FIXME: disable training for certain collectors"
         assert not is_email_address(collectorid)
-        self._dirty_tabledict[collectorid] = [mergedict(C[k].dict(), {'collector_id':collectorid, 'collection_name':C[k].name(), 'active':True, 'isTrainingVideoEnabled':'true', 'isConsentRequired':True, 'consent_overlay_text':'Please select the record button, say "I consent to this video collection”'}) for k in collectionlist]
-        for d in self._dirty_tabledict[collectorid]:
-            del d['name']
-            del d['id']
-
+        assert len(collectionlist) <= 50, "Current limitation is 50 items for iOS"
+        
+        # Canonicalize each item 
+        self._dirty_tabledict[collectorid] = [mergedict(C[k].dict(), {'collector_id':collectorid,
+                                                                      'collection_name':C[k].name(),
+                                                                      'active':True,
+                                                                      'isTrainingVideoEnabled':'true',
+                                                                      'isConsentRequired':True,
+                                                                      'consent_overlay_text':'Please select the record button, say "I consent to this video collection”',
+                                                                      'assigned_date':timestamp(),
+                                                                      'program_id':C[k].programid(),  # FIXME
+                                                                      'project_id':C[k].projectid(),  # FIXME
+                                                                      'show_training_video':True})
+                                              for k in collectionlist]
+        self._dirty_tabledict[collectorid] = [{k:v for (k,v) in d.items() if k not in ['name', 'id']} for d in self._dirty_tabledict[collectorid]]
+        
         return self
 
     def unassign(self, collectorid):
