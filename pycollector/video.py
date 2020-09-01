@@ -223,12 +223,12 @@ class Instance(object):
         #score_verified_instance_by_id(instance_id=self.instanceid())  # FIXME
 
     def quicklookurl(self):
-        assert pycollector.globals.backend().isprod(), "Only valid for production environment"
+        assert pycollector.globals.isprod(), "Only valid for production environment"
         assert self.isvalid()
         return self._instance["s3_path"]
 
     def animated_quicklookurl(self):
-        assert pycollector.globals.backend().isprod(), "Only valid for production environment"        
+        assert pycollector.globals.isprod(), "Only valid for production environment"        
         return self._instance['animation_s3_path'] if ('animation_s3_path' in self._instance and isurl(self._instance['animation_s3_path'])) else None
     
     def clip(self, padframes=0):
