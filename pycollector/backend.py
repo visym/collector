@@ -268,7 +268,7 @@ class Project(object):
             assert isinstance(self._item, dict) and 'name' in self._item, "invalid item"
             
         def __repr__(self):
-            return str('<collector.backend.Project: "%s", name=%s, project_id=%s,  created_date=%s>' % (self._item['name'], self._item['name'], self._item['project_id'], self._item['created_date']))
+            return str('<pycollector.backend.Project: "%s", name=%s, project_id=%s,  created_date=%s>' % (self._item['name'], self._item['name'], self._item['project_id'], self._item['created_date']))
 
         def dict(self):
             return self._item
@@ -574,7 +574,7 @@ class Collection(object):
         self._itemdict = {k['name']:k for k in scandict}
 
     def __repr__(self):
-        return str('<collector.backend.Collections: projects=%d, collections=%d>' % (len(groupbyasdict(self._itemdict.values(), lambda v: v['project_name'])), len(self._itemdict)))
+        return str('<pycollector.backend.Collection: projects=%d, collections=%d>' % (len(groupbyasdict(self._itemdict.values(), lambda v: v['project_name'])), len(self._itemdict)))
     
     def __getitem__(self, name):
         key = name if name in self._itemdict else (self.id_to_name(name) if self.id_to_name(name) in self._itemdict else None)

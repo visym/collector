@@ -229,7 +229,7 @@ class Project(object):
         print("[pycollector.project]:  Returned %d videos" % len(self.df))
 
     def __repr__(self):
-        return str("<collector.project: program=%s, videos=%d, since=%s, collectors=%d>" % (self._programid,
+        return str("<pycollector.project: program=%s, videos=%d, since=%s, collectors=%d>" % (self._programid,
                                                                                                     len(self.videoid()),
                                                                                                     str(self._since),
                                                                                                     len(self.collectorid())))
@@ -615,7 +615,7 @@ class Project(object):
         assert vipy.version.is_at_least("0.8.2")
         if len(self) > 100:
             warnings.warn(
-                "[collector.project.quickhtml]: Generating quickhtml for %d videos, This may take a while ..."
+                "[pycollector.project]: Generating quickhtml for %d videos, This may take a while ..."
                 % len(self)
             )
         vipy.visualize.tohtml(

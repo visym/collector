@@ -75,7 +75,7 @@ class Instance(object):
             self._instance = {k.lower():v for (k,v) in self._instance.items()}
         
     def __repr__(self):
-        return str("<collector.video.instance: category=%s, videoid=%s, instanceid=%s>" % (self.shortname(), self.videoid(), self.instanceid()))
+        return str("<pycollector.video.instance: category=%s, videoid=%s, instanceid=%s>" % (self.shortname(), self.videoid(), self.instanceid()))
 
     def dict(self):
         return self._instance
@@ -332,7 +332,7 @@ class Video(Scene):
         jsonfile = self._jsonfile
         if jsonfile is not None and os.path.getsize(jsonfile) != 0:
             if self._verbose:
-                print('[collector.video]:  Parsing "%s"' % jsonfile)
+                print('[pycollector.video]:  Parsing "%s"' % jsonfile)
 
             d = readjson(jsonfile)
             if "collection_id" not in d["metadata"]:
@@ -386,7 +386,7 @@ class Video(Scene):
                 
 
         else:
-            print('[collector.video]: empty JSON "%s" - SKIPPING' % jsonfile)
+            print('[pycollector.video]: empty JSON "%s" - SKIPPING' % jsonfile)
             d = None
 
         # Valid collection?
@@ -429,7 +429,7 @@ class Video(Scene):
 
                 badboxes = [bb for bb in keyboxes if not bb.isvalid()]
                 if len(badboxes) > 0:
-                    print('[collector.Video]: Removing %d bad keyboxes "%s" for videoid=%s' % (len(badboxes), str(badboxes), d["metadata"]["video_id"]))
+                    print('[pycollector.Video]: Removing %d bad keyboxes "%s" for videoid=%s' % (len(badboxes), str(badboxes), d["metadata"]["video_id"]))
                 if len(badboxes) == len(keyboxes):
                     raise ValueError("all keyboxes in track are invalid")
 
@@ -483,7 +483,7 @@ class Video(Scene):
 
                 except Exception as e:
                     print(
-                        '[collector.Video]: Filtering invalid activity "%s" with error "%s" for videoid=%s'
+                        '[pycollector.Video]: Filtering invalid activity "%s" with error "%s" for videoid=%s'
                         % (str(a), str(e), d["metadata"]["video_id"])
                     )
 
@@ -501,7 +501,7 @@ class Video(Scene):
                     if s > 256:
                         self.rescale(self._mindim / float(s))  # does not require load
                     else:
-                        print('[collector.video]: Filtering Invalid JSON (height, width)')
+                        print('[pycollector.video]: Filtering Invalid JSON (height, width)')
                         self._is_json_loaded = False
                 else:
                     assert vipy.version.is_at_least("0.8.0")
@@ -533,7 +533,7 @@ class Video(Scene):
         except Exception as e:
             if ignoreErrors:
                 print(
-                    '[collector.video.fetch]: Download failed with error "%s" - SKIPPING'
+                    '[pycollector.video]: Download failed with error "%s" - SKIPPING'
                     % (str(e))
                 )
             else:
@@ -558,14 +558,14 @@ class Video(Scene):
                 filetail(self._jsonurl),
             )
             if not os.path.exists(self._jsonfile):
-                print('[collector.video]:  Fetching "%s"' % self._jsonurl)
+                print('[pycollector.video]:  Fetching "%s"' % self._jsonurl)
                 try:
                     vipy.downloader.s3(self._jsonurl, self._jsonfile)
                 except KeyboardInterrupt:
                     raise
                 except Exception as e:
                     print(
-                        '[collector.video]: S3 download error "%s" - SKIPPING'
+                        '[pycollector.video]: S3 download error "%s" - SKIPPING'
                         % str(e)
                     )
                     jsonfile = None
@@ -603,7 +603,7 @@ class Video(Scene):
         
         """
         assert vipy.version.is_at_least("0.8.2")
-        print('[collector.video.quicklooks]: Generating quicklooks for video "%s"' % self.videoid())
+        print('[pycollector.video]: Generating quicklooks for video "%s"' % self.videoid())
         return [a.quicklook(n=n,
                             dilate=dilate,
                             mindim=mindim,
@@ -655,7 +655,7 @@ class Video(Scene):
             return datetime.strptime(self.attributes["collected_date"], "%Y-%m-%d %H:%M:%S").astimezone(et)
 
     def uploaded(self):
-        print("[collector.project.Video]: WARNING - Reporting timestamp in the JSON, which may differ from the actual time the backend processed the video")
+        print("[pycollector.video]: WARNING - Reporting timestamp in the JSON, which may differ from the actual time the backend processed the video")
         return self.timestamp()
 
     def metadata(self):
@@ -717,7 +717,7 @@ class Video(Scene):
         return urls
 
     def quickshow(self, framerate=10, nocaption=False):
-        print("[collector.project.Video]: setting quickshow input framerate=%d" % framerate)
+        print("[pycollector.video]: setting quickshow input framerate=%d" % framerate)
         return (
             self.fetch()
             .clone()
@@ -762,7 +762,7 @@ class Video(Scene):
         return any([lowerif("Up", isapi('v2')) in r and r[lowerif("Up", isapi('v2'))] > 0 for r in ratings])
             
     def downcast(self):
-        """Convert from collector.project.Video to vipy.video.Scene by downcasting class"""
+        """Convert from collector.video to vipy.video.Scene by downcasting class"""
         v = self.clone().sanitize()
         v.__class__ = Scene
         return v

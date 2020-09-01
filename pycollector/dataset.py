@@ -73,9 +73,9 @@ def split_dataset(A, trainfraction=0.7, testfraction=0.1, valfraction=0.2, seed=
         trainset.extend(trainlist)
 
     if verbose:
-        print('[visym_collector.dataset]: trainset=%d (%1.1f)' % (len(trainset), trainfraction))
-        print('[visym_collector.dataset]: valset=%d (%1.1f)' % (len(valset), valfraction))
-        print('[visym_collector.dataset]: testset=%d (%1.1f)' % (len(testset), testfraction))
+        print('[pycollector.dataset]: trainset=%d (%1.1f)' % (len(trainset), trainfraction))
+        print('[pycollector.dataset]: valset=%d (%1.1f)' % (len(valset), valfraction))
+        print('[pycollector.dataset]: testset=%d (%1.1f)' % (len(testset), testfraction))
     return (trainset, testset, valset)
 
 
@@ -178,5 +178,5 @@ def activitymontage_bycategory(pklfile, gridcols=49, mindim=64):
         print(vipy.visualize.videomontage(actlist_k[0:15], 256, 256, gridrows=3, gridcols=5).saveas(outfile).filename())
 
     outfile = os.path.join(filepath(pklfile), '%s_%d_bycategory.mp4' % (filebase(pklfile), gridcols))
-    print('[visym_collector.dataset.activitymontage_bycategory]: rows=%s' % str(sorted(d_category.keys())))
+    print('[pycollector..dataset.activitymontage_bycategory]: rows=%s' % str(sorted(d_category.keys())))
     return vipy.visualize.videomontage(actlist, mindim, mindim, gridrows=len(d_category), gridcols=gridcols).saveas(outfile).filename()
