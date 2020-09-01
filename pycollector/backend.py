@@ -597,7 +597,7 @@ class Collection(object):
         return self.__getitem__(name)
     
     def id_to_name(self, id=None):
-        d = {v.id():v.name() for v in self.collectionlist()}
+        d = {v['collection_id']:v['name'] for (k,v) in self._itemdict.items()}
         return d[id] if id is not None else d
     
     def names(self):
