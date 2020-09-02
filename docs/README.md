@@ -14,7 +14,7 @@ Visym Collector provides:
 * On-demand collection of rare classes  
 * Simultaneous video recording, annotation and verification into a single unified platform  
 * Consented videos of people for ethical dataset construction
-* Python tools for hard negative mining and live model testing in PyTorch
+* [Python tools](https://github.com/visym/collector) for hard negative mining and live model testing in PyTorch
 
 
 ## Dataset Releases
