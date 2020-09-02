@@ -7,14 +7,14 @@ Public release of the mobile app coming soon!
 
 ## Visym Collector
 
-Visym Collector is a global platform for collecting large scale consented video datasets of people for visual AI applications. Collector is able to record, annotate and verify custom video datasets of rarely occuring activities for training visual AI systems, at an order of magnitude lower cost than existing methods. Our distributed data collection team is spread over five continents and fifty countries to collect unbiased datasets for global visual AI applications.
+Visym Collector is a mobile app for collecting large scale, on-demand and consented video datasets of people for visual AI applications. Collector is able to record, annotate and verify custom video datasets of rarely occuring activities for training visual AI systems, at an order of magnitude lower cost than existing methods. Our distributed data collection team is spread over five continents and fifty countries to collect unbiased datasets for global visual AI applications.
    
 Visym Collector provides:  
 
 * On-demand collection of rare classes  
-* Simultaneous video recording, annotation and verification into a single unified platform  
-* Consented videos of people for ethical dataset construction
-* [Python tools](https://github.com/visym/collector) for hard negative mining and live model testing in PyTorch
+* Simultaneous video recording, annotation and verification into a single platform  
+* Consented videos of people for ethical dataset curation
+* [Python tools](https://github.com/visym/collector) for hard negative mining and live model testing in PyTorch (Coming soon!)
 
 
 ## Dataset Releases
