@@ -12,11 +12,11 @@ Visym Collector is a global platform for collecting large scale consented video 
 Visym Collector provides:  
 
 * On-demand collection of rare classes  
-* Combined video recording, annotation and verification into a single platform  
-* Video datasets of people who have provided their informed consent  
-* Python tools for hard negative mining and live model testing
+* Simultaneous video recording, annotation and verification into a single unified platform  
+* Consented videos of people for ethical dataset construction
+* Python tools for hard negative mining and live model testing in PyTorch
 
 
 ## Dataset Releases
 
-* [People in Public - 100k](https://visym.com):  This dataset contains 100K instances of 64 classes of activities performed by people in public places.
+* [People in Public - 100k](https://visym.com):  This dataset contains ###K instances of ## classes of activities performed by people in public places.
