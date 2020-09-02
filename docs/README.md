@@ -2,7 +2,7 @@
 
 <a href="https://visym.com/collector"><img alt="iOS" src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg" height="50"/></a>  <a href="https://visym.com/collector"><img alt="Android" src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" height="50"/></a>
 
-Public release of the mobile app coming soon!
+[Contact us](mailto:info@visym.com) for access to the public beta of the mobile app!
 
 
 ## Visym Collector
