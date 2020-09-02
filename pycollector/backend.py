@@ -123,12 +123,12 @@ class Backend(object):
     def collection_assignment(self):
         self._collection_assignment = CollectionAssignment(self._scan(self._ddb_collection_assignment)) if (self._collection_assignment is None or self._cache is False) else self._collection_assignment
         return self._collection_assignment
-
+    
     def __getattr__(self, name):
         if name == 'table':
             # For dotted attribute access to named DDB tables
             class _PyCollector_Backend_Tables(object):
-                def __init__(self, program, project, collection, activity, video, instance, rating, subject, collector, collection_assignment):
+                def __init__(self, program, project, collection, activity, video, instance, rating, subject, collector, collection_assignment, consent_questionnaire):
                     self.program = program
                     self.project = project
                     self.collection = collection
@@ -139,6 +139,7 @@ class Backend(object):
                     self.subject = subject
                     self.collector = collector
                     self.collection_assignment = collection_assignment
+                    self.consent_questionnaire = consent_questionnaire                    
 
             return _PyCollector_Backend_Tables(self._ddb_program,
                                                self._ddb_project,
@@ -149,7 +150,8 @@ class Backend(object):
                                                self._ddb_rating,
                                                self._ddb_subject,
                                                self._ddb_collector,
-                                               self._ddb_collection_assignment)
+                                               self._ddb_collection_assignment,
+                                               self._ddb_consent_questionnaire)
                                                
         else:
             return self.__getattribute__(name)
@@ -175,6 +177,7 @@ class Test(Backend):
         self._ddb_subject = self._dynamodb_resource.Table("strSubject-uxt26i4hcjb3zg4zth4uaed4cy-visymtest")
         self._ddb_collector = self._dynamodb_resource.Table("strCollector-uxt26i4hcjb3zg4zth4uaed4cy-visymtest")
         self._ddb_collection_assignment = self._dynamodb_resource.Table("strCollectionsAssignment-uxt26i4hcjb3zg4zth4uaed4cy-visymtest")
+        self._ddb_consent_questionnaire = self._dynamodb_resource.Table("strConsentQuestionnaire-uxt26i4hcjb3zg4zth4uaed4cy-visymtest")        
         
 
 class Dev(Backend):
@@ -205,6 +208,7 @@ class Prod(Backend):
         self._ddb_subject = self._dynamodb_resource.Table("strSubject-hirn6lrwxfcrvl65xnxdejvftm-visym")
         self._ddb_collector = self._dynamodb_resource.Table("strCollector-hirn6lrwxfcrvl65xnxdejvftm-visym")
         self._ddb_collection_assignment = self._dynamodb_resource.Table("strCollectionsAssignment-hirn6lrwxfcrvl65xnxdejvftm-visym")
+        self._ddb_consent_questionnaire = self._dynamodb_resource.Table("strConsentQuestionnaire-hirn6lrwxfcrvl65xnxdejvftm-visym")        
     
             
 class CollectionAssignment(object):
