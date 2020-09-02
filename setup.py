@@ -1,4 +1,6 @@
-from setuptools import setup, find_packages, find_namespace_packages
+import sys
+from setuptools import setup, find_packages
+from setuptools import setup as setup_alias
 
 ## Tag
 #
@@ -12,7 +14,6 @@ from setuptools import setup, find_packages, find_namespace_packages
 ## PyPI distribution
 #
 # ```bash
-# python3 -m pip install --upgrade setuptools wheel twine
 # python3 setup.py sdist upload -r pypi
 # ```
 
@@ -37,6 +38,7 @@ d_setup = {'author':'Visym Labs',
                           "Operating System :: OS Independent",
                           "License :: OSI Approved :: GNU General Public License v3 (GPLv3)"]}
 
+
 setup(
     name='pycollector',
     author=d_setup['author'],
@@ -54,7 +56,7 @@ setup(
     classifiers=d_setup['classifiers']
 )
 
-setup(
+setup_alias(
     name='visym-collector',
     author=d_setup['author'],
     author_email=d_setup['author_email'],
