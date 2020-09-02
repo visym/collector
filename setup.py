@@ -38,7 +38,6 @@ d_setup = {'author':'Visym Labs',
                           "Operating System :: OS Independent",
                           "License :: OSI Approved :: GNU General Public License v3 (GPLv3)"]}
 
-
 setup(
     name='pycollector',
     author=d_setup['author'],
@@ -55,6 +54,7 @@ setup(
     keywords=d_setup['keywords'],
     classifiers=d_setup['classifiers']
 )
+
 
 setup_alias(
     name='visym-collector',
