@@ -214,6 +214,12 @@ class CollectionAssignment(object):
 
 
     def __init__(self, tablescan):
+
+        #
+        # HENG: do not copy in your code CollectionAssignment init here.  This has a different API.  
+        # your old init is in pycollector.admin.fixme right now, and will be merged in here.
+        #
+
         self._tabledict = groupbyasdict(tablescan, lambda d: d['collector_id'])
         self._dirty_tabledict = {}
 
