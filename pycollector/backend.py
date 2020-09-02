@@ -123,12 +123,12 @@ class Backend(object):
     def collection_assignment(self):
         self._collection_assignment = CollectionAssignment(self._scan(self._ddb_collection_assignment)) if (self._collection_assignment is None or self._cache is False) else self._collection_assignment
         return self._collection_assignment
-
+    
     def __getattr__(self, name):
         if name == 'table':
             # For dotted attribute access to named DDB tables
             class _PyCollector_Backend_Tables(object):
-                def __init__(self, program, project, collection, activity, video, instance, rating, subject, collector, collection_assignment):
+                def __init__(self, program, project, collection, activity, video, instance, rating, subject, collector, collection_assignment, consent_questionnaire):
                     self.program = program
                     self.project = project
                     self.collection = collection
@@ -139,6 +139,7 @@ class Backend(object):
                     self.subject = subject
                     self.collector = collector
                     self.collection_assignment = collection_assignment
+                    self.consent_questionnaire = consent_questionnaire                    
 
             return _PyCollector_Backend_Tables(self._ddb_program,
                                                self._ddb_project,
@@ -149,7 +150,8 @@ class Backend(object):
                                                self._ddb_rating,
                                                self._ddb_subject,
                                                self._ddb_collector,
-                                               self._ddb_collection_assignment)
+                                               self._ddb_collection_assignment,
+                                               self._ddb_consent_questionnaire)
                                                
         else:
             return self.__getattribute__(name)
@@ -157,6 +159,8 @@ class Backend(object):
     def s3_bucket(self):
         return self._s3_bucket
 
+    def s3_client(self):
+        return self._s3_client
 
 
 class Test(Backend):
@@ -173,6 +177,7 @@ class Test(Backend):
         self._ddb_subject = self._dynamodb_resource.Table("strSubject-uxt26i4hcjb3zg4zth4uaed4cy-visymtest")
         self._ddb_collector = self._dynamodb_resource.Table("strCollector-uxt26i4hcjb3zg4zth4uaed4cy-visymtest")
         self._ddb_collection_assignment = self._dynamodb_resource.Table("strCollectionsAssignment-uxt26i4hcjb3zg4zth4uaed4cy-visymtest")
+        self._ddb_consent_questionnaire = self._dynamodb_resource.Table("strConsentQuestionnaire-uxt26i4hcjb3zg4zth4uaed4cy-visymtest")        
         
 
 class Dev(Backend):
@@ -203,6 +208,7 @@ class Prod(Backend):
         self._ddb_subject = self._dynamodb_resource.Table("strSubject-hirn6lrwxfcrvl65xnxdejvftm-visym")
         self._ddb_collector = self._dynamodb_resource.Table("strCollector-hirn6lrwxfcrvl65xnxdejvftm-visym")
         self._ddb_collection_assignment = self._dynamodb_resource.Table("strCollectionsAssignment-hirn6lrwxfcrvl65xnxdejvftm-visym")
+        self._ddb_consent_questionnaire = self._dynamodb_resource.Table("strConsentQuestionnaire-hirn6lrwxfcrvl65xnxdejvftm-visym")        
     
             
 class CollectionAssignment(object):
@@ -228,15 +234,30 @@ class CollectionAssignment(object):
 
     def assign(self, collectorid, collectionlist, training=True):
 
+        
         C = pycollector.globals.backend().collection()
+        #P = pycollector.globals.backend().project()
+        #G = pycollector.globals.backend().program()        
+        
         assert all([c in C.collectionids() for c in collectionlist]), "Invalid collection id"
         assert training == True, "FIXME: disable training for certain collectors"
         assert not is_email_address(collectorid)
-        self._dirty_tabledict[collectorid] = [mergedict(C[k].dict(), {'collector_id':collectorid, 'collection_name':C[k].name(), 'active':True, 'isTrainingVideoEnabled':'true', 'isConsentRequired':True, 'consent_overlay_text':'Please select the record button, say "I consent to this video collection”'}) for k in collectionlist]
-        for d in self._dirty_tabledict[collectorid]:
-            del d['name']
-            del d['id']
-
+        assert len(collectionlist) <= 50, "Current limitation is 50 items for iOS"
+        
+        # Canonicalize each item 
+        self._dirty_tabledict[collectorid] = [mergedict(C[k].dict(), {'collector_id':collectorid,
+                                                                      'collection_name':C[k].name(),
+                                                                      'active':True,
+                                                                      'isTrainingVideoEnabled':'true',
+                                                                      'isConsentRequired':True,
+                                                                      'consent_overlay_text':'Please select the record button, say "I consent to this video collection”',
+                                                                      'assigned_date':timestamp(),
+                                                                      'program_id':C[k].programid(),  # FIXME
+                                                                      'project_id':C[k].projectid(),  # FIXME
+                                                                      'show_training_video':True})
+                                              for k in collectionlist]
+        self._dirty_tabledict[collectorid] = [{k:v for (k,v) in d.items() if k not in ['name', 'id']} for d in self._dirty_tabledict[collectorid]]
+        
         return self
 
     def unassign(self, collectorid):
@@ -274,7 +295,7 @@ class Project(object):
             assert isinstance(self._item, dict) and 'name' in self._item, "invalid item"
             
         def __repr__(self):
-            return str('<collector.backend.Project: "%s", name=%s, project_id=%s,  created_date=%s>' % (self._item['name'], self._item['name'], self._item['project_id'], self._item['created_date']))
+            return str('<pycollector.backend.Project: "%s", name=%s, project_id=%s,  created_date=%s>' % (self._item['name'], self._item['name'], self._item['project_id'], self._item['created_date']))
 
         def dict(self):
             return self._item
@@ -580,7 +601,7 @@ class Collection(object):
         self._itemdict = {k['name']:k for k in scandict}
 
     def __repr__(self):
-        return str('<collector.backend.Collections: projects=%d, collections=%d>' % (len(groupbyasdict(self._itemdict.values(), lambda v: v['project_name'])), len(self._itemdict)))
+        return str('<pycollector.backend.Collection: projects=%d, collections=%d>' % (len(groupbyasdict(self._itemdict.values(), lambda v: v['project_name'])), len(self._itemdict)))
     
     def __getitem__(self, name):
         key = name if name in self._itemdict else (self.id_to_name(name) if self.id_to_name(name) in self._itemdict else None)
@@ -601,7 +622,7 @@ class Collection(object):
         return self.__getitem__(name)
     
     def id_to_name(self, id=None):
-        d = {v.id():v.name() for v in self.collectionlist()}
+        d = {v['collection_id']:v['name'] for (k,v) in self._itemdict.items()}
         return d[id] if id is not None else d
     
     def names(self):

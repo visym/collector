@@ -24,13 +24,13 @@ Requirements
 -------------------
 python >= 3.3  
 ffmpeg (required for videos)  
+vipy, boto3, pandas, torch
 
 
 Installation
 -------------------
 
 ```python
-pip install --upgrade setuptools wheel twine
 pip install pycollector
 ```
 
