@@ -1,8 +1,8 @@
 ![Collector](http://i3.ytimg.com/vi/HjNa7_T-Xkc/maxresdefault.jpg)
 
-[![iOS](https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg)](https://visym.com/collector)  [![Android](https://lh3.googleusercontent.com/qF9r3ZjtgG-qyHdmjecArtKiulz1gmwL_xl9R3_fzk6igSeoN0wYbJSKEX5d_fxJRwYZJpHbqcLB3i9atl-9dOfUl9an7U43TfZ9PtQ=s0)](https://visym.com/collector)
+[![iOS](https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg)](https://visym.com/collector)  [![Android](https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg)](https://visym.com/collector)
 
-COMING SOON  
+Public release of the mobile app coming soon!
 
 
 ## Visym Collector
@@ -14,8 +14,9 @@ Visym Collector provides:
 * On-demand collection of rare classes  
 * Combined video recording, annotation and verification into a single platform  
 * Video datasets of people who have provided their informed consent  
+* Python tools for hard negative mining and live model testing
 
 
 ## Dataset Releases
 
-* [People in Public - 100k][https://visym.com]:  This dataset contains 100K instances of 64 classes of activities performed by people in public places.
+* [People in Public - 100k](https://visym.com):  This dataset contains 100K instances of 64 classes of activities performed by people in public places.
