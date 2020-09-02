@@ -1,9 +1,6 @@
 ![Collector](http://i3.ytimg.com/vi/HjNa7_T-Xkc/maxresdefault.jpg)
 
-[![iOS](https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg)](https://visym.com/collector)  [![Android](https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg)](https://visym.com/collector)
-
-<img src="https://media.giphy.com/media/cFkiFMDg3iFoI/giphy.gif" width="100" />
-
+<img alt="iOS" src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg" height="100"/>  <img alt="Android" src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" height="100"/>
 
 Public release of the mobile app coming soon!
 
