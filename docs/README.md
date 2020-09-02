@@ -2,12 +2,15 @@
 
 [![iOS](https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg)](https://visym.com/collector)  [![Android](https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg)](https://visym.com/collector)
 
+<img src="https://media.giphy.com/media/cFkiFMDg3iFoI/giphy.gif" width="100" />
+
+
 Public release of the mobile app coming soon!
 
 
 ## Visym Collector
 
-Visym Collector is a global platform for collecting large scale consented video datasets of people for visual AI applications. Collector is able to record, annotate and verify custom video datasets of rarely occuring activities for training visual AI systems (e.g. activity detection), at an order of magnitude lower cost than existing methods. Our distributed data collection team is spread over five continents and fifty countries to collect unbiased datasets for global visual AI applications.
+Visym Collector is a global platform for collecting large scale consented video datasets of people for visual AI applications. Collector is able to record, annotate and verify custom video datasets of rarely occuring activities for training visual AI systems, at an order of magnitude lower cost than existing methods. Our distributed data collection team is spread over five continents and fifty countries to collect unbiased datasets for global visual AI applications.
    
 Visym Collector provides:  
 
