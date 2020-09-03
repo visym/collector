@@ -27,16 +27,26 @@ vipy, boto3, pandas, torch
 Installation
 -------------------
 
-<a href="https://visym.com/collector"><img alt="iOS" src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg" height="50"/></a>  <a href="https://visym.com/collector"><img alt="Android" src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" height="50"/></a>
-
 ```python
 pip install pycollector
 ```
 
 Quickstart
 -------------------
+
+1. Get the Visym Collector mobile app (contact us to be part of the beta!)
+
+<a href="https://visym.com/collector"><img alt="iOS" src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg" height="50"/></a>  <a href="https://visym.com/collector"><img alt="Android" src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" height="50"/></a>
+
+2. Collect a labeled video.
+
+3.  Retrieve your video and test with your pytorch network
+
 ```python
 import pycollector
+v = pycollector.video.last()
+t = v.maxsquare().mindim(256).clip(0,64).torch()
+net(t)
 ```
 
 The [demos](https://github.com/visym/collector/tree/master/demo) will provide useful notebook tutorials to help you get started.
