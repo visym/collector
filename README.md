@@ -5,21 +5,21 @@ VISYM COLLECTOR
 Live Datasets for Visual AI    
 URL: https://github.com/visym/collector/    
 
-Visym Collector is a global platform for collecting large scale consented video datasets of people for visual AI applications. Collector is able to record, annotate and verify custom video datasets of rarely occuring activities for training visual AI systems (e.g. activity detection), at an order of magnitude lower cost than existing methods. Our distributed data collection team is spread over five continents and fifty countries to collect unbiased datasets for global visual AI applications.
+[Visym Collector](https://visym.com/collector) is a global platform for collecting large scale consented video datasets of people for visual AI applications. Collector is able to record, annotate and verify custom video datasets of rarely occuring activities for training visual AI systems (e.g. activity detection), at an order of magnitude lower cost than existing methods. Our distributed data collection team is spread over five continents and fifty countries to collect unbiased datasets for global visual AI applications.
    
 Visym Collector provides:  
 
 * On-demand collection of rare classes  
 * Simultaneous video recording, annotation and verification into a single unified platform  
-* Consented videos of people for ethical dataset construction
+* Consented videos of people for ethical dataset construction with in-app face anonymization
 * Python tools for hard negative mining and live model testing in PyTorch
 
 
 Requirements
 -------------------
-python 3.*
-ffmpeg (required for videos)  
-vipy, boto3, pandas, torch
+python 3.*    
+ffmpeg (required for videos)    
+vipy, boto3, pandas, torch    
 
 
 Installation
