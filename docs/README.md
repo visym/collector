@@ -1,4 +1,4 @@
-![Collector](http://i3.ytimg.com/vi/HjNa7_T-Xkc/maxresdefault.jpg)
+[![Collector visualization](http://i3.ytimg.com/vi/HjNa7_T-Xkc/maxresdefault.jpg)](https://youtu.be/HjNa7_T-Xkc)
 
 <a href="https://visym.com/collector"><img alt="iOS" src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg" height="50"/></a>  <a href="https://visym.com/collector"><img alt="Android" src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" height="50"/></a>
 
