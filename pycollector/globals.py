@@ -2,6 +2,7 @@ import os
 import builtins
 import logging as python_logging
 import warnings
+import vipy.globals
 
 
 # Global mutable dictionary
@@ -56,7 +57,7 @@ def verbose(b=None):
 
 
 def silent():
-    GLOBAL['VERBOSE'] = False    
+    GLOBALS['VERBOSE'] = False    
 
     
 def backend(env=None, version=None, flush=False):
