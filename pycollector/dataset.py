@@ -2,18 +2,19 @@ import os
 import vipy
 import numpy as np
 import pycollector.detection
-from vipy.globals import print
+from pycollector.globals import print
 from vipy.util import findpkl, toextension, filepath, filebase, jsonlist
 import random
 
 
 def tocsv(pklfile):
+    """Convert a dataset to a standalne CSV file"""
     pass
 
 
 def isdataset(indir):
     """Does the provided path contain a collector dataset?"""
-    assert os.path.isdir(indir) and len(jsonlist(indir))>0
+    assert os.path.isdir(indir) and len(findpkl(indir))>0
 
 
 def disjoint_activities(V, activitylist):    
@@ -34,7 +35,7 @@ def resize_dataset(indir, outdir, dilate=1.2, maxdim=256, maxsquare=True):
     """
 
     (indir, outdir) = (os.path.normpath(indir), os.path.normpath(outdir))
-    print('[people_in_public]: converting %s -> %s' % (indir, outdir))
+    print('[pycollector.dataset]: converting %s -> %s' % (indir, outdir))
     pklfiles = [f for f in findpkl(indir) if filebase(f) in set(['trainset','valset','testset'])]
     assert len(pklfiles) > 0
     for pklfile in pklfiles:
@@ -46,7 +47,7 @@ def resize_dataset(indir, outdir, dilate=1.2, maxdim=256, maxsquare=True):
 
 def boundingbox_refinement(V, ngpu, batchsize):
     # Proposals:  Improve collector proposal for each video with an optimal object proposal.  This will result in filtering away a small number of hard positives.
-    print('[prepare_pip]: betterbox %d videos' % (len(V)))
+    print('[pycollector.dataset]: bounding box refinement for %d videos' % (len(V)))
     model = pycollector.detection.VideoProposalRefinement(batchsize=batchsize)  # =8 (0046) =20 (0053)
     B = vipy.batch.Batch(V, ngpu=ngpu)
     V = B.scattermap(lambda net,v: net(v, proposalconf=5E-2, proposaliou=0.8, miniou=0.2, dt=3, mincover=0.8, byclass=True, shapeiou=0.7, smoothing='spline', splinefactor=None, strict=True), model).result()  
@@ -64,7 +65,7 @@ def split_dataset(A, trainfraction=0.7, testfraction=0.1, valfraction=0.2, seed=
     for (c,v) in d.items():
         np.random.shuffle(v)
         if len(v) < 3:
-            print('[collector-backend.dataset]: skipping category "%s" with too few examples' % c)
+            print('[pycollector.dataset]: skipping category "%s" with too few examples' % c)
             continue
 
         (testlist, vallist, trainlist) = vipy.util.dividelist(v, (testfraction, valfraction, trainfraction))
@@ -178,5 +179,5 @@ def activitymontage_bycategory(pklfile, gridcols=49, mindim=64):
         print(vipy.visualize.videomontage(actlist_k[0:15], 256, 256, gridrows=3, gridcols=5).saveas(outfile).filename())
 
     outfile = os.path.join(filepath(pklfile), '%s_%d_bycategory.mp4' % (filebase(pklfile), gridcols))
-    print('[pycollector..dataset.activitymontage_bycategory]: rows=%s' % str(sorted(d_category.keys())))
+    print('[pycollector.dataset.activitymontage_bycategory]: rows=%s' % str(sorted(d_category.keys())))
     return vipy.visualize.videomontage(actlist, mindim, mindim, gridrows=len(d_category), gridcols=gridcols).saveas(outfile).filename()
