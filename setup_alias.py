@@ -1,6 +1,6 @@
 import sys
 from setuptools import setup, find_packages
-from .setup import d_setup
+from setup_common import d_setup
 
 ## Tag
 #
