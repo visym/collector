@@ -3,6 +3,7 @@ import builtins
 import logging as python_logging
 import warnings
 import vipy.globals
+from vipy.util import try_import
 
 
 # Global mutable dictionary
@@ -49,7 +50,10 @@ def print(s, end='\n'):
 
 
 def backend(env=None, version=None, flush=False):
-    raise NotImplementedError('replace with lambda invokation')
+    assert vipy.version.is_at_least('1.8.27')
+    try_import('pycollector.admin', message="Not authorized")
+    import pycollector.admin.globals
+    return pycollector.admin.globals.backend(env, version, flush)
 
     
 def verbose(b=None):
