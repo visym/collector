@@ -37,9 +37,9 @@ Quickstart
 <a href="https://visym.com/collector"><img alt="iOS" src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg" height="50"/></a>  <a href="https://visym.com/collector"><img alt="Android" src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" height="50"/></a>
 
 
-1. Install. Get the Visym Collector app (contact us to join the private beta!)
+1. *Install.* Get the Visym Collector app (contact us to join the private beta!)
 
-2. Collect.  Collect a labeled video using the mobile app, then retrieve and visualize it using the python tools:
+2. *Collect.*  Collect a labeled video using the mobile app, then retrieve and visualize it using the python tools:
 
 ```python
 import pycollector
@@ -47,13 +47,13 @@ v = pycollector.video.last()
 v.show()
 ```
 
-3. Test. Convert the labeled video to a 64x3x224x224 PyTorch tensor and test with your network
+3. *Test.* Convert the labeled video to a 64x3x224x224 PyTorch tensor and test with your network
 
 ```python
 net(v.maxsquare().crop().mindim(224).clip(0,64).torch())
 ```
 
-4. Repeat.  Collect more videos like those your network got wrong, or let our collection team collect for you!
+4. *Repeat.*  Collect more videos like those your network got wrong, or let our collection team collect for you!
 
 
 
