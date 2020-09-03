@@ -48,7 +48,7 @@ v.show()
 * **Test.** Convert the labeled video to a 64x3x224x224 PyTorch tensor for testing with your network:
 
 ```python
-t = v.maxsquare().crop().mindim(224).clip(0,64).torch()
+t = v.clip(0,64).activitytube(maxdim=224).torch()
 ```
 
 * **Repeat.**  Collect more videos like those your network got wrong, or let our collection team collect for you!
