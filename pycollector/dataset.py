@@ -8,12 +8,13 @@ import random
 
 
 def tocsv(pklfile):
+    """Convert a dataset to a standalne CSV file"""
     pass
 
 
 def isdataset(indir):
     """Does the provided path contain a collector dataset?"""
-    assert os.path.isdir(indir) and len(jsonlist(indir))>0
+    assert os.path.isdir(indir) and len(findpkl(indir))>0
 
 
 def disjoint_activities(V, activitylist):    

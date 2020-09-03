@@ -19,13 +19,15 @@ Visym Collector provides:
 
 Requirements
 -------------------
-python >= 3.3  
+python 3.*
 ffmpeg (required for videos)  
 vipy, boto3, pandas, torch
 
 
 Installation
 -------------------
+
+<a href="https://visym.com/collector"><img alt="iOS" src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg" height="50"/></a>  <a href="https://visym.com/collector"><img alt="Android" src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" height="50"/></a>
 
 ```python
 pip install pycollector
@@ -37,6 +39,6 @@ Quickstart
 import pycollector
 ```
 
-The [demos](https://github.com/visym/collector/tree/master/demo) WILL provide useful notebook tutorials to help you get started.
+The [demos](https://github.com/visym/collector/tree/master/demo) will provide useful notebook tutorials to help you get started.
 
 

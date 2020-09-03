@@ -35,7 +35,7 @@ import pycollector.globals
 
 
 class Instance(object):
-    """collector.project.Instance class
+    """pycollector.video.Instance class
 
        An Instance() is an observed Activity() collected as part of a CollectionInstance() and spcified by a Collection()
     """

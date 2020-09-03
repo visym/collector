@@ -15,9 +15,9 @@ import vipy
 
 
 class Backend(object):
-    """Standard interface for project administration on Collector backend
+    """Standard interface for Collector backend
 
-        User will need to set up their local environment variables         
+        Admin users will need to set up their local environment variables, python users will need to log in.
     """
 
     def __init__(self, region='us-east-1', verbose=True, cache=True):
