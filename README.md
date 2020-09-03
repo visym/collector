@@ -46,7 +46,7 @@ v = pycollector.video.last()
 v.show()
 ```
 
-* **Test.** Convert to a 64x3x224x224 PyTorch tensor for testing with your cuboid or tubelet-based network:
+* **Test.** Convert to a 64x3x224x224 PyTorch tensor for testing with your network:
 
 ```python
 t = v.clip(0,64).activitytube(maxdim=224).torch()
