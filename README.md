@@ -14,8 +14,6 @@ Visym Collector provides:
 * Consented videos of people for ethical dataset construction
 * Python tools for hard negative mining and live model testing in PyTorch
 
-[![Visym Collector Montage](http://i3.ytimg.com/vi/HjNa7_T-Xkc/maxresdefault.jpg)](https://youtu.be/HjNa7_T-Xkc)
-
 
 Requirements
 -------------------
@@ -50,13 +48,14 @@ v.show()
 * **Test.** Convert the labeled video to a 64x3x224x224 PyTorch tensor and test with your network
 
 ```python
-net(v.maxsquare().crop().mindim(224).clip(0,64).torch())
+t = v.maxsquare().crop().mindim(224).clip(0,64).torch()
+net(t)
 ```
 
 * **Repeat.**  Collect more videos like those your network got wrong, or let our collection team collect for you!
 
 
 
-The [demos](https://github.com/visym/collector/tree/master/demo) will provide useful notebook tutorials to help you get started.
+The [demos](https://github.com/visym/collector/tree/master/demo) will provide additional useful tutorials to help you get started.
 
 
