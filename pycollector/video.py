@@ -779,5 +779,6 @@ class Video(Scene):
         return self.instances()[k]
 
 
-
+def last():
+    raise NotImplementedError('Coming soon!')
 
