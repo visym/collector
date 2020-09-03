@@ -16,11 +16,11 @@ Visym Collector provides:
 * On-demand collection of rare classes  
 * Simultaneous video recording, annotation and verification into a single platform
 * Consented videos of people for ethical dataset construction with in-app face anonymization
-* Python tools for hard negative mining, [dataset transformation](https://github.com/visym/vipy) and live model testing in PyTorch
+* [Python tools](https://github.com/visym/collector) for hard negative mining, [dataset transformation](https://github.com/visym/vipy) and live model testing in PyTorch
 
 Our goal is to make all datasets freely available to the computer vision research community.
 
 
 ## Dataset Releases
 
-* [People in Public - 175K](https://visym.com):  This dataset contains 184,402 video instances of 68 classes of activities performed by people in public places.  The activity labels are consistent with the 37 activities in the [Multiview Extended Video with Activities (MEVA)](https://mevadata.org) dataset and the [Activities in Extended Video (ActEV)](https://actev.nist.gov/) challenge.  
+* [People in Public - 175K](https://visym.com):  This dataset contains 184,402 video clips of 68 classes of activities performed by people in public places.  The activity labels are consistent with the 37 activities in the [Multiview Extended Video with Activities (MEVA)](https://mevadata.org) dataset and the [Activities in Extended Video (ActEV)](https://actev.nist.gov/) challenge.  
