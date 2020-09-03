@@ -18,7 +18,7 @@ from .setup import d_setup
 # ```
 
 setup(
-    name='pycollector',
+    name='visym-collector',
     author=d_setup['author'],
     author_email=d_setup['author_email'],
     version=d_setup['version'],
