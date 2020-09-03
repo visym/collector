@@ -16,6 +16,8 @@ Visym Collector provides:
 * Consented videos of people for ethical dataset curation
 * Python tools for hard negative mining and live model testing in PyTorch
 
+Our goal is to make these datasets available to the computer vision research community for the purpose of advancing the state-of-the-art.
+
 
 ## Dataset Releases
 
