@@ -21,4 +21,4 @@ Our goal is to make all datasets available to the computer vision research commu
 
 ## Dataset Releases
 
-* [People in Public - 100k](https://visym.com):  This dataset contains ###K instances of ## classes of activities performed by people in public places.
+* [People in Public - 100k](https://visym.com):  This dataset contains ###K instances of ## classes of activities performed by people in public places.  The activity labels are derived from the 37 activities in the [Multiview Extended Video with Activities (MEVA)](https://mevadata.org) dataset.
