@@ -18,8 +18,8 @@ Visym Collector provides:
 Requirements
 -------------------
 python 3.*    
-ffmpeg (required for videos)    
-vipy, boto3, pandas, torch    
+[ffmpeg](https://ffmpeg.org/download.html) (required for videos)    
+[vipy](https://github.com/visym/vipy), torch, boto3, pandas
 
 
 Installation
