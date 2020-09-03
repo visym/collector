@@ -8,7 +8,8 @@ import vipy.globals
 # Global mutable dictionary
 GLOBALS = {'VERBOSE': True,                # If False, will silence everything, equivalent to calling pycollector.globals.silent()
            'LOGGING':False,                # If True, use python logging (handler provided by end-user) intead of print 
-           'LOGGER':None}                  # The global logger used by pycollector.globals.print() and pycollector.globals.warn() if LOGGING=True
+           'LOGGER':None,                  # The global logger used by pycollector.globals.print() and pycollector.globals.warn() if LOGGING=True
+           'BACKEND_VERSION':'v2'}         
 
 
 def logging(enable=None, format=None):
@@ -57,3 +58,6 @@ def silent():
     GLOBALS['VERBOSE'] = False    
 
     
+def isapi(version):
+    return GLOBALS['BACKEND_VERSION'] == version
+
