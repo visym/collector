@@ -1,17 +1,18 @@
 import os
 import boto3
 import getpass
+from pycollector.video import Video, Instance
 from pycollector.util import is_email_address, mergedict, timestamp, fromtimestamp
-from vipy.globals import print
-from vipy.util import groupbyasdict, tolist, isurl
+from pycollector.globals import print
 import pycollector.globals
+from vipy.util import groupbyasdict, tolist, isurl
+import vipy
+
 import pandas as pd
 from boto3.dynamodb.conditions import Key, Attr
-import uuid
 from datetime import datetime, timedelta
+import uuid
 import pytz
-from pycollector.video import Video, Instance
-import vipy
 
 
 class Backend(object):

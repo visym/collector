@@ -3,10 +3,10 @@ import sys
 import torch
 import vipy
 import shutil
-from vipy.globals import print
 from vipy.util import remkdir, filetail, readlist, tolist, filepath
 from pycollector.video import Video
 from pycollector.yolov3.models import Darknet
+from pycollector.globals import print
 
 
 class Proposal(object):

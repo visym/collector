@@ -60,6 +60,7 @@ import pycollector.globals
 from pycollector.globals import isapi
 from pycollector.video import Video, Instance
 from pycollector.backend import CollectionInstance
+from pycollector.globals import print
 
 
 class Project(object):

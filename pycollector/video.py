@@ -17,7 +17,6 @@ from boto3.dynamodb.conditions import Key, Attr
 
 import vipy
 assert vipy.version.is_at_least('1.8.24')
-from vipy.globals import print
 from vipy.util import readjson, isS3url, tempjson,tempdir, totempdir, remkdir
 from vipy.util import flatlist, tolist, groupbyasdict, writecsv, filebase, filetail, filepath, fileext, isurl, tolist
 from vipy.object import Track
@@ -30,7 +29,7 @@ import vipy.version
 
 from pycollector.util import allmondays_since, yyyymmdd_to_date, is_email_address, isday, is_more_recent_than, nextday, lastmonday
 from pycollector.util import lowerif, timestamp, fromdate, ismonday
-from pycollector.globals import isapi
+from pycollector.globals import isapi, print
 import pycollector.globals
 
 
@@ -391,7 +390,7 @@ class Video(Scene):
 
         # Valid collection?
         if not pycollector.globals.backend().collection().isvalid(d["metadata"]["collection_id"]):
-            print('[collector.video]: invalid collection "%s" - SKIPPING' % d["metadata"]["collection_id"])
+            print('[pycollector.video]: invalid collection "%s" - SKIPPING' % d["metadata"]["collection_id"])
             d = None
 
         # Import JSON into scene
@@ -429,7 +428,7 @@ class Video(Scene):
 
                 badboxes = [bb for bb in keyboxes if not bb.isvalid()]
                 if len(badboxes) > 0:
-                    print('[pycollector.Video]: Removing %d bad keyboxes "%s" for videoid=%s' % (len(badboxes), str(badboxes), d["metadata"]["video_id"]))
+                    print('[pycollector.video]: Removing %d bad keyboxes "%s" for videoid=%s' % (len(badboxes), str(badboxes), d["metadata"]["video_id"]))
                 if len(badboxes) == len(keyboxes):
                     raise ValueError("all keyboxes in track are invalid")
 
@@ -483,7 +482,7 @@ class Video(Scene):
 
                 except Exception as e:
                     print(
-                        '[pycollector.Video]: Filtering invalid activity "%s" with error "%s" for videoid=%s'
+                        '[pycollector.video]: Filtering invalid activity "%s" with error "%s" for videoid=%s'
                         % (str(a), str(e), d["metadata"]["video_id"])
                     )
 

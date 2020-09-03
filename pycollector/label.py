@@ -214,15 +214,4 @@ def piplabel_to_index():
     }
 
 
-#def _applabel_to_longlabel():
-#    """FIXME: this mapping should be baked into the app"""
-#    assert isapi('v1')
-#    print(
-#        '[collector.dataset.applabel_to_longlabel]:  Scanning table "co_Activities_Mobile_ID_Dict_Dev"'
-#    )
-#    t = collector.admin.Backend()._dynamodb_resource.Table(
-#        "co_Activities_Mobile_ID_Dict_Dev"
-#    )
-#    return {d["Mobile_ID"]: d["Instance_ID"] for d in t.scan()["Items"]}
-
 
