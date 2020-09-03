@@ -39,7 +39,7 @@ Quickstart
 
 **1. Install.** Get the Visym Collector app (contact us to join the private beta!)
 
-**2. Collect.**  Collect a labeled video using the mobile app, then retrieve it using the python tools:
+**2. Collect.**  Collect a labeled video using the mobile app, then retrieve and visualize it using the python tools:
 
 ```python
 import pycollector
@@ -47,13 +47,13 @@ v = pycollector.video.last()
 v.show()
 ```
 
-**3. Test.** Convert the labeled video to a PyTorch tensor and test with your network
+**3. Test.** Convert the labeled video to a 64x3x224x224 PyTorch tensor and test with your network
 
 ```python
-net(v.maxsquare().crop().mindim(256).clip(0,64).torch())
+net(v.maxsquare().crop().mindim(224).clip(0,64).torch())
 ```
 
-**4. Repeat.**  Collect more videos like those your network got wrong, or let our distributed collection team collect for you!
+**4. Repeat.**  Collect more videos like those your network got wrong, or let our collection team collect for you!
 
 
 
