@@ -7,7 +7,7 @@
 [Contact us](mailto:info@visym.com?subject=[Visym Collector]: Beta Access) for access to the private beta of the mobile app!
 
 
-## Visym Collector
+## VISYM COLLECTOR
 
 [Visym Collector](https://visym.com/collector) is a mobile app for collecting large scale, on-demand and consented video datasets of people for visual AI applications. Collector is able to record, annotate and verify custom video datasets of rarely occuring activities for training visual AI systems, at an order of magnitude lower cost than existing methods. Our distributed data collection team is spread over five continents and fifty countries to collect unbiased datasets for global visual AI applications.
    
