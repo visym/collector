@@ -4,7 +4,7 @@
 
 <a href="https://visym.com/collector"><img alt="iOS" src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg" height="50"/></a>  <a href="https://visym.com/collector"><img alt="Android" src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" height="50"/></a> 
 
-[Contact us](mailto:info@visym.com?subject=[Visym Collector]: Beta Access) for access to the public beta of the mobile app!
+[Contact us](mailto:info@visym.com?subject=[Visym Collector]: Beta Access) for access to the private beta of the mobile app!
 
 
 ## Visym Collector
@@ -23,4 +23,4 @@ Our goal is to make all datasets freely available to the computer vision researc
 
 ## Dataset Releases
 
-* [People in Public - 175K](https://visym.com):  This dataset contains 184,402 video instances of 68 classes of activities performed by people in public places.  The activity labels are consistent with the 37 activities in the [Multiview Extended Video with Activities (MEVA)](https://mevadata.org) dataset.
+* [People in Public - 175K](https://visym.com):  This dataset contains 184,402 video instances of 68 classes of activities performed by people in public places.  The activity labels are consistent with the 37 activities in the [Multiview Extended Video with Activities (MEVA)](https://mevadata.org) dataset and the [Activities in Extended Video (ActEV)](https://actev.nist.gov/) challenge.  
