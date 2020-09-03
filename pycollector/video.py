@@ -29,8 +29,7 @@ import vipy.version
 
 from pycollector.util import allmondays_since, yyyymmdd_to_date, is_email_address, isday, is_more_recent_than, nextday, lastmonday
 from pycollector.util import lowerif, timestamp, fromdate, ismonday
-from pycollector.globals import isapi, print
-import pycollector.globals
+from pycollector.globals import isapi, print, backend
 
 
 class Instance(object):
@@ -42,7 +41,7 @@ class Instance(object):
     def __init__(self, instanceid=None, quicklookurl=None, strict=True, query=None):
         assert (quicklookurl is None or isurl(quicklookurl)), "Input must be a quicklook URL of the form: https://diva-str-prod-data-public.s3.amazonaws.com/Quicklooks/20200507_172502444708376634347184_quicklook_P004_P004C005_Abandoning_0.jpg"
         assert (quicklookurl is not None or instanceid is not None or query is not None), "Must provide one input"
-        co_Instances = pycollector.globals.backend().table.instance
+        co_Instances = backend().table.instance
         
         if quicklookurl is not None:
             videoid = filebase(quicklookurl).split("_quicklook_")[0]
@@ -136,7 +135,7 @@ class Instance(object):
         return any([v>0 for (k,v) in self._instance.items() if '_score' in k])
     
     def rating(self):
-        co_Rating = pycollector.globals.backend().table.rating
+        co_Rating = backend().table.rating
         video_ratings = [{k.lower():v for (k,v) in r.items()} for r in co_Rating.query(IndexName=lowerif("Video_ID-index", isapi('v2')),
                                                                                        KeyConditionExpression=Key(lowerif("Video_ID", isapi('v2'))).eq(self.videoid()))["Items"]]
         return [v for v in video_ratings if v["id"] == self.instanceid()]
@@ -150,7 +149,7 @@ class Instance(object):
             assert isinstance(state, bool)
             self._instance["rating_score_finalized"] = state
 
-            co_Instances = pycollector.globals.backend().table.instance
+            co_Instances = backend().table.instance
             co_Instances.update_item(
                 Key={
                     "id": self._instance["id"],
@@ -186,14 +185,14 @@ class Instance(object):
                     k: v if "bad" not in k else Decimal(False)
                     for (k, v) in item.items()
                 }
-                co_Rating = pycollector.globals.backend().table.rating
+                co_Rating = backend().table.rating
                 co_Rating.put_item(Item=item)
 
                 #score_verified_instance_by_id(instance_id=self.instanceid())  # FIXME
 
     def add_rating(self, reviewer_id, true_rating):
         assert isapi('v2')        
-        co_Rating = pycollector.globals.backend().table.rating
+        co_Rating = backend().table.rating
     
         item_keys = [
             "bad_box_big",
@@ -275,13 +274,13 @@ class Video(Scene):
         assert vipy.version.at_least_version("0.7.4"), "vipy >= 0.7.4 required"
         
         if videoid is not None and isapi('v2'):
-            v = pycollector.globals.backend().table.video.query(IndexName="video_id-index",
+            v = backend().table.video.query(IndexName="video_id-index",
                                                           KeyConditionExpression=Key('video_id').eq(videoid))['Items']
             if len(v) == 0:
                 raise ValueError('Video ID "%s" not found' % videoid)
             v = v[0]
-            mp4url = 's3://%s.s3.amazonaws.com/%s' % (pycollector.globals.backend()._s3_bucket, v['raw_video_file_path'])
-            jsonurl = 's3://%s.s3.amazonaws.com/%s' % (pycollector.globals.backend()._s3_bucket, v['annotation_file_path'])
+            mp4url = 's3://%s.s3.amazonaws.com/%s' % (backend()._s3_bucket, v['raw_video_file_path'])
+            jsonurl = 's3://%s.s3.amazonaws.com/%s' % (backend()._s3_bucket, v['annotation_file_path'])
             videoid = None
         
         elif videoid is not None and isapi('v1'):
@@ -306,7 +305,7 @@ class Video(Scene):
         super(Video, self).__init__(url=mp4url, filename=mp4file, attributes=attributes)
 
         # Video attributes
-        self._quicklook_url = "https://%s.s3.amazonaws.com/Quicklooks/%%s_quicklook_%%s_%%d.jpg" % (pycollector.globals.backend().s3_bucket())  
+        self._quicklook_url = "https://%s.s3.amazonaws.com/Quicklooks/%%s_quicklook_%%s_%%d.jpg" % (backend().s3_bucket())  
         self._jsonurl = jsonurl
         self._jsonfile = jsonfile
         self._dt = dt
@@ -389,13 +388,13 @@ class Video(Scene):
             d = None
 
         # Valid collection?
-        if not pycollector.globals.backend().collection().isvalid(d["metadata"]["collection_id"]):
+        if not backend().collection().isvalid(d["metadata"]["collection_id"]):
             print('[pycollector.video]: invalid collection "%s" - SKIPPING' % d["metadata"]["collection_id"])
             d = None
 
         # Import JSON into scene
         if d is not None:
-            collection_name = pycollector.globals.backend().collection().id_to_name(d["metadata"]["collection_id"])
+            collection_name = backend().collection().id_to_name(d["metadata"]["collection_id"])
             self.category(collection_name)
             self.attributes = {} if self.attributes is None else self.attributes
             self.attributes.update(d['metadata'])
@@ -463,7 +462,7 @@ class Video(Scene):
                         shortlabel = a["label"]
                     shortlabel = shortlabel.lower()
 
-                    category = pycollector.globals.backend().collection()[d["metadata"]["collection_id"]].shortname_to_activity(a["label"])
+                    category = backend().collection()[d["metadata"]["collection_id"]].shortname_to_activity(a["label"])
                     self.add(vipy.activity.Activity(category=category,
                                                     shortlabel=shortlabel,
                                                     startframe=int(a["start_frame"]),
@@ -732,13 +731,13 @@ class Video(Scene):
         # guararanteed to be order preserving.  If you are running python 3.7 this does not matter.
         assert vipy.version.is_at_least("0.8.0")
 
-        co_Rating = pycollector.globals.backend().table.rating
+        co_Rating = backend().table.rating
         video_ratings = co_Rating.query(
             IndexName=lowerif("Video_ID-index", isapi('v2')), 
             KeyConditionExpression=Key(lowerif("Video_ID", isapi('v2'))).eq(self.videoid()),
         )["Items"]
 
-        co_Instances = pycollector.globals.backend().table.instance
+        co_Instances = backend().table.instance
         instance_ratings = []
         for v in video_ratings:
             rating = co_Instances.query(
@@ -752,7 +751,7 @@ class Video(Scene):
 
     def isgood(self):
         """'Good' is defined as a video with at least one instance rated good in the video"""
-        co_Rating = pycollector.globals.backend().table.rating        
+        co_Rating = backend().table.rating        
         ratings = co_Rating.query(
             IndexName=lowerif("Video_ID-index", isapi('v2')), 
             ProjectionExpression=lowerif("Up", isapi('v2')), 
@@ -768,7 +767,7 @@ class Video(Scene):
 
     def instances(self):
         """Return all instances for this video"""
-        co_Instances = pycollector.globals.backend().table.instance
+        co_Instances = backend().table.instance
         instances = co_Instances.query(
             IndexName=lowerif("Video_ID-index", isapi('v2')), 
             KeyConditionExpression=Key(lowerif("Video_ID", isapi('v2'))).eq(self.videoid()),

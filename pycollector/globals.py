@@ -47,7 +47,11 @@ def print(s, end='\n'):
     if GLOBALS['VERBOSE']:
         builtins.print(s, end=end) if (not GLOBALS['LOGGING'] or GLOBALS['LOGGER'] is None) else GLOBALS['LOGGER'].info(s)
 
-        
+
+def backend(env=None, version=None, flush=False):
+    raise NotImplementedError('replace with lambda invokation')
+
+    
 def verbose(b=None):
     if b is not None:
         GLOBALS['VERBOSE'] = b
