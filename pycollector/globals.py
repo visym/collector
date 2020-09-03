@@ -6,12 +6,9 @@ import vipy.globals
 
 
 # Global mutable dictionary
-GLOBALS = {'VERBOSE': True,                # If False, will silence everything, equivalent to calling vipy.globals.silent()
+GLOBALS = {'VERBOSE': True,                # If False, will silence everything, equivalent to calling pycollector.globals.silent()
            'LOGGING':False,                # If True, use python logging (handler provided by end-user) intead of print 
-           'LOGGER':None,                  # The global logger used by vipy.globals.print() and vipy.globals.warn() if LOGGING=True
-           'BACKEND_VERSION': 'v2',        # For visym admins only - Do not change
-           'BACKEND_ENVIRONMENT': 'prod',  # For visym admins only - Do not change
-           'BACKEND':None}   
+           'LOGGER':None}                  # The global logger used by pycollector.globals.print() and pycollector.globals.warn() if LOGGING=True
 
 
 def logging(enable=None, format=None):
@@ -60,40 +57,3 @@ def silent():
     GLOBALS['VERBOSE'] = False    
 
     
-def backend(env=None, version=None, flush=False):
-    if version is not None:
-        assert version in ['v1', 'v2']
-        GLOBALS['BACKEND_VERSION'] = version
-        GLOBALS['BACKEND'] = None
-
-    if env is not None:
-        assert env in ['prod', 'dev', 'test']
-        GLOBALS['BACKEND_ENVIRONMENT'] = env
-        GLOBALS['BACKEND'] = None
-
-    if flush:
-        GLOBALS['BACKEND'] = None        
-        
-    if GLOBALS['BACKEND'] is None:
-        import pycollector.backend  # avoid circular import
-        if GLOBALS['BACKEND_VERSION'] == 'v1' and GLOBALS['BACKEND_ENVIRONMENT'] == 'prod':
-            GLOBALS['BACKEND'] = pycollector.backend.Prod_v1()
-        elif GLOBALS['BACKEND_VERSION'] == 'v2' and GLOBALS['BACKEND_ENVIRONMENT'] == 'prod':
-            GLOBALS['BACKEND'] = pycollector.backend.Prod()
-        elif GLOBALS['BACKEND_VERSION'] == 'v2' and GLOBALS['BACKEND_ENVIRONMENT'] == 'test':
-            GLOBALS['BACKEND'] = pycollector.backend.Test()
-        else:
-            raise ValueError('Invalid env=%s version=%s, must be env=[prod, test] and version=[v1,v2]' % (env, version))
-            
-    return GLOBALS['BACKEND']
-
-
-def api(version):
-    return backend(version=version)
-
-
-def isapi(version):
-    return GLOBALS['BACKEND_VERSION'] == version
-
-def isprod():
-    return GLOBALS['BACKEND_ENVIRONMENT'] == 'prod'
