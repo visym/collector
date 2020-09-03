@@ -37,6 +37,6 @@ Quickstart
 import pycollector
 ```
 
-The [demos](https://github.com/visym/collector/demo) provide useful notebook tutorials to help you get started.
+The [demos](https://github.com/visym/collector/tree/master/demo) WILL provide useful notebook tutorials to help you get started.
 
 
