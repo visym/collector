@@ -45,11 +45,10 @@ v = pycollector.video.last()
 v.show()
 ```
 
-* **Test.** Convert the labeled video to a 64x3x224x224 PyTorch tensor and test with your network
+* **Test.** Convert the labeled video to a 64x3x224x224 PyTorch tensor for testing with your network:
 
 ```python
 t = v.maxsquare().crop().mindim(224).clip(0,64).torch()
-net(t)
 ```
 
 * **Repeat.**  Collect more videos like those your network got wrong, or let our collection team collect for you!
