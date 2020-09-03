@@ -1,4 +1,3 @@
-import pycollector.backend
 import pycollector.video
 
 
@@ -8,13 +7,5 @@ def test_video():
     print('[test_video]: PASSED')
 
     
-def test_backend():
-    P = pycollector.backend.Prod()
-    assert P.s3_bucket() == 'diva-prod-data-lake174516-visym'
-    print('[test_backend]: PASSED')
-
-    
 if __name__ == "__main__":
     test_video()
-    test_backend()
-    
