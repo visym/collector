@@ -37,11 +37,9 @@ Quickstart
 <a href="https://visym.com/collector"><img alt="iOS" src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg" height="50"/></a>  <a href="https://visym.com/collector"><img alt="Android" src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" height="50"/></a>
 
 
-1. Get the Visym Collector mobile app (contact us to be part of the beta!)
+*1. Install.* Get the Visym Collector app (contact us to join the private beta!)
 
-2. Collect a labeled video using the mobile app.
-
-3. Retrieve your video and visualize it.
+*2. Collect*.  Collect a labeled video using the mobile app, then retrieve it using the python tools:
 
 ```python
 import pycollector
@@ -49,11 +47,15 @@ v = pycollector.video.last()
 v.show()
 ```
 
-4. Test with your pytorch network
+3. Test with your pytorch network
 
 ```python
-net(v.maxsquare().mindim(256).clip(0,64).torch())
+net(v.maxsquare().crop().mindim(256).clip(0,64).torch())
 ```
+
+4. Collect more videos like those your network got wrong! 
+
+
 
 The [demos](https://github.com/visym/collector/tree/master/demo) will provide useful notebook tutorials to help you get started.
 
