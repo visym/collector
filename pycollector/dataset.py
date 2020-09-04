@@ -153,7 +153,7 @@ def tohtml(outfile, pklfile=None, videolist=None, mindim=512, title='Visualizati
     
     import vipy.batch  # requires pip install vipy[all]
     vipy.globals.max_workers(pct=0.8)
-    quicklist = vipy.batch.Batch(dataset).map(lambda v: (v.load().quicklook(), v.flush().print()))
+    quicklist = vipy.batch.Batch(dataset).filter(lambda v: not v.isdegenerate()).map(lambda v: (v.load().quicklook(), v.flush().print()))
     quicklooks = [imq for (imq, v) in quicklist]  # for HTML display purposes
     provenance = [{'clip':str(v), 'activities':str(';'.join([str(a) for a in v.activitylist()])), 'category':v.category()} for (imq, v) in quicklist]
     (quicklooks, provenance) = zip(*sorted([(q,p) for (q,p) in zip(quicklooks, provenance)], key=lambda x: x[1]['category']))  # sorted in category order
