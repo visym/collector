@@ -87,6 +87,8 @@ Alternatively, contact us and we can work with you to export a dataset to your s
 v.stabilize().show()
 ```
 
+* Disjoint activities.  The MEVA annotation definitions can result in [disjoint activites that overlap](https://github.com/visym/vipy/tree/master/vipy/dataset) (e.g. opening and closing simultaneously), as shown in the [MEVA visualization](https://www.dropbox.com/s/benzhkmzqrggj5j/meva_kf1_annotations_07may20.html?dl=0).  As a result, we do not enforce disjoint activities in this release.    
+
 * Temporal padding.  We have added the [MEVA annotation style](https://gitlab.kitware.com/meva/meva-data-repo/blob/master/documents/MEVA-Annotation-Definitions.pdf) temporal padding requirements as follows:
  
     * Pad one second before, zero seconds after: set(['person_opens_facility_door', 'person_closes_facility_door', 'person_opens_car_door', 'person_closes_car_door', 
