@@ -145,6 +145,7 @@ def asmeva(V):
 
 def tohtml(pklfile, outfile, mindim=512, datapath=None, title='Visualization'):
     """Generate a standalone HTML file containing quicklooks for each annotated activity in dataset, along with some helpful provenance information for where the annotation came from"""
+    import vipy.batch
     vipy.globals.max_workers(24)
     dataset = vipy.util.load(pklfile) if datapath is None else vipy.util.distload(pklfile, datapath)
     dataset = dataset if not isinstance(dataset, tuple) else dataset[0]  # backwards compatible
