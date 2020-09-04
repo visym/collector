@@ -81,7 +81,7 @@ Alternatively, contact us and we can work with you to export a dataset to your s
 * PIP does not enforce MEVA excluded objects:  Phones, Pens/Pencils/Markers, Individual Sheets of Paper, Money, Hat, Gloves, Apple (or similarly sized food items).  We leave the choice of prop up to the collectors
 * PIP is exported from the raw uploaded original video by creating an actor centered tublet, clipping each activity, dilating by 2x, cropping around the actor, setting to maxsquare, resizing to 512x512 and encoding to H.264.
 
-* Moving camera.  Our cameras are hand-held, which means that the background is not stabilized.  We provide stabilization tools runnable as:
+* Moving camera.  Our cameras are hand-held, which means that the background is not stabilized.  We provide optical flow based stabilization tools runnable as:
 
 ```python
 v.stabilize().show()
