@@ -42,16 +42,14 @@ Quickstart
 * **Collect.**  Collect a labeled video using the mobile app, then retrieve and visualize it using the python tools:
 
 ```python
-import pycollector
-v = pycollector.video.last()
-v.show()
+import pycollector.video
+v = pycollector.video.last().show()
 ```
 
 * **Test.** Convert to a 64x3x224x224 PyTorch tensor for testing with your network:
 
 ```python
 t = v.clip(0,64).activitytube(maxdim=224).torch()
-t = v.clip(0,64).activitycuboid(maxdim=224).torch()
 ```
 
 * **Repeat.**  Collect more videos like those your network got wrong, or let our collection team collect for you!
