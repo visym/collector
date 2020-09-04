@@ -42,7 +42,7 @@ Quickstart
 * **Collect.**  Collect a labeled video using the mobile app, then retrieve and visualize it using the python tools:
 
 ```python
-import pycollector
+import pycollector.video
 v = pycollector.video.last().show()
 ```
 
