@@ -26,11 +26,11 @@ This release was curated to export PIP-175k with additional context, to:
 
 Follow the installation instructions for [vipy](https://github.com/visym/vipy)
 
-Unzip pip_175k.zip to /path/to/your/folder, then:
+Unzip pip_175k.zip in /path/to/, then:
 
 ```python
 import vipy
-cd /path/to/your/folder
+cd /path/to/pip_175k
 pip = vipy.util.load('valset.pkl')
 ```
 
