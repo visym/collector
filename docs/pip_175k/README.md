@@ -54,7 +54,7 @@ d_category_to_counts = {k:len(v) for (k,v) in vipy.util.groupbyasdict(pip, lambd
 
 ```python
 v.csv('/path/to/out.csv')  # export annotations as flat CSV
-v.dict()  # export this object as python dictionary
+v.dict()  # export this annotated video as python dictionary
 v.torch()   # export frames as torch tensor
 v.numpy()  # export frames as numpy array
 labels = [(labels, im) for (labels, im) in v.labeled_frames()]  # framewise activity labels for multi-label loss
