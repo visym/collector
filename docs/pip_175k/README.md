@@ -1,4 +1,4 @@
-# People in Public - 175K
+# People in Public - 175k
 
 # Overview
 
@@ -24,9 +24,7 @@ This release was curated to export PIP-175K with additional context, to:
 
 ## Installation
 
-Follow the installation instructions for vipy-1.8.26
-
-https://github.com/visym/vipy
+Follow the installation instructions for [vipy-1.8.26](https://github.com/visym/vipy)
 
 Then:
 
@@ -65,9 +63,7 @@ v.mindim(256).randomcrop( (224,224) ).torch(startframe='random', length=64)   # 
     			      					     		  # and export as a torch tensor of size 1x64x224x224 starting from a random start frame. 
 ```
 
-If you are training with this dataset, we recommend following this demo to generate framewise activity labels and tensors:
-
-https://github.com/visym/vipy/blob/master/demo/training.ipynb
+If you are training with this dataset, we recommend [following this demo to generate framewise activity labels and tensors](https://github.com/visym/vipy/blob/master/demo/training.ipynb).
 
 Alternatively, contact us and we can work with you to export a dataset to your specifications that can be imported directly by your toolchain.
 
@@ -118,8 +114,7 @@ v_stabilized.show()
 
 # License
 
-Creative commons Attribution 4.0 International (CC BY 4.0)
-https://creativecommons.org/licenses/by/4.0/
+Creative commons Attribution 4.0 International [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 
 
 # Contact
