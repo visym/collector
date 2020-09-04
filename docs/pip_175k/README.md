@@ -115,5 +115,5 @@ Creative commons Attribution 4.0 International [(CC BY 4.0)](https://creativecom
 
 # Contact
 
-Visym Labs < <info@visym.com> >
+Visym Labs <a href="mailto:info@visym.com">&lt;info@visym.com&gt;</a>
 
