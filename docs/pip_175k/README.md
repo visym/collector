@@ -12,7 +12,7 @@ over 150 subjects in 44 countries around the world.
 
 ## Release summary
 
-This release was curated to export PIP-175K with additional context, to:
+This release was curated to export PIP-175k with additional context, to:
 
 * Extract only instances that have been positively rated by the review team
 * Stabilize the bounding box to the primary actor
@@ -24,7 +24,7 @@ This release was curated to export PIP-175K with additional context, to:
 
 ## Installation
 
-Follow the installation instructions for [vipy-1.8.26](https://github.com/visym/vipy)
+Follow the installation instructions for [vipy](https://github.com/visym/vipy)
 
 Then:
 
