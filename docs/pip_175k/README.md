@@ -111,7 +111,7 @@ This temporal padding may result in negative start times for some activities.
 
 # License
 
-Creative commons Attribution 4.0 International [(CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/)
+Creative Commons Attribution 4.0 International [(CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/)
 
 
 # Contact
