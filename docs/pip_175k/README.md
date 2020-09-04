@@ -26,10 +26,9 @@ This release was curated to export PIP-175k with additional context, to:
 
 Follow the installation instructions for [vipy](https://github.com/visym/vipy)
 
-Then:
+Unzip pip_175k.zip to /path/to/your/folder, then:
 
 ```python
-unzip pip_175k.zip -d /path/to/your/folder
 import vipy
 cd /path/to/your/folder
 pip = vipy.util.load('valset.pkl')
@@ -85,9 +84,7 @@ Alternatively, contact us and we can work with you to export a dataset to your s
 * Moving camera.  Our cameras are hand-held, which means that the background is not stabilized.  We provide stabilization tools runnable as:
 
 ```python
-from vipy.flow import Flow
-v_stabilized = Flow().stabilize(v.mindim(256))
-v_stabilized.show()
+v.stabilize().show()
 ```
 
 * Temporal padding.  We have added the MEVA annotation style temporal padding requirements as follows:
