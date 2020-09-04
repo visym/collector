@@ -143,17 +143,21 @@ def asmeva(V):
 
 
 
-def tohtml(pklfile, outfile, mindim=512, datapath=None, title='Visualization'):
+def tohtml(outfile, pklfile=None, videolist=None, mindim=512, title='Visualization'):
     """Generate a standalone HTML file containing quicklooks for each annotated activity in dataset, along with some helpful provenance information for where the annotation came from"""
-    import vipy.batch
-    vipy.globals.max_workers(24)
-    dataset = vipy.util.load(pklfile) if datapath is None else vipy.util.distload(pklfile, datapath)
+    
+    assert pklfile is not None or videolist is not None, "Must provide either dataset pklfile or videolist=vipy.util.load(pklfile)"
+    assert videolist is None or all([isinstance(v, vipy.video.Video) for v in videolist]), "videolist must be vipy.video.Video"
+    dataset = vipy.util.load(pklfile) if pklfile is not None else videolist
     dataset = dataset if not isinstance(dataset, tuple) else dataset[0]  # backwards compatible
+    
+    import vipy.batch  # requires pip install vipy[all]
+    vipy.globals.max_workers(pct=0.8)
     quicklist = vipy.batch.Batch(dataset).filter(lambda v: not v.isdegenerate()).map(lambda v: (v.load().quicklook(), v.flush().print()))
     quicklooks = [imq for (imq, v) in quicklist]  # for HTML display purposes
     provenance = [{'clip':str(v), 'activities':str(';'.join([str(a) for a in v.activitylist()])), 'category':v.category()} for (imq, v) in quicklist]
     (quicklooks, provenance) = zip(*sorted([(q,p) for (q,p) in zip(quicklooks, provenance)], key=lambda x: x[1]['category']))  # sorted in category order
-    return vipy.visualize.tohtml(quicklooks, provenance, title='%s: %s' % (title, pklfile), outfile=outfile, mindim=mindim)
+    return vipy.visualize.tohtml(quicklooks, provenance, title='%s' % title, outfile=outfile, mindim=mindim)
 
 
 def activitymontage(pklfile, gridrows=30, gridcols=50, mindim=64):

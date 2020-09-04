@@ -54,7 +54,7 @@ d_category_to_counts = {k:len(v) for (k,v) in vipy.util.groupbyasdict(pip, lambd
 
 ```python
 v.csv('/path/to/out.csv')  # export annotations as flat CSV
-v.dict()  # export this object as python dictionary
+v.dict()  # export this annotated video as python dictionary
 v.torch()   # export frames as torch tensor
 v.numpy()  # export frames as numpy array
 labels = [(labels, im) for (labels, im) in v.labeled_frames()]  # framewise activity labels for multi-label loss
@@ -111,6 +111,7 @@ This temporal padding may result in negative start times for some activities.
 
 Creative Commons Attribution 4.0 International [(CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/)
 
+Every subject in this dataset has consented to their personally identifable information to be shared publicly for the purpose of advancing computer vision research.  Non-consented subjects have their faces blurred out.  
 
 # Contact
 
