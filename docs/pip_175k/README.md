@@ -87,9 +87,8 @@ Alternatively, contact us and we can work with you to export a dataset to your s
 v.stabilize().show()
 ```
 
-* Temporal padding.  We have added the MEVA annotation style temporal padding requirements as follows:
+* Temporal padding.  We have added the [MEVA annotation style](https://gitlab.kitware.com/meva/meva-data-repo/blob/master/documents/MEVA-Annotation-Definitions.pdf) temporal padding requirements as follows:
  
-    * Reference:  https://gitlab.kitware.com/meva/meva-data-repo/blob/master/documents/MEVA-Annotation-Definitions.pdf
     * Pad one second before, zero seconds after: set(['person_opens_facility_door', 'person_closes_facility_door', 'person_opens_car_door', 'person_closes_car_door', 
                                                       'person_opens_car_trunk', 'person_opens_motorcycle_trunk', 'person_closes_car_trunk', 'person_closes_motorcycle_trunk',
                                                       'car_stops', 'motorcycle_stops', 'person_interacts_with_laptop'])        
