@@ -79,7 +79,7 @@ Alternatively, contact us and we can work with you to export a dataset to your s
 * PIP is designed for training activity classification using actor centered tubelet or cuboid activity proposals
 * PIP is reviewed by at least two human reviewer for labeling accuracy.  
 * PIP does not enforce MEVA excluded objects:  Phones, Pens/Pencils/Markers, Individual Sheets of Paper, Money, Hat, Gloves, Apple (or similarly sized food items).  We leave the choice of prop up to the collectors
-* PIP is exported from the raw uploaded original video by creating an actor centered tublet, clipping each activity, cropping around the actor, setting to maxsquare, resizing to 256x256 and encoding to H.264.
+* PIP is exported from the raw uploaded original video by creating an actor centered tublet, clipping each activity, dilating by 2x, cropping around the actor, setting to maxsquare, resizing to 512x512 and encoding to H.264.
 
 * Moving camera.  Our cameras are hand-held, which means that the background is not stabilized.  We provide stabilization tools runnable as:
 
@@ -107,6 +107,7 @@ v.stabilize().show()
     * pad zero second before, one second after:  set(['vehicle_makes_u_turn', 'person_picks_up_object'])
     * person_abandons_package:  two seconds before, two seconds after
 
+This temporal padding may result in negative start times for some activities.
 
 # License
 
