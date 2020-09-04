@@ -29,7 +29,7 @@ Follow the installation instructions for [vipy-1.8.26](https://github.com/visym/
 Then:
 
 ```python
-unzip pip175k.zip -d /path/to/your/folder
+unzip pip_175k.zip -d /path/to/your/folder
 import vipy
 cd /path/to/your/folder
 pip = vipy.util.load('valset.pkl')
