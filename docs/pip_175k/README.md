@@ -14,13 +14,13 @@ over 150 subjects in 44 countries around the world.
 
 This release was curated to export PIP-175K with additional context, to:
 
--Extract only instances that have been positively rated by the review team
--Stabilize the bounding box to the primary actor
--Dilate the bounding box for each primary actor performing the activity by a factor of 2.0, to provide context 
--Set the bounding box to maximum square
--Crop the actor tubelet in each frame, with zero padding
--Resize the tubelet so that the maximum dimension is 512x512
--Add the MEVA-specific temporal padding
+* Extract only instances that have been positively rated by the review team
+* Stabilize the bounding box to the primary actor
+* Dilate the bounding box for each primary actor performing the activity by a factor of 2.0, to provide context 
+* Set the bounding box to maximum square
+* Crop the actor tubelet in each frame, with zero padding
+* Resize the tubelet so that the maximum dimension is 512x512
+* Add the MEVA-specific temporal padding
 
 ## Installation
 
