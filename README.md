@@ -43,8 +43,7 @@ Quickstart
 
 ```python
 import pycollector
-v = pycollector.video.last()
-v.show()
+v = pycollector.video.last().show()
 ```
 
 * **Test.** Convert to a 64x3x224x224 PyTorch tensor for testing with your network:
