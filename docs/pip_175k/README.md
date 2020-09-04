@@ -30,36 +30,40 @@ https://github.com/visym/vipy
 
 Then:
 
->>> unzip pip175k.zip -d /path/to/your/folder
->>> import vipy
->>> cd /path/to/your/folder
->>> pip = vipy.util.load('valset.pkl')
-
+```python
+unzip pip175k.zip -d /path/to/your/folder
+import vipy
+cd /path/to/your/folder
+pip = vipy.util.load('valset.pkl')
+```
 
 ## Visualize
 
->>> v = pip[0]  # first video 
->>> v.show()   # display annotated video
->>> v.play()   # display unannotated video
->>> v.quicklook().show()   # display video summary image
->>> v[0].savefig().saveas('out.png')  # save annotated first frame of first video, convert rgba to rgb colorspace, and save to a PNG
->>> v.tracks()  # tracks ID and tracks in this video
->>> v.activities()  # activity ID and activities in this video
->>> v_doors = [v for v in pip if 'door' in v.category()]  # only videos with door categories
->>> categories = set([v.category() for v in pip])  # set of pip categories
->>> d_pip2meva = vipy.util.load('categories_pip_to_meva.pkl')  # category mapping
->>> d_category_to_counts = {k:len(v) for (k,v) in vipy.util.groupbyasdict(pip, lambda v: v.category()).items()}
-
+```python
+v = pip[0]  # first video 
+v.show()   # display annotated video
+v.play()   # display unannotated video
+v.quicklook().show()   # display video summary image
+v[0].savefig().saveas('out.png')  # save annotated first frame of first video, convert rgba to rgb colorspace, and save to a PNG
+v.tracks()  # tracks ID and tracks in this video
+v.activities()  # activity ID and activities in this video
+v_doors = [v for v in pip if 'door' in v.category()]  # only videos with door categories
+categories = set([v.category() for v in pip])  # set of pip categories
+d_pip2meva = vipy.util.load('categories_pip_to_meva.pkl')  # category mapping
+d_category_to_counts = {k:len(v) for (k,v) in vipy.util.groupbyasdict(pip, lambda v: v.category()).items()}
+```
 
 ## Toolchain Exports
 
->>> v.csv('/path/to/out.csv')  # export annotations as flat CSV
->>> v.dict()  # export this object as python dictionary
->>> v.torch()   # export frames as torch tensor
->>> v.numpy()  # export frames as numpy array
->>> labels = [(labels, im) for (labels, im) in v.labeled_frames()]  # framewise activity labels for multi-label loss
->>> v.mindim(256).randomcrop( (224,224) ).torch(startframe='random', length=64)   # change the minimum dimension of the video to (and scale annotations), take random square center crop 
+```python
+v.csv('/path/to/out.csv')  # export annotations as flat CSV
+v.dict()  # export this object as python dictionary
+v.torch()   # export frames as torch tensor
+v.numpy()  # export frames as numpy array
+labels = [(labels, im) for (labels, im) in v.labeled_frames()]  # framewise activity labels for multi-label loss
+v.mindim(256).randomcrop( (224,224) ).torch(startframe='random', length=64)   # change the minimum dimension of the video to (and scale annotations), take random square center crop 
     			      					     		  # and export as a torch tensor of size 1x64x224x224 starting from a random start frame. 
+```
 
 If you are training with this dataset, we recommend following this demo to generate framewise activity labels and tensors:
 
@@ -70,25 +74,27 @@ Alternatively, contact us and we can work with you to export a dataset to your s
 
 # PIP Collection Notes
 
--PIP has separate vehicle activity classes for car and motorcycle
--PIP has two separate purchasing classes for person_purchaes_with_machine and person_purchase_with_cashier.  The cashier class has been removed temporarily.
--PIP has three separate hand interaction classes for highfive, handshake and holding_hands
--PIP stealing.  We are collecting "person takes object while person is not looking".  
--PIP person_transfers_object.  We are collecting "person hands object to person" and "person hands object to person in car".  
--PIP videos are limited to maximum of 30 seconds
--PIP currently contains only the primary actor, and does not yet include the additional required objects
--PIP is designed for training activity classification using actor centered tubelet or cuboid activity proposals
--PIP is reviewed by at least two human reviewer for labeling accuracy.  
--PIP does not enforce MEVA excluded objects:  Phones, Pens/Pencils/Markers, Individual Sheets of Paper, Money, Hat, Gloves, Apple (or similarly sized food items).  We leave the choice of prop up to the collectors
--PIP is exported from the raw uploaded original video by creating an actor centered tublet, clipping each activity, cropping around the actor, setting to maxsquare, resizing to 256x256 and encoding to H.264.
+* PIP has separate vehicle activity classes for car and motorcycle
+* PIP has two separate purchasing classes for person_purchaes_with_machine and person_purchase_with_cashier.  The cashier class has been removed temporarily.
+* PIP has three separate hand interaction classes for highfive, handshake and holding_hands
+* PIP stealing.  We are collecting "person takes object while person is not looking".  
+* PIP person_transfers_object.  We are collecting "person hands object to person" and "person hands object to person in car".  
+* PIP videos are limited to maximum of 30 seconds
+* PIP currently contains only the primary actor, and does not yet include the additional required objects
+* PIP is designed for training activity classification using actor centered tubelet or cuboid activity proposals
+* PIP is reviewed by at least two human reviewer for labeling accuracy.  
+* PIP does not enforce MEVA excluded objects:  Phones, Pens/Pencils/Markers, Individual Sheets of Paper, Money, Hat, Gloves, Apple (or similarly sized food items).  We leave the choice of prop up to the collectors
+* PIP is exported from the raw uploaded original video by creating an actor centered tublet, clipping each activity, cropping around the actor, setting to maxsquare, resizing to 256x256 and encoding to H.264.
 
--Moving camera.  Our cameras are hand-held, which means that the background is not stabilized.  We provide stabilization tools runnable as:
+* Moving camera.  Our cameras are hand-held, which means that the background is not stabilized.  We provide stabilization tools runnable as:
 
->>> from vipy.flow import Flow
->>> v_stabilized = Flow().stabilize(v.mindim(256))
->>> v_stabilized.show()
+```python
+from vipy.flow import Flow
+v_stabilized = Flow().stabilize(v.mindim(256))
+v_stabilized.show()
+```
 
--Temporal padding.  We have added the MEVA annotation style temporal padding requirements as follows:
+* Temporal padding.  We have added the MEVA annotation style temporal padding requirements as follows:
  
     * Reference:  https://gitlab.kitware.com/meva/meva-data-repo/blob/master/documents/MEVA-Annotation-Definitions.pdf
     * Pad one second before, zero seconds after: set(['person_opens_facility_door', 'person_closes_facility_door', 'person_opens_car_door', 'person_closes_car_door', 
