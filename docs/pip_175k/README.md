@@ -91,22 +91,18 @@ v.stabilize().show()
 
 * Temporal padding.  We have added the [MEVA annotation style](https://gitlab.kitware.com/meva/meva-data-repo/blob/master/documents/MEVA-Annotation-Definitions.pdf) temporal padding requirements as follows:
  
-    * Pad one second before, zero seconds after: set(['person_opens_facility_door', 'person_closes_facility_door', 'person_opens_car_door', 'person_closes_car_door', 
-                                                      'person_opens_car_trunk', 'person_opens_motorcycle_trunk', 'person_closes_car_trunk', 'person_closes_motorcycle_trunk',
-                                                      'car_stops', 'motorcycle_stops', 'person_interacts_with_laptop'])        
-
-    * pad one second before, one second after, up to maximum of two seconds:  set(['person_enters_scene_through_structure'])
+    * Pad one second before, zero seconds after: set('person_opens_facility_door', 'person_closes_facility_door', 'person_opens_car_door', 'person_closes_car_door', 'person_opens_car_trunk', 'person_opens_motorcycle_trunk', 'person_closes_car_trunk', 'person_closes_motorcycle_trunk',
+'car_stops', 'motorcycle_stops', 'person_interacts_with_laptop')        
+    * Pad one second before, one second after, up to maximum of two seconds:  set(['person_enters_scene_through_structure'])
     * person_exits_scene_through_structure:  Pad one second before person_opens_facility_door label (if door collection), and ends with enough padding to make this minimum two seconds     
     * person_enters_vehicle: Starts one second before person_opens_vehicle_door activity label and ends at the end of person_closes_vehicle_door activity, split motorcycles into separate class
     * person_exits_vehicle:  Starts one second before person_opens_vehicle_door, and ends at person_exits_vehicle with enough padding to make this minimum two seconds, split motorcycles into separate class
-    * person_unloads_vehicle:  No padding before label start (the definition states one second of padding before cargo starts to move, but our label starts after the trunk is open, 
-    * so there is a lag from opening to touching the cargo which we assume is at least 1sec), ends at the end of person_closes_trunk.
-    * equal padding to minimum of five seconds:  set(['person_talks_to_person', 'person_reads_document'])
+    * person_unloads_vehicle:  No padding before label start (the definition states one second of padding before cargo starts to move, but our label starts after the trunk is open, so there is a lag from opening to touching the cargo which we assume is at least 1sec, ends at the end of person_closes_trunk.
+    * Equal padding to minimum of five seconds:  set('person_talks_to_person', 'person_reads_document')
     * person_texting_on_phone:  Equal padding to minimum of two seconds
-    * pad one second before, one second after:  set(['car_turns_left', 'motorcycle_turns_left', 'car_turns_right', 'motorcycle_turns_right', 'person_transfers_object_to_person', 'person_transfers_object_to_vehicle',
-                                                     'person_sets_down_object', 'hand_interacts_with_person_handshake', 'hand_interacts_with_person_highfive', 'hand_interacts_with_person_holdhands', 'person_embraces_person', 'person_purchases',
-                                                     'vehicle_picks_up_person','vehicle_drops_off_person'])
-    * pad zero second before, one second after:  set(['vehicle_makes_u_turn', 'person_picks_up_object'])
+    * Pad one second before, one second after:  set('car_turns_left', 'motorcycle_turns_left', 'car_turns_right', 'motorcycle_turns_right', 'person_transfers_object_to_person', 'person_transfers_object_to_vehicle','person_sets_down_object', 'hand_interacts_with_person_handshake', 'hand_interacts_with_person_highfive', 'hand_interacts_with_person_holdhands', 'person_embraces_person', 'person_purchases',
+'vehicle_picks_up_person','vehicle_drops_off_person')
+    * pad zero second before, one second after:  set('vehicle_makes_u_turn', 'person_picks_up_object')
     * person_abandons_package:  two seconds before, two seconds after
 
 This temporal padding may result in negative start times for some activities.
