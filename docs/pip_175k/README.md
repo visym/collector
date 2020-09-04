@@ -26,7 +26,7 @@ This release was curated to export PIP-175k with additional context, to:
 
 Follow the installation instructions for [vipy](https://github.com/visym/vipy)
 
-Unzip pip_175k.zip in /path/to/, then:
+Unpack pip_175k.tar.gz in /path/to/, then:
 
 ```python
 import vipy
