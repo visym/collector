@@ -51,7 +51,6 @@ v.show()
 
 ```python
 t = v.clip(0,64).activitytube(maxdim=224).torch()
-t = v.clip(0,64).activitycuboid(maxdim=224).torch()
 ```
 
 * **Repeat.**  Collect more videos like those your network got wrong, or let our collection team collect for you!
