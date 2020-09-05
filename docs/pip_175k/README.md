@@ -47,13 +47,13 @@ v.activities()  # activity ID and activities in this video
 v_doors = [v for v in pip if 'door' in v.category()]  # only videos with door categories
 categories = set([v.category() for v in pip])  # set of pip categories
 d_pip2meva = vipy.util.load('categories_pip_to_meva.pkl')  # category mapping
-d_category_to_counts = {k:len(v) for (k,v) in vipy.util.groupbyasdict(pip, lambda v: v.category()).items()}
+d_category_to_counts = vipy.util.countby(pip, lambda v: v.category())
 ```
 
 ## Toolchain Exports
 
 ```python
-v.csv('/path/to/out.csv')  # export annotations as flat CSV
+v.csv('/path/to/out.csv')  # export annotations for this video as flat CSV
 v.dict()  # export this annotated video as python dictionary
 v.torch()   # export frames as torch tensor
 v.numpy()  # export frames as numpy array
