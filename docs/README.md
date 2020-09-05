@@ -26,4 +26,4 @@ Our goal is to make all datasets freely available to the computer vision researc
 
 * **People in Public - 175k.**  This dataset contains 184,379 video clips of 68 classes of activities performed by people in public places.  The activity labels are subsets of the 37 activities in the [Multiview Extended Video with Activities (MEVA)](https://mevadata.org) dataset and is consistent with the [Activities in Extended Video (ActEV)](https://actev.nist.gov/) challenge.  
     * [pip_175k.tar.gz (55.3GB) - temporarily removed]()&nbsp;&nbsp;MD5:a4c3641bd847ada288b3027cc095a486&nbsp;&nbsp;[[README]](pip_175k/README.md)&nbsp;&nbsp;
-    * [Visualization of validation set (1.1GB)](https://dl.dropboxusercontent.com/s/8fp77nvxeywrq7f/pip_175k_valset.html)
+    * Visualization of [validation set (1.1GB)](https://dl.dropboxusercontent.com/s/8fp77nvxeywrq7f/pip_175k_valset.html)&nbsp;&nbsp;[Training set sample (87MB)](https://dl.dropboxusercontent.com/s/wfsvrkk50tjrnng/pip_175k_trainset_small.html)
