@@ -100,7 +100,7 @@ class Project(object):
             self.df = data_df
             print("[pycollector.project]:  Returned %d videos" % len(self.df))
         except Exception as e:
-            custom_error = 'Not able to retreive dataframe from lambda function {0}'.format(FunctionName)
+            custom_error = 'Not able to retreive dataframe from lambda function {0} with exception {1}'.format(FunctionName,e)
             raise Exception(custom_error)
         
 
