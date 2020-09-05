@@ -87,14 +87,13 @@ class Project(object):
         # Invoke Lambda function
         request = {'program_id': program_id, 'project_id': project_id, 'weeksago': weeksago, 'monthsago': monthsago, 'daysago': daysago, 'since': since, 'alltime': alltime, 'Video_IDs': Video_IDs, 'before': before, 'week': week, 'pycollector': pycollector.cognito_username}
         response =  pycollector.lambda_client.invoke(
-            FunctionName='arn:aws:lambda:us-east-1:806596299222:function:CollectorTestPostAuthentication',
+            FunctionName='arn:aws:lambda:us-east-1:806596299222:function:pycollector_get_project',
             InvocationType= 'RequestResponse',
             LogType='Tail',
             Payload=json.dumps(request),
         )
 
         serialized_df = response['dataframe']
-
         data_df = pd.read_json(serialized_df)
 
         self.df = data_df
