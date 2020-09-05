@@ -10,7 +10,6 @@ import logging
 
 
 # TODO - Put these public variables somewhere
-
 app_client_id = '28gm3n8vl8adltuhhumc8foplq' # We can signup with this client_id
 identity_pool_id = 'us-east-1:c7bbbc40-37d3-4ad8-8afd-492c095729bb'
 provider_name = 'cognito-idp.us-east-1.amazonaws.com/us-east-1_sFpJQRLiY'
@@ -74,10 +73,15 @@ class User(object):
             # Set user properties
             self._username = username
 
+
             # Should we expose these tokens?
             self._access_token = signin_response['AuthenticationResult']['AccessToken']
             self._id_token = signin_response['AuthenticationResult']['IdToken']
 
+            # Get cognito username 
+            getuser_response = self._cognito_idp_client.get_user(AccessToken=self._access_token )
+            self._cognito_username = getuser_response['Username']
+    
             # Set token expiration time
             token_expires_in_secs = signin_response['AuthenticationResult']['ExpiresIn']    
             self._token_initialized_time = datetime.now()
@@ -100,6 +104,8 @@ class User(object):
             # Set up AWS services 
             self.set_S3_clients()
             self.set_lambda_clients()
+
+
         except Exception as e:
             custom_error = 'Failed to sign in due to exception: {0}'.format(e)
             raise Exception(custom_error)
@@ -121,7 +127,6 @@ class User(object):
             aws_session_token=self._aws_credentials['SessionToken'],
         )
 
-
     def set_lambda_clients(self):
         """[summary]
         """
@@ -132,12 +137,11 @@ class User(object):
             aws_session_token=self._aws_credentials['SessionToken'],
         )
 
-    def new_collection(self):
-
-        self._lambda_client
+    def new_collection(self, name, organization_name, program_name,project_name, description, activities, activity_short_names, objects ):
 
         # Invoke Lambda function
         request = {'identity_id': identity_id, 'cognito_username': cognito_username, 'email': email}
+
 
         # Invoke Lambda function
         try:
@@ -173,4 +177,15 @@ class User(object):
         """
         """
         return self._username
+    @property
+    def cognito_username(self):
+        """
+        """
+        return self._cognito_username
+
+    @property
+    def lambda_client(self):
+        """
+        """
+        return self._lambda_client
 
