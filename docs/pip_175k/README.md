@@ -5,7 +5,7 @@
 The People in Public dataset is a consented large scale video dataset of people doing things in public places.  Our team has pioneered the use of a 
 custom designed mobile app that combines video collection, activity labeling and bounding box annotation into a single step.  Our goal is to 
 make collecting annotated video datasets as easily and cheaply as recording a video.  Currently, we are collecting a dataset of the MEVA 
-classes (http://mevadata.org).  This package provides a release of this dataset, containing 184,402 annotated activity instances collected by 
+classes (http://mevadata.org).  This package provides a release of this dataset, containing 184,379 annotated activity instances collected by 
 over 150 subjects in 44 countries around the world. 
 
 # Quickstart
