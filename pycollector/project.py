@@ -86,19 +86,25 @@ class Project(object):
         # Get data from backend lambda function
         # Invoke Lambda function
         request = {'program_id': program_id, 'project_id': project_id, 'weeksago': weeksago, 'monthsago': monthsago, 'daysago': daysago, 'since': since, 'alltime': alltime, 'Video_IDs': Video_IDs, 'before': before, 'week': week, 'pycollector': pycollector.cognito_username}
-        response =  pycollector.lambda_client.invoke(
-            FunctionName='arn:aws:lambda:us-east-1:806596299222:function:pycollector_get_project',
-            InvocationType= 'RequestResponse',
-            LogType='Tail',
-            Payload=json.dumps(request),
-        )
-
-        serialized_df = response['dataframe']
-        data_df = pd.read_json(serialized_df)
-
-        self.df = data_df
+        FunctionName='arn:aws:lambda:us-east-1:806596299222:function:pycollector_get_project'
+        try:
+            response =  pycollector.lambda_client.invoke(
+                FunctionName=FunctionName,
+                InvocationType= 'RequestResponse',
+                LogType='Tail',
+                Payload=json.dumps(request),
+            )
+            # Get the serialized dataframe
+            serialized_df = response['dataframe']
+            data_df = pd.read_json(serialized_df)
+            self.df = data_df
+            print("[pycollector.project]:  Returned %d videos" % len(self.df))
+        except Exception as e:
+            custom_error = 'Not able to retreive dataframe from lambda function {0}'.format(FunctionName)
+            raise Exception(custom_error)
         
-        print("[pycollector.project]:  Returned %d videos" % len(self.df))
+
+
 
     def __repr__(self):
         return str("<pycollector.project: program=%s, videos=%d, since=%s, collectors=%d>" % (self._programid,
