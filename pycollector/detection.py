@@ -5,7 +5,7 @@ import vipy
 import shutil
 from vipy.util import remkdir, filetail, readlist, tolist, filepath
 from pycollector.video import Video
-from pycollector.yolov3.models import Darknet
+from pycollector.model.yolov3.network import Darknet
 from pycollector.globals import print
 
 

@@ -1,10 +1,11 @@
 import os
-import vipy
 import numpy as np
 import pycollector.detection
 from pycollector.globals import print
-from vipy.util import findpkl, toextension, filepath, filebase, jsonlist
+from vipy.util import findpkl, toextension, filepath, filebase, jsonlist, ishtml, ispkl
 import random
+import vipy
+import vipy.util
 
 
 def tocsv(pklfile):
@@ -143,15 +144,21 @@ def asmeva(V):
 
 
 
-def tohtml(outfile, pklfile=None, videolist=None, mindim=512, title='Visualization'):
+def tohtml(outfile, pklfile=None, videolist=None, mindim=512, title='Visualization', fraction=1.0):
     """Generate a standalone HTML file containing quicklooks for each annotated activity in dataset, along with some helpful provenance information for where the annotation came from"""
     
     assert pklfile is not None or videolist is not None, "Must provide either dataset pklfile or videolist=vipy.util.load(pklfile)"
     assert videolist is None or all([isinstance(v, vipy.video.Video) for v in videolist]), "videolist must be vipy.video.Video"
+    assert ishtml(outfile), "Output file must be .html"
+    assert pklfile is None or ispkl(pklfile), "Pickle file must be .pkl as part of a collector dataset"
+    assert fraction > 0 and fraction <= 1.0, "Fraction must be between [0,1]"
+
+    import vipy.util  # This should not be necessary, but we get "UnboundLocalError" without it, not sure why..
+    import vipy.batch  # requires pip install vipy[all]
     dataset = vipy.util.load(pklfile) if pklfile is not None else videolist
     dataset = dataset if not isinstance(dataset, tuple) else dataset[0]  # backwards compatible
-    
-    import vipy.batch  # requires pip install vipy[all]
+    dataset = [dataset[k] for k in np.random.permutation(range(len(dataset)))[0:int(len(dataset)*fraction)]]
+
     vipy.globals.max_workers(pct=0.8)
     quicklist = vipy.batch.Batch(dataset).filter(lambda v: not v.isdegenerate()).map(lambda v: (v.load().quicklook(), v.flush().print()))
     quicklooks = [imq for (imq, v) in quicklist]  # for HTML display purposes
