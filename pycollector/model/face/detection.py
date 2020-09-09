@@ -469,8 +469,8 @@ class FaceRCNN(object):
         if self.cfg['DEDUP_BOXES'] > 0 and not self.cfg['TEST']['HAS_RPN']:
             # Map scores and predictions back to the original set of boxes
             raise ValueError('unsupported configuration option')
-            scores = scores[inv_index, :]
-            pred_boxes = pred_boxes[inv_index, :]
+            #scores = scores[inv_index, :]
+            #pred_boxes = pred_boxes[inv_index, :]
 
         del rois
         del bbox_pred
