@@ -1,4 +1,6 @@
 import vipy
+import pycollector.detection
+
 
 def _test_face():
     im = vipy.image.Image(url='https://upload.wikimedia.org/wikipedia/en/d/d6/Friends_season_one_cast.jpg')
@@ -35,8 +37,9 @@ def _test_proposal():
                 '20200525_1658548039717461873489470',
                 '133BA88D-A828-4397-81BD-6EEB9393F20B-710-0000005AEDD91457']
     
-    
-    shutil.rmtree(remkdir('test_proposal'))
-    vipy.globals.gpuindex(0)
-    for videoid in videoids:
-        collectorproposal_vs_objectproposal(Video(videoid), dt=3).annotate().saveas(os.path.join(remkdir('test_proposal'), '%s.mp4' % videoid))
+
+    #import shutil    
+    #shutil.rmtree(remkdir('test_proposal'))
+    #vipy.globals.gpuindex(0)
+    #for videoid in videoids:
+    #    collectorproposal_vs_objectproposal(Video(videoid), dt=3).annotate().saveas(os.path.join(remkdir('test_proposal'), '%s.mp4' % videoid))
