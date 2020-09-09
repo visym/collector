@@ -5,7 +5,7 @@
 The People in Public dataset is a consented large scale video dataset of people doing things in public places.  Our team has pioneered the use of a 
 custom designed mobile app that combines video collection, activity labeling and bounding box annotation into a single step.  Our goal is to 
 make collecting annotated video datasets as easily and cheaply as recording a video.  Currently, we are collecting a dataset of the MEVA 
-classes (http://mevadata.org).  This package provides a release of this dataset, containing 184,402 annotated activity instances collected by 
+classes (http://mevadata.org).  This package provides a release of this dataset, containing 184,379 annotated activity instances collected by 
 over 150 subjects in 44 countries around the world. 
 
 # Quickstart
@@ -47,13 +47,13 @@ v.activities()  # activity ID and activities in this video
 v_doors = [v for v in pip if 'door' in v.category()]  # only videos with door categories
 categories = set([v.category() for v in pip])  # set of pip categories
 d_pip2meva = vipy.util.load('categories_pip_to_meva.pkl')  # category mapping
-d_category_to_counts = {k:len(v) for (k,v) in vipy.util.groupbyasdict(pip, lambda v: v.category()).items()}
+d_category_to_counts = vipy.util.countby(pip, lambda v: v.category())
 ```
 
 ## Toolchain Exports
 
 ```python
-v.csv('/path/to/out.csv')  # export annotations as flat CSV
+v.csv('/path/to/out.csv')  # export annotations for this video as flat CSV
 v.dict()  # export this annotated video as python dictionary
 v.torch()   # export frames as torch tensor
 v.numpy()  # export frames as numpy array
@@ -112,6 +112,10 @@ This temporal padding may result in negative start times for some activities.
 Creative Commons Attribution 4.0 International [(CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/)
 
 Every subject in this dataset has consented to their personally identifable information to be shared publicly for the purpose of advancing computer vision research.  Non-consented subjects have their faces blurred out.  
+
+# Acknowledgement
+
+Supported by the Intelligence Advanced Research Projects Activity (IARPA) via Department of Interior/ Interior Business Center (DOI/IBC) contract number D17PC00344. The U.S. Government is authorized to reproduce and distribute reprints for Governmental purposes notwithstanding any copyright annotation thereon. Disclaimer: The views and conclusions contained herein are those of the authors and should not be interpreted as necessarily representing the official policies or endorsements, either expressed or implied, of IARPA, DOI/IBC, or the U.S. Government.
 
 # Contact
 

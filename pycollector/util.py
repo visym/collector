@@ -4,6 +4,8 @@ import pytz
 import copy
 
 
+# FIXME: these are replicated in pycollector.admin.util
+
 def mergedict(d1, d2):
     assert isinstance(d1, dict) and isinstance(d2, dict)
     d = copy.deepcopy(d1)
@@ -141,6 +143,8 @@ def nextsunday(yyyymmdd=None):
 
 def nextday(yyyymmdd=None):
     return str(yyyymmdd_to_date(yyyymmdd) + timedelta(days=1))
+
+
 
 
     
