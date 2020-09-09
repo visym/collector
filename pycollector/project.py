@@ -14,10 +14,11 @@ import pytz
 import hashlib
 import uuid
 import urllib
+import json
 
 import vipy
 assert vipy.version.is_at_least('1.8.24')
-from vipy.globals import print
+# from vipy.globals import print
 from vipy.util import (
     readjson,
     isS3url,
@@ -85,17 +86,22 @@ class Project(object):
 
         # Get data from backend lambda function
         # Invoke Lambda function
-        request = {'program_id': program_id, 'project_id': project_id, 'weeksago': weeksago, 'monthsago': monthsago, 'daysago': daysago, 'since': since, 'alltime': alltime, 'Video_IDs': Video_IDs, 'before': before, 'week': week, 'pycollector': pycollector.cognito_username}
+        request = {'program_id': program_id, 'project_id': project_id, 'weeksago': weeksago, 'monthsago': monthsago, 'daysago': daysago, 'since': since, 'alltime': alltime, 'Video_IDs': Video_IDs, 'before': before, 'week': week, 'pycollector_id': pycollector.cognito_username}
         FunctionName='arn:aws:lambda:us-east-1:806596299222:function:pycollector_get_project'
         try:
             response =  pycollector.lambda_client.invoke(
                 FunctionName=FunctionName,
                 InvocationType= 'RequestResponse',
                 LogType='Tail',
-                Payload=json.dumps(request),
+                # Payload=json.dumps(request),
+                Payload= bytes(json.dumps(request), encoding='utf8'),
             )
             # Get the serialized dataframe
-            serialized_df = response['dataframe']
+
+            import ast
+            dict_str = response['Payload'].read().decode("UTF-8")
+            mydata = ast.literal_eval(dict_str)
+            serialized_df = mydata['body']['dataframe']
             data_df = pd.read_json(serialized_df)
             self.df = data_df
             print("[pycollector.project]:  Returned %d videos" % len(self.df))
@@ -103,8 +109,6 @@ class Project(object):
             custom_error = 'Not able to retreive dataframe from lambda function {0} with exception {1}'.format(FunctionName,e)
             raise Exception(custom_error)
         
-
-
 
     def __repr__(self):
         return str("<pycollector.project: program=%s, videos=%d, since=%s, collectors=%d>" % (self._programid,

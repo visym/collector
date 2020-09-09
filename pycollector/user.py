@@ -41,8 +41,10 @@ class User(object):
         #####################################################################
         # Ensure the system AWS credentials are not being used
         config = Config(signature_version=botocore.UNSIGNED)
-        self._cognito_idp_client = boto3.client('cognito-idp', config=config)
-        self._cognito_id_client = boto3.client('cognito-identity', config=config)
+        # self._cognito_idp_client = boto3.client('cognito-idp', config=config)
+        # self._cognito_id_client = boto3.client('cognito-identity', config=config)
+        self._cognito_idp_client = boto3.client('cognito-idp')
+        self._cognito_id_client = boto3.client('cognito-identity')
 
         #####################################################################
         # Login  
@@ -130,11 +132,15 @@ class User(object):
     def set_lambda_clients(self):
         """[summary]
         """
+        # self._lambda_client = boto3.client(
+        #     'lambda',
+        #     aws_access_key_id=self._aws_credentials['AccessKeyId'],
+        #     aws_secret_access_key=self._aws_credentials['SecretKey'],
+        #     aws_session_token=self._aws_credentials['SessionToken'],
+        # )
+
         self._lambda_client = boto3.client(
             'lambda',
-            aws_access_key_id=self._aws_credentials['AccessKeyId'],
-            aws_secret_access_key=self._aws_credentials['SecretKey'],
-            aws_session_token=self._aws_credentials['SessionToken'],
         )
 
     def new_collection(self, name, organization_name, program_name,project_name, description, activities, activity_short_names, objects ):
