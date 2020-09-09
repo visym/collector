@@ -30,6 +30,7 @@ pytz==2020.1
 s3transfer==0.3.3
 six==1.15.0
 torch==1.6.0
+torchvision==0.7.0
 traitlets==4.3.3
 urllib3==1.25.10
 vipy==1.8.25
