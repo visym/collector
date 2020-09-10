@@ -6,8 +6,42 @@ import shutil
 import numpy as np
 from vipy.util import remkdir, filetail, readlist, tolist, filepath
 from pycollector.video import Video
-from pycollector.yolov3.models import Darknet
+from pycollector.model.yolov3.network import Darknet
 from pycollector.globals import print
+from pycollector.model.face.detection import FaceRCNN 
+
+
+class TorchNet(object):
+    def gpu(self, k):
+        deviceid = 'cuda:%d' % k if torch.cuda.is_available() and k is not None else 'cpu'
+        device = torch.device(deviceid)
+        self._tensortype = torch.cuda.FloatTensor if deviceid != 'cpu' and torch.cuda.is_available() else torch.FloatTensor        
+        self._model = self._model.to(device)
+        self._model.eval()  # Set in evaluation mode
+        self._device = device
+        return self
+
+
+class FaceDetector(TorchNet):
+    """Faster R-CNN based face detector
+    
+    """
+
+    def __init__(self, weightfile=None):    
+        indir = os.path.join(filepath(os.path.abspath(__file__)), 'model', 'face')
+
+        weightfile = os.path.join(indir, 'resnet-101_faster_rcnn_ohem_iter_20000.pth') if weightfile is None else weightfile
+        if not os.path.exists(weightfile) or not vipy.downloader.verify_sha1(weightfile, 'a759030540a4a5284baa93d3ef5e47ed40cae6d6'):
+            print('[pycollector.detection]: Downloading face detector weights ...')
+            os.system('wget -c https://dl.dropboxusercontent.com/s/rdfre0oc456t5ee/resnet-101_faster_rcnn_ohem_iter_20000.pth -O %s' % weightfile)  # FIXME: replace with better solution
+        assert vipy.downloader.verify_sha1(weightfile, 'a759030540a4a5284baa93d3ef5e47ed40cae6d6'), "Face detector download failed with SHA1='%s'" % (vipy.downloader.generate_sha1(weightfile))
+        self._model = FaceRCNN(model_path=weightfile)
+        #self._model.eval()  # Set in evaluation mode
+        #self.gpu(vipy.globals.gpuindex())
+
+    def __call__(self, im):
+        assert isinstance(im, vipy.image.Image)
+        return vipy.image.Scene(array=im.numpy(), colorspace=im.colorspace(), objects=[vipy.object.Detection('face', xmin=bb[0], ymin=bb[1], width=bb[2], height=bb[3], confidence=bb[4]) for bb in self._model(im)])
 
 
 class Detector(object):
@@ -20,14 +54,14 @@ class Detector(object):
     
     def __init__(self, batchsize=1, weightfile=None):    
         self._mindim = 416
-        indir = os.path.join(filepath(os.path.abspath(__file__)), 'yolov3')
+        indir = os.path.join(filepath(os.path.abspath(__file__)), 'model', 'yolov3')
         weightfile = os.path.join(indir, 'yolov3.weights') if weightfile is None else weightfile
         cfgfile = os.path.join(indir, 'yolov3.cfg')
         self._model = Darknet(cfgfile, img_size=self._mindim)
         if not os.path.exists(weightfile) or not vipy.downloader.verify_sha1(weightfile, '520878f12e97cf820529daea502acca380f1cb8e'):
             #vipy.downloader.download('https://www.dropbox.com/s/ve9cpuozbxh601r/yolov3.weights', os.path.join(indir, 'yolov3.weights'))
             print('[pycollector.detection]: Downloading object detector weights ...')
-            os.system('wget -c https://www.dropbox.com/s/ve9cpuozbxh601r/yolov3.weights -O %s' % weightfile)  # FIXME: replace with better solution
+            os.system('wget -c https://dl.dropboxusercontent.com/s/ve9cpuozbxh601r/yolov3.weights -O %s' % weightfile)  # FIXME: replace with better solution
         assert vipy.downloader.verify_sha1(weightfile, '520878f12e97cf820529daea502acca380f1cb8e'), "Object detector download failed"
         self._model.load_darknet_weights(weightfile)
         self._model.eval()  # Set in evaluation mode

@@ -6,8 +6,8 @@ import torch.nn.functional as F
 from torch.autograd import Variable
 import numpy as np
 
-from pycollector.yolov3.utils.parse_config import *
-from pycollector.yolov3.utils.utils import build_targets, to_cpu, non_max_suppression
+from pycollector.model.yolov3.utils.parse_config import *
+from pycollector.model.yolov3.utils.utils import build_targets, to_cpu, non_max_suppression
 
 
 def create_modules(module_defs):
