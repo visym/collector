@@ -101,10 +101,12 @@ class Project(object):
             import ast
             dict_str = response['Payload'].read().decode("UTF-8")
             mydata = ast.literal_eval(dict_str)
-            serialized_df = mydata['body']['dataframe']
-            data_df = pd.read_json(serialized_df)
+            serialized_videos_df = mydata['body']['videos_dataframe']
+            data_df = pd.read_json(serialized_videos_df)
             self.df = data_df
+            self._instances = mydata['body']['dataframe']
             print("[pycollector.project]:  Returned %d videos" % len(self.df))
+
         except Exception as e:
             custom_error = 'Not able to retreive dataframe from lambda function {0} with exception {1}'.format(FunctionName,e)
             raise Exception(custom_error)
@@ -381,7 +383,9 @@ class Project(object):
         return self.videos(collector, since, collection, verified=True, fetch=fetch)
 
         
-    def instances(self):
+    def instances(self, return_raw=False):
+
+
         co_Instances = backend().table.instance
         instances_result = []
         for sub_week in self.df['week'].unique():
@@ -398,7 +402,10 @@ class Project(object):
                 )
                 instances_result.extend(response["Items"])  # may be empty                
 
-        return [ Instance(query=instance, strict=False) for instance in instances_result if instance['video_id'] in self.videoid()]
+        if return_raw:
+            return [ instance for instance in instances_result if instance['video_id'] in self.videoid()]
+        else:
+            return [ Instance(query=instance, strict=False) for instance in instances_result if instance['video_id'] in self.videoid()]
 
 
     def ratings(self, reviewer=None, badonly=False):
