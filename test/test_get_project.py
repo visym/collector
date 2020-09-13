@@ -19,6 +19,7 @@ def test_get_project():
 
     # testing variiables
     username = 'zhongheng.li@stresearch.com'
+    # username = 'heng4usa@gmail.com'
     password = '0STRBoston&0'
 
     # testing objects and functions 
@@ -26,21 +27,18 @@ def test_get_project():
     new_project_client = Project(program_id="MEVA", alltime=True, pycollector=user)
 
 
-    print("print collector ids")
-    print(new_project_client.collectorID())
+    # print("print collector ids")
+    # print(new_project_client.collectorID())
 
-    print("print collectoremail")
-    print(new_project_client.collectoremail())
+    # print("print collectoremail")
+    # print(new_project_client.collectoremail())
 
-    print(new_project_client.df)
-
-
-    # Fetching Videos
-    videos = new_project_client.videos()
-
-    # Fetching instances
-    instances = new_project_client.instances()
-    print(instances)
+    # print(new_project_client.df)
 
 
+    # # Fetching Videos
+    # videos = new_project_client.videos()
+
+    # # quickshow video
+    # videos[0].quickshow()
 

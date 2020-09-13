@@ -101,10 +101,10 @@ class Project(object):
             import ast
             dict_str = response['Payload'].read().decode("UTF-8")
             mydata = ast.literal_eval(dict_str)
-            serialized_videos_df = mydata['body']['videos_dataframe']
+
+            serialized_videos_df = mydata['body']['videos']
             data_df = pd.read_json(serialized_videos_df)
             self.df = data_df
-            self._instances = mydata['body']['dataframe']
             print("[pycollector.project]:  Returned %d videos" % len(self.df))
 
         except Exception as e:

@@ -10,7 +10,7 @@ import logging
 
 
 # TODO - Put these public variables somewhere
-app_client_id = '28gm3n8vl8adltuhhumc8foplq' # We can signup with this client_id
+app_client_id = '6k20qruljfs0v7n5tmt1pk0u1q' # 
 identity_pool_id = 'us-east-1:c7bbbc40-37d3-4ad8-8afd-492c095729bb'
 provider_name = 'cognito-idp.us-east-1.amazonaws.com/us-east-1_sFpJQRLiY'
 
@@ -41,10 +41,10 @@ class User(object):
         #####################################################################
         # Ensure the system AWS credentials are not being used
         config = Config(signature_version=botocore.UNSIGNED)
-        # self._cognito_idp_client = boto3.client('cognito-idp', config=config)
-        # self._cognito_id_client = boto3.client('cognito-identity', config=config)
-        self._cognito_idp_client = boto3.client('cognito-idp')
-        self._cognito_id_client = boto3.client('cognito-identity')
+        self._cognito_idp_client = boto3.client('cognito-idp', config=config)
+        self._cognito_id_client = boto3.client('cognito-identity', config=config)
+        # self._cognito_idp_client = boto3.client('cognito-idp')
+        # self._cognito_id_client = boto3.client('cognito-identity')
 
         #####################################################################
         # Login  
@@ -132,16 +132,16 @@ class User(object):
     def set_lambda_clients(self):
         """[summary]
         """
-        # self._lambda_client = boto3.client(
-        #     'lambda',
-        #     aws_access_key_id=self._aws_credentials['AccessKeyId'],
-        #     aws_secret_access_key=self._aws_credentials['SecretKey'],
-        #     aws_session_token=self._aws_credentials['SessionToken'],
-        # )
-
         self._lambda_client = boto3.client(
             'lambda',
+            aws_access_key_id=self._aws_credentials['AccessKeyId'],
+            aws_secret_access_key=self._aws_credentials['SecretKey'],
+            aws_session_token=self._aws_credentials['SessionToken'],
         )
+
+        # self._lambda_client = boto3.client(
+        #     'lambda',
+        # )
 
     def new_collection(self, name, organization_name, program_name,project_name, description, activities, activity_short_names, objects ):
 
