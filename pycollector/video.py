@@ -14,6 +14,7 @@ import uuid
 import urllib
 import xmltodict  
 from boto3.dynamodb.conditions import Key, Attr
+import webbrowser
 
 import vipy
 assert vipy.version.is_at_least('1.8.24')
@@ -220,14 +221,18 @@ class Instance(object):
 
         #score_verified_instance_by_id(instance_id=self.instanceid())  # FIXME
 
-    def quicklookurl(self):
-        assert backend().isprod(), "Only valid for production environment"
+    def quicklookurl(self, show=False):
         assert self.isvalid()
+        if show:
+            webbrowser.open(self._instance["s3_path"])
         return self._instance["s3_path"]
 
-    def animated_quicklookurl(self):
-        assert backend().isprod(), "Only valid for production environment"        
-        return self._instance['animation_s3_path'] if ('animation_s3_path' in self._instance and isurl(self._instance['animation_s3_path'])) else None
+    def animated_quicklookurl(self, show=False):
+        #assert backend().isprod(), "Only valid for production environment"        
+        url = self._instance['animation_s3_path'] if ('animation_s3_path' in self._instance and isurl(self._instance['animation_s3_path'])) else None
+        if show and url is not None:
+            webbrowser.open(url)
+        return url
     
     def clip(self, padframes=0):
         """Return just the clip for this instance.  Calling quicklook() on this object should match the quicklook url."""
