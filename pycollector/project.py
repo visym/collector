@@ -83,13 +83,14 @@ class Project(object):
 
         self._projects = None
         self._programid = program_id
+        self._pycollector=pycollector
 
         # Get data from backend lambda function
         # Invoke Lambda function
         request = {'program_id': program_id, 'project_id': project_id, 'weeksago': weeksago, 'monthsago': monthsago, 'daysago': daysago, 'since': since, 'alltime': alltime, 'Video_IDs': Video_IDs, 'before': before, 'week': week, 'pycollector_id': pycollector.cognito_username}
         FunctionName='arn:aws:lambda:us-east-1:806596299222:function:pycollector_get_project'
         try:
-            response =  pycollector.lambda_client.invoke(
+            response =  self._pycollector.lambda_client.invoke(
                 FunctionName=FunctionName,
                 InvocationType= 'RequestResponse',
                 LogType='Tail',
@@ -100,10 +101,10 @@ class Project(object):
 
             import ast
             dict_str = response['Payload'].read().decode("UTF-8")
-            mydata = ast.literal_eval(dict_str)
+            data_dict = ast.literal_eval(dict_str)
 
-            serialized_videos_df = mydata['body']['videos']
-            data_df = pd.read_json(serialized_videos_df)
+            serialized_videos_data_dict = data_dict['body']['videos']
+            data_df = pd.read_json(serialized_videos_data_dict)
             self.df = data_df
             print("[pycollector.project]:  Returned %d videos" % len(self.df))
 
@@ -112,11 +113,11 @@ class Project(object):
             raise Exception(custom_error)
         
 
-    def __repr__(self):
-        return str("<pycollector.project: program=%s, videos=%d, since=%s, collectors=%d>" % (self._programid,
-                                                                                                    len(self.videoid()),
-                                                                                                    str(self._since),
-                                                                                                    len(self.collectorid())))
+    # def __repr__(self):
+    #     return str("<pycollector.project: program=%s, videos=%d, since=%s, collectors=%d>" % (self._programid,
+    #                                                                                                 len(self.videoid()),
+    #                                                                                                 str(self._since),
+    #                                                                                                 len(self.collectorid())))
 
     def __len__(self):
         return len(self.df)
@@ -365,14 +366,45 @@ class Project(object):
     def videos(self, collector=None, since=None, collection=None, verified=None, fetch=True):
         """Cache JSON files and create a list of collector.project.Videos"""
         f = self.filter(collector, since, collection, verified)
-        return [
-            Video(vid, fetch=fetch)
-            for (vid, date) in sorted(
-                zip(f.df.video_id, f.df.uploaded_date),
-                key=lambda x: pd.to_datetime(x[1]),
-                reverse=True,
+
+        # Fetch videos data from lambda
+        videos_list = [vid for (vid, date) in sorted(zip(f.df.video_id, f.df.uploaded_date), key=lambda x: pd.to_datetime(x[1]), reverse=True)]
+
+        # Get data from backend lambda function
+        # Invoke Lambda function
+        request = {'api_call' : 'get_project_videos', 'videos_list': videos_list}
+        FunctionName='arn:aws:lambda:us-east-1:806596299222:function:pycollector_get_project_videos'
+        try:
+            response =  self._pycollector.lambda_client.invoke(
+                FunctionName=FunctionName,
+                InvocationType= 'RequestResponse',
+                LogType='Tail',
+                # Payload=json.dumps(request),
+                Payload= bytes(json.dumps(request), encoding='utf8'),
             )
-        ]  # lazy load
+            # Get the serialized data
+
+            # print('response decode: ',  response['Payload'].read().decode())
+            # print("response['Payload'].read(): ", response['Payload'].read().decode("UTF-8"))
+
+            import ast
+            dict_str = response['Payload'].read().decode("UTF-8")
+            data_dict = ast.literal_eval(dict_str)
+
+            serialized_videos_data_list = json.loads(data_dict['body']['videos_data'])
+
+            # print("serialized_videos_data_list!!!!",serialized_videos_data_list)
+
+        except Exception as e:
+            custom_error = 'Not able to retreive data from lambda function {0} with exception {1}'.format(FunctionName,e)
+            raise Exception(custom_error)
+        
+        print(serialized_videos_data_list[0])
+        print(type(serialized_videos_data_list[0]))
+        
+        # return [ Video(video_data=video_data) for video_data in  serialized_videos_data_list]  # lazy load
+
+
 
     def videoscores(self):
         return {d['video_id']:{k:v for (k,v) in d.items() if '_score' in k} for d in self.tolist()}

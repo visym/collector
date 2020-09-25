@@ -43,9 +43,7 @@ class User(object):
         config = Config(signature_version=botocore.UNSIGNED)
         self._cognito_idp_client = boto3.client('cognito-idp', config=config)
         self._cognito_id_client = boto3.client('cognito-identity', config=config)
-        # self._cognito_idp_client = boto3.client('cognito-idp')
-        # self._cognito_id_client = boto3.client('cognito-identity')
-
+   
         #####################################################################
         # Login  
         #####################################################################
@@ -74,7 +72,6 @@ class User(object):
 
             # Set user properties
             self._username = username
-
 
             # Should we expose these tokens?
             self._access_token = signin_response['AuthenticationResult']['AccessToken']
@@ -138,29 +135,6 @@ class User(object):
             aws_secret_access_key=self._aws_credentials['SecretKey'],
             aws_session_token=self._aws_credentials['SessionToken'],
         )
-
-        # self._lambda_client = boto3.client(
-        #     'lambda',
-        # )
-
-    def new_collection(self, name, organization_name, program_name,project_name, description, activities, activity_short_names, objects ):
-
-        # Invoke Lambda function
-        request = {'identity_id': identity_id, 'cognito_username': cognito_username, 'email': email}
-
-
-        # Invoke Lambda function
-        try:
-            response = self._lambda_client.invoke(
-            FunctionName='arn:aws:lambda:us-east-1:806596299222:function:CollectorTestPostAuthentication',
-            InvocationType= 'RequestResponse',
-            LogType='Tail',
-            Payload=json.dumps(request),
-        )
-        except Exception as e:
-            custom_error = '\nException : failed to invoke jobs.\n'
-            custom_error += 'Error : ' + str(e) + '\n'
-            raise Exception(custom_error)
 
         
     def is_token_expired(self):

@@ -259,6 +259,7 @@ class Video(Scene):
 
     def __init__(
         self,
+        video_data=None,
         videoid=None,
         mp4file=None,
         mp4url=None,
@@ -270,15 +271,30 @@ class Video(Scene):
         verbose=False,
         attributes=None,
     ):
-        assert (mp4file is not None or mp4url is not None or videoid is not None), "Invalid input - Must provide either mp4file or mp4url or videoid"
-        assert (jsonurl is not None or jsonfile is not None or videoid is not None), "Invalid input - Must provide either jsonurl, videoid or jsonfile"
-        assert mp4url is None or isS3url(mp4url), "Invalid input - mp4url must be of the form 's3://BUCKETNAME.s3.amazonaws.com/path/to/OBJECTNAME.mp4'"
-        assert jsonurl is None or isS3url(jsonurl), "Invalid input - jsonurl must be of the form 's3://BUCKETNAME.s3.amazonaws.com/path/to/OBJECTNAME.json'"
+        assert (video_data is not None ), "Invalid input - Must provide either mp4file or mp4url or videoid or video_data"
+        # assert (mp4file is not None or mp4url is not None or videoid is not None), "Invalid input - Must provide either mp4file or mp4url or videoid"
+        # assert (jsonurl is not None or jsonfile is not None or videoid is not None), "Invalid input - Must provide either jsonurl, videoid or jsonfile"
+        # assert mp4url is None or isS3url(mp4url), "Invalid input - mp4url must be of the form 's3://BUCKETNAME.s3.amazonaws.com/path/to/OBJECTNAME.mp4'"
+        # assert jsonurl is None or isS3url(jsonurl), "Invalid input - jsonurl must be of the form 's3://BUCKETNAME.s3.amazonaws.com/path/to/OBJECTNAME.json'"
         if videoid is not None:
             assert (mp4url is None and jsonurl is None), "Invalid input - must provide either videoid or URLs, not both"        
         assert vipy.version.at_least_version("0.7.4"), "vipy >= 0.7.4 required"
         
-        if videoid is not None and isapi('v2'):
+
+        if video_data is not None and isapi('v2'):
+
+            v = video_data
+
+            # if len(v) == 0:
+            #     raise ValueError('Video ID "%s" not found' % videoid)
+
+            # print("v: ", v)
+
+            mp4url = 's3://%s.s3.amazonaws.com/%s' % (backend()._s3_bucket, v['raw_video_file_path'])
+            jsonurl = 's3://%s.s3.amazonaws.com/%s' % (backend()._s3_bucket, v['annotation_file_path'])
+            videoid = None
+
+        elif videoid is not None and isapi('v2'):
             v = backend().table.video.query(IndexName="video_id-index",
                                                           KeyConditionExpression=Key('video_id').eq(videoid))['Items']
             if len(v) == 0:
@@ -297,12 +313,6 @@ class Video(Scene):
             
             jsonurl = ("s3://diva-prod-data-lake.s3.amazonaws.com/temp/%s.json" % videoid) 
             mp4url = "s3://diva-prod-data-lake.s3.amazonaws.com/temp/%s.mp4" % videoid
-
-        # FIXME: why is this here?
-        if "VISYM_COLLECTOR_AWS_ACCESS_KEY_ID" in os.environ:
-            os.environ["VIPY_AWS_ACCESS_KEY_ID"] = os.environ["VISYM_COLLECTOR_AWS_ACCESS_KEY_ID"]
-        if "VISYM_COLLECTOR_AWS_SECRET_ACCESS_KEY" in os.environ:
-            os.environ["VIPY_AWS_SECRET_ACCESS_KEY"] = os.environ["VISYM_COLLECTOR_AWS_SECRET_ACCESS_KEY"]
 
         # Vipy constructor
         mp4url = mp4url.replace('+',' ') if mp4url is not None else mp4url  # for cut and paste from AWS console
@@ -549,8 +559,37 @@ class Video(Scene):
         super(Video, self).fetch()
         return self
 
+
     def fetchjson(self):
         """Download JSON if not already downloaded"""
+
+
+
+
+        def s3(url, output_filename, verbose=True):
+            assert 'VIPY_AWS_ACCESS_KEY_ID' in os.environ and 'VIPY_AWS_SECRET_ACCESS_KEY' in os.environ, \
+                "AWS access keys not found - You need to create ENVIRONMENT variables ['VIPY_AWS_ACCESS_KEY_ID', 'VIPY_AWS_SECRET_ACCESS_KEY'] with S3 access credentials"   
+            try_import('boto3', 'boto3')
+            assert isS3url(url), "Invalid URL - Must be 's3://BUCKETNAME.s3.amazonaws.com/OBJECTNAME.ext'"
+            
+            import boto3                        
+            s3 = boto3.client('s3',
+                            aws_access_key_id=os.environ['VIPY_AWS_ACCESS_KEY_ID'],
+                            aws_secret_access_key=os.environ['VIPY_AWS_SECRET_ACCESS_KEY']
+            )
+            
+            # url format: s3://BUCKETNAME.s3.amazonaws.com/OBJECTNAME.mp4
+            bucket_name = urllib.parse.urlparse(url).netloc.split('.')[0]
+            object_name = urllib.parse.urlparse(url).path[1:]
+
+            if verbose:
+                print('[vipy.downloader.s3]: Downloading "%s" -> "%s"' % (url, output_filename))
+            s3.download_file(bucket_name, object_name, output_filename)
+            return output_filename
+
+
+
+
         if self._jsonfile is None:
             self._jsonfile = os.path.join(
                 remkdir(
@@ -563,7 +602,11 @@ class Video(Scene):
             if not os.path.exists(self._jsonfile):
                 print('[pycollector.video]:  Fetching "%s"' % self._jsonurl)
                 try:
-                    vipy.downloader.s3(self._jsonurl, self._jsonfile)
+
+                    vipy.downloader.s3(self._jsonurl, self._jsonfile) # Need to be replace
+
+
+
                 except KeyboardInterrupt:
                     raise
                 except Exception as e:
