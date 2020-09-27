@@ -15,6 +15,7 @@ import hashlib
 import uuid
 import urllib
 import json
+import ast
 
 import vipy
 assert vipy.version.is_at_least('1.8.24')
@@ -98,8 +99,6 @@ class Project(object):
                 Payload= bytes(json.dumps(request), encoding='utf8'),
             )
             # Get the serialized dataframe
-
-            import ast
             dict_str = response['Payload'].read().decode("UTF-8")
             data_dict = ast.literal_eval(dict_str)
 
@@ -363,7 +362,7 @@ class Project(object):
                 outlist.append(v)
         return outlist
 
-    def videos(self, collector=None, since=None, collection=None, verified=None, fetch=True):
+    def videos(self, collector=None, since=None, collection=None, verified=None, fetch=True, test=False):
         """Cache JSON files and create a list of collector.project.Videos"""
         f = self.filter(collector, since, collection, verified)
 
@@ -373,6 +372,7 @@ class Project(object):
         # Get data from backend lambda function
         # Invoke Lambda function
         request = {'api_call' : 'get_project_videos', 'videos_list': videos_list}
+
         FunctionName='arn:aws:lambda:us-east-1:806596299222:function:pycollector_get_project_videos'
         try:
             response =  self._pycollector.lambda_client.invoke(
@@ -383,17 +383,10 @@ class Project(object):
                 Payload= bytes(json.dumps(request), encoding='utf8'),
             )
             # Get the serialized data
-
-            # print('response decode: ',  response['Payload'].read().decode())
-            # print("response['Payload'].read(): ", response['Payload'].read().decode("UTF-8"))
-
-            import ast
             dict_str = response['Payload'].read().decode("UTF-8")
             data_dict = ast.literal_eval(dict_str)
 
             serialized_videos_data_list = json.loads(data_dict['body']['videos_data'])
-
-            # print("serialized_videos_data_list!!!!",serialized_videos_data_list)
 
         except Exception as e:
             custom_error = 'Not able to retreive data from lambda function {0} with exception {1}'.format(FunctionName,e)
@@ -402,7 +395,11 @@ class Project(object):
         print(serialized_videos_data_list[0])
         print(type(serialized_videos_data_list[0]))
         
-        # return [ Video(video_data=video_data) for video_data in  serialized_videos_data_list]  # lazy load
+
+        # Video class is tightly coupled with DDB operations that required Scan. And functions in vipy assumped user privileges, like s3 downloaders https://github.com/visym/vipy/blob/2d982fc7043118e5c276cbc4d7f33f7eeae7335f/vipy/video.py#L409 
+        # At this stage we may need code review and reorg for pycollector to further decouple the two main features: Secure Data Access and Powerful yet User Friendly Video Tools
+        # I was looking for alternative solution to achieve the same goal to allow user to interact their video data by downloading the videos objects as pickles files from AWS lambda function and parse them seamlessly for users 
+        return [ Video(video_data=video_data, test=test, pycollector=self._pycollector) for video_data in  serialized_videos_data_list]  # lazy load
 
 
 

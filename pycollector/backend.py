@@ -11,14 +11,14 @@ class API(User):
     """
 
 
-    def __init__(self, username=None, password=None):
+    def __init__(self, username=None, password=None, test=False):
         """
     
         Args:
             username ([type], optional): [description]. Defaults to None.
             password ([type], optional): [description]. Defaults to None.
         """
-        super().__init__(username=username,password=password)
+        super().__init__(username=username,password=password,  test=False)
 
 
     def get_project(self, program_id='MEVA'): 

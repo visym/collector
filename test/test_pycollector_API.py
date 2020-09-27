@@ -19,7 +19,7 @@ def test_get_user_video(username,password):
     """test get user video
     """
     # testing objects and functions 
-    api = API(username=username, password=password)
+    api = API(username=username, password=password, test=True)
     assert api.username == username
     assert api.is_token_expired() == False
 
@@ -30,9 +30,15 @@ def test_get_user_videos(username,password, program_id):
     """
     
     # testing objects and functions 
-    api = API(username=username, password=password)
+    api = API(username=username, password=password, test=True)
     project =  api.get_project(program_id=program_id)
 
+    # show the df of project
     print(project.df)
 
-    videos = project.videos()
+    # fetch video
+    videos = project.videos(test=True)
+
+    # run quickshow to show the first video
+    videos[0].quickshow()
+

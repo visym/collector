@@ -7,6 +7,7 @@ import decimal
 import pandas as pd
 import numpy as np
 import logging
+import pycollector
 
 
 # TODO - Put these public variables somewhere
@@ -18,7 +19,7 @@ class User(object):
     """User class for collector's user management
     """
 
-    def __init__(self, username=None, password=None):
+    def __init__(self, username=None, password=None, test=False):
         """
         
 
@@ -36,6 +37,10 @@ class User(object):
         self._program_name = None
         self._logger = logging.getLogger(User.__name__)
 
+        # Set to target ENV
+        if test == True:
+            pycollector.globals.backend('test')
+
         #####################################################################
         # Initialize cognito clients
         #####################################################################
@@ -43,7 +48,7 @@ class User(object):
         config = Config(signature_version=botocore.UNSIGNED)
         self._cognito_idp_client = boto3.client('cognito-idp', config=config)
         self._cognito_id_client = boto3.client('cognito-identity', config=config)
-   
+
         #####################################################################
         # Login  
         #####################################################################
@@ -103,6 +108,7 @@ class User(object):
             # Set up AWS services 
             self.set_S3_clients()
             self.set_lambda_clients()
+            self.set_os_environ()
 
 
         except Exception as e:
@@ -135,6 +141,16 @@ class User(object):
             aws_secret_access_key=self._aws_credentials['SecretKey'],
             aws_session_token=self._aws_credentials['SessionToken'],
         )
+
+    def set_os_environ(self):
+        """[summary]
+        """  
+        os.environ['VIPY_AWS_ACCESS_KEY_ID'] = self._aws_credentials['AccessKeyId']
+        os.environ['VIPY_AWS_SECRET_ACCESS_KEY'] = self._aws_credentials['SecretKey']
+
+
+
+
 
         
     def is_token_expired(self):
