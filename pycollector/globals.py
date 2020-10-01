@@ -12,7 +12,8 @@ GLOBALS = {'VERBOSE': True,                # If False, will silence everything, 
            'LAMBDA':{'get_project':'arn:aws:lambda:us-east-1:806596299222:function:pycollector_get_project'},
            'COGNITO':{'app_client_id':'6k20qruljfs0v7n5tmt1pk0u1q',
                       'identity_pool_id':'us-east-1:c7bbbc40-37d3-4ad8-8afd-492c095729bb',
-                      'provider_name':'cognito-idp.us-east-1.amazonaws.com/us-east-1_sFpJQRLiY'}}
+                      'provider_name':'cognito-idp.us-east-1.amazonaws.com/us-east-1_sFpJQRLiY',
+                      'region_name':'us-east-1' if 'AWS_DEFAULT_REGION' not in os.environ else os.environ['AWS_DEFAULT_REGION']}}
 
 
 def logging(enable=None, format=None):

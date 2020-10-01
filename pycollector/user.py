@@ -28,25 +28,19 @@ class User(object):
         self.app_client_id = GLOBALS['COGNITO']['app_client_id']
         self.identity_pool_id = GLOBALS['COGNITO']['identity_pool_id']
         self.provider_name = GLOBALS['COGNITO']['provider_name']
+        self.region_name = GLOBALS['COGNITO']['region_name']
         
         # Initialize the base user properties and create the logger used by the function
         self._is_login = False
         self._token_initialized_time = None
         self._token_expiration_time = None 
         self._program_name = None
-        #self._logger = logging.getLogger(User.__name__)
-        
-        # Set to target ENV
-        #   NOTE: this is not the design pattern, environments are set as globals
-        #if test == True:
-        #    pycollector.globals.backend('test')
-
 
         # Initialize cognito clients
         # Ensure the system AWS credentials are not being used
         config = Config(signature_version=botocore.UNSIGNED)
-        self._cognito_idp_client = boto3.client('cognito-idp', config=config)
-        self._cognito_id_client = boto3.client('cognito-identity', config=config)
+        self._cognito_idp_client = boto3.client('cognito-idp', config=config, region_name=self.region_name)
+        self._cognito_id_client = boto3.client('cognito-identity', config=config, region_name=self.region_name)
 
         # Login
         if username is None and 'VISYM_COLLECTOR_EMAIL' in os.environ:
@@ -164,8 +158,7 @@ class User(object):
         return self._token_expiration_time
     
     def is_authenticated(self):
-        #return self._is_login or ('VIPY_AWS_SECRET_ACCESS_KEY' in os.environ and 'VIPY_AWS_ACCESS_KEY_ID' in os.environ)
-        return self._is_login
+        return self._is_login  # or 'VIPY_AWS_SESSION_TOKEN' in os.environ
 
     @property
     def username(self):

@@ -25,7 +25,8 @@ class Project(User):
                  daysago=None,
                  since=None,
                  before=None,
-                 alltime=False
+                 alltime=False,
+                 last=None
     ):
         super(Project, self).__init__()
         
@@ -37,7 +38,7 @@ class Project(User):
 
         # Get data from backend lambda function
         # Invoke Lambda function
-        request = {'program_id': program_id, 'project_id': project_id, 'weeksago': weeksago, 'monthsago': monthsago, 'daysago': daysago, 'since': since, 'alltime': alltime, 'Video_IDs': None, 'before': before, 'week': None, 'pycollector_id': self.cognito_username}
+        request = {'program_id': program_id, 'project_id': project_id, 'weeksago': weeksago, 'monthsago': monthsago, 'daysago': daysago, 'since': since, 'alltime': alltime, 'Video_IDs': None, 'before': before, 'week': None, 'pycollector_id': self.cognito_username, 'last':last}
         FunctionName = GLOBALS['LAMBDA']['get_project']
         
         try:
@@ -96,7 +97,7 @@ class Project(User):
 def search():
     return Project(since='2020-09-01')
 
-def last():
-    return Project(since='2020-09-01').last()    
+def last(n=1):
+    return Project(since='2020-09-01', last=n).last()    
 
             
