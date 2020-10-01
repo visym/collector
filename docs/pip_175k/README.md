@@ -1,5 +1,7 @@
 # People in Public - 175k
 
+[![Collector visualization](https://i3.ytimg.com/vi/HjNa7_T-Xkc/maxresdefault.jpg)](https://youtu.be/HjNa7_T-Xkc)
+
 # Overview
 
 The People in Public dataset is a consented large scale video dataset of people doing things in public places.  Our team has pioneered the use of a 
