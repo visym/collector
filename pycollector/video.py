@@ -31,9 +31,6 @@ import vipy.version
 from pycollector.util import allmondays_since, yyyymmdd_to_date, is_email_address, isday, is_more_recent_than, nextday, lastmonday
 from pycollector.util import lowerif, timestamp, fromdate, ismonday
 from pycollector.globals import print
-import pycollector.project
-
-#from pycollector.admin.globals import backend, isapi  # REMOVE ME
 
 
 class Video(Scene):
@@ -426,22 +423,11 @@ class Video(Scene):
         v.__class__ = pycollector.admin.video.Video
         return v
         
-    # helper function
-    #def s3_downloader(self, url, output_filename, verbose=True):
-    #    raise ValueError('FIXME: unnecessary')
-    #
-    #    assert 'VIPY_AWS_ACCESS_KEY_ID' in os.environ and 'VIPY_AWS_SECRET_ACCESS_KEY' in os.environ, \
-    #        "AWS access keys not found - You need to create ENVIRONMENT variables ['VIPY_AWS_ACCESS_KEY_ID', 'VIPY_AWS_SECRET_ACCESS_KEY'] with S3 access credentials"   
-    # 
-    #    assert isS3url(url), "Invalid URL - Must be 's3://BUCKETNAME.s3.amazonaws.com/OBJECTNAME.ext'"
-    #
-    #    # url format: s3://BUCKETNAME.s3.amazonaws.com/OBJECTNAME.mp4
-    #    bucket_name = urllib.parse.urlparse(url).netloc.split('.')[0]
-    #    object_name = urllib.parse.urlparse(url).path[1:]
-    #
-    #    if verbose:
-    #        print('[vipy.downloader.s3]: Downloading "%s" -> "%s"' % (url, output_filename))
-    #    self._pycollector._s3_client.download_file(bucket_name, object_name, output_filename)
-    #    return output_filename
+def search():
+    import pycollector.project
+    return pycollector.project.Project(since='2020-09-01')
 
 
+def last():
+    import pycollector.project    
+    return pycollector.project.Project(since='2020-09-01').last()    
