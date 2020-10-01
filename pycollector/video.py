@@ -42,6 +42,7 @@ class Video(Scene):
 
     def __init__(
         self,
+        video_data=None,
         videoid=None,
         mp4file=None,
         mp4url=None,
@@ -52,16 +53,41 @@ class Video(Scene):
         fetch=True,
         verbose=False,
         attributes=None,
+        test=False,
+        pycollector=None
     ):
-        assert (mp4file is not None or mp4url is not None or videoid is not None), "Invalid input - Must provide either mp4file or mp4url or videoid"
-        assert (jsonurl is not None or jsonfile is not None or videoid is not None), "Invalid input - Must provide either jsonurl, videoid or jsonfile"
-        assert mp4url is None or isS3url(mp4url), "Invalid input - mp4url must be of the form 's3://BUCKETNAME.s3.amazonaws.com/path/to/OBJECTNAME.mp4'"
-        assert jsonurl is None or isS3url(jsonurl), "Invalid input - jsonurl must be of the form 's3://BUCKETNAME.s3.amazonaws.com/path/to/OBJECTNAME.json'"
+        assert (video_data is not None ), "Invalid input - Must provide either mp4file or mp4url or videoid or video_data"
+        # assert (mp4file is not None or mp4url is not None or videoid is not None), "Invalid input - Must provide either mp4file or mp4url or videoid"
+        # assert (jsonurl is not None or jsonfile is not None or videoid is not None), "Invalid input - Must provide either jsonurl, videoid or jsonfile"
+        # assert mp4url is None or isS3url(mp4url), "Invalid input - mp4url must be of the form 's3://BUCKETNAME.s3.amazonaws.com/path/to/OBJECTNAME.mp4'"
+        # assert jsonurl is None or isS3url(jsonurl), "Invalid input - jsonurl must be of the form 's3://BUCKETNAME.s3.amazonaws.com/path/to/OBJECTNAME.json'"
         if videoid is not None:
             assert (mp4url is None and jsonurl is None), "Invalid input - must provide either videoid or URLs, not both"        
         assert vipy.version.at_least_version("0.7.4"), "vipy >= 0.7.4 required"
         
-        if videoid is not None and isapi('v2'):
+
+        # Set to target ENV
+        if test:
+            backend('test')
+
+
+        self._pycollector = pycollector
+
+        if video_data is not None and isapi('v2'):
+
+            self._video_data = video_data
+            v = video_data
+
+            # if len(v) == 0:
+            #     raise ValueError('Video ID "%s" not found' % videoid)
+
+            # print("v: ", v)
+
+            mp4url = 's3://%s.s3.amazonaws.com/%s' % (backend()._s3_bucket, v['raw_video_file_path'])
+            jsonurl = 's3://%s.s3.amazonaws.com/%s' % (backend()._s3_bucket, v['annotation_file_path'])
+            videoid = None
+
+        elif videoid is not None and isapi('v2'):
             v = backend().table.video.query(IndexName="video_id-index",
                                                           KeyConditionExpression=Key('video_id').eq(videoid))['Items']
             if len(v) == 0:
@@ -81,12 +107,6 @@ class Video(Scene):
             jsonurl = ("s3://diva-prod-data-lake.s3.amazonaws.com/temp/%s.json" % videoid) 
             mp4url = "s3://diva-prod-data-lake.s3.amazonaws.com/temp/%s.mp4" % videoid
 
-        # FIXME: why is this here?
-        if "VISYM_COLLECTOR_AWS_ACCESS_KEY_ID" in os.environ:
-            os.environ["VIPY_AWS_ACCESS_KEY_ID"] = os.environ["VISYM_COLLECTOR_AWS_ACCESS_KEY_ID"]
-        if "VISYM_COLLECTOR_AWS_SECRET_ACCESS_KEY" in os.environ:
-            os.environ["VIPY_AWS_SECRET_ACCESS_KEY"] = os.environ["VISYM_COLLECTOR_AWS_SECRET_ACCESS_KEY"]
-
         # Vipy constructor
         mp4url = mp4url.replace('+',' ') if mp4url is not None else mp4url  # for cut and paste from AWS console
         jsonurl = jsonurl.replace('+',' ') if jsonurl is not None else jsonurl  # for cut and paste from AWS console        
@@ -94,6 +114,8 @@ class Video(Scene):
 
         # Video attributes
         self._quicklook_url = "https://%s.s3.amazonaws.com/Quicklooks/%%s_quicklook_%%s_%%d.jpg" % (backend().s3_bucket())  
+        self._mp4url = mp4url
+        self._mp4file = mp4file
         self._jsonurl = jsonurl
         self._jsonfile = os.path.abspath(os.path.expanduser(jsonfile))
         self._dt = dt
@@ -175,14 +197,17 @@ class Video(Scene):
             print('[pycollector.video]: empty JSON "%s" - SKIPPING' % jsonfile)
             d = None
 
-        # Valid collection?
-        if not backend().collection().isvalid(d["metadata"]["collection_id"]):
-            print('[pycollector.video]: invalid collection "%s" - SKIPPING' % d["metadata"]["collection_id"])
-            d = None
+        # Valid collection? ## TODO - This is not needed?
+        # if not backend().collection().isvalid(d["metadata"]["collection_id"]):
+        #     print('[pycollector.video]: invalid collection "%s" - SKIPPING' % d["metadata"]["collection_id"])
+        #     d = None
 
         # Import JSON into scene
         if d is not None:
-            collection_name = backend().collection().id_to_name(d["metadata"]["collection_id"])
+            # TODO - Replace with video_data
+            collection_name = self._video_data['collection_name']
+            #collection_name = backend().collection().id_to_name(d["metadata"]["collection_id"])
+
             self.category(collection_name)
             self.attributes = {} if self.attributes is None else self.attributes
             self.attributes.update(d['metadata'])
@@ -313,9 +338,35 @@ class Video(Scene):
     def fetch(self, ignoreErrors=False):
         """Download JSON and MP4 if not already downloaded"""
         try:
-            self.fetchjson()
-            if vipy.version.is_at_least("0.8.8"):
-                super(Video, self).fetch()
+            self.fetchjson() # Do we need this?
+            # if vipy.version.is_at_least("0.8.8"):
+            #     super(Video, self).fetch()
+
+
+            if self._mp4file is None:
+                self._mp4file = os.path.join(
+                    remkdir(
+                        os.environ["VIPY_CACHE"]
+                        if "VIPY_CACHE" in os.environ
+                        else tempdir()
+                    ),
+                    filetail(self._mp4url),
+                )
+                if not os.path.exists(self._mp4file):
+                    print('[pycollector.video]:  Fetching "%s"' % self._mp4url)
+                    try:
+
+                        self.s3_downloader(self._mp4url, self._mp4file) 
+
+                    except KeyboardInterrupt:
+                        raise
+                    except Exception as e:
+                        print(
+                            '[pycollector.video]: S3 download error "%s" - SKIPPING'
+                            % str(e)
+                        )
+                        mp4file = None
+
         except Exception as e:
             if ignoreErrors:
                 print(
@@ -332,8 +383,10 @@ class Video(Scene):
         super(Video, self).fetch()
         return self
 
+
     def fetchjson(self):
         """Download JSON if not already downloaded"""
+
         if self._jsonfile is None:
             self._jsonfile = os.path.join(
                 remkdir(
@@ -346,7 +399,9 @@ class Video(Scene):
             if not os.path.exists(self._jsonfile):
                 print('[pycollector.video]:  Fetching "%s"' % self._jsonurl)
                 try:
-                    vipy.downloader.s3(self._jsonurl, self._jsonfile)
+
+                    self.s3_downloader(self._jsonurl, self._jsonfile) 
+
                 except KeyboardInterrupt:
                     raise
                 except Exception as e:
@@ -519,6 +574,22 @@ class Video(Scene):
         v.__class__ = Scene
         return v
 
+
+    # helper function
+    def s3_downloader(self, url, output_filename, verbose=True):
+        assert 'VIPY_AWS_ACCESS_KEY_ID' in os.environ and 'VIPY_AWS_SECRET_ACCESS_KEY' in os.environ, \
+            "AWS access keys not found - You need to create ENVIRONMENT variables ['VIPY_AWS_ACCESS_KEY_ID', 'VIPY_AWS_SECRET_ACCESS_KEY'] with S3 access credentials"   
+
+        assert isS3url(url), "Invalid URL - Must be 's3://BUCKETNAME.s3.amazonaws.com/OBJECTNAME.ext'"
+    
+        # url format: s3://BUCKETNAME.s3.amazonaws.com/OBJECTNAME.mp4
+        bucket_name = urllib.parse.urlparse(url).netloc.split('.')[0]
+        object_name = urllib.parse.urlparse(url).path[1:]
+
+        if verbose:
+            print('[vipy.downloader.s3]: Downloading "%s" -> "%s"' % (url, output_filename))
+        self._pycollector._s3_client.download_file(bucket_name, object_name, output_filename)
+        return output_filename
 
 
 def last():
