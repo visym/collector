@@ -25,7 +25,7 @@ class Project(User):
                  daysago=None,
                  since=None,
                  before=None,
-                 alltime=None
+                 alltime=False
     ):
         super(Project, self).__init__()
         
@@ -93,7 +93,10 @@ class Project(User):
         return urls
 
 
+def search():
+    return Project(since='2020-09-01')
 
-
+def last():
+    return Project(since='2020-09-01').last()    
 
             

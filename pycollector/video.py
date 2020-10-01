@@ -31,6 +31,7 @@ import vipy.version
 from pycollector.util import allmondays_since, yyyymmdd_to_date, is_email_address, isday, is_more_recent_than, nextday, lastmonday
 from pycollector.util import lowerif, timestamp, fromdate, ismonday
 from pycollector.globals import print
+import pycollector.project
 
 #from pycollector.admin.globals import backend, isapi  # REMOVE ME
 
@@ -443,10 +444,4 @@ class Video(Scene):
     #    self._pycollector._s3_client.download_file(bucket_name, object_name, output_filename)
     #    return output_filename
 
-
-def search():
-    return pycollector.project.Project()
-
-def last():
-    return pycollector.project.Project().last()    
 
