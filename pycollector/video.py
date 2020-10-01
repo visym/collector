@@ -32,7 +32,7 @@ from pycollector.util import allmondays_since, yyyymmdd_to_date, is_email_addres
 from pycollector.util import lowerif, timestamp, fromdate, ismonday
 from pycollector.globals import print
 
-from pycollector.admin.globals import backend, isapi  # REMOVE ME
+#from pycollector.admin.globals import backend, isapi  # REMOVE ME
 
 
 class Video(Scene):
@@ -40,90 +40,50 @@ class Video(Scene):
     
     """
 
-    def __init__(
-        self,
-        video_data=None,
-        videoid=None,
-        mp4file=None,
-        mp4url=None,
-        jsonurl=None,
-        jsonfile=None,
-        mindim=512,
-        dt=1,
-        fetch=True,
-        verbose=False,
-        attributes=None,
-        test=False,
-        pycollector=None
+    def __init__(self,
+                 mp4file=None,
+                 mp4url=None,
+                 jsonurl=None,
+                 jsonfile=None,
+                 mindim=512,
+                 dt=1,
+                 fetch=True,
+                 attributes=None
     ):
-        assert (video_data is not None ), "Invalid input - Must provide either mp4file or mp4url or videoid or video_data"
-        # assert (mp4file is not None or mp4url is not None or videoid is not None), "Invalid input - Must provide either mp4file or mp4url or videoid"
-        # assert (jsonurl is not None or jsonfile is not None or videoid is not None), "Invalid input - Must provide either jsonurl, videoid or jsonfile"
-        # assert mp4url is None or isS3url(mp4url), "Invalid input - mp4url must be of the form 's3://BUCKETNAME.s3.amazonaws.com/path/to/OBJECTNAME.mp4'"
-        # assert jsonurl is None or isS3url(jsonurl), "Invalid input - jsonurl must be of the form 's3://BUCKETNAME.s3.amazonaws.com/path/to/OBJECTNAME.json'"
-        if videoid is not None:
-            assert (mp4url is None and jsonurl is None), "Invalid input - must provide either videoid or URLs, not both"        
-        assert vipy.version.at_least_version("0.7.4"), "vipy >= 0.7.4 required"
+        assert (mp4file is not None or mp4url is not None), "Invalid input - Must provide either mp4file or mp4url"
+        assert (jsonurl is not None or jsonfile is not None), "Invalid input - Must provide either jsonurl or jsonfile"
+        assert mp4url is None or isS3url(mp4url), "Invalid input - mp4url must be of the form returned from pycollector.project"
+        assert jsonurl is None or isS3url(jsonurl), "Invalid input - jsonurl must be of the form returned from pycollector.project"
+
+        # AWS credentials (if needed) must be set by pycollector.user
+        if ((jsonurl is not None and (jsonfile is None or not os.path.exists(jsonfile))) or
+            (mp4url is not None and (mp4file is None or not os.path.exists(mp4file)))):            
+             assert 'VIPY_AWS_ACCESS_KEY_ID' in os.environ and 'VIPY_AWS_SECRET_ACCESS_KEY' in os.environ, "AWS access keys not found - Log in using pycollector.user"
         
-
-        # Set to target ENV
-        if test:
-            backend('test')
-
-
-        self._pycollector = pycollector
-
-        if video_data is not None and isapi('v2'):
-
-            self._video_data = video_data
-            v = video_data
-
-            # if len(v) == 0:
-            #     raise ValueError('Video ID "%s" not found' % videoid)
-
-            # print("v: ", v)
-
-            mp4url = 's3://%s.s3.amazonaws.com/%s' % (backend()._s3_bucket, v['raw_video_file_path'])
-            jsonurl = 's3://%s.s3.amazonaws.com/%s' % (backend()._s3_bucket, v['annotation_file_path'])
-            videoid = None
-
-        elif videoid is not None and isapi('v2'):
-            v = backend().table.video.query(IndexName="video_id-index",
-                                                          KeyConditionExpression=Key('video_id').eq(videoid))['Items']
-            if len(v) == 0:
-                raise ValueError('Video ID "%s" not found' % videoid)
-            v = v[0]
-            mp4url = 's3://%s.s3.amazonaws.com/%s' % (backend()._s3_bucket, v['raw_video_file_path'])
-            jsonurl = 's3://%s.s3.amazonaws.com/%s' % (backend()._s3_bucket, v['annotation_file_path'])
-            videoid = None
-        
-        elif videoid is not None and isapi('v1'):
-            jsonurl = ("s3://diva-prod-data-lake.s3.amazonaws.com/temp/%s.json" % videoid) 
-            mp4url = "s3://diva-prod-data-lake.s3.amazonaws.com/temp/%s.mp4" % videoid
-            
-        elif mp4file is not None:
-            videoid = mp4file.split('/')[-1].replace('.mp4','')
-            
-            jsonurl = ("s3://diva-prod-data-lake.s3.amazonaws.com/temp/%s.json" % videoid) 
-            mp4url = "s3://diva-prod-data-lake.s3.amazonaws.com/temp/%s.mp4" % videoid
-
-        # Vipy constructor
+        # Vipy video constructor
         mp4url = mp4url.replace('+',' ') if mp4url is not None else mp4url  # for cut and paste from AWS console
         jsonurl = jsonurl.replace('+',' ') if jsonurl is not None else jsonurl  # for cut and paste from AWS console        
         super(Video, self).__init__(url=mp4url, filename=mp4file, attributes=attributes)
 
         # Video attributes
-        self._quicklook_url = "https://%s.s3.amazonaws.com/Quicklooks/%%s_quicklook_%%s_%%d.jpg" % (backend().s3_bucket())  
+        #self._quicklook_url = "https://%s.s3.amazonaws.com/Quicklooks/%%s_quicklook_%%s_%%d.jpg" % (backend().s3_bucket())   # FIXME: pycollector.admin.video
         self._mp4url = mp4url
         self._mp4file = mp4file
         self._jsonurl = jsonurl
-        self._jsonfile = os.path.abspath(os.path.expanduser(jsonfile))
+        self._jsonfile = os.path.abspath(os.path.expanduser(jsonfile)) if jsonfile is not None else jsonfile
         self._dt = dt
         self._is_json_loaded = None
         self._mindim = mindim
-        self._verbose = verbose
+        self._verbose = False  # FIXME
         if fetch:
             self._load_json()
+
+    def __repr__(self):
+        return str("<pycollector.video: uploaded=%s, activities=%s, scene=%s>" % (self.timestamp().strftime("%Y-%m-%d %H:%M")
+                                                                                  if self.timestamp() is not None
+                                                                                  else str(None),
+                                                                                  self.activity_categories(),
+                                                                                  str(super(Video, self).__repr__())))
             
     def _load_json(self):
         """Lazy JSON download, parse, and import"""
@@ -184,30 +144,28 @@ class Video(Scene):
                         d["metadata"]["collected_date"], "%Y-%m-%dT%H:%M:%S%z"
                     )  # android 1.1.1 (3)
 
-            if isapi('v1'):
-                d["metadata"]["collected_date"] = uploaded.strftime(
-                    "%Y-%m-%d %H:%M:%S"
-                )
-            else:
-                et = pytz.timezone("US/Eastern")                
-                d["metadata"]["collected_date"] = uploaded.astimezone(et).strftime("%Y-%m-%d %H:%M:%S")
+            #if isapi('v1'):
+            #    d["metadata"]["collected_date"] = uploaded.strftime(
+            #        "%Y-%m-%d %H:%M:%S"
+            #    )
+            #else:
+            #    et = pytz.timezone("US/Eastern")                
+            #    d["metadata"]["collected_date"] = uploaded.astimezone(et).strftime("%Y-%m-%d %H:%M:%S")
+            
+            et = pytz.timezone("US/Eastern")                
+            d["metadata"]["collected_date"] = uploaded.astimezone(et).strftime("%Y-%m-%d %H:%M:%S")
                 
 
         else:
             print('[pycollector.video]: empty JSON "%s" - SKIPPING' % jsonfile)
             d = None
 
-        # Valid collection? ## TODO - This is not needed?
-        # if not backend().collection().isvalid(d["metadata"]["collection_id"]):
-        #     print('[pycollector.video]: invalid collection "%s" - SKIPPING' % d["metadata"]["collection_id"])
-        #     d = None
-
+            
         # Import JSON into scene
         if d is not None:
             # TODO - Replace with video_data
-            collection_name = self._video_data['collection_name']
-            #collection_name = backend().collection().id_to_name(d["metadata"]["collection_id"])
-
+            collection_name = d['metadata']['collection_name']
+            
             self.category(collection_name)
             self.attributes = {} if self.attributes is None else self.attributes
             self.attributes.update(d['metadata'])
@@ -259,6 +217,7 @@ class Video(Scene):
                 d_trackid_to_track[t.id()] = t
 
             # Import activities
+            d_shortname_to_category = {s:c for (s,c) in zip(d['metadata']['shortname'].split(','), d['metadata']['category'].split(','))}
             for a in d["activity"]:
                 try:
                     if (d["metadata"]["collection_id"] == "P004C009" and d["metadata"]["device_identifier"] == "android"):
@@ -275,7 +234,8 @@ class Video(Scene):
                         shortlabel = a["label"]
                     shortlabel = shortlabel.lower()
 
-                    category = backend().collection()[d["metadata"]["collection_id"]].shortname_to_activity(a["label"])
+                    #category = backend().collection()[d["metadata"]["collection_id"]].shortname_to_activity(a["label"])
+                    category = d_shortname_to_category[a['label']]
                     self.add(vipy.activity.Activity(category=category,
                                                     shortlabel=shortlabel,
                                                     startframe=int(a["start_frame"]),
@@ -328,7 +288,7 @@ class Video(Scene):
         return self
 
     def geolocation(self):
-        assert 'ipAddress' in self.metadata()
+        assert 'ipAddress' in self.metadata(), "Invalid JSON"
         url = 'http://api.geoiplookup.net/?query=%s' % self.metadata()['ipAddress']
         with urllib.request.urlopen(url) as f:
             response = f.read().decode('utf-8')
@@ -337,52 +297,12 @@ class Video(Scene):
         
     def fetch(self, ignoreErrors=False):
         """Download JSON and MP4 if not already downloaded"""
-        try:
-            self.fetchjson() # Do we need this?
-            # if vipy.version.is_at_least("0.8.8"):
-            #     super(Video, self).fetch()
-
-
-            if self._mp4file is None:
-                self._mp4file = os.path.join(
-                    remkdir(
-                        os.environ["VIPY_CACHE"]
-                        if "VIPY_CACHE" in os.environ
-                        else tempdir()
-                    ),
-                    filetail(self._mp4url),
-                )
-                if not os.path.exists(self._mp4file):
-                    print('[pycollector.video]:  Fetching "%s"' % self._mp4url)
-                    try:
-
-                        self.s3_downloader(self._mp4url, self._mp4file) 
-
-                    except KeyboardInterrupt:
-                        raise
-                    except Exception as e:
-                        print(
-                            '[pycollector.video]: S3 download error "%s" - SKIPPING'
-                            % str(e)
-                        )
-                        mp4file = None
-
-        except Exception as e:
-            if ignoreErrors:
-                print(
-                    '[pycollector.video]: Download failed with error "%s" - SKIPPING'
-                    % (str(e))
-                )
-            else:
-                raise e
-        except KeyboardInterrupt:
-            raise
-        return self
+        self.fetchjson() # Do we need this?
+        return self.fetchvideo()
 
     def fetchvideo(self, ignoreErrors=False):
         super(Video, self).fetch()
         return self
-
 
     def fetchjson(self):
         """Download JSON if not already downloaded"""
@@ -399,8 +319,7 @@ class Video(Scene):
             if not os.path.exists(self._jsonfile):
                 print('[pycollector.video]:  Fetching "%s"' % self._jsonurl)
                 try:
-
-                    self.s3_downloader(self._jsonurl, self._jsonfile) 
+                    vipy.downloader.s3(self._jsonurl, self._jsonfile) 
 
                 except KeyboardInterrupt:
                     raise
@@ -422,12 +341,6 @@ class Video(Scene):
     def hasMP4(self):
         return self.fetch().hasfilename()
 
-    def __repr__(self):
-        return str("<pycollector.video: uploaded=%s, activities=%s, scene=%s>" % (self.timestamp().strftime("%Y-%m-%d %H:%M")
-                                                                                  if self.timestamp() is not None
-                                                                                  else str(None),
-                                                                                  self.activity_categories(),
-                                                                                  str(super(Video, self).__repr__())))
 
     def activity_categories(self):
         """Return a set of unique activity categories in the video, not including object categories"""
@@ -452,27 +365,6 @@ class Video(Scene):
                             context=context)
                 for a in self.fetch().activityclip()]
 
-    def sanitize(self):
-        """Replace identifying email addresses 'me@here.com' with a truncated sha1 hash.  This is repeatable, so the same email address gets the same hash (not including email typos!)"""
-        email = self.metadata()["collector_id"]
-        if is_email_address(email):
-            hash = hashlib.sha1(email.encode("UTF-8")).hexdigest()
-            self.attributes["collector_id"] = hash[0:10]
-        return self
-
-    def obfuscate(self):
-        """Replace identifying email addresses 'me@here.com' with 'm****@here.com.  For stronger privacy, use self.sanitize()"""
-        email = self.metadata()["collector_id"]
-        if is_email_address(email):
-            email = "%s****@%s" % (email[0], email.split("@")[-1])
-            self.attributes["collector_id"] = email
-        return self
-
-    def stabilize(self, mindim=256):
-        assert vipy.version.is_at_least('0.8.13')
-        from vipy.flow import Flow
-        return Flow().stabilize(self.clone().mindim(mindim))
-
     def trim(self, padframes=0):
         """Temporally clip the video so that the video start is the beginning of the first activity, and the end of the video is the end of the last activity.
         Optionally add a temporal pad of padframes before and after the clip"""
@@ -481,81 +373,33 @@ class Video(Scene):
         self.clip(startframe - padframes, endframe + padframes)
         return self
 
+
     def timestamp(self):
         """Return collected_date from json as a datetime object,          
            WARNING:  older veresion of the app do not include timezone info in this string, so this datetime is not offset aware
         """
-        if isapi('v1'):
-            return (
-                datetime.strptime(self.attributes["collected_date"], "%Y-%m-%d %H:%M:%S")
-                if "collected_date" in self._load_json().attributes
-                else None
-            )
-        else:
-            et = pytz.timezone("US/Eastern")                            
-            return datetime.strptime(self.attributes["collected_date"], "%Y-%m-%d %H:%M:%S").astimezone(et)
-
+        et = pytz.timezone("US/Eastern")                            
+        return datetime.strptime(self.attributes["collected_date"], "%Y-%m-%d %H:%M:%S").astimezone(et)
+    
     def uploaded(self):
-        print("[pycollector.video]: WARNING - Reporting timestamp in the JSON, which may differ from the actual time the backend processed the video")
+        #print("[pycollector.video]: WARNING - Reporting timestamp in the JSON, which may differ from the actual time the backend processed the video")
         return self.timestamp()
 
     def metadata(self):
         return self._load_json().attributes
 
     def videoid(self):
-        return (
-            self.attributes["video_id"]
-            if "video_id" in self._load_json().attributes
-            else None
-        )
+        return self.attributes["video_id"] if "video_id" in self._load_json().attributes else None
 
     def collectorid(self):
-        return (
-            self.attributes["collector_id"]
-            if "collector_id" in self._load_json().attributes
-            else None
-        )
-
-    def collector(self):
-        return self.collectorid()
+        return self.attributes["collector_id"] if "collector_id" in self._load_json().attributes else None
 
     def collectionid(self):
-        return (
-            self.attributes["collection_id"]
-            if "collection_id" in self._load_json().attributes
-            else None
-        )
-
-    def collection(self):
-        return self.collectionid()
+        return self.attributes["collection_id"] if "collection_id" in self._load_json().attributes else None
 
     def duration(self):
         """Video length in seconds"""
-        return (
-            float(self.attributes["duration"])
-            if "duration" in self._load_json().attributes
-            else 0.0
-        )
-
-    def save_annotation(self, outdir=None):
-        outfile = (
-            totempdir("%s.mp4" % self.videoid())
-            if outdir is None
-            else os.path.join(outdir, "%s.mp4" % self.videoid())
-        )
-        return self.annotate().saveas(outfile).filename()        
-
-    def quicklookurls(self, show=False):
-        assert backend().isprod(), "Quicklook URLs only available in production environment"
-        
-        urls = [
-            self._quicklook_url % (self.videoid(), a.category(), k)
-            for (k, a) in enumerate(self._load_json().activities().values())
-        ]
-        if show:
-            assert vipy.version.is_at_least("0.8.2")
-            vipy.visualize.urls([url for url in urls], display=True)
-        return urls
+        return float(self.attributes["duration"]) if "duration" in self._load_json().attributes else 0.0
 
     def quickshow(self, framerate=10, nocaption=False):
         print("[pycollector.video]: setting quickshow input framerate=%d" % framerate)
@@ -566,32 +410,43 @@ class Video(Scene):
             .mindim(256)
             .show(nocaption=nocaption)
         )
-
             
     def downcast(self):
-        """Convert from collector.video to vipy.video.Scene by downcasting class"""
-        v = self.clone().sanitize()
+        """Convert from pycollector.video to vipy.video.Scene by downcasting class"""
+        v = self.clone()
         v.__class__ = Scene
         return v
 
-
+    def upcast(self):
+        """Convert from pycollector.video to pycollector.admin.video by upcasting class, available to admins only"""
+        vipy.util.try_import('pycollector.admin.video', message="Access denied - upcast() is limited to Visym Collector admins only")
+        import pycollector.admin.video
+        v = self.clone()
+        v.__class__ = pycollector.admin.video.Video
+        return v
+        
     # helper function
-    def s3_downloader(self, url, output_filename, verbose=True):
-        assert 'VIPY_AWS_ACCESS_KEY_ID' in os.environ and 'VIPY_AWS_SECRET_ACCESS_KEY' in os.environ, \
-            "AWS access keys not found - You need to create ENVIRONMENT variables ['VIPY_AWS_ACCESS_KEY_ID', 'VIPY_AWS_SECRET_ACCESS_KEY'] with S3 access credentials"   
+    #def s3_downloader(self, url, output_filename, verbose=True):
+    #    raise ValueError('FIXME: unnecessary')
+    #
+    #    assert 'VIPY_AWS_ACCESS_KEY_ID' in os.environ and 'VIPY_AWS_SECRET_ACCESS_KEY' in os.environ, \
+    #        "AWS access keys not found - You need to create ENVIRONMENT variables ['VIPY_AWS_ACCESS_KEY_ID', 'VIPY_AWS_SECRET_ACCESS_KEY'] with S3 access credentials"   
+    # 
+    #    assert isS3url(url), "Invalid URL - Must be 's3://BUCKETNAME.s3.amazonaws.com/OBJECTNAME.ext'"
+    #
+    #    # url format: s3://BUCKETNAME.s3.amazonaws.com/OBJECTNAME.mp4
+    #    bucket_name = urllib.parse.urlparse(url).netloc.split('.')[0]
+    #    object_name = urllib.parse.urlparse(url).path[1:]
+    #
+    #    if verbose:
+    #        print('[vipy.downloader.s3]: Downloading "%s" -> "%s"' % (url, output_filename))
+    #    self._pycollector._s3_client.download_file(bucket_name, object_name, output_filename)
+    #    return output_filename
 
-        assert isS3url(url), "Invalid URL - Must be 's3://BUCKETNAME.s3.amazonaws.com/OBJECTNAME.ext'"
-    
-        # url format: s3://BUCKETNAME.s3.amazonaws.com/OBJECTNAME.mp4
-        bucket_name = urllib.parse.urlparse(url).netloc.split('.')[0]
-        object_name = urllib.parse.urlparse(url).path[1:]
 
-        if verbose:
-            print('[vipy.downloader.s3]: Downloading "%s" -> "%s"' % (url, output_filename))
-        self._pycollector._s3_client.download_file(bucket_name, object_name, output_filename)
-        return output_filename
-
+def search():
+    return pycollector.project.Project()
 
 def last():
-    raise NotImplementedError('Coming soon!')
+    return pycollector.project.Project().last()    
 

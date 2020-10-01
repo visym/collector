@@ -8,7 +8,11 @@ import vipy.globals
 # Global mutable dictionary
 GLOBALS = {'VERBOSE': True,                # If False, will silence everything, equivalent to calling pycollector.globals.silent()
            'LOGGING':False,                # If True, use python logging (handler provided by end-user) intead of print 
-           'LOGGER':None}                  # The global logger used by pycollector.globals.print() and pycollector.globals.warn() if LOGGING=True
+           'LOGGER':None,                  # The global logger used by pycollector.globals.print() and pycollector.globals.warn() if LOGGING=True
+           'LAMBDA':{'get_project':'arn:aws:lambda:us-east-1:806596299222:function:pycollector_get_project'},
+           'COGNITO':{'app_client_id':'6k20qruljfs0v7n5tmt1pk0u1q',
+                      'identity_pool_id':'us-east-1:c7bbbc40-37d3-4ad8-8afd-492c095729bb',
+                      'provider_name':'cognito-idp.us-east-1.amazonaws.com/us-east-1_sFpJQRLiY'}}
 
 
 def logging(enable=None, format=None):

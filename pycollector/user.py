@@ -6,72 +6,74 @@ from datetime import datetime, timedelta
 import decimal
 import pandas as pd
 import numpy as np
-import logging
+#import logging
 import pycollector
+import getpass
+from pycollector.globals import print, GLOBALS
+from pycollector.util import is_email_address
 
-
-# TODO - Put these public variables somewhere
-app_client_id = '6k20qruljfs0v7n5tmt1pk0u1q' # 
-identity_pool_id = 'us-east-1:c7bbbc40-37d3-4ad8-8afd-492c095729bb'
-provider_name = 'cognito-idp.us-east-1.amazonaws.com/us-east-1_sFpJQRLiY'
 
 class User(object):
     """User class for collector's user management
     """
 
-    def __init__(self, username=None, password=None, test=False):
+    def __init__(self, username=None, password=None):
         """
-        
-
+       
         Args:
-            username ([type], optional): [description]. Defaults to None.
+            username ([type]): [description].
             password ([type], optional): [description]. Defaults to None.
         """
 
-        #####################################################################
+        self.app_client_id = GLOBALS['COGNITO']['app_client_id']
+        self.identity_pool_id = GLOBALS['COGNITO']['identity_pool_id']
+        self.provider_name = GLOBALS['COGNITO']['provider_name']
+        
         # Initialize the base user properties and create the logger used by the function
-        #####################################################################
         self._is_login = False
         self._token_initialized_time = None
         self._token_expiration_time = None 
         self._program_name = None
-        self._logger = logging.getLogger(User.__name__)
-
+        #self._logger = logging.getLogger(User.__name__)
+        
         # Set to target ENV
-        if test == True:
-            pycollector.globals.backend('test')
+        #   NOTE: this is not the design pattern, environments are set as globals
+        #if test == True:
+        #    pycollector.globals.backend('test')
 
-        #####################################################################
+
         # Initialize cognito clients
-        #####################################################################
         # Ensure the system AWS credentials are not being used
         config = Config(signature_version=botocore.UNSIGNED)
         self._cognito_idp_client = boto3.client('cognito-idp', config=config)
         self._cognito_id_client = boto3.client('cognito-identity', config=config)
 
-        #####################################################################
-        # Login  
-        #####################################################################
-        if username and password:
+        # Login
+        if username is None and 'VISYM_COLLECTOR_EMAIL' in os.environ:
+            username = os.environ['VISYM_COLLECTOR_EMAIL']
+        self._username = username
+        if password is not None:
             self.login(username, password)
 
-        #####################################################################
         # Term of usages properties 
-        #####################################################################
+        pass
 
 
-
-    def login(self, username, password):
+    def login(self, password=None):
         """[summary]
 
         Args:
             username ([type]): [description]
             password ([type]): [description]
         """
-
+        
+        username = self._username if self._username is not None else input("Collector email: ")
+        assert is_email_address(username), 'Invalid collector email address "%s"' % username
+        password = password if password is not None else getpass.getpass()
+            
         try:
             signin_response = self._cognito_idp_client.initiate_auth(
-                ClientId=app_client_id,
+                ClientId=self.app_client_id,
                 AuthFlow='USER_PASSWORD_AUTH',
                 AuthParameters={'USERNAME': username, 'PASSWORD': password })
 
@@ -93,30 +95,31 @@ class User(object):
 
             # Get user identity_id
             get_id_response= self._cognito_id_client.get_id(
-                IdentityPoolId=identity_pool_id,
-                Logins={provider_name: self._id_token}
+                IdentityPoolId=self.identity_pool_id,
+                Logins={self.provider_name: self._id_token}
             )
             self._identity_id = get_id_response['IdentityId']
 
             # Get user temp AWS credentials
             get_aws_credentials_response = self._cognito_id_client.get_credentials_for_identity(
                 IdentityId=self._identity_id,
-                Logins={provider_name: self._id_token},
+                Logins={self.provider_name: self._id_token},
             )
             self._aws_credentials =  get_aws_credentials_response['Credentials']
 
             # Set up AWS services 
-            self.set_S3_clients()
-            self.set_lambda_clients()
-            self.set_os_environ()
-
+            self._set_S3_clients()
+            self._set_lambda_clients()
+            self._set_os_environ()
+            self._is_login = True
+            
 
         except Exception as e:
             custom_error = 'Failed to sign in due to exception: {0}'.format(e)
             raise Exception(custom_error)
 
 
-    def set_S3_clients(self):
+    def _set_S3_clients(self):
         """[summary]
         """
         self._s3_client = boto3.client(
@@ -132,7 +135,7 @@ class User(object):
             aws_session_token=self._aws_credentials['SessionToken'],
         )
 
-    def set_lambda_clients(self):
+    def _set_lambda_clients(self):
         """[summary]
         """
         self._lambda_client = boto3.client(
@@ -142,16 +145,12 @@ class User(object):
             aws_session_token=self._aws_credentials['SessionToken'],
         )
 
-    def set_os_environ(self):
+    def _set_os_environ(self):
         """[summary]
         """  
         os.environ['VIPY_AWS_ACCESS_KEY_ID'] = self._aws_credentials['AccessKeyId']
         os.environ['VIPY_AWS_SECRET_ACCESS_KEY'] = self._aws_credentials['SecretKey']
-
-
-
-
-
+        os.environ['VIPY_AWS_SESSION_TOKEN'] = self._aws_credentials['SessionToken']        
         
     def is_token_expired(self):
         """[summary]
@@ -163,16 +162,17 @@ class User(object):
 
     def token_expired_by(self):
         return self._token_expiration_time
-
-    @staticmethod
-    def static_method():
-        ...
+    
+    def is_authenticated(self):
+        #return self._is_login or ('VIPY_AWS_SECRET_ACCESS_KEY' in os.environ and 'VIPY_AWS_ACCESS_KEY_ID' in os.environ)
+        return self._is_login
 
     @property
     def username(self):
         """
         """
         return self._username
+    
     @property
     def cognito_username(self):
         """

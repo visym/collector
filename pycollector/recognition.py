@@ -13,7 +13,7 @@ from pycollector.model.pyvideoresearch.bases.resnet50_3d import ResNet503D, ResN
 
 class ActivityRecognition(object):
     def __init__(self):
-        #weights = '/proj/diva3/visym/models/train_resnet50_3d_pretrain_pip50k_finetune_betterbox_meva/model_best.pth.tar' 
+        #weights = 'visym/models/train_resnet50_3d_pretrain_pip50k_finetune_betterbox_meva/model_best.pth.tar' 
         weights = 'resnet50_3d_pretrain_pip50k_finetune_betterbox_meva.pth.tar'
         os.system('wget -c https://dl.dropboxusercontent.com/s/a0ouihgjxiwn2k8/resnet50_3d_pretrain_pip50k_finetune_betterbox_meva.pth.tar -O %s' % weights) 
         d = {k.replace('module.basenet.0.',''):v for (k,v) in torch.load(weights)['state_dict'].items()}
