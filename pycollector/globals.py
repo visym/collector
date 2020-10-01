@@ -3,14 +3,12 @@ import builtins
 import logging as python_logging
 import warnings
 import vipy.globals
-from vipy.util import try_import
 
 
 # Global mutable dictionary
 GLOBALS = {'VERBOSE': True,                # If False, will silence everything, equivalent to calling pycollector.globals.silent()
            'LOGGING':False,                # If True, use python logging (handler provided by end-user) intead of print 
-           'LOGGER':None,                  # The global logger used by pycollector.globals.print() and pycollector.globals.warn() if LOGGING=True
-           'BACKEND_VERSION':'v2'}         
+           'LOGGER':None}                  # The global logger used by pycollector.globals.print() and pycollector.globals.warn() if LOGGING=True
 
 
 def logging(enable=None, format=None):
@@ -39,23 +37,17 @@ def warn(s):
         
 def print(s, end='\n'):
     """Main entry point for all print statements in the pycollector package. All pycollector code calls this to print helpful messages.
-      
-       -Printing can be disabled by calling vipy.globals.silent()
-       -Printing can be redirected to logging by calling vipy.globals.logging(True)
-       -All print() statements in vipy.* are overloaded to call vipy.globals.print() so that it can be redirected to logging
+
+       -All print() statements in pycollector are overloaded to call pycollector.globals.print() so that it can be redirected to logging as needed      
+       -Printing can be disabled by calling pycollector.globals.silent()
+       -Printing can be redirected to standard python logging by calling pycollector.globals.logging(True)
+
 
     """
     if GLOBALS['VERBOSE']:
         builtins.print(s, end=end) if (not GLOBALS['LOGGING'] or GLOBALS['LOGGER'] is None) else GLOBALS['LOGGER'].info(s)
 
 
-def backend(env=None, version=None, flush=False):
-    assert vipy.version.is_at_least('1.8.27')
-    try_import('pycollector.admin', message="Not authorized")
-    import pycollector.admin.globals
-    return pycollector.admin.globals.backend(env, version, flush)
-
-    
 def verbose(b=None):
     if b is not None:
         GLOBALS['VERBOSE'] = b
@@ -65,7 +57,4 @@ def verbose(b=None):
 def silent():
     GLOBALS['VERBOSE'] = False    
 
-    
-def isapi(version):
-    return GLOBALS['BACKEND_VERSION'] == version
 

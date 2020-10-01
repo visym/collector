@@ -30,226 +30,9 @@ import vipy.version
 
 from pycollector.util import allmondays_since, yyyymmdd_to_date, is_email_address, isday, is_more_recent_than, nextday, lastmonday
 from pycollector.util import lowerif, timestamp, fromdate, ismonday
-from pycollector.globals import isapi, print, backend
+from pycollector.globals import print
 
-
-class Instance(object):
-    """pycollector.video.Instance class
-
-       An Instance() is an observed Activity() collected as part of a CollectionInstance() and spcified by a Collection()
-    """
-
-    def __init__(self, instanceid=None, quicklookurl=None, strict=True, query=None):
-        assert (quicklookurl is None or isurl(quicklookurl)), "Input must be a quicklook URL of the form: https://diva-str-prod-data-public.s3.amazonaws.com/Quicklooks/20200507_172502444708376634347184_quicklook_P004_P004C005_Abandoning_0.jpg"
-        assert (quicklookurl is not None or instanceid is not None or query is not None), "Must provide one input"
-        co_Instances = backend().table.instance
-        
-        if quicklookurl is not None:
-            videoid = filebase(quicklookurl).split("_quicklook_")[0]
-            instances = co_Instances.query(
-                IndexName=lowerif("Video_ID-index", isapi('v2')),
-                KeyConditionExpression=Key(lowerif("Video_ID", isapi('v2'))).eq(videoid),
-            )["Items"]
-
-            instances = [i for i in instances if i[lowerif("S3_Path", isapi('v2'))] == quicklookurl]
-            if strict:
-                assert len(instances) == 1, "Instance not found"
-
-        elif instanceid is not None:
-            instances = co_Instances.query(
-                IndexName=lowerif("Instance_ID-index", isapi('v2')),
-                KeyConditionExpression=Key(lowerif("Instance_ID", isapi('v2'))).eq(instanceid),
-            )["Items"]
-            if strict:
-                assert len(instances) == 1, "Instance not found"
-
-        elif query is not None:
-            instances = [query]  # this is the output from a query to the co_Instances table
-
-        else:
-            raise ValueError("Invalid Input")
-
-        self._instance = instances[0] if len(instances) == 1 else None
-        if self.isvalid():
-            self._instance = {k.lower():v for (k,v) in self._instance.items()}
-        
-    def __repr__(self):
-        return str("<pycollector.video.instance: category=%s, videoid=%s, instanceid=%s>" % (self.shortname(), self.videoid(), self.instanceid()))
-
-    def dict(self):
-        return self._instance
-
-    def collector(self):
-        return self._instance['collector_email']
-
-    def collection(self):
-        return self._instance['collection_name']
-    
-    def collectionid(self):
-        return self._instance['collection_id']
-    
-    def uploaded(self):
-        return self._instance['uploaded_date']
-    
-    def isvalid(self):
-        """There are instances that exist as quicklooks that do no exist in the instances table due to repeats, allow for non-strict loading (check with isvalid() so that we can load in bulk)"""
-        return self._instance is not None
-
-    def isperfect(self):
-        return self._instance['good_for_training_score'] > 0
-
-    def review_reason(self):
-        desc = ["Wrong label" if self._instance['bad_label_score'] > 0 else "",
-                "Box too big" if self._instance['bad_box_big_score'] > 0 else "",
-                "Box too small" if self._instance['bad_box_small_score'] > 0 else "",
-                "Box not centered" if self._instance['bad_alignment_score'] > 0 else "",                
-                "Incorrect viewpoint" if self._instance['bad_viewpoint_score'] > 0 else "",
-                "Incorrect timing" if self._instance['bad_timing_score'] > 0 else "",
-                "Object/activity not visible" if self._instance['bad_visibility_score'] > 0 else "",
-                "Repeated location" if self._instance['bad_diversity_score'] > 0 else "",
-                "Unusable video" if self._instance['bad_video_score'] > 0 else ""]
-        
-        return [d for d in desc if len(d) > 0]
-
-    def review_score(self):
-        return self._instance['rating_score']
-    
-    def shortname(self):
-        assert self.isvalid()
-        return self._instance["activity_name"]
-
-    def videoid(self):
-        assert self.isvalid()
-        return filebase(self._instance["s3_path"]).split("_quicklook_")[0]
-
-    def instanceid(self):
-        assert self.isvalid()
-        return self._instance["instance_id"]
-
-    def project(self):
-        return self._instance['project_name']
-
-    def ispractice(self):
-        return 'practice' in self.project().lower()
-    
-    def has_rating(self):        
-        return any([v>0 for (k,v) in self._instance.items() if '_score' in k])
-    
-    def rating(self):
-        co_Rating = backend().table.rating
-        video_ratings = [{k.lower():v for (k,v) in r.items()} for r in co_Rating.query(IndexName=lowerif("Video_ID-index", isapi('v2')),
-                                                                                       KeyConditionExpression=Key(lowerif("Video_ID", isapi('v2'))).eq(self.videoid()))["Items"]]
-        return [v for v in video_ratings if v["id"] == self.instanceid()]
-
-    def finalized(self, state=None):
-        assert isapi('v2')
-        
-        if state is None:
-            return self._instance["rating_score_finalized"]
-        else:
-            assert isinstance(state, bool)
-            self._instance["rating_score_finalized"] = state
-
-            co_Instances = backend().table.instance
-            co_Instances.update_item(
-                Key={
-                    "id": self._instance["id"],
-                    "instance_id": self.instanceid(),
-                },  # must provide both partition and sort key
-                UpdateExpression="SET rating_score_finalized = :state",  # YUCK
-                ExpressionAttributeValues={":state": state},  # DOUBLE YUCK
-                ReturnValues="UPDATED_NEW",
-            )
-            return self
-
-    def isgood(self, score_threshold=0.0):
-        return 'rating_score' in self._instance and self._instance['rating_score'] > score_threshold
-
-    def is_good(self, score_threshold=0.0):
-        return self.isgood(score_threshold)
-
-    def rate(self, good=None):
-        assert isapi('v2')
-        raise;  # FIXME
-        
-        assert self.isvalid()
-        ratings = self.rating()
-        assert len(ratings) > 0, "Rating must be present in DDB"
-
-        for item in ratings:
-            if good is not None:
-                assert (
-                    isinstance(good, bool) and good is True
-                ), "Current functionality supports changing rating from bad to good only"
-                item["up"] = Decimal(True)
-                item = {
-                    k: v if "bad" not in k else Decimal(False)
-                    for (k, v) in item.items()
-                }
-                co_Rating = backend().table.rating
-                co_Rating.put_item(Item=item)
-
-                #score_verified_instance_by_id(instance_id=self.instanceid())  # FIXME
-
-    def add_rating(self, reviewer_id, true_rating):
-        assert isapi('v2')        
-        co_Rating = backend().table.rating
-    
-        item_keys = [
-            "bad_box_big",
-            "bad_box_small",
-            "bad_label",
-            "bad_alignment",
-            "bad_video",
-            "bad_viewpoint",
-            "bad_timing",
-            "up",
-        ]
-        item = {}
-        et = pytz.timezone("US/Eastern")
-        item["week"] = lastmonday(str(datetime.now().date()))
-        item["id"] = self.instanceid()
-        item["video_id"] = self.videoid()
-        item["updated_time"] = (datetime.now().astimezone(et).strftime("%m/%d/%Y, %I:%M:%S %p"))
-        item["reviewer_id"] = reviewer_id
-        for k in item_keys:
-            if k in true_rating:
-                item[k] = Decimal(True)
-            else:
-                item[k] = Decimal(False)
-        co_Rating.put_item(Item=item)
-
-        #score_verified_instance_by_id(instance_id=self.instanceid())  # FIXME
-
-    def quicklookurl(self, show=False):
-        assert self.isvalid()
-        if show:
-            webbrowser.open(self._instance["s3_path"])
-        return self._instance["s3_path"]
-
-    def animated_quicklookurl(self, show=False):
-        #assert backend().isprod(), "Only valid for production environment"        
-        url = self._instance['animation_s3_path'] if ('animation_s3_path' in self._instance and isurl(self._instance['animation_s3_path'])) else None
-        if show and url is not None:
-            webbrowser.open(url)
-        return url
-    
-    def clip(self, padframes=0):
-        """Return just the clip for this instance.  Calling quicklook() on this object should match the quicklook url."""
-        assert self.isvalid()
-        k_instanceindex = int(filebase(self.quicklookurl()).split("_")[-1])
-        return Video(self.videoid()).activityclip(padframes=padframes)[k_instanceindex]
-
-    def untrimmedclip(self):
-        """Return just the untrimmed clip for this instance."""
-        assert self.isvalid()
-        k_instanceindex = int(filebase(self.quicklookurl()).split("_")[-1])
-        return Video(self.videoid()).activitysplit()[k_instanceindex]
-
-    def fullvideo(self):
-        """Return the full video containing this instance"""
-        assert self.isvalid()
-        return Video(self.videoid())
+from pycollector.admin.globals import backend, isapi  # REMOVE ME
 
 
 class Video(Scene):
@@ -312,7 +95,7 @@ class Video(Scene):
         # Video attributes
         self._quicklook_url = "https://%s.s3.amazonaws.com/Quicklooks/%%s_quicklook_%%s_%%d.jpg" % (backend().s3_bucket())  
         self._jsonurl = jsonurl
-        self._jsonfile = jsonfile
+        self._jsonfile = os.path.abspath(os.path.expanduser(jsonfile))
         self._dt = dt
         self._is_json_loaded = None
         self._mindim = mindim
@@ -729,40 +512,6 @@ class Video(Scene):
             .show(nocaption=nocaption)
         )
 
-    def rating(self):
-        """Return all instance ratings for this video"""
-
-        # FIXME: the association of rating to instance depends on the quicklook ordering, which depends on a python dict, which is not
-        # guararanteed to be order preserving.  If you are running python 3.7 this does not matter.
-        assert vipy.version.is_at_least("0.8.0")
-
-        co_Rating = backend().table.rating
-        video_ratings = co_Rating.query(
-            IndexName=lowerif("Video_ID-index", isapi('v2')), 
-            KeyConditionExpression=Key(lowerif("Video_ID", isapi('v2'))).eq(self.videoid()),
-        )["Items"]
-
-        co_Instances = backend().table.instance
-        instance_ratings = []
-        for v in video_ratings:
-            rating = co_Instances.query(
-                IndexName=lowerif("Instance_ID-index", isapi('v2')),
-                ProjectionExpression=lowerif("Bad_Label_Score, Bad_Viewpoint_Score, Instance_ID, Review_Reason, Verified, Rating_Score, Bad_Timing_Score, S3_Path, Bad_Box_Big_Score,  Bad_Box_Small_Score", isapi('v2')),
-                KeyConditionExpression=Key(lowerif("Instance_ID", isapi('v2'))).eq(v[lowerif("ID", isapi('v2'))]),
-            )["Items"][0]
-            rating.update(v)
-            instance_ratings.append(rating)
-        return instance_ratings
-
-    def isgood(self):
-        """'Good' is defined as a video with at least one instance rated good in the video"""
-        co_Rating = backend().table.rating        
-        ratings = co_Rating.query(
-            IndexName=lowerif("Video_ID-index", isapi('v2')), 
-            ProjectionExpression=lowerif("Up", isapi('v2')), 
-            KeyConditionExpression=Key(lowerif("Video_ID", isapi('v2'))).eq(self.videoid()),
-        )["Items"]
-        return any([lowerif("Up", isapi('v2')) in r and r[lowerif("Up", isapi('v2'))] > 0 for r in ratings])
             
     def downcast(self):
         """Convert from collector.video to vipy.video.Scene by downcasting class"""
@@ -770,17 +519,6 @@ class Video(Scene):
         v.__class__ = Scene
         return v
 
-    def instances(self):
-        """Return all instances for this video"""
-        co_Instances = backend().table.instance
-        instances = co_Instances.query(
-            IndexName=lowerif("Video_ID-index", isapi('v2')), 
-            KeyConditionExpression=Key(lowerif("Video_ID", isapi('v2'))).eq(self.videoid()),
-        )["Items"]            
-        return [Instance(query=i, strict=False) for i in instances]
-
-    def instance(self, k):
-        return self.instances()[k]
 
 
 def last():
