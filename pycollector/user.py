@@ -47,7 +47,7 @@ class User(object):
             username = os.environ['VISYM_COLLECTOR_EMAIL']
         self._username = username
         if password is not None:
-            self.login(username, password)
+            self.login(password)
 
         # Term of usages properties 
         pass
@@ -120,6 +120,7 @@ class User(object):
             custom_error = 'Failed to sign in due to exception: {0}'.format(e)
             raise Exception(custom_error)
 
+        return self
 
     def _set_S3_clients(self):
         """[summary]
@@ -130,12 +131,14 @@ class User(object):
             aws_access_key_id=os.environ['VIPY_AWS_ACCESS_KEY_ID'],
             aws_secret_access_key=os.environ['VIPY_AWS_SECRET_ACCESS_KEY'],
             aws_session_token=os.environ['VIPY_AWS_SESSION_TOKEN'],
+            region_name=self.region_name
         )
         self._s3_resource = boto3.resource(
             's3',
             aws_access_key_id=os.environ['VIPY_AWS_ACCESS_KEY_ID'],
             aws_secret_access_key=os.environ['VIPY_AWS_SECRET_ACCESS_KEY'],
             aws_session_token=os.environ['VIPY_AWS_SESSION_TOKEN'],
+            region_name=self.region_name
         )
 
     def _set_lambda_clients(self):
@@ -147,6 +150,7 @@ class User(object):
             aws_access_key_id=os.environ['VIPY_AWS_ACCESS_KEY_ID'],
             aws_secret_access_key=os.environ['VIPY_AWS_SECRET_ACCESS_KEY'],
             aws_session_token=os.environ['VIPY_AWS_SESSION_TOKEN'],
+            region_name=self.region_name
         )
 
     def _set_os_environ(self):

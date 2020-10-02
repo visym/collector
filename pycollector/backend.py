@@ -11,15 +11,17 @@ class API(User):
     """
 
 
-    def __init__(self, username=None, password=None, test=False):
+    def __init__(self, username=None, password=None):
         """
     
         Args:
             username ([type], optional): [description]. Defaults to None.
             password ([type], optional): [description]. Defaults to None.
         """
-        super().__init__(username=username,password=password,  test=False)
-
+        super().__init__(username=username,password=password)
+        if not self.is_authenticated():
+            self.login()
+        
 
     def get_project(self, program_id='MEVA'): 
         """[summary]
@@ -28,8 +30,18 @@ class API(User):
             project_id (str, optional): [description]. Defaults to 'MEVA'.
         """
 
-        return Project(program_id=program_id, alltime=True, pycollector=self)
+        return Project(program_id=program_id, alltime=True)
 
+    
+    def get_recent_videos(self, program_id='MEVA', n=1): 
+        """[summary]
+
+        Args:
+            project_id (str, optional): [description]. Defaults to 'MEVA'.
+        """
+
+        return Project(program_id=program_id, last=n).last(n)
+    
 
     def new_collection(self, name, organization_name, program_name,project_name, description, activities, activity_short_names, objects ):
 

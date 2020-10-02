@@ -2,13 +2,21 @@ import vipy
 import pycollector.detection
 
 
-def _test_face():
+def test_face():
     im = vipy.image.Image(url='https://upload.wikimedia.org/wikipedia/en/d/d6/Friends_season_one_cast.jpg')
     d = pycollector.detection.FaceDetector()
     ims = d(im)
     assert len(ims.objects()) == 6
     print('[test_detection]: face detector passed')
 
+    
+def test_object():
+    im = vipy.image.vehicles()
+    d = pycollector.detection.Detector()
+    ims = d(im)
+    assert len(ims.objects()) == 50
+    print('[test_detection]: object detector passed')
+    
     
 def _test_proposal():
     videoids = ['20200522_0150473561208997437622670',

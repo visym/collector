@@ -1,5 +1,3 @@
-from pycollector.globals import isapi
-
 
 class Label(object):
     def __init__(self, labeldict):

@@ -1,5 +1,4 @@
-
-# External modules
+import os
 import pytest
 from datetime import datetime, timedelta
 import pandas as pd
@@ -9,19 +8,18 @@ import json
 # internal testing modules
 from pycollector.user import User
 
-def test_user_sign():
-    """ test user sign in 
-    """
+
+def test_user_login():
+    
     # testing variiables
-    username = 'zhongheng.li@stresearch.com'
-    password = '0STRBoston&0'
+    username = os.environ['VISYM_COLLECTOR_EMAIL']  # github secrets
+    password = os.environ['VISYM_COLLECTOR_PASSWORD']  # github secrets
 
     # testing objects and functions 
     user = User(username=username, password=password)
-    assert user.username == 'zhongheng.li@stresearch.com'
     assert user.is_token_expired() == False
 
-
+    print('[test_user_login]: PASSED')
 
 
 
