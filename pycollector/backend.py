@@ -1,3 +1,4 @@
+import json
 from pycollector.user import User
 from pycollector.project import Project
 
