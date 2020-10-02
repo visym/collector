@@ -85,7 +85,8 @@ class Project(User):
 
     def last(self, n=1):
         assert len(self) >= n, "Invalid length (videos=%d < n=%d)" % (len(self), n)
-        return self.videos()[-n:]
+        V = self.videos()[-n:]
+        return V if n>1 else V[0]        
     
     def quicklookurls(self, outfile=None, display=True):
         """Generate a standalong HTML file containing the quicklook URLs for the current filtered project"""
