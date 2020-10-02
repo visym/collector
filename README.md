@@ -37,7 +37,7 @@ Quickstart
 <a href="https://visym.com/collector"><img alt="iOS" src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg" height="50"/></a>  <a href="https://visym.com/collector"><img alt="Android" src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" height="50"/></a>
 
 
-* **Install.** Get the Visym Collector app (contact us to join the private beta!)
+* **Install.** Get the Visym Collector app (contact us to join the private beta!) and sign-up as a new user.
 
 * **Collect.**  Collect a labeled video using the mobile app, then retrieve and visualize it using the python tools:
 
