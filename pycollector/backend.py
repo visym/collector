@@ -49,7 +49,7 @@ class API(User):
         # Invoke Lambda function
         raise ValueError('FIXME: these parameters are undefined')
         #request = {'identity_id': identity_id, 'cognito_username': cognito_username, 'email': email}
-
+        request = {}
 
         # Invoke Lambda function
         try:

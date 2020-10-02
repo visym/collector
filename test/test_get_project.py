@@ -19,8 +19,8 @@ def test_get_project():
     #pycollector.globals.backend('test')
 
     # testing variiables
-    username = os.environ['VISYM_COLLECTOR_EMAIL']  # github secrets
-    password = os.environ['VISYM_COLLECTOR_PASSWORD']  # github secrets
+    username = os.environ['VISYM_COLLECTOR_PYTEST_EMAIL']  # github secrets
+    password = os.environ['VISYM_COLLECTOR_PYTEST_PASSWORD']  # github secrets
 
     # testing objects and functions 
     user = User(username=username, password=password)

@@ -7,8 +7,8 @@ import json
 from pycollector.backend import API 
 
 # testing variables
-_USER_NAME = os.environ['VISYM_COLLECTOR_EMAIL']
-_PASSWORD = os.environ['VISYM_COLLECTOR_PASSWORD']
+_USER_NAME = os.environ['VISYM_COLLECTOR_PYTEST_EMAIL']
+_PASSWORD = os.environ['VISYM_COLLECTOR_PYTEST_PASSWORD']
 _PROGRAM_ID = 'MEVA'
 
 
