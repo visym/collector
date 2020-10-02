@@ -43,10 +43,11 @@ class API(User):
         return Project(program_id=program_id, last=n).last(n)
     
 
-    def new_collection(self, name, organization_name, program_name,project_name, description, activities, activity_short_names, objects ):
+    def new_collection(self, name, organization_name, program_name, project_name, description, activities, activity_short_names, objects ):
 
         # Invoke Lambda function
-        request = {'identity_id': identity_id, 'cognito_username': cognito_username, 'email': email}
+        raise ValueError('FIXME: these parameters are undefined')
+        #request = {'identity_id': identity_id, 'cognito_username': cognito_username, 'email': email}
 
 
         # Invoke Lambda function
