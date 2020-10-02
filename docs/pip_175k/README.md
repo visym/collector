@@ -62,7 +62,8 @@ d_category_to_counts = vipy.util.countby(pip, lambda v: v.category())
 ## Toolchain Exports
 
 ```python
-v.csv('/path/to/out.csv')  # export annotations for this video as flat CSV
+v.csv('/path/to/out.csv')  # export annotations for this video as flat CSV file
+pipcsv = [v.csv() for v in pip]  # export all annotations for this dataset as list of tuples
 v.dict()  # export this annotated video as python dictionary
 v.torch()   # export frames as torch tensor
 v.numpy()  # export frames as numpy array
