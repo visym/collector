@@ -53,6 +53,14 @@ class User(object):
         pass
 
 
+    def refresh(self):
+        if 'VIPY_AWS_SESSION_TOKEN' in os.environ:
+            self._set_S3_clients()
+            self._set_lambda_clients()
+            self._is_login = True
+            self._cognito_username = os.environ['VIPY_AWS_COGNITO_USERNAME']
+        return self
+        
     def login(self, password=None):
         """[summary]
 
@@ -101,10 +109,10 @@ class User(object):
             )
             self._aws_credentials =  get_aws_credentials_response['Credentials']
 
-            # Set up AWS services 
+            # Set up AWS services
+            self._set_os_environ()            
             self._set_S3_clients()
             self._set_lambda_clients()
-            self._set_os_environ()
             self._is_login = True
             
 
@@ -116,27 +124,29 @@ class User(object):
     def _set_S3_clients(self):
         """[summary]
         """
+        assert 'VIPY_AWS_SESSION_TOKEN' in os.environ        
         self._s3_client = boto3.client(
             's3',
-            aws_access_key_id=self._aws_credentials['AccessKeyId'],
-            aws_secret_access_key=self._aws_credentials['SecretKey'],
-            aws_session_token=self._aws_credentials['SessionToken'],
+            aws_access_key_id=os.environ['VIPY_AWS_ACCESS_KEY_ID'],
+            aws_secret_access_key=os.environ['VIPY_AWS_SECRET_ACCESS_KEY'],
+            aws_session_token=os.environ['VIPY_AWS_SESSION_TOKEN'],
         )
         self._s3_resource = boto3.resource(
             's3',
-            aws_access_key_id=self._aws_credentials['AccessKeyId'],
-            aws_secret_access_key=self._aws_credentials['SecretKey'],
-            aws_session_token=self._aws_credentials['SessionToken'],
+            aws_access_key_id=os.environ['VIPY_AWS_ACCESS_KEY_ID'],
+            aws_secret_access_key=os.environ['VIPY_AWS_SECRET_ACCESS_KEY'],
+            aws_session_token=os.environ['VIPY_AWS_SESSION_TOKEN'],
         )
 
     def _set_lambda_clients(self):
         """[summary]
         """
+        assert 'VIPY_AWS_SESSION_TOKEN' in os.environ
         self._lambda_client = boto3.client(
             'lambda',
-            aws_access_key_id=self._aws_credentials['AccessKeyId'],
-            aws_secret_access_key=self._aws_credentials['SecretKey'],
-            aws_session_token=self._aws_credentials['SessionToken'],
+            aws_access_key_id=os.environ['VIPY_AWS_ACCESS_KEY_ID'],
+            aws_secret_access_key=os.environ['VIPY_AWS_SECRET_ACCESS_KEY'],
+            aws_session_token=os.environ['VIPY_AWS_SESSION_TOKEN'],
         )
 
     def _set_os_environ(self):
@@ -144,7 +154,8 @@ class User(object):
         """  
         os.environ['VIPY_AWS_ACCESS_KEY_ID'] = self._aws_credentials['AccessKeyId']
         os.environ['VIPY_AWS_SECRET_ACCESS_KEY'] = self._aws_credentials['SecretKey']
-        os.environ['VIPY_AWS_SESSION_TOKEN'] = self._aws_credentials['SessionToken']        
+        os.environ['VIPY_AWS_SESSION_TOKEN'] = self._aws_credentials['SessionToken']
+        os.environ['VIPY_AWS_COGNITO_USERNAME'] = self._cognito_username
         
     def is_token_expired(self):
         """[summary]
@@ -158,8 +169,9 @@ class User(object):
         return self._token_expiration_time
     
     def is_authenticated(self):
-        return self._is_login  # or 'VIPY_AWS_SESSION_TOKEN' in os.environ
+        return self._is_login
 
+    
     @property
     def username(self):
         """

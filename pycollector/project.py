@@ -30,7 +30,7 @@ class Project(User):
     ):
         super(Project, self).__init__()
         
-        if not self.is_authenticated():
+        if not self.refresh().is_authenticated():
             self.login() 
         
         self._projects = None
@@ -83,8 +83,9 @@ class Project(User):
     def videos(self):
         return sorted([v for v in self], key=lambda v: v.uploaded(), reverse=True)
 
-    def last(self):
-        return self.videos()[0]
+    def last(self, n=1):
+        assert len(self) >= n, "Invalid length (videos=%d < n=%d)" % (len(self), n)
+        return self.videos()[-n:]
     
     def quicklookurls(self, outfile=None, display=True):
         """Generate a standalong HTML file containing the quicklook URLs for the current filtered project"""
@@ -98,6 +99,6 @@ def search():
     return Project(since='2020-09-01')
 
 def last(n=1):
-    return Project(since='2020-09-01', last=n).last()    
+    return Project(since='2020-09-01', last=n).last(n)    
 
             

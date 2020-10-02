@@ -428,6 +428,6 @@ def search():
     return pycollector.project.Project(since='2020-09-01')
 
 
-def last():
+def last(n=1):
     import pycollector.project    
-    return pycollector.project.Project(since='2020-09-01').last()    
+    return pycollector.project.Project(since='2020-09-01', last=n).last(n)    

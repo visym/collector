@@ -71,7 +71,7 @@ class Detector(object):
         self.gpu(vipy.globals.gpuindex())
 
     def __call__(self, im, conf=5E-1, iou=0.5):
-        assert isinstance(im, vipy.image.Image)
+        assert isinstance(im, vipy.image.Image), "Invalid input - must be vipy.image.Image object and not '%s'" % (str(type(im)))
         self.gpu(vipy.globals.gpuindex())
 
         scale = max(im.shape()) / float(self._mindim)  # to undo
