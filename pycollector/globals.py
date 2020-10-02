@@ -16,6 +16,14 @@ GLOBALS = {'VERBOSE': True,                # If False, will silence everything, 
                       'region_name':'us-east-1' if 'AWS_DEFAULT_REGION' not in os.environ else os.environ['AWS_DEFAULT_REGION']}}
 
 
+def cachedir(newdir):
+    """Set the location to save videos and JSON files when downloaded.  This will default to the system temp directory if not set.
+    
+       -This can be set by default by creating the environment variable VIPY_CACHE='/path/to/newdir'
+    """
+    vipy.globals.cache(newdir)
+
+    
 def logging(enable=None, format=None):
     """Single entry point for enabling/disabling logging vs. printing
        
