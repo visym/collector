@@ -395,6 +395,11 @@ class Video(Scene):
     def collectionid(self):
         return self.attributes["collection_id"] if "collection_id" in self._load_json().attributes else None
 
+    def collection_name(self):
+        return self.attributes["collection_name"] if "collection_name" in self._load_json().attributes else None
+    def collection(self):
+        return self.collection_name()
+    
     def duration(self):
         """Video length in seconds"""
         return float(self.attributes["duration"]) if "duration" in self._load_json().attributes else 0.0
