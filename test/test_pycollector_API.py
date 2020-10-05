@@ -26,10 +26,6 @@ def test_get_user_video(username,password):
 def test_get_user_videos(username,password, program_id):
     """test get user video
     """
-
-    username = 'zhongheng.li@stresearch.com'
-    password = '0STRBoston&0'
-
     
     # testing objects and functions 
     api = API(username=username, password=password)
