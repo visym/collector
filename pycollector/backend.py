@@ -20,7 +20,7 @@ class API(User):
             password ([type], optional): [description]. Defaults to None.
         """
         super().__init__(username=username,password=password)
-        if not self.is_authenticated() or self.is_token_expired():
+        if (not self.is_authenticated()) or self.is_token_expired():
             self.login()
         
 
