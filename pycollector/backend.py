@@ -44,17 +44,24 @@ class API(User):
         return Project(program_id=program_id, last=n).last(n)
     
 
-    def new_collection(self, name, organization_name, program_name, project_name, description, activities, activity_short_names, objects ):
+    def new_collection(self, name, organization_name, program_name, project_name, description, activities, activity_short_names, objects, creator_cognito_username):
 
         # Invoke Lambda function
-        raise ValueError('FIXME: these parameters are undefined')
-        #request = {'identity_id': identity_id, 'cognito_username': cognito_username, 'email': email}
-        request = {}
+        request = {'name': name, 
+                    'organization_name': organization_name, 
+                    'program_name': program_name,
+                    'project_name': project_name, 
+                    'description': description,
+                    'activities': activities, 
+                    'activity_short_names': activity_short_names,
+                    'objects': objects,
+                    'creator_cognito_username': creator_cognito_username,
+        }
 
         # Invoke Lambda function
         try:
             response = self._lambda_client.invoke(
-            FunctionName='arn:aws:lambda:us-east-1:806596299222:function:CollectorTestPostAuthentication',
+            FunctionName='arn:aws:lambda:us-east-1:806596299222:function:pycollector_create_new_collection',
             InvocationType= 'RequestResponse',
             LogType='Tail',
             Payload=json.dumps(request),

@@ -26,6 +26,10 @@ def test_get_user_video(username,password):
 def test_get_user_videos(username,password, program_id):
     """test get user video
     """
+
+    username = 'zhongheng.li@stresearch.com'
+    password = '0STRBoston&0'
+
     
     # testing objects and functions 
     api = API(username=username, password=password)
@@ -41,4 +45,27 @@ def test_get_user_videos(username,password, program_id):
         
     # Download video 
     videos[0].download() 
+
+
+
+@pytest.mark.parametrize("username, password, program_id", [(_USER_NAME, _PASSWORD, _PROGRAM_ID)])
+def test_new_collections(username,password, program_id):
+    """test add  new collection
+    """
+    
+    # testing objects and functions 
+    api = API(username=username, password=password)
+
+    # test to create new collection
+    name = 'Thank you'
+    organization_name = 'ARSl'
+    program_name = 'ARSL'
+    project_name = 'ARSL_American Sign Language - Purchasing'
+    description = 'ASL for asking some if the person needs help. \n\n The sign for \"help\" is made by forming a loose-thumb-A hand (or even an \"S\" hand) and lifting it with your other hand. Some people will tell you the \"A\" hand should be your right hand. Others will tell you it should be your left hand. The reality of the matter is if you look this sign up in a half-dozen different sources you are going to see it done several different ways. \n\n  HELP: You / Need Help / '
+    activities = 'thank you'
+    activity_short_names = 'Thank you'
+    objects = 'Person'
+    cognito_username =  'test_cognito_username'
+
+    api.new_collection(name, organization_name, program_name, project_name, description, activities, activity_short_names, objects, cognito_username)
 
