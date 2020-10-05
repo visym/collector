@@ -167,7 +167,7 @@ class User(object):
         Returns:
             [type]: [description]
         """
-        return datetime.now() > self._token_expiration_time 
+        return self._token_expiration_time is None or datetime.now() > self._token_expiration_time 
 
     def token_expired_by(self):
         return self._token_expiration_time
