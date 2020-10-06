@@ -26,7 +26,8 @@ class Project(User):
                  since=None,
                  before=None,
                  alltime=False,
-                 last=None
+                 last=None,
+                 retry=2
     ):
         super(Project, self).__init__()
         
@@ -40,27 +41,31 @@ class Project(User):
         # Invoke Lambda function
         request = {'program_id': program_id, 'project_id': project_id, 'weeksago': weeksago, 'monthsago': monthsago, 'daysago': daysago, 'since': since, 'alltime': alltime, 'Video_IDs': None, 'before': before, 'week': None, 'pycollector_id': self.cognito_username, 'last':last}
         FunctionName = GLOBALS['LAMBDA']['get_project']
-        
-        try:
-            response =  self.lambda_client.invoke(
-                FunctionName=FunctionName,
-                InvocationType= 'RequestResponse',
-                LogType='Tail',
-                # Payload=json.dumps(request),
-                Payload= bytes(json.dumps(request), encoding='utf8'),
-            )
-            # Get the serialized dataframe
-            dict_str = response['Payload'].read().decode("UTF-8")
-            if dict_str == 'null':
-                raise ValueError('Invalid lambda function response')
-            data_dict = ast.literal_eval(dict_str)
 
-            serialized_videos_data_dict = data_dict['body']['videos']
-            data_df = pd.read_json(serialized_videos_data_dict)
-            self.df = data_df
+        for k in range(0, retry):
+            try:
+                response =  self.lambda_client.invoke(
+                    FunctionName=FunctionName,
+                    InvocationType= 'RequestResponse',
+                    LogType='Tail',
+                    # Payload=json.dumps(request),
+                    Payload= bytes(json.dumps(request), encoding='utf8'),
+                )
+                # Get the serialized dataframe
+                dict_str = response['Payload'].read().decode("UTF-8")
+                if dict_str == 'null':
+                    raise ValueError('Invalid lambda function response')
+                data_dict = ast.literal_eval(dict_str)
 
-        except Exception as e:
-            raise Exception('Lambda function error - {0}'.format(e))
+                serialized_videos_data_dict = data_dict['body']['videos']
+                data_df = pd.read_json(serialized_videos_data_dict)
+                self.df = data_df
+
+            except Exception as e:
+                if 'expired' in str(e):
+                    self.login() # try one more time
+                else:
+                    raise Exception('Lambda function error - {0}'.format(e))
 
         print("[pycollector.project]:  Returned %d videos" % len(self.df))        
 
