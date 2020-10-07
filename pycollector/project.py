@@ -33,7 +33,7 @@ class Project(User):
     ):
         super(Project, self).__init__(username=username, password=password)
         
-        if (not self.refresh().is_authenticated()) or self.is_token_expired():
+        if not self.refresh().is_authenticated():
             self.login() 
         
         self._projects = None
