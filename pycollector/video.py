@@ -158,9 +158,26 @@ class Video(Scene):
             print('[pycollector.video]: empty JSON "%s" - SKIPPING' % jsonfile)
             d = None
 
-            
+        # Backwards compatible video import: should not be necessary with new app release
+        if not 'category' in d['metadata']:
+            vipy.util.try_import('pycollector.admin.globals', message="Not authorized - Old style JSON requires admin access")
+            from pycollector.admin.globals import backend  
+            if not backend().collections().iscollectionid(d["metadata"]["collection_id"]):
+                print('[pycollector.video]: invalid collection ID "%s" - SKIPPING' % d["metadata"]["collection_id"])
+                d = None
+            else:
+                # Fetch labels from backend (yuck)
+                d['metadata']['collection_name'] = backend().collection().id_to_name(d["metadata"]["collection_id"])
+                d['metadata']['category'] = ','.join([backend().collection()[d["metadata"]["collection_id"]].shortname_to_activity(a["label"]) for a in d['activity']])
+                d['metadata']['shortname'] = ','.join([a["label"] for a in d['activity']])
+                
+        else:
+            # New style JSON: use labels stored directly in JSON
+            pass
+        
         # Import JSON into scene
         if d is not None:
+
             # TODO - Replace with video_data
             collection_name = d['metadata']['collection_name']
             
@@ -214,14 +231,18 @@ class Video(Scene):
                     self.add(t)
                 d_trackid_to_track[t.id()] = t
 
+            
             # Category variants:  a_category_name#Variant1=A&Joint=a_joint_label:Short Label&Variant2=B
-            d_shortname_to_category = {s:c.split('#')[0] for (s,c) in zip(d['metadata']['shortname'].split(','), d['metadata']['category'].split(','))}
-            variantlist = [c.split('#')[1] if '#' in c else None for c in d['metadata']['category'].split(',')]
-            assert len(set(variantlist)) == 1, "Variants must be identical across activities"
-            v = variantlist[0]
-            assert v is None or '#' not in v, "Variants must follow URI fragment syntax"
-            variant = {k.split('=')[0]:k.split('=')[1] for k in v.split('&') if '=' in k} if (v is not None and '&' in v) else {}
-            self.attributes['variant'] = variant
+            variant = {}
+            d_shortname_to_category = {s:c for (s,c) in zip(d['metadata']['shortname'].split(','), d['metadata']['category'].split(','))}            
+            if '#' in d['metadata']['category']:
+                d_shortname_to_category = {s:c.split('#')[0] for (s,c) in d_shortname_to_category.items()}
+                variantlist = [c.split('#')[1] if '#' in c else None for c in d['metadata']['category'].split(',')]
+                assert len(set(variantlist)) == 1, "Variants must be identical across activities"
+                v = variantlist[0]
+                assert v is None or '#' not in v, "Variants must follow URI fragment syntax"
+                variant = {k.split('=')[0]:k.split('=')[1] for k in v.split('&') if '=' in k} if (v is not None and '&' in v) else {}
+                self.attributes['variant'] = variant
             
             # Import activities
             for a in d["activity"]:
