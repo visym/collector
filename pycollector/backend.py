@@ -31,7 +31,7 @@ class API(User):
             project_id (str, optional): [description]. Defaults to 'MEVA'.
         """
 
-        return Project(program_id=program_id, alltime=True)
+        return Project(program_id=program_id, alltime=True, username=self._username)
 
     
     def get_recent_videos(self, program_id='MEVA', n=1): 
@@ -41,7 +41,7 @@ class API(User):
             project_id (str, optional): [description]. Defaults to 'MEVA'.
         """
 
-        return Project(program_id=program_id, last=n).last(n)
+        return Project(program_id=program_id, last=n, username=self._username).last(n)
     
 
     def new_collection(self, name, organization_name, program_name, project_name, description, activities, activity_short_names, objects, creator_cognito_username):

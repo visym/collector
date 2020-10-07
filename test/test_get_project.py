@@ -23,8 +23,7 @@ def test_get_project():
     password = os.environ['VISYM_COLLECTOR_PYTEST_PASSWORD']  # github secrets
 
     # testing objects and functions 
-    user = User(username=username, password=password)
-    new_project_client = Project(program_id="MEVA", alltime=True)
+    new_project_client = Project(program_id="MEVA", alltime=True, username=username, password=password)
 
 
     # print("print collector ids")

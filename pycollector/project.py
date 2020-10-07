@@ -27,9 +27,11 @@ class Project(User):
                  before=None,
                  alltime=False,
                  last=None,
-                 retry=2
+                 retry=2,
+                 username=None,
+                 password=None
     ):
-        super(Project, self).__init__()
+        super(Project, self).__init__(username=username, password=password)
         
         if (not self.refresh().is_authenticated()) or self.is_token_expired():
             self.login() 
