@@ -214,8 +214,16 @@ class Video(Scene):
                     self.add(t)
                 d_trackid_to_track[t.id()] = t
 
+            # Category variants:  a_category_name#Variant1=A&Joint=a_joint_label:Short Label&Variant2=B
+            d_shortname_to_category = {s:c.split('#')[0] for (s,c) in zip(d['metadata']['shortname'].split(','), d['metadata']['category'].split(','))}
+            variantlist = [c.split('#')[1] if '#' in c else None for c in d['metadata']['category'].split(',')]
+            assert len(set(variantlist)) == 1, "Variants must be identical across activities"
+            v = variantlist[0]
+            assert v is None or '#' not in v, "Variants must follow URI fragment syntax"
+            variant = {k.split('=')[0]:k.split('=')[1] for k in v.split('&') if '=' in k} if (v is not None and '&' in v) else {}
+            self.attributes['variant'] = variant
+            
             # Import activities
-            d_shortname_to_category = {s:c for (s,c) in zip(d['metadata']['shortname'].split(','), d['metadata']['category'].split(','))}
             for a in d["activity"]:
                 try:
                     if (d["metadata"]["collection_id"] == "P004C009" and d["metadata"]["device_identifier"] == "android"):
@@ -241,15 +249,17 @@ class Video(Scene):
                                                     tracks=d_trackid_to_track,
                                                     framerate=d["metadata"]["frame_rate"],
                                                     attributes=d["metadata"]))
-                    
-                    if not vipy.version.is_at_least("0.8.3"):
-                        if int(a["start_frame"]) >= int(a["end_frame"]):
-                            raise ValueError(
-                                "degenerate start/end frames %d/%d",
-                                int(a["start_frame"]),
-                                int(a["end_frame"]),
-                            )
 
+                    # Joint activity?
+                    if 'Joint' in variant:
+                        self.add(vipy.activity.Activity(category=variant['Joint'].split(':')[0],
+                                                        shortlabel=variant['Joint'].split(':')[1] if ':' in variant['Joint'] else None,
+                                                        startframe=int(a["start_frame"]),
+                                                        endframe=int(a["end_frame"]),
+                                                        tracks=d_trackid_to_track,
+                                                        framerate=d["metadata"]["frame_rate"],
+                                                        attributes=d["metadata"]))
+                                            
                 except Exception as e:
                     print(
                         '[pycollector.video]: Filtering invalid activity "%s" with error "%s" for videoid=%s'
@@ -285,6 +295,10 @@ class Video(Scene):
         
         return self
 
+    def variant(self):
+        """Category variant"""
+        return self.attributes['variant'] if 'variant' in self.attributes else None
+    
     def geolocation(self):
         assert 'ipAddress' in self.metadata(), "Invalid JSON"
         url = 'http://api.geoiplookup.net/?query=%s' % self.metadata()['ipAddress']
