@@ -158,9 +158,26 @@ class Video(Scene):
             print('[pycollector.video]: empty JSON "%s" - SKIPPING' % jsonfile)
             d = None
 
-            
+        # Backwards compatible video import: should not be necessary with new app release
+        if not 'category' in d['metadata']:
+            vipy.util.try_import('pycollector.admin.globals', message="Not authorized - Old style JSON requires admin access")
+            from pycollector.admin.globals import backend  
+            if not backend().collections().iscollectionid(d["metadata"]["collection_id"]):
+                print('[pycollector.video]: invalid collection ID "%s" - SKIPPING' % d["metadata"]["collection_id"])
+                d = None
+            else:
+                # Fetch labels from backend (yuck)
+                d['metadata']['collection_name'] = backend().collection().id_to_name(d["metadata"]["collection_id"])
+                d['metadata']['category'] = ','.join([backend().collection()[d["metadata"]["collection_id"]].shortname_to_activity(a["label"]) for a in d['activity']])
+                d['metadata']['shortname'] = ','.join([a["label"] for a in d['activity']])
+                
+        else:
+            # New style JSON: use labels stored directly in JSON
+            pass
+        
         # Import JSON into scene
         if d is not None:
+
             # TODO - Replace with video_data
             collection_name = d['metadata']['collection_name']
             
@@ -214,8 +231,22 @@ class Video(Scene):
                     self.add(t)
                 d_trackid_to_track[t.id()] = t
 
+            
+            # Category variants:  a_category_name#Variant1=A&Joint=a_joint_label:Short Label&Variant2=B
+            variant = {}
+            d_shortname_to_category = {s:c for (s,c) in zip(d['metadata']['shortname'].split(','), d['metadata']['category'].split(','))}            
+            if '#' in d['metadata']['category']:
+                d_shortname_to_category = {s:c.split('#')[0] for (s,c) in d_shortname_to_category.items()}
+                variantlist = list(set([c.split('#')[1] if '#' in c else None for c in d['metadata']['category'].split(',')]))
+                if len(variantlist) != 1 or (variantlist[0] is not None and '=' not in variantlist[0]):
+                    print('[pycollector.video]: WARNING - Ignoring invalid variant "%s"' % str(variantlist))
+                    variant = {}
+                else:
+                    v = variantlist[0]
+                    variant = {k.split('=')[0]:k.split('=')[1] for k in v.split('&') if '=' in k} if (v is not None and '&' in v) else {}
+                    self.attributes['variant'] = variant
+            
             # Import activities
-            d_shortname_to_category = {s:c for (s,c) in zip(d['metadata']['shortname'].split(','), d['metadata']['category'].split(','))}
             for a in d["activity"]:
                 try:
                     if (d["metadata"]["collection_id"] == "P004C009" and d["metadata"]["device_identifier"] == "android"):
@@ -241,15 +272,17 @@ class Video(Scene):
                                                     tracks=d_trackid_to_track,
                                                     framerate=d["metadata"]["frame_rate"],
                                                     attributes=d["metadata"]))
-                    
-                    if not vipy.version.is_at_least("0.8.3"):
-                        if int(a["start_frame"]) >= int(a["end_frame"]):
-                            raise ValueError(
-                                "degenerate start/end frames %d/%d",
-                                int(a["start_frame"]),
-                                int(a["end_frame"]),
-                            )
 
+                    # Joint activity?
+                    if 'Joint' in variant:
+                        self.add(vipy.activity.Activity(category=variant['Joint'].split(':')[0],
+                                                        shortlabel=variant['Joint'].split(':')[1] if ':' in variant['Joint'] else None,
+                                                        startframe=int(a["start_frame"]),
+                                                        endframe=int(a["end_frame"]),
+                                                        tracks=d_trackid_to_track,
+                                                        framerate=d["metadata"]["frame_rate"],
+                                                        attributes=d["metadata"]))
+                                            
                 except Exception as e:
                     print(
                         '[pycollector.video]: Filtering invalid activity "%s" with error "%s" for videoid=%s'
@@ -285,6 +318,10 @@ class Video(Scene):
         
         return self
 
+    def variant(self):
+        """Category variant"""
+        return self.attributes['variant'] if 'variant' in self.attributes else None
+    
     def geolocation(self):
         assert 'ipAddress' in self.metadata(), "Invalid JSON"
         url = 'http://api.geoiplookup.net/?query=%s' % self.metadata()['ipAddress']

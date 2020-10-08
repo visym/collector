@@ -49,8 +49,7 @@ class User(object):
         if password is not None:
             self.login(password)
 
-        # Term of usages properties 
-        pass
+        self.refresh()
 
 
     def refresh(self):
