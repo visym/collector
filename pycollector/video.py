@@ -237,12 +237,14 @@ class Video(Scene):
             d_shortname_to_category = {s:c for (s,c) in zip(d['metadata']['shortname'].split(','), d['metadata']['category'].split(','))}            
             if '#' in d['metadata']['category']:
                 d_shortname_to_category = {s:c.split('#')[0] for (s,c) in d_shortname_to_category.items()}
-                variantlist = [c.split('#')[1] if '#' in c else None for c in d['metadata']['category'].split(',')]
-                assert len(set(variantlist)) == 1, "Variants must be identical across activities"
-                v = variantlist[0]
-                assert v is None or '#' not in v, "Variants must follow URI fragment syntax"
-                variant = {k.split('=')[0]:k.split('=')[1] for k in v.split('&') if '=' in k} if (v is not None and '&' in v) else {}
-                self.attributes['variant'] = variant
+                variantlist = list(set([c.split('#')[1] if '#' in c else None for c in d['metadata']['category'].split(',')]))
+                if len(variantlist) != 1 or (variantlist[0] is not None and '=' not in variantlist[0]):
+                    print('[pycollector.video]: WARNING - Ignoring invalid variant "%s"' % str(variantlist))
+                    variant = {}
+                else:
+                    v = variantlist[0]
+                    variant = {k.split('=')[0]:k.split('=')[1] for k in v.split('&') if '=' in k} if (v is not None and '&' in v) else {}
+                    self.attributes['variant'] = variant
             
             # Import activities
             for a in d["activity"]:
