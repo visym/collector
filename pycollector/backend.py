@@ -47,13 +47,13 @@ class API(User):
     def new_collection(self, name, program_name, project_name, collection_description, activities, activity_short_names, objects, creator_cognito_username, consent_overlay_text='Please select the record button, say "I consent to this video collection”'):
 
         # Invoke Lambda function
-        request = {'name':name,
+        request = {'collection_name':name,
                     'activities': activities,  # comma separated string, no spaces
                     'project_name':project_name,
                     'program_name':program_name,
                     'objects': objects,
                     'collection_description': collection_description,
-                    'activity_short_names':','.join(activity_short_names), # comma separated string, no spaces
+                    'activity_short_names': activity_short_names, # comma separated string, no spaces
                     'creator_cognito_username' : creator_cognito_username, 
                     'consent_overlay_text': consent_overlay_text,
                     }

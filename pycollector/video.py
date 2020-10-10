@@ -60,7 +60,7 @@ class Video(Scene):
         
         # Vipy video constructor
         mp4url = mp4url.replace('+',' ') if mp4url is not None else mp4url  # for cut and paste from AWS console
-        jsonurl = jsonurl.replace('+',' ') if jsonurl is not None else jsonurl  # for cut and paste from AWS console        
+        # jsonurl = jsonurl.replace('+',' ') if jsonurl is not None else jsonurl  # for cut and paste from AWS console        
         super(Video, self).__init__(url=mp4url, filename=mp4file, attributes=attributes)
 
         # Video attributes

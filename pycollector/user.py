@@ -173,6 +173,15 @@ class User(object):
     
     def is_authenticated(self):
         return self._is_login
+    
+
+    def add_user_to_group(self):
+        """Check if the current user is already in the pycollector user group, if not add the user to group
+
+        Returns:
+            [type]: [description]
+        """
+
 
     
     @property
