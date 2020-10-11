@@ -181,8 +181,6 @@ class User(object):
         Returns:
             [type]: [description]
         """
-
-
     
     @property
     def username(self):
@@ -202,3 +200,15 @@ class User(object):
         """
         return self._lambda_client
 
+
+
+    # self._cognitoidP_client = boto3.client(
+    #     "cognito-idp",
+    #     region_name=self._region,
+    #     aws_access_key_id=os.environ["VISYM_COLLECTOR_AWS_ACCESS_KEY_ID"],
+    #     aws_secret_access_key=os.environ["VISYM_COLLECTOR_AWS_SECRET_ACCESS_KEY"],
+    # )
+
+    # self._cognitoUserPoolid = os.environ["VISYM_COLLECTOR_AWS_COGNITO_USER_POOL_ID"]
+    # self._cognitoAppClientlid = os.environ["VISYM_COLLECTOR_AWS_COGNITO_APP_CLIENT_ID"]
+    # self._cognitoAppClientlSecret = os.environ["VISYM_COLLECTOR_AWS_COGNITO_APP_CLIENT_SECRET"]
