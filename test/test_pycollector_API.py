@@ -54,14 +54,15 @@ def test_new_collections(username,password, program_id):
 
     # test to create new collection
     name = 'Thank you'
-    organization_name = 'ARSl'
     program_name = 'ARSL'
     project_name = 'ARSL_American Sign Language - Purchasing'
-    description = 'ASL for asking some if the person needs help. \n\n The sign for \"help\" is made by forming a loose-thumb-A hand (or even an \"S\" hand) and lifting it with your other hand. Some people will tell you the \"A\" hand should be your right hand. Others will tell you it should be your left hand. The reality of the matter is if you look this sign up in a half-dozen different sources you are going to see it done several different ways. \n\n  HELP: You / Need Help / '
-    activities = 'thank you'
-    activity_short_names = 'Thank you'
-    objects = 'Person'
-    cognito_username =  'test_cognito_username'
+    collection_description = 'ASL for asking some if the person needs help. \n\n The sign for \"help\" is made by forming a loose-thumb-A hand (or even an \"S\" hand) and lifting it with your other hand. Some people will tell you the \"A\" hand should be your right hand. Others will tell you it should be your left hand. The reality of the matter is if you look this sign up in a half-dozen different sources you are going to see it done several different ways. \n\n  HELP: You / Need Help / '
+    activities = 'thank you,very much'
+    activity_short_names = 'Thank you,Very much'
+    objects = 'Person,Hands'
+    creator_cognito_username =  '6ffdf440-4bac-4470-b7d1-3ad85fb319d0' #'ddaaa908-17ed-4483-beae-a2afe02ee957'
 
-    api.new_collection(name, organization_name, program_name, project_name, description, activities, activity_short_names, objects, cognito_username)
+    print("cognito_username: ", api.cognito_username)
+
+    api.new_collection(name=name, program_name=program_name, project_name=project_name, collection_description=collection_description, activities=activities, activity_short_names=activity_short_names, objects=objects, creator_cognito_username=creator_cognito_username)
 

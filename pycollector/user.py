@@ -173,7 +173,14 @@ class User(object):
     
     def is_authenticated(self):
         return self._is_login
+    
 
+    def add_user_to_group(self):
+        """Check if the current user is already in the pycollector user group, if not add the user to group
+
+        Returns:
+            [type]: [description]
+        """
     
     @property
     def username(self):
@@ -193,3 +200,15 @@ class User(object):
         """
         return self._lambda_client
 
+
+
+    # self._cognitoidP_client = boto3.client(
+    #     "cognito-idp",
+    #     region_name=self._region,
+    #     aws_access_key_id=os.environ["VISYM_COLLECTOR_AWS_ACCESS_KEY_ID"],
+    #     aws_secret_access_key=os.environ["VISYM_COLLECTOR_AWS_SECRET_ACCESS_KEY"],
+    # )
+
+    # self._cognitoUserPoolid = os.environ["VISYM_COLLECTOR_AWS_COGNITO_USER_POOL_ID"]
+    # self._cognitoAppClientlid = os.environ["VISYM_COLLECTOR_AWS_COGNITO_APP_CLIENT_ID"]
+    # self._cognitoAppClientlSecret = os.environ["VISYM_COLLECTOR_AWS_COGNITO_APP_CLIENT_SECRET"]
