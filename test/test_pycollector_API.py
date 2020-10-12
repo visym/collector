@@ -60,8 +60,7 @@ def test_new_collections(username,password, program_id):
     activities = 'thank you,very much'
     activity_short_names = 'Thank you,Very much'
     objects = 'Person,Hands'
-    creator_cognito_username =  '6ffdf440-4bac-4470-b7d1-3ad85fb319d0' #'ddaaa908-17ed-4483-beae-a2afe02ee957'
-
+    creator_cognito_username =  api.cognito_username 
     print("cognito_username: ", api.cognito_username)
 
     api.new_collection(name=name, program_name=program_name, project_name=project_name, collection_description=collection_description, activities=activities, activity_short_names=activity_short_names, objects=objects, creator_cognito_username=creator_cognito_username)
