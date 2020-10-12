@@ -59,7 +59,7 @@ class Video(Scene):
              assert 'VIPY_AWS_ACCESS_KEY_ID' in os.environ and 'VIPY_AWS_SECRET_ACCESS_KEY' in os.environ, "AWS access keys not found - Log in using pycollector.user"
         
         # Vipy video constructor
-        super(Video, self).__init__(url=mp4url, filename=mp4file, attributes=attributes)
+        super().__init__(url=mp4url, filename=mp4file, attributes=attributes)
 
         # Video attributes
         #self._quicklook_url = "https://%s.s3.amazonaws.com/Quicklooks/%%s_quicklook_%%s_%%d.jpg" % (backend().s3_bucket())   # FIXME: pycollector.admin.video
@@ -79,7 +79,7 @@ class Video(Scene):
                                                                                   if self.timestamp() is not None
                                                                                   else str(None),
                                                                                   self.activity_categories(),
-                                                                                  str(super(Video, self).__repr__())))
+                                                                                  str(super().__repr__())))
             
     def _load_json(self):
         """Lazy JSON download, parse, and import"""
@@ -333,7 +333,7 @@ class Video(Scene):
         return self.fetchvideo()
 
     def fetchvideo(self, ignoreErrors=False):
-        super(Video, self).fetch()
+        super().fetch()
         return self
 
     def fetchjson(self):

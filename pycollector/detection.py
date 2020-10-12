@@ -108,7 +108,7 @@ class VideoDetector(Detector):
     
 class Proposal(Detector):
     def __call__(self, v, conf=1E-2, iou=0.8):
-        return super(Proposal, self).__call__(v, conf, iou)
+        return super().__call__(v, conf, iou)
 
     
 class VideoProposal(Proposal):
@@ -157,7 +157,7 @@ class VideoProposalRefinement(VideoProposal):
         """Replace proposal in v by best (maximum overlap and confidence) object proposal in vc.  If no proposal exists, delete the proposal."""
         assert all([c.lower() in ['person', 'vehicle', 'car', 'motorcycle'] for c in v.objectlabels()])  # for now
 
-        vp = super(VideoProposalRefinement, self).__call__(v, proposalconf, proposaliou, dt=dt, activitybox=True, dilate=4.0, target=[c.lower() for c in v.objectlabels()] if byclass else None)  # subsampled proposals
+        vp = super().__call__(v, proposalconf, proposaliou, dt=dt, activitybox=True, dilate=4.0, target=[c.lower() for c in v.objectlabels()] if byclass else None)  # subsampled proposals
         vc = v.clone(rekey=True, flushforward=True, flushbackward=True).trackfilter(lambda t: len(t) > dt)
         for (ti, t) in vc.tracks().items():
             t.resample(dt=dt)  # interpolated keyframes for source proposal
