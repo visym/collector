@@ -46,7 +46,7 @@ class Video(Scene):
                  mindim=512,
                  dt=1,
                  fetch=True,
-                 attributes=None
+                 attributes=None,
     ):
         assert (mp4file is not None or mp4url is not None), "Invalid input - Must provide either mp4file or mp4url"
         assert (jsonurl is not None or jsonfile is not None), "Invalid input - Must provide either jsonurl or jsonfile"
@@ -55,7 +55,7 @@ class Video(Scene):
 
         # AWS credentials (if needed) must be set by pycollector.user
         if ((jsonurl is not None and (jsonfile is None or not os.path.exists(jsonfile))) or
-            (mp4url is not None and (mp4file is None or not os.path.exists(mp4file)))):            
+            (mp4url is not None and (mp4file is None or not os.path.exists(mp4file)))):
              assert 'VIPY_AWS_ACCESS_KEY_ID' in os.environ and 'VIPY_AWS_SECRET_ACCESS_KEY' in os.environ, "AWS access keys not found - Log in using pycollector.user"
         
         # Vipy video constructor
@@ -311,7 +311,7 @@ class Video(Scene):
             self._is_json_loaded = False
 
         # Resample tracks
-        if self._dt > 1:
+        if self._dt > 1 and self._is_json_loaded:
             self.trackmap(lambda t: t.resample(self._dt))
         
         return self
