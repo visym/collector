@@ -259,7 +259,6 @@ class Video(Scene):
                         shortlabel = "Buying (Cashier)"
                     else:
                         shortlabel = a["label"]
-                    shortlabel = shortlabel.lower()
 
                     #category = backend().collection()[d["metadata"]["collection_id"]].shortname_to_activity(a["label"])
                     category = d_shortname_to_category[a['label']]
