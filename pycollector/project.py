@@ -31,7 +31,7 @@ class Project(User):
                  username=None,
                  password=None
     ):
-        super(Project, self).__init__(username=username, password=password)
+        super().__init__(username=username, password=password)
         
         if not self.refresh().is_authenticated():
             self.login() 
