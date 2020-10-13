@@ -16,6 +16,7 @@ _PROGRAM_ID = 'MEVA'
 def test_get_user_video(username,password):
     """test get user video
     """
+
     # testing objects and functions 
     api = API(username=username, password=password)
     assert api.username == username
@@ -23,11 +24,6 @@ def test_get_user_video(username,password):
 
     creator_cognito_username =  api.cognito_username 
     print("cognito_username: ", api.cognito_username)
-
-    user_pool_id = 'us-east-1_sFpJQRLiY'
-
-
-
 
 
 
@@ -39,6 +35,8 @@ def test_get_user_video(username,password):
 #     # testing objects and functions 
 #     api = API(username=username, password=password)
 #     project =  api.get_project(program_id=program_id)
+#     print(project)
+
 #     assert len(project) > 0
     
 #     # show the df of project

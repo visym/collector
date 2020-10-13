@@ -101,8 +101,6 @@ class User(object):
             )
             self._identity_id = get_id_response['IdentityId']
 
-            # TODO - Add usergroup handeler  
-
             # Get user temp AWS credentials
             get_aws_credentials_response = self._cognito_id_client.get_credentials_for_identity(
                 IdentityId=self._identity_id,
