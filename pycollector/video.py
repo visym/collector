@@ -236,14 +236,14 @@ class Video(Scene):
             if '#' in d['metadata']['category']:
                 d_shortname_to_category = {s:c.split('#')[0] for (s,c) in d_shortname_to_category.items()}
                 variantlist = list(set([c.split('#')[1] if '#' in c else None for c in d['metadata']['category'].split(',')]))
-                if len(variantlist) != 1 or (variantlist[0] is not None and '=' not in variantlist[0]):
-                    print('[pycollector.video]: WARNING - Ignoring invalid variant "%s"' % str(variantlist))
-                    variant = {}
+                if len(variantlist) != 1:
+                    print('[pycollector.video]: WARNING - Ignoring mixed variant "%s"' % str(variantlist))
+                elif any(['=' not in v or v.count('&') != (v.count('=')-1) for v in variantlist]):
+                    print('[pycollector.video]: WARNING - Ignoring invalid variant "%s"' % str(variantlist))                    
                 else:
-                    v = variantlist[0]
-                    variant = {k.split('=')[0]:k.split('=')[1] for k in v.split('&') if '=' in k} if (v is not None and '&' in v) else {}
-                    self.attributes['variant'] = variant
-            
+                    variant = {k.split('=')[0]:k.split('=')[1] for k in variantlist[0].split('&')}
+            self.attributes['variant'] = variant
+
             # Import activities
             for a in d["activity"]:
                 try:
