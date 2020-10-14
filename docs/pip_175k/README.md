@@ -62,7 +62,7 @@ d_category_to_counts = vipy.util.countby(pip, lambda v: v.category())
 ## Toolchain Exports
 
 ```python
-v.csv('/path/to/out.csv')  # export annotations for this video as flat CSV file
+v.csv('/path/to/out.csv')  # export annotations for this video as flat CSV file (with header)
 pipcsv = [v.csv() for v in pip]  # export all annotations for this dataset as list of tuples
 v.dict()  # export this annotated video as python dictionary
 v.torch()   # export frames as torch tensor
@@ -70,6 +70,7 @@ v.numpy()  # export frames as numpy array
 labels = [(labels, im) for (labels, im) in v.labeled_frames()]  # framewise activity labels for multi-label loss
 v.mindim(256).randomcrop( (224,224) ).torch(startframe='random', length=64)   # change the minimum dimension of the video to (and scale annotations), take random square center crop 
     			      					     		  # and export as a torch tensor of size 1x64x224x224 starting from a random start frame. 
+mp4file = v.filename()  # absolute path the the MP4 video file                                                      
 ```
 
 If you are training with this dataset, we recommend [following this demo to generate framewise activity labels and tensors](https://github.com/visym/vipy/blob/master/demo/training.ipynb).
