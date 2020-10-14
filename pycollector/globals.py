@@ -10,9 +10,9 @@ GLOBALS = {'VERBOSE': True,                # If False, will silence everything, 
            'LOGGING':False,                # If True, use python logging (handler provided by end-user) intead of print 
            'LOGGER':None,                  # The global logger used by pycollector.globals.print() and pycollector.globals.warn() if LOGGING=True
            'LAMBDA':{'get_project':'arn:aws:lambda:us-east-1:806596299222:function:pycollector_get_project'},
-           'COGNITO':{'app_client_id':'6k20qruljfs0v7n5tmt1pk0u1q',
-                      'identity_pool_id':'us-east-1:c7bbbc40-37d3-4ad8-8afd-492c095729bb',
-                      'provider_name':'cognito-idp.us-east-1.amazonaws.com/us-east-1_sFpJQRLiY',
+           'COGNITO':{'app_client_id': '7tge9bc9e3iv9r2i644dakr7qp', # '6k20qruljfs0v7n5tmt1pk0u1q',
+                      'identity_pool_id': 'us-east-1:efb75fcb-9009-4b4a-959c-9eec61e19359', #'us-east-1:c7bbbc40-37d3-4ad8-8afd-492c095729bb',
+                      'provider_name': 'cognito-idp.us-east-1.amazonaws.com/us-east-1_LdCiaH9IZ', #'cognito-idp.us-east-1.amazonaws.com/us-east-1_sFpJQRLiY',
                       'region_name':'us-east-1' if 'AWS_DEFAULT_REGION' not in os.environ else os.environ['AWS_DEFAULT_REGION']}}
 
 
