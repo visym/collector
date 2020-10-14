@@ -47,8 +47,8 @@ pip = vipy.util.load('valset.pkl')
 
 ```python
 v = pip[0]  # first video 
-v.show()   # display annotated video
 v.play()   # display unannotated video
+v.show()   # generate video annotations and play when complete
 v.quicklook().show()   # display video summary image
 v[0].savefig().saveas('out.png')  # save annotated first frame of first video, convert rgba to rgb colorspace, and save to a PNG
 v.tracks()  # tracks ID and tracks in this video
@@ -71,6 +71,7 @@ labels = [(labels, im) for (labels, im) in v.labeled_frames()]  # framewise acti
 v.mindim(256).randomcrop( (224,224) ).torch(startframe='random', length=64)   # change the minimum dimension of the video to (and scale annotations), take random square center crop 
     			      					     		  # and export as a torch tensor of size 1x64x224x224 starting from a random start frame. 
 mp4file = v.filename()  # absolute path the the MP4 video file                                                      
+mp4file_resized = v.resize(cols=256).saveas('resized.mp4').filename() # absolute path the resized MP4 video file                                                      
 ```
 
 If you are training with this dataset, we recommend [following this demo to generate framewise activity labels and tensors](https://github.com/visym/vipy/blob/master/demo/training.ipynb).
