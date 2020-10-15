@@ -165,9 +165,13 @@ class Video(Scene):
                 d = None
             else:
                 # Fetch labels from backend (yuck)
-                d['metadata']['collection_name'] = backend().collection().id_to_name(d["metadata"]["collection_id"])
-                d['metadata']['category'] = ','.join([backend().collection()[d["metadata"]["collection_id"]].shortname_to_activity(a["label"]) for a in d['activity']])
-                d['metadata']['shortname'] = ','.join([a["label"] for a in d['activity']])
+                try:
+                    d['metadata']['collection_name'] = backend().collections().id_to_name(d["metadata"]["collection_id"])
+                    d['metadata']['category'] = ','.join([backend().collections()[d["metadata"]["collection_id"]].shortname_to_activity(a["label"]) for a in d['activity']])
+                    d['metadata']['shortname'] = ','.join([a["label"] for a in d['activity']])
+                except: 
+                    print('[pycollector.video]: label fetch failed - SKIPPING')
+                    d = None
                 
         else:
             # New style JSON: use labels stored directly in JSON
@@ -462,6 +466,12 @@ class Video(Scene):
         v.__class__ = pycollector.admin.video.Video
         return v
         
+    def project(self):
+        return self.attributes['project_name']
+
+    def program(self):
+        return self.attributes['program_name']
+
 def search():
     import pycollector.project
     return pycollector.project.Project(since='2020-09-01')
