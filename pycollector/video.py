@@ -167,10 +167,10 @@ class Video(Scene):
                 # Fetch labels from backend (yuck)
                 try:
                     d['metadata']['collection_name'] = backend().collections().id_to_name(d["metadata"]["collection_id"])
-                    d['metadata']['category'] = ','.join([backend().collections()[d["metadata"]["collection_id"]].shortname_to_activity(a["label"]) for a in d['activity']])
+                    d['metadata']['category'] = ','.join([backend().collections()[d["metadata"]["collection_id"]].shortname_to_activity(a["label"], strict=False) for a in d['activity']])
                     d['metadata']['shortname'] = ','.join([a["label"] for a in d['activity']])
-                except: 
-                    print('[pycollector.video]: label fetch failed - SKIPPING')
+                except Exception as e: 
+                    print('[pycollector.video]: label fetch failed for %s with exception %s - SKIPPING' % (str(d['activity']), str(e)))
                     d = None
                 
         else:
