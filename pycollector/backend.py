@@ -44,7 +44,7 @@ class API(User):
         return Project(program_id=program_id, last=n).last(n)
     
 
-    def new_collection(self, name, program_name, project_name, collection_description, activities, activity_short_names, objects, creator_cognito_username, consent_overlay_text='Please select the record button, say "I consent to this video collection”'):
+    def new_collection(self, name, program_name, project_name, collection_description, activities, activity_short_names, objects, actor, creator_cognito_username, consent_overlay_text='Please select the record button, say "I consent to this video collection”'):
 
         # Invoke Lambda function
         request = {'collection_name':name,
@@ -52,6 +52,7 @@ class API(User):
                     'project_name':project_name,
                     'program_name':program_name,
                     'objects': objects,
+                    'actor' : actor,
                     'collection_description': collection_description,
                     'activity_short_names': activity_short_names, # comma separated string, no spaces
                     'creator_cognito_username' : creator_cognito_username, 
