@@ -12,24 +12,23 @@ over 150 subjects in 44 countries around the world.
 
 # Download
 
-This dataset contains 184,379 video clips of 68 classes of activities performed by people in public places.  The activity labels are subsets of the 37 activities in the [Multiview Extended Video with Activities (MEVA)](https://mevadata.org) dataset and is consistent with the [Activities in Extended Video (ActEV)](https://actev.nist.gov/) challenge.  
-* [pip_175k.tar.gz (55.3GB)](https://dl.dropboxusercontent.com/s/xwiacwo9y5uci9v/pip_175k.tar.gz)&nbsp;&nbsp;MD5:9e49f8608ba0170dfaa1ed558351f0df&nbsp;&nbsp;&nbsp;&nbsp;
-* Visualization of [Training set random sample (87MB)](https://rawcdn.githack.com/visym/collector/5b051c625ef458417a16ed48d5a0693ef59fd9ff/docs/pip_175k/trainset_small.html),&nbsp;[full validation set (1.1GB)](https://dl.dropboxusercontent.com/s/8fp77nvxeywrq7f/pip_175k_valset.html)
+This dataset contains 184,379 stabilized video clips of 68 classes of activities performed by people in public places.  The activity labels are subsets of the 37 activities in the [Multiview Extended Video with Activities (MEVA)](https://mevadata.org) dataset and is consistent with the [Activities in Extended Video (ActEV)](https://actev.nist.gov/) challenge.  
+* [pip_175k_stabilized.tar.gz (XXX GB)](https://dl.dropboxusercontent.com/s/XXXX/pip_175k_stabilized.tar.gz)&nbsp;&nbsp;MD5:XXXX&nbsp;&nbsp;&nbsp;&nbsp;
 
 
 # Quickstart
 
 ## Release summary
 
-This release was curated to export PIP-175k with additional context, to:
+This release was curated to export PIP-175k with background stabilization.
 
-* Extract only instances that have been positively rated by the review team
-* Stabilize the bounding box to the primary actor
-* Dilate the bounding box for each primary actor performing the activity by a factor of 2.0, to provide context 
-* Set the bounding box to maximum square
-* Crop the actor tubelet in each frame, with zero padding
-* Resize the tubelet so that the maximum dimension is 512x512
-* Add the MEVA-specific temporal padding
+* Stabilization was performed on the PIP-175K dataset by running the following method on every video v:
+
+```python
+v.stabilize().saveas(v.filename())
+```
+
+See the [PIP-175K](https://visym.github.io/collector/pip_175k) for additional release summary details.
 
 ## Installation
 
@@ -92,13 +91,7 @@ Alternatively, contact us and we can work with you to export a dataset to your s
 * PIP is reviewed by at least two human reviewer for labeling accuracy.  
 * PIP does not enforce MEVA excluded objects:  Phones, Pens/Pencils/Markers, Individual Sheets of Paper, Money, Hat, Gloves, Apple (or similarly sized food items).  We leave the choice of prop up to the collectors
 * PIP is exported from the raw uploaded original video by creating an actor centered tublet, clipping each activity, dilating by 2x, cropping around the actor, setting to maxsquare, resizing to 512x512 and encoding to H.264.
-
-* Moving camera.  Our cameras are hand-held, which means that the background is not stabilized.  We provide optical flow based stabilization tools runnable as:
-
-```python
-v.stabilize().show()
-```
-
+* Moving camera.  Our cameras are hand-held, which means that the background is not stabilized at collection time.  We computationally stabilize the videos in this release.
 * Disjoint activities.  The MEVA annotation definitions can result in [disjoint activites that overlap](https://github.com/visym/vipy/tree/master/vipy/dataset) (e.g. opening and closing simultaneously), as shown in the [MEVA visualization](https://www.dropbox.com/s/benzhkmzqrggj5j/meva_kf1_annotations_07may20.html?dl=0).  As a result, we do not enforce disjoint activities in this release.    
 
 * Temporal padding.  We have added the [MEVA annotation style](https://gitlab.kitware.com/meva/meva-data-repo/blob/master/documents/MEVA-Annotation-Definitions.pdf) temporal padding requirements as follows:
