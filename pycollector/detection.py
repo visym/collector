@@ -68,11 +68,11 @@ class Detector(object):
         self._batchsize = batchsize        
         self._cls2index = {c:k for (k,c) in enumerate(readlist(os.path.join(indir, 'coco.names')))}
         self._index2cls = {k:c for (c,k) in self._cls2index.items()}
-        self.gpu(vipy.globals.gpuindex())
+        self.gpu(vipy.globals.gpuindex())  # cpu if gpuindex==None
 
     def __call__(self, im, conf=5E-1, iou=0.5):
         assert isinstance(im, vipy.image.Image), "Invalid input - must be vipy.image.Image object and not '%s'" % (str(type(im)))
-        self.gpu(vipy.globals.gpuindex())
+        self.gpu(vipy.globals.gpuindex())  # cpu if gpuindex==None
 
         scale = max(im.shape()) / float(self._mindim)  # to undo
         t = im.clone().maxsquare().mindim(self._mindim).mat2gray().torch().type(self._tensortype).to(self._device)
@@ -114,7 +114,7 @@ class Proposal(Detector):
 class VideoProposal(Proposal):
     def __call__(self, v, conf=1E-2, iou=0.8, dt=1, target=None, activitybox=False, dilate=4.0):
         assert isinstance(v, vipy.video.Video), "Invalid input - must be vipy.video.Video not '%s'" % (str(type(v)))
-        self.gpu(vipy.globals.gpuindex())
+        self.gpu(vipy.globals.gpuindex())  # cpu if gpuindex == None
 
         # Optional target class:  "Person" or "Vehicle" or "Car" or "Motorcycle" for now
         c = {'person':[self._cls2index['person']], 

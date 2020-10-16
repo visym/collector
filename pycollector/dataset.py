@@ -46,7 +46,7 @@ def resize_dataset(indir, outdir, dilate=1.2, maxdim=256, maxsquare=True):
     return outdir
 
 
-def boundingbox_refinement(V, ngpu, batchsize):
+def boundingbox_refinement(V, ngpu=None, batchsize=None):
     # Proposals:  Improve collector proposal for each video with an optimal object proposal.  This will result in filtering away a small number of hard positives.
     print('[pycollector.dataset]: bounding box refinement for %d videos' % (len(V)))
     model = pycollector.detection.VideoProposalRefinement(batchsize=batchsize)  # =8 (0046) =20 (0053)
