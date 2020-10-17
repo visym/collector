@@ -157,16 +157,18 @@ class Video(Scene):
             d = None
 
         # Backwards compatible video import: should not be necessary with new app release
-        if not 'category' in d['metadata']:
+        if d is not None and not 'category' in d['metadata']:
             vipy.util.try_import('pycollector.admin.globals', message="Not authorized - Old style JSON requires admin access")
             from pycollector.admin.globals import backend, isapi
-            from pycollector.admin.legacy import d_applabel_to_longlabel
+            from pycollector.admin.legacy import applabel_to_longlabel, shortname_synonyms
             
-            if any([d["metadata"]["collection_id"] in k for k in d_applabel_to_longlabel().keys()]):
+            if any([d["metadata"]["collection_id"] in k for k in applabel_to_longlabel().keys()]):
                 try:
                     d['metadata']['collection_name'] = d["metadata"]["collection_id"]
-                    d['metadata']['category'] = ','.join([d_applabel_to_longlabel()['%s_%s_%s' % (d["metadata"]["project_id"], d["metadata"]["collection_id"], a['label'])] for a in d['activity']])
-                    d['metadata']['shortname'] = ','.join([a["label"] for a in d['activity']])
+                    applabel = ['%s_%s_%s' % (d["metadata"]["project_id"], d["metadata"]["collection_id"], a['label']) for a in d['activity']]
+                    applabel = [a if a in applabel_to_longlabel() else '%s_%s_%s' % (d["metadata"]["project_id"], d["metadata"]["collection_id"], shortname_synonyms()[a.split('_')[2]]) for a in applabel]
+                    d['metadata']['category'] = ','.join([applabel_to_longlabel()[a] for a in applabel])
+                    d['metadata']['shortname'] = ','.join([a.split('_')[2] for a in applabel])
                 except Exception as e:
                     print('[pycollector.video]: json import failed for v1 JSON "%s" with error "%s" - SKIPPING' % (str(d['metadata']), str(e)))
                     d = None
@@ -176,11 +178,13 @@ class Video(Scene):
                     print('[pycollector.video]: invalid collection ID "%s" - SKIPPING' % d["metadata"]["collection_id"])
                     d = None
                 else:
-                    # Fetch labels from backend (yuck)
                     try:
+                        # Fetch labels from backend
+                        C = backend().collections()[d["metadata"]["collection_id"]]
                         d['metadata']['collection_name'] = backend().collections().id_to_name(d["metadata"]["collection_id"])
-                        d['metadata']['category'] = ','.join([backend().collections()[d["metadata"]["collection_id"]].shortname_to_activity(a["label"], strict=False) for a in d['activity']])
-                        d['metadata']['shortname'] = ','.join([a["label"] for a in d['activity']])
+                        applabel = [a if a in C.shortnames() else shortname_synonyms()[a] for a in d['activity']]
+                        d['metadata']['category'] = ','.join([C.shortname_to_activity(a, strict=False) for a in applabel])
+                        d['metadata']['shortname'] = ','.join([a for a in applabel])
                     except Exception as e: 
                         print('[pycollector.video]: label fetch failed for %s with exception %s - SKIPPING' % (str(d['activity']), str(e)))
                         d = None
