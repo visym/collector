@@ -4,6 +4,7 @@ import torch
 import vipy
 import shutil
 import numpy as np
+import warnings
 from vipy.util import remkdir, filetail, readlist, tolist, filepath
 from pycollector.video import Video
 from pycollector.model.yolov3.network import Darknet
@@ -112,6 +113,13 @@ class Proposal(Detector):
 
     
 class VideoProposal(Proposal):
+    def allowable_objects(self):
+        return ['person', 'vehicle', 'car', 'motorcycle']
+
+    def isallowable(self, v):
+        assert isinstance(v, vipy.video.Video), "Invalid input - must be vipy.video.Video not '%s'" % (str(type(v)))
+        return len(v.objectlabels())>0 and all([c.lower() in self.allowable_objects() for c in v.objectlabels()]) # for now
+
     def __call__(self, v, conf=1E-2, iou=0.8, dt=1, target=None, activitybox=False, dilate=4.0):
         assert isinstance(v, vipy.video.Video), "Invalid input - must be vipy.video.Video not '%s'" % (str(type(v)))
         self.gpu(vipy.globals.gpuindex())  # cpu if gpuindex == None
@@ -121,7 +129,8 @@ class VideoProposal(Proposal):
              'vehicle':[self._cls2index['car'], self._cls2index['motorbike'], self._cls2index['truck']], 
              'car':[self._cls2index['car'], self._cls2index['truck']],
              'motorcycle':[self._cls2index['motorbike']]}
-        assert target is None or (isinstance(target, list) and all([t in c.keys() for t in target]))
+        assert all([k in self.allowable_objects() for k in c.keys()])
+        assert target is None or ((isinstance(target, list) and len(target)>0 and all([t in c.keys() for t in target]))), "invalid target class '%s'" % str(target)
 
         # Parameters to undo
         bb = v.activitybox(dilate=dilate).imclipshape(v.width(), v.height()) if activitybox else vipy.geometry.imagebox(v.shape())
@@ -155,7 +164,10 @@ class VideoProposal(Proposal):
 class VideoProposalRefinement(VideoProposal):
     def __call__(self, v, proposalconf=5E-2, proposaliou=0.8, miniou=0.2, dt=1, meanfilter=15, mincover=0.8, shapeiou=0.7, smoothing='spline', splinefactor=None, strict=True, byclass=True):
         """Replace proposal in v by best (maximum overlap and confidence) object proposal in vc.  If no proposal exists, delete the proposal."""
-        assert all([c.lower() in ['person', 'vehicle', 'car', 'motorcycle'] for c in v.objectlabels()])  # for now
+        assert isinstance(v, vipy.video.Video), "Invalid input - must be vipy.video.Video not '%s'" % (str(type(v)))
+        if not self.isallowable(v):
+            warnings.warn("Invalid object labels '%s' for proposal, must be in '%s' - returning original video" % (str(v.objectlabels()), str(self.allowable_objects())))
+            return v.setattribute('unrefined')
 
         vp = super().__call__(v, proposalconf, proposaliou, dt=dt, activitybox=True, dilate=4.0, target=[c.lower() for c in v.objectlabels()] if byclass else None)  # subsampled proposals
         vc = v.clone(rekey=True, flushforward=True, flushbackward=True).trackfilter(lambda t: len(t) > dt)

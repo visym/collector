@@ -179,12 +179,16 @@ class Video(Scene):
                     d = None
                 else:
                     try:
-                        # Fetch labels from backend
+                        # Fetch labels from backend (with legacy shortname translation)
                         C = backend().collections()[d["metadata"]["collection_id"]]
                         d['metadata']['collection_name'] = backend().collections().id_to_name(d["metadata"]["collection_id"])
-                        applabel = [a if a in C.shortnames() else shortname_synonyms()[a] for a in d['activity']]
-                        d['metadata']['category'] = ','.join([C.shortname_to_activity(a, strict=False) for a in applabel])
-                        d['metadata']['shortname'] = ','.join([a for a in applabel])
+                        shortnames = []
+                        for a in d['activity']:
+                            if not (a['label'] in C.shortnames() or a['label'] in shortname_synonyms()):
+                                raise ValueError("Invalid shortname '%s' for collection shortnames '%s' and not in legacy synonyms '%s'" % (a['label'], str(C.shortnames()), str(shortname_synonyms())))
+                            shortnames.append(a['label'] if a['label'] in C.shortnames() else shortname_synonyms()[a['label']])
+                        d['metadata']['category'] = ','.join([C.shortname_to_activity(s, strict=False) for s in shortnames])
+                        d['metadata']['shortname'] = ','.join([s for s in shortnames])
                     except Exception as e: 
                         print('[pycollector.video]: label fetch failed for %s with exception %s - SKIPPING' % (str(d['activity']), str(e)))
                         d = None
@@ -269,6 +273,11 @@ class Video(Scene):
             # Import activities
             for a in d["activity"]:
                 try:
+                    # Legacy shortname display
+                    if a['label'] not in d_shortname_to_category:
+                        if a['label'] not in shortname_synonyms():
+                            raise ValueError("Invalid shortname '%s' for collection shortnames '%s' and not in legacy synonyms '%s'" % (a['label'], d_shortname_to_category, str(shortname_synonyms())))
+                        a['label'] = a['label'] if a['label'] in d_shortname_to_category else shortname_synonyms()[a['label']]  # legacy translation                    
                     if (d["metadata"]["collection_id"] == "P004C009" and d["metadata"]["device_identifier"] == "android"):
                         shortlabel = "Buying (Machine)"
                     elif (d["metadata"]["collection_id"] == "P004C008" and d["metadata"]["device_identifier"] == "ios" and "Purchasing" in a["label"]):
@@ -304,7 +313,7 @@ class Video(Scene):
                                             
                 except Exception as e:
                     print(
-                        '[pycollector.video]: Filtering invalid activity "%s" with error "%s" for videoid=%s'
+                        '[pycollector.video]: Filtering invalid activity JSON "%s" with error "%s" for videoid=%s'
                         % (str(a), str(e), d["metadata"]["video_id"])
                     )
 
