@@ -159,20 +159,34 @@ class Video(Scene):
         # Backwards compatible video import: should not be necessary with new app release
         if not 'category' in d['metadata']:
             vipy.util.try_import('pycollector.admin.globals', message="Not authorized - Old style JSON requires admin access")
-            from pycollector.admin.globals import backend  
-            if not backend().collections().iscollectionid(d["metadata"]["collection_id"]):
-                print('[pycollector.video]: invalid collection ID "%s" - SKIPPING' % d["metadata"]["collection_id"])
-                d = None
-            else:
-                # Fetch labels from backend (yuck)
+            from pycollector.admin.globals import backend, isapi
+            from pycollector.admin.legacy import d_applabel_to_longlabel
+            
+            if any([d["metadata"]["collection_id"] in k for k in d_applabel_to_longlabel().keys()]):
                 try:
-                    d['metadata']['collection_name'] = backend().collections().id_to_name(d["metadata"]["collection_id"])
-                    d['metadata']['category'] = ','.join([backend().collections()[d["metadata"]["collection_id"]].shortname_to_activity(a["label"], strict=False) for a in d['activity']])
+                    d['metadata']['collection_name'] = d["metadata"]["collection_id"]
+                    d['metadata']['category'] = ','.join([d_applabel_to_longlabel()['%s_%s_%s' % (d["metadata"]["project_id"], d["metadata"]["collection_id"], a['label'])] for a in d['activity']])
                     d['metadata']['shortname'] = ','.join([a["label"] for a in d['activity']])
-                except Exception as e: 
-                    print('[pycollector.video]: label fetch failed for %s with exception %s - SKIPPING' % (str(d['activity']), str(e)))
+                except Exception as e:
+                    print('[pycollector.video]: json import failed for v1 JSON "%s" with error "%s" - SKIPPING' % (str(d['metadata']), str(e)))
                     d = None
                 
+            elif isapi('v2'):
+                if not backend().collections().iscollectionid(d["metadata"]["collection_id"]):
+                    print('[pycollector.video]: invalid collection ID "%s" - SKIPPING' % d["metadata"]["collection_id"])
+                    d = None
+                else:
+                    # Fetch labels from backend (yuck)
+                    try:
+                        d['metadata']['collection_name'] = backend().collections().id_to_name(d["metadata"]["collection_id"])
+                        d['metadata']['category'] = ','.join([backend().collections()[d["metadata"]["collection_id"]].shortname_to_activity(a["label"], strict=False) for a in d['activity']])
+                        d['metadata']['shortname'] = ','.join([a["label"] for a in d['activity']])
+                    except Exception as e: 
+                        print('[pycollector.video]: label fetch failed for %s with exception %s - SKIPPING' % (str(d['activity']), str(e)))
+                        d = None
+            else:
+                raise ValueError('Unsupported video json "%s"' % str(d["metadata"]))
+            
         else:
             # New style JSON: use labels stored directly in JSON
             pass
