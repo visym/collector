@@ -27,6 +27,14 @@ def disjoint_activities(V, activitylist):
     return V
 
 
+def stabilize(V, outdir=None):
+    assert all([isinstance(v, vipy.video.Video) for v in V]), "Invalid input"
+    return (Batch([(v, vipy.util.repath(v.filename(), filepath(v.filename(), depth=2), remkdir(outdir)) if outdir is not None else v.filename()) for v in V])
+            .filter(lambda x: x[0].canload())
+            .map(lambda x: Flow(flowdim=256).stabilize(x[0]).saveas(x[1], flush=True).print())
+            .filter(lambda x: not x[0].hasattribute('unstabilized')).result())  # remove unstabilized
+
+
 def resize_dataset(indir, outdir, dilate=1.2, maxdim=256, maxsquare=True):
     """Convert redistributable dataset by resizing the activity tube.
     
