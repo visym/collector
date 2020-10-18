@@ -28,6 +28,7 @@ def disjoint_activities(V, activitylist):
 
 
 def stabilize(V, outdir=None):
+    assert vipy.version.is_at_least('1.8.33')
     assert all([isinstance(v, vipy.video.Video) for v in V]), "Invalid input"
     return (Batch([(v, vipy.util.repath(v.filename(), filepath(v.filename(), depth=2), remkdir(outdir)) if outdir is not None else v.filename()) for v in V], strict=False)
             .filter(lambda x: x[0].canload())
