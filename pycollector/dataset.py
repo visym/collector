@@ -30,7 +30,9 @@ def disjoint_activities(V, activitylist):
 def stabilize(V, outdir=None):
     assert vipy.version.is_at_least('1.8.33')
     assert all([isinstance(v, vipy.video.Video) for v in V]), "Invalid input"
-    return (Batch([(v, vipy.util.repath(v.filename(), filepath(v.filename(), depth=2), remkdir(outdir)) if outdir is not None else v.filename()) for v in V], strict=False)
+    from vipy.flow import Flow
+    from vipy.batch import Batch
+    return (Batch([(v, vipy.util.repath(v.filename(), filepath(v.filename(), depth=2), vipy.util.remkdir(outdir)) if outdir is not None else v.filename()) for v in V], strict=False)
             .filter(lambda x: x[0].canload())
             .map(lambda x: Flow(flowdim=256).stabilize(x[0]).saveas(x[1], flush=True).print())
             .filter(lambda x: (x is not None) and (not x.hasattribute('unstabilized'))) # remove unstabilized and failed
