@@ -4,6 +4,7 @@ import torch
 import vipy
 import shutil
 import numpy as np
+import warnings
 from vipy.util import remkdir, filetail, readlist, tolist, filepath
 from pycollector.video import Video
 from pycollector.model.yolov3.network import Darknet
@@ -66,6 +67,7 @@ class ObjectDetector(object):
         self._model.load_darknet_weights(weightfile)
         self._model.eval()  # Set in evaluation mode
         self._batchsize = batchsize        
+        assert isinstance(self._batchsize, int), "Batchsize must be integer"
         self._cls2index = {c:k for (k,c) in enumerate(readlist(os.path.join(indir, 'coco.names')))}
         self._index2cls = {k:c for (c,k) in self._cls2index.items()}
         self.gpu(vipy.globals.gpuindex())  # cpu if gpuindex==None
@@ -75,7 +77,7 @@ class ObjectDetector(object):
         self.gpu(vipy.globals.gpuindex())  # cpu if gpuindex==None
 
         scale = max(im.shape()) / float(self._mindim)  # to undo
-        t = im.clone().maxsquare().mindim(self._mindim).mat2gray().torch().type(self._tensortype).to(self._device)
+        t = im.clone().maxsquare().mindim(self._mindim).mat2gray().torch().type(self._tensortype).to(self._device)  # triggers load
         dets = self._model(t)[0]
         objects = [vipy.object.Detection(xcentroid=float(d[0]),
                                          ycentroid=float(d[1]),
@@ -94,7 +96,7 @@ class ObjectDetector(object):
         deviceid = 'cuda:%d' % k if torch.cuda.is_available() and k is not None else 'cpu'
         device = torch.device(deviceid)
         self._tensortype = torch.cuda.FloatTensor if deviceid != 'cpu' and torch.cuda.is_available() else torch.FloatTensor        
-        self._model = self._model.to(device)
+        self._model = self._model.to(device)  # does this leak memory on multiple calls?
         self._model.eval()  # Set in evaluation mode
         self._device = device
         return self
@@ -116,28 +118,36 @@ class VideoProposal(Proposal):
     
        Track-based object proposals in video.
     """
+    def allowable_objects(self):
+        return ['person', 'vehicle', 'car', 'motorcycle', 'object']
+
+    def isallowable(self, v):
+        assert isinstance(v, vipy.video.Video), "Invalid input - must be vipy.video.Video not '%s'" % (str(type(v)))
+        return len(set(v.objectlabels())) == 1 and all([c.lower() in self.allowable_objects() for c in v.objectlabels()]) # for now
+
     def __call__(self, v, conf=1E-2, iou=0.8, dt=1, target=None, activitybox=False, dilate=4.0):
         assert isinstance(v, vipy.video.Video), "Invalid input - must be vipy.video.Video not '%s'" % (str(type(v)))
         self.gpu(vipy.globals.gpuindex())  # cpu if gpuindex == None
 
-        # Optional target class:  "Person" or "Vehicle" or "Car" or "Motorcycle" for now
+        # Optional target class
         d_target_to_index = {'person':[self._cls2index['person']], 
                              'vehicle':[self._cls2index['car'], self._cls2index['motorbike'], self._cls2index['truck']], 
                              'car':[self._cls2index['car'], self._cls2index['truck']],
                              'motorcycle':[self._cls2index['motorbike']],
                              'object':[self._cls2index[k] for k in set(self.classlist()).difference(set(['person', 'car', 'motorbike', 'truck', 'motorcycle']))]}
-        d_index_to_target = {i:k for (k,v) in d_target_to_index.items() for i in v}        
+        d_index_to_target = {i:k for (k,v) in d_target_to_index.items() for i in v}
+        assert all([k in self.allowable_objects() for k in d_target_to_index.keys()])        
         assert target is None or (isinstance(target, list) and all([t in d_target_to_index.keys() for t in target]))
         f_max_target_confidence = lambda d: (max([d[5+k] for t in target for k in d_target_to_index[t]]) if target is not None else max(d[5:]))
         f_max_target_category = lambda d: (sorted([(d[5+k], t) for t in target for k in d_target_to_index[t]], key=lambda x: x[0])[-1][1] if target is not None else None)
         
-        # Parameters to undo
+        # Source video foveation: dilated crop of the activity box and resize (this transformation must be reversed)
         bb = v.activitybox(dilate=dilate).imclipshape(v.width(), v.height()) if activitybox else vipy.geometry.imagebox(v.shape())
-        scale = max(bb.shape()) / float(self._mindim)
+        scale = max(bb.shape()) / float(self._mindim)  # for reversal
 
-        # Batched proposals on transformed video
+        # Batched proposals on transformed video (preloads entire video, high mem requirement)
         ims = []
-        tensor = v.clone().crop(bb, zeropad=False).maxsquare().mindim(self._mindim).torch()  # NxCxHxW
+        tensor = v.clone(flushforward=True).crop(bb, zeropad=False).maxsquare().mindim(self._mindim).torch()  # NxCxHxW, triggers load 
         img = [v[k].numpy() for k in range(0, len(tensor), dt)]
         tensor = tensor[::dt]  # skip
 
@@ -170,8 +180,10 @@ class VideoProposalRefinement(VideoProposal):
     
     def __call__(self, v, proposalconf=5E-2, proposaliou=0.8, miniou=0.2, dt=1, meanfilter=15, mincover=0.8, shapeiou=0.7, smoothing='spline', splinefactor=None, strict=True, byclass=True, activitybox=True):
         """Replace proposal in v by best (maximum overlap and confidence) object proposal in vc.  If no proposal exists, delete the proposal."""
-        assert all([c.lower() in ['person', 'vehicle', 'car', 'motorcycle', 'object'] for c in v.objectlabels()])  # for now
-
+        assert isinstance(v, vipy.video.Video), "Invalid input - must be vipy.video.Video not '%s'" % (str(type(v)))
+        if not self.isallowable(v):
+            warnings.warn("Invalid object labels '%s' for proposal, must be in '%s' - returning original video" % (str(v.objectlabels()), str(self.allowable_objects())))
+            return v.setattribute('unrefined')
         vp = super().__call__(v, proposalconf, proposaliou, dt=dt, activitybox=activitybox, dilate=4.0, target=[c.lower() for c in v.objectlabels()] if byclass else None)  # subsampled proposals
         vc = v.clone(rekey=True, flushforward=True, flushbackward=True).trackfilter(lambda t: len(t) > dt)
         for (ti, t) in vc.tracks().items():
@@ -200,7 +212,9 @@ class VideoProposalRefinement(VideoProposal):
                             vc.tracks()[ti].delete(f)  # Delete proposal that has no object proposal, otherwise use source proposal for interpolation
                         s = max(0, s-(0.001*dt)) if (bbprev is not None and bb.iou(bbprev)>miniou and bbprev.cover(bb)>mincover) else 0  # gate increase for shape deformation, or reset if we lost it
 
-        vc = vc.trackfilter(lambda t: len(t)>dt)  # remove empty tracks
+        # Remove empty tracks:
+        # if a track does not have an assignment for the last (or first) source proposal, then it will be truncated here
+        vc = vc.trackfilter(lambda t: len(t)>dt)  
 
         # Proposal smoothing
         if smoothing == 'mean':
@@ -222,13 +236,15 @@ class ActorAssociation(VideoProposalRefinement):
        Add the best object track to the scene and associate with all activities performed by the primary actor.
     """
     def __call__(self, v, target, miniou=0.01, mincover=0.01):
-        assert target.lower() in self.classlist(), "Associations must be to a known object class"
-        assert len(v.objectlabels()) == 1, "Association can only be performed with a single actor"
-        vc = v.clone(rekey=True).trackmap(lambda t: t.category(target))
-        vp = super().__call__(vc, miniou=miniou, mincover=mincover, byclass=True, activitybox=False)
+        assert self.isallowable(target), "Actor Association must be to an allowable target class '%s'" % str(self.allowable_objects())
+        assert len(v.objectlabels()) == 1, "Actor Association can only be performed with scenes containing a single actor"
+        assert target not in v.objectlabels(), "Actor Association must be with a class different from the actor class (for now)"
+        vp = v.clone(rekey=True).trackmap(lambda t: t.category(target))
+        vp = super().__call__(vp, miniou=miniou, mincover=mincover, byclass=True, activitybox=False)
+        vc = v.clone()  # for idemponence
         for t in vp.tracklist():
-            v.add(t).activitymap(lambda a: a.add(t))
-        return v
+            vc.activitymap(lambda a: a.add(t)).add(t)            
+        return vc
 
     
 def _collectorproposal_vs_objectproposal(v, dt=1, miniou=0.2, smoothing='spline'):

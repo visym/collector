@@ -27,6 +27,18 @@ def disjoint_activities(V, activitylist):
     return V
 
 
+def stabilize(V, outdir=None):
+    assert vipy.version.is_at_least('1.8.33')
+    assert all([isinstance(v, vipy.video.Video) for v in V]), "Invalid input"
+    from vipy.flow import Flow
+    from vipy.batch import Batch
+    return (Batch([(v, vipy.util.repath(v.filename(), filepath(v.filename(), depth=2), vipy.util.remkdir(outdir)) if outdir is not None else v.filename()) for v in V], strict=False)
+            .filter(lambda x: x[0].canload())
+            .map(lambda x: Flow(flowdim=256).stabilize(x[0], residual=True).saveas(x[1], flush=True).print())
+            .filter(lambda x: (x is not None) and (not x.hasattribute('unstabilized'))) # remove unstabilized and failed
+            .result())  # Not order preserving
+
+
 def resize_dataset(indir, outdir, dilate=1.2, maxdim=256, maxsquare=True):
     """Convert redistributable dataset by resizing the activity tube.
     
@@ -46,13 +58,14 @@ def resize_dataset(indir, outdir, dilate=1.2, maxdim=256, maxsquare=True):
     return outdir
 
 
-def boundingbox_refinement(V, ngpu=None, batchsize=None):
+def boundingbox_refinement(V, ngpu=None, batchsize=1, minlength=5):
     # Proposals:  Improve collector proposal for each video with an optimal object proposal.  This will result in filtering away a small number of hard positives.
     print('[pycollector.dataset]: bounding box refinement for %d videos' % (len(V)))
     model = pycollector.detection.VideoProposalRefinement(batchsize=batchsize)  # =8 (0046) =20 (0053)
-    B = vipy.batch.Batch(V, ngpu=ngpu)
-    V = B.scattermap(lambda net,v: net(v, proposalconf=5E-2, proposaliou=0.8, miniou=0.2, dt=3, mincover=0.8, byclass=True, shapeiou=0.7, smoothing='spline', splinefactor=None, strict=True), model).result()  
-    V = [v.activityfilter(lambda a: any([a.hastrack(t) and len(t)>5 and t.during(a.startframe(), a.endframe()) for t in v.tracklist()])) for v in V]  # get rid of activities without tracks greater than dt
+    B = vipy.batch.Batch(V, ngpu=ngpu, strict=False, as_completed=True)
+    V = B.scattermap(lambda net,v: net(v, proposalconf=5E-2, proposaliou=0.8, miniou=0.2, dt=3, mincover=0.8, byclass=True, shapeiou=0.7, smoothing='spline', splinefactor=None, strict=True).print(), model).result()  
+    V = [v for v in V if (v is not None) and (not v.hasattribute('unrefined'))]  # remove videos that failed refinement
+    V = [v.activityfilter(lambda a: any([a.hastrack(t) and len(t)>minlength and t.during(a.startframe(), a.endframe()) for t in v.tracklist()])) for v in V]  # get rid of activities without tracks greater than dt
     B.shutdown()  # garbage collect GPU resources
     return V
 
