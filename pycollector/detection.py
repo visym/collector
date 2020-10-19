@@ -96,8 +96,7 @@ class Detector(object):
         deviceid = 'cuda:%d' % k if torch.cuda.is_available() and k is not None else 'cpu'
         device = torch.device(deviceid)
         self._tensortype = torch.cuda.FloatTensor if deviceid != 'cpu' and torch.cuda.is_available() else torch.FloatTensor        
-        if self._model.device != device:
-            self._model = self._model.to(device)
+        self._model = self._model.to(device)  # does this leak memory on multiple calls?
         self._model.eval()  # Set in evaluation mode
         self._device = device
         return self
