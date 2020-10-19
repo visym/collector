@@ -67,6 +67,7 @@ class Detector(object):
         self._model.load_darknet_weights(weightfile)
         self._model.eval()  # Set in evaluation mode
         self._batchsize = batchsize        
+        assert isinstance(self._batchsize, int), "Batchsize must be integer"
         self._cls2index = {c:k for (k,c) in enumerate(readlist(os.path.join(indir, 'coco.names')))}
         self._index2cls = {k:c for (c,k) in self._cls2index.items()}
         self.gpu(vipy.globals.gpuindex())  # cpu if gpuindex==None
@@ -76,7 +77,7 @@ class Detector(object):
         self.gpu(vipy.globals.gpuindex())  # cpu if gpuindex==None
 
         scale = max(im.shape()) / float(self._mindim)  # to undo
-        t = im.clone().maxsquare().mindim(self._mindim).mat2gray().torch().type(self._tensortype).to(self._device)
+        t = im.clone().maxsquare().mindim(self._mindim).mat2gray().torch().type(self._tensortype).to(self._device)  # triggers load
         dets = self._model(t)[0]
         objects = [vipy.object.Detection(xcentroid=float(d[0]),
                                          ycentroid=float(d[1]),
@@ -95,7 +96,7 @@ class Detector(object):
         deviceid = 'cuda:%d' % k if torch.cuda.is_available() and k is not None else 'cpu'
         device = torch.device(deviceid)
         self._tensortype = torch.cuda.FloatTensor if deviceid != 'cpu' and torch.cuda.is_available() else torch.FloatTensor        
-        self._model = self._model.to(device)
+        self._model = self._model.to(device)  # does this leak memory on multiple calls?
         self._model.eval()  # Set in evaluation mode
         self._device = device
         return self
@@ -118,7 +119,7 @@ class VideoProposal(Proposal):
 
     def isallowable(self, v):
         assert isinstance(v, vipy.video.Video), "Invalid input - must be vipy.video.Video not '%s'" % (str(type(v)))
-        return len(v.objectlabels())>0 and all([c.lower() in self.allowable_objects() for c in v.objectlabels()]) # for now
+        return len(set(v.objectlabels())) == 1 and all([c.lower() in self.allowable_objects() for c in v.objectlabels()]) # for now
 
     def __call__(self, v, conf=1E-2, iou=0.8, dt=1, target=None, activitybox=False, dilate=4.0):
         assert isinstance(v, vipy.video.Video), "Invalid input - must be vipy.video.Video not '%s'" % (str(type(v)))
@@ -132,13 +133,13 @@ class VideoProposal(Proposal):
         assert all([k in self.allowable_objects() for k in c.keys()])
         assert target is None or ((isinstance(target, list) and len(target)>0 and all([t in c.keys() for t in target]))), "invalid target class '%s'" % str(target)
 
-        # Parameters to undo
+        # Source video foveation: dilated crop of the activity box and resize (this transformation must be reversed)
         bb = v.activitybox(dilate=dilate).imclipshape(v.width(), v.height()) if activitybox else vipy.geometry.imagebox(v.shape())
-        scale = max(bb.shape()) / float(self._mindim)
+        scale = max(bb.shape()) / float(self._mindim)  # for reversal
 
-        # Batched proposals on transformed video
+        # Batched proposals on transformed video (preloads entire video, high mem requirement)
         ims = []
-        tensor = v.clone().crop(bb, zeropad=False).maxsquare().mindim(self._mindim).torch()  # NxCxHxW
+        tensor = v.clone().crop(bb, zeropad=False).maxsquare().mindim(self._mindim).torch()  # NxCxHxW, triggers load 
         img = [v[k].numpy() for k in range(0, len(tensor), dt)]
         tensor = tensor[::dt]  # skip
 
@@ -193,7 +194,9 @@ class VideoProposalRefinement(VideoProposal):
                             vc.tracks()[ti].delete(f)  # Delete proposal that has no object proposal, otherwise use source proposal for interpolation
                         s = max(0, s-(0.001*dt)) if (bbprev is not None and bb.iou(bbprev)>miniou and bbprev.cover(bb)>mincover) else 0  # gate increase for shape deformation, or reset if we lost it
 
-        vc = vc.trackfilter(lambda t: len(t)>dt)  # remove empty tracks
+        # Remove empty tracks:
+        # if a track does not have an assignment for the last (or first) source proposal, then it will be truncated here
+        vc = vc.trackfilter(lambda t: len(t)>dt)  
 
         # Proposal smoothing
         if smoothing == 'mean':
