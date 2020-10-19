@@ -12,7 +12,7 @@ def test_face():
     
 def test_object():
     im = vipy.image.vehicles()
-    d = pycollector.detection.Detector()
+    d = pycollector.detection.ObjectDetector()
     ims = d(im)
     assert len(ims.objects()) == 50
     print('[test_detection]: object detector passed')

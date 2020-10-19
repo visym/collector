@@ -44,7 +44,7 @@ class FaceDetector(TorchNet):
         return vipy.image.Scene(array=im.numpy(), colorspace=im.colorspace(), objects=[vipy.object.Detection('face', xmin=bb[0], ymin=bb[1], width=bb[2], height=bb[3], confidence=bb[4]) for bb in self._model(im)])
 
 
-class Detector(object):
+class ObjectDetector(object):
     """Yolov3 based object detector
 
        >>> d = pycollector.detection.Detector()
@@ -100,29 +100,37 @@ class Detector(object):
         return self
 
 
-class VideoDetector(Detector):
+class VideoDetector(ObjectDetector):
     def __call__(v, conf=0.5, iou=0.5):
         assert isinstance(v, vipy.video.Video)
         raise NotImplementedError('Coming Soon')
 
     
-class Proposal(Detector):
+class Proposal(ObjectDetector):
     def __call__(self, v, conf=1E-2, iou=0.8):
         return super().__call__(v, conf, iou)
-
     
+        
 class VideoProposal(Proposal):
+    """pycollector.detection.VideoProposal() class.
+    
+       Track-based object proposals in video.
+    """
     def __call__(self, v, conf=1E-2, iou=0.8, dt=1, target=None, activitybox=False, dilate=4.0):
         assert isinstance(v, vipy.video.Video), "Invalid input - must be vipy.video.Video not '%s'" % (str(type(v)))
         self.gpu(vipy.globals.gpuindex())  # cpu if gpuindex == None
 
         # Optional target class:  "Person" or "Vehicle" or "Car" or "Motorcycle" for now
-        c = {'person':[self._cls2index['person']], 
-             'vehicle':[self._cls2index['car'], self._cls2index['motorbike'], self._cls2index['truck']], 
-             'car':[self._cls2index['car'], self._cls2index['truck']],
-             'motorcycle':[self._cls2index['motorbike']]}
-        assert target is None or (isinstance(target, list) and all([t in c.keys() for t in target]))
-
+        d_target_to_index = {'person':[self._cls2index['person']], 
+                             'vehicle':[self._cls2index['car'], self._cls2index['motorbike'], self._cls2index['truck']], 
+                             'car':[self._cls2index['car'], self._cls2index['truck']],
+                             'motorcycle':[self._cls2index['motorbike']],
+                             'object':[self._cls2index[k] for k in set(self.classlist()).difference(set(['person', 'car', 'motorbike', 'truck', 'motorcycle']))]}
+        d_index_to_target = {i:k for (k,v) in d_target_to_index.items() for i in v}        
+        assert target is None or (isinstance(target, list) and all([t in d_target_to_index.keys() for t in target]))
+        f_max_target_confidence = lambda d: (max([d[5+k] for t in target for k in d_target_to_index[t]]) if target is not None else max(d[5:]))
+        f_max_target_category = lambda d: (sorted([(d[5+k], t) for t in target for k in d_target_to_index[t]], key=lambda x: x[0])[-1][1] if target is not None else None)
+        
         # Parameters to undo
         bb = v.activitybox(dilate=dilate).imclipshape(v.width(), v.height()) if activitybox else vipy.geometry.imagebox(v.shape())
         scale = max(bb.shape()) / float(self._mindim)
@@ -141,23 +149,30 @@ class VideoProposal(Proposal):
                                               ycentroid=float(d[1]), 
                                               width=float(d[2]), 
                                               height=float(d[3]), 
-                                              confidence=(float(d[4]) + (max([d[5+k] for t in target for k in c[t]]) if target is not None else 0)), 
-                                              category='%1.1f' % float(d[4])) 
-                        for d in det if (float(d[4]) > conf) and (target is None or (max([d[5+k] for t in target for k in c[t]]) > conf))]
+                                              confidence=(float(d[4]) + f_max_target_confidence(d)),
+                                              category=('%1.2f' % float(d[4])) if target is None else f_max_target_category(d))
+                        for d in det
+                        if (float(d[4]) > conf) and (f_max_target_confidence(d) > conf)]
 
                 # Objects in source video
                 objs = [obj.rescale(scale).translate(bb.xmin(), bb.ymin()) for obj in objs]
                 ims.append( vipy.image.Scene(array=img[i+j], objects=objs).nms(conf, iou) )
-        ims.append(ims[-1])  # add one more for inclusive track endpoints
+                ims.append(ims[-1])  # add one more for inclusive track endpoints
         return ims
+
 
     
 class VideoProposalRefinement(VideoProposal):
-    def __call__(self, v, proposalconf=5E-2, proposaliou=0.8, miniou=0.2, dt=1, meanfilter=15, mincover=0.8, shapeiou=0.7, smoothing='spline', splinefactor=None, strict=True, byclass=True):
+    """pycollector.detection.VideoProposalRefinement() class.
+    
+       Track-based object proposal refinement of a weakly supervised loose object box from a human annotator.
+    """
+    
+    def __call__(self, v, proposalconf=5E-2, proposaliou=0.8, miniou=0.2, dt=1, meanfilter=15, mincover=0.8, shapeiou=0.7, smoothing='spline', splinefactor=None, strict=True, byclass=True, activitybox=True):
         """Replace proposal in v by best (maximum overlap and confidence) object proposal in vc.  If no proposal exists, delete the proposal."""
-        assert all([c.lower() in ['person', 'vehicle', 'car', 'motorcycle'] for c in v.objectlabels()])  # for now
+        assert all([c.lower() in ['person', 'vehicle', 'car', 'motorcycle', 'object'] for c in v.objectlabels()])  # for now
 
-        vp = super().__call__(v, proposalconf, proposaliou, dt=dt, activitybox=True, dilate=4.0, target=[c.lower() for c in v.objectlabels()] if byclass else None)  # subsampled proposals
+        vp = super().__call__(v, proposalconf, proposaliou, dt=dt, activitybox=activitybox, dilate=4.0, target=[c.lower() for c in v.objectlabels()] if byclass else None)  # subsampled proposals
         vc = v.clone(rekey=True, flushforward=True, flushbackward=True).trackfilter(lambda t: len(t) > dt)
         for (ti, t) in vc.tracks().items():
             t.resample(dt=dt)  # interpolated keyframes for source proposal
@@ -170,7 +185,11 @@ class VideoProposalRefinement(VideoProposal):
                     # Assignment constraints: (new box must not be too small relative to collector box) and (new box must be mostly contained within the collector box) and (new box must mostly overlap previous box) 
                     assignment = sorted([(bbp, (((bbp.shapeiou(bbprev) + bbp.iou(bbprev)) if bbprev is not None else 1.0) + bb.iou(bbp))*bbp.confidence())
                                          for bbp in vp[fs].objects() 
-                                         if (bb.iou(bbp)>miniou and bbp.cover(bb)>mincover and (bbprev is None or bbprev.shapeiou(bbp)>s))], key=lambda x: x[1])
+                                         if (bb.iou(bbp)>miniou and   # refinement overlaps proposal
+                                             bbp.cover(bb)>mincover and  # refinement covers proposal 
+                                             (bbprev is None or bbprev.shapeiou(bbp)>s) and  # refinement and proposal have similar shape
+                                             (byclass is False or bbp.category().lower() == bb.category().lower())  # refine by target object only
+                                         )], key=lambda x: x[1])
                     if len(assignment) > 0:
                         (bbp, iou) = assignment[-1]  # best assignment
                         vc.tracks()[ti].replace(f, bbp.clone().category( t.category()) )        
@@ -196,10 +215,26 @@ class VideoProposalRefinement(VideoProposal):
             raise ValueError('Unknown smoothing "%s"' % str(smoothing))
 
 
-def collectorproposal_vs_objectproposal(v, dt=1, miniou=0.2, smoothing='spline'):
+class ActorAssociation(VideoProposalRefinement):
+    """pycollector.detection.VideoAssociation() class
+       
+       Select the best object proposal track of the target class associated with the primary actor class by gated spatial IOU and cover.
+       Add the best object track to the scene and associate with all activities performed by the primary actor.
+    """
+    def __call__(self, v, target, miniou=0.01, mincover=0.01):
+        assert target.lower() in self.classlist(), "Associations must be to a known object class"
+        assert len(v.objectlabels()) == 1, "Association can only be performed with a single actor"
+        vc = v.clone(rekey=True).trackmap(lambda t: t.category(target))
+        vp = super().__call__(vc, miniou=miniou, mincover=mincover, byclass=True, activitybox=False)
+        for t in vp.tracklist():
+            v.add(t).activitymap(lambda a: a.add(t))
+        return v
+
+    
+def _collectorproposal_vs_objectproposal(v, dt=1, miniou=0.2, smoothing='spline'):
     """Return demo video that compares the human collector annotated proposal vs. the ML annotated proposal for a vipy.video.Scene()"""
     assert isinstance(v, vipy.video.Scene)
     v_human = v.clone().trackmap(lambda t: t.shortlabel('%s (collector box)' % t.category()))
     v_object = v.clone().trackmap(lambda t: t.shortlabel('%s (ML box)' % t.category()))
-    return VideoProposalRefinement(batchsize=8)(v_object, dt=dt, miniou=miniou, smoothing=smoothing).union(v_human, spatial_iou_threshold=1)
+    return VideoProposalRefinement()(v_object, dt=dt, miniou=miniou, smoothing=smoothing).union(v_human, spatial_iou_threshold=1)
 
