@@ -55,7 +55,7 @@ class API(User):
                     'actor' : actor,
                     'collection_description': collection_description,
                     'activity_short_names': activity_short_names, # comma separated string, no spaces
-                    'creator_cognito_username' : self.username,
+                    'creator_cognito_username' : self.cognito_username,
                     'consent_overlay_text': consent_overlay_text,
                     }
 
@@ -75,7 +75,7 @@ class API(User):
     def delete_collection(self, collectionid):
 
         # Invoke Lambda function
-        request = {'collectorid': self.username,
+        request = {'collectorid': self.cognito_username,
                     'collectionid': collectionid
                     }
 

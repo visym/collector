@@ -70,7 +70,7 @@ _PROGRAM_ID = 'MEVA'
 #     activity_short_names = 'Thank you,Very much'
 #     objects = 'Hands'
 
-    # TODO return and response collection id
+#     # TODO return and response collection id
 #     api.new_collection(name=name, program_name=program_name, project_name=project_name, collection_description=collection_description, activities=activities, activity_short_names=activity_short_names, objects=objects, actor=actor)
 
 
@@ -83,7 +83,7 @@ def test_delete_collections(username,password, program_id):
     
     # testing objects and functions 
     api = API(username=username, password=password)
-    collectionid = ''
+    collectionid = '17d47360-35dd-4dd2-9600-8ce196f1e299'
 
     # test to delete new collectio
     # TODO return and response collection id
