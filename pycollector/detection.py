@@ -42,7 +42,7 @@ class FaceDetector(TorchNet):
 
     def __call__(self, im):
         assert isinstance(im, vipy.image.Image)
-        return vipy.image.Scene(array=im.numpy(), colorspace=im.colorspace(), objects=[vipy.object.Detection('face', xmin=bb[0], ymin=bb[1], width=bb[2], height=bb[3], confidence=bb[4]) for bb in self._model(im)])
+        return vipy.image.Scene(array=im.numpy(), colorspace=im.colorspace(), objects=[vipy.object.Detection('face', xmin=bb[0], ymin=bb[1], width=bb[2], height=bb[3], confidence=bb[4]) for bb in self._model(im)]).union(im)
 
 
 class ObjectDetector(object):
@@ -87,7 +87,7 @@ class ObjectDetector(object):
                                          category='%s' % self._index2cls[int(np.argmax(d[5:]))])
                    for d in dets if float(d[4]) > conf]
         objects = [obj.rescale(scale) for obj in objects]
-        return vipy.image.Scene(array=im.numpy(), objects=objects).nms(conf, iou)
+        return vipy.image.Scene(array=im.numpy(), objects=objects).nms(conf, iou).union(im)
 
     def classlist(self):
         return list(self._cls2index.keys())
@@ -236,12 +236,12 @@ class ActorAssociation(VideoProposalRefinement):
        Add the best object track to the scene and associate with all activities performed by the primary actor.
     """
     def __call__(self, v, target, miniou=0.01, mincover=0.01):
-        assert self.isallowable(target), "Actor Association must be to an allowable target class '%s'" % str(self.allowable_objects())
+        assert target.lower() in self.allowable_objects(), "Actor Association must be to an allowable target class '%s'" % str(self.allowable_objects())
         assert len(v.objectlabels()) == 1, "Actor Association can only be performed with scenes containing a single actor"
         assert target not in v.objectlabels(), "Actor Association must be with a class different from the actor class (for now)"
         vp = v.clone(rekey=True).trackmap(lambda t: t.category(target))
         vp = super().__call__(vp, miniou=miniou, mincover=mincover, byclass=True, activitybox=False)
-        vc = v.clone()  # for idemponence
+        vc = v.clone()  # for idempotence
         for t in vp.tracklist():
             vc.activitymap(lambda a: a.add(t)).add(t)            
         return vc

@@ -499,6 +499,17 @@ class Video(Scene):
     def program(self):
         return self.attributes['program_name']
 
+    def objectdetection(self, frame=1):
+        """Run an object detector on a given frame of video.  It is more efficient to construct an ObjectDetector() object once and reuse it."""        
+        from pycollector.detection import ObjectDetector
+        return ObjectDetector()(self.frame(frame))
+
+    def facedetection(self, frame=1):
+        """Run face detection on a given frame of video.  It is more efficient to construct a FaceDetector() object once and reuse it."""
+        from pycollector.detection import FaceDetector        
+        return FaceDetector()(self.frame(frame))
+    
+    
 def search():
     import pycollector.project
     return pycollector.project.Project(since='2020-09-01')

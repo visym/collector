@@ -18,7 +18,7 @@ class Project(User):
     """
     
     def __init__(self,
-                 program_id="MEVA",
+                 program_id='MEVA',
                  project_id=None,
                  weeksago=None,
                  monthsago=None,
