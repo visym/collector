@@ -1,5 +1,5 @@
 import pycollector.video
-
+import pytest 
 
 def _test_video():
     raise ValueError('FAILED')

@@ -1,7 +1,8 @@
 import vipy
 import pycollector.detection
+import pytest 
 
-
+@pytest.mark.skip(reason="Skip testing for now")
 def test_face():
     im = vipy.image.Image(url='https://upload.wikimedia.org/wikipedia/en/d/d6/Friends_season_one_cast.jpg')
     d = pycollector.detection.FaceDetector()
@@ -10,6 +11,7 @@ def test_face():
     print('[test_detection]: face detector passed')
 
     
+@pytest.mark.skip(reason="Skip testing for now")
 def test_object():
     im = vipy.image.vehicles()
     d = pycollector.detection.ObjectDetector()
