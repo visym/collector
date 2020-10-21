@@ -27,28 +27,28 @@ _PROGRAM_ID = 'MEVA'
 
 
 
-# @pytest.mark.parametrize("username, password, program_id", [(_USER_NAME, _PASSWORD, _PROGRAM_ID)])
-# def test_get_user_videos(username,password, program_id):
-#     """test get user video
-#     """
+@pytest.mark.parametrize("username, password, program_id", [(_USER_NAME, _PASSWORD, _PROGRAM_ID)])
+def test_get_user_videos(username,password, program_id):
+    """test get user video
+    """
     
-#     # testing objects and functions 
-#     api = API(username=username, password=password)
-#     project =  api.get_project(program_id=program_id)
+    # testing objects and functions 
+    api = API(username=username, password=password)
+    project =  api.get_project(program_id=None)
 
-#     assert len(project) > 0
+    assert len(project) > 0
     
-#     # show the df of project
-#     print(project.df)
+    # show the df of project
+    print(project.df)
 
-#     project.video.last()    
+    # project.video.last()    
 
-#     # fetch video
-#     videos = project.videos()
-#     assert len(videos) > 0
+    # # fetch video
+    # videos = project.videos()
+    # assert len(videos) > 0
 
-#     # Download video 
-#     videos[0].download() 
+    # # Download video 
+    # videos[0].download() 
 
 
 
@@ -76,16 +76,16 @@ _PROGRAM_ID = 'MEVA'
 
 
 
-@pytest.mark.parametrize("username, password, program_id", [(_USER_NAME, _PASSWORD, _PROGRAM_ID)])
-def test_delete_collections(username,password, program_id):
-    """test add  new collection
-    """
+# @pytest.mark.parametrize("username, password, program_id", [(_USER_NAME, _PASSWORD, _PROGRAM_ID)])
+# def test_delete_collections(username,password, program_id):
+#     """test add  new collection
+#     """
     
-    # testing objects and functions 
-    api = API(username=username, password=password)
-    collectionid = '17d47360-35dd-4dd2-9600-8ce196f1e299'
+#     # testing objects and functions 
+#     api = API(username=username, password=password)
+#     collectionid = '17d47360-35dd-4dd2-9600-8ce196f1e299'
 
-    # test to delete new collectio
-    # TODO return and response collection id
-    api.delete_collection(collectionid=collectionid)
+#     # test to delete new collectio
+#     # TODO return and response collection id
+#     api.delete_collection(collectionid=collectionid)
 
