@@ -62,7 +62,7 @@ def boundingbox_refinement(V, ngpu=None, batchsize=1, minlength=5):
     # Proposals:  Improve collector proposal for each video with an optimal object proposal.  This will result in filtering away a small number of hard positives.
     print('[pycollector.dataset]: bounding box refinement for %d videos' % (len(V)))
     model = pycollector.detection.VideoProposalRefinement(batchsize=batchsize)  # =8 (0046) =20 (0053)
-    B = vipy.batch.Batch(V, ngpu=ngpu, strict=False, as_completed=True)
+    B = vipy.batch.Batch(V, ngpu=ngpu, strict=False, as_completed=False)
     V = B.scattermap(lambda net,v: net(v, proposalconf=5E-2, proposaliou=0.8, miniou=0.2, dt=3, mincover=0.8, byclass=True, shapeiou=0.7, smoothing='spline', splinefactor=None, strict=True).print(), model).result()  
     V = [v for v in V if (v is not None) and (not v.hasattribute('unrefined'))]  # remove videos that failed refinement
     V = [v.activityfilter(lambda a: any([a.hastrack(t) and len(t)>minlength and t.during(a.startframe(), a.endframe()) for t in v.tracklist()])) for v in V]  # get rid of activities without tracks greater than dt
