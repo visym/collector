@@ -143,19 +143,19 @@ class VideoProposal(Proposal):
         f_max_target_category = lambda d: (sorted([(d[5+k], t) for t in target for k in d_target_to_index[t]], key=lambda x: x[0])[-1][1] if target is not None else None)
         
         # Source video foveation: dilated crop of the activity box and resize (this transformation must be reversed)
+        vc = v.clone(flushforward=True)  # to avoid memory leaks
         (dilate_height, dilate_width) = (dilate if dilate_height is None else dilate_height, dilate if dilate_width is None else dilate_width)
-        bb = v.activitybox().dilate_height(dilate_height).dilate_width(dilate_width).imclipshape(v.width(), v.height()) if activitybox else vipy.geometry.imagebox(v.shape())
+        bb = vc.activitybox().dilate_height(dilate_height).dilate_width(dilate_width).imclipshape(vc.width(), vc.height()) if activitybox else vipy.geometry.imagebox(vc.shape())
         scale = max(bb.shape()) / float(self._mindim)  # for reversal, input is maxsquare() resized to _mindim
 
-        # Batched proposals on transformed video (preloads entire video, high mem requirement)
+        # Batched proposals on transformed video (preloads source and transformed videos, high mem requirement)
         ims = []
-        tensor = v.clone(flushforward=True).crop(bb, zeropad=False).maxsquare().mindim(self._mindim).torch()  # NxCxHxW, triggers load 
-        img = v.numpy()[::dt]
-        tensor = tensor[::dt]  # skip
+        img = vc.numpy()[::dt]  # source video, triggers load
+        tensor = vc.flush().crop(bb, zeropad=False).maxsquare().mindim(self._mindim).torch()[::dt]  # transformed video, NxCxHxW, re-triggers load due to crop()
 
         for i in range(0, len(tensor), self._batchsize):
             dets = self._model(tensor[i:i+self._batchsize].type(self._tensortype).to(self._device))  # copy here
-            for (j,det) in enumerate(dets):
+            for (j, det) in enumerate(dets):
                 # Objects in transformed video
                 objs = [vipy.object.Detection(xcentroid=float(d[0]), 
                                               ycentroid=float(d[1]), 
@@ -171,7 +171,6 @@ class VideoProposal(Proposal):
                 ims.append( vipy.image.Scene(array=img[i+j], objects=objs).nms(conf, iou) )
                 
         return ims
-
 
     
 class VideoProposalRefinement(VideoProposal):
