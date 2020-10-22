@@ -93,6 +93,8 @@ def _test_actor_association():
                'C173B159-63AD-4A72-A703-1759FF5D7BCA']
              
     V = [Video(id) for id in videoid]    
+
+    V = vipy.util.scpload('scp://ma01-5200-0052:/tmp/57e1d8821c0df241.pkl')
     
     C = backend().collections()
     P = pycollector.detection.ActorAssociation()
@@ -100,5 +102,7 @@ def _test_actor_association():
     for v in V:
         for o in C.collection(v.project(), v.collection()).secondary_objects():
             target = o if o != 'Friend' else 'Person'
-            print(P(v, target, dt=10).annotate().saveas(os.path.join(remkdir('test_actor_association', '%s.mp4' % v.videoid()))))
+            vp = P(v.stabilize().savetmp(), target, dt=10)
+            vp.crop(vp.trackbox().dilate(1.2)).annotate().saveas(os.path.join(remkdir('test_actor_association'), '%s.mp4' % v.videoid()))
+            print(vp)
 

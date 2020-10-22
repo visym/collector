@@ -161,7 +161,8 @@ class Video(Scene):
             vipy.util.try_import('pycollector.admin.globals', message="Not authorized - Old style JSON requires admin access")
             from pycollector.admin.globals import backend, isapi
             from pycollector.admin.legacy import applabel_to_longlabel, shortname_synonyms
-            
+
+            # V1 - old collection name pattern
             if any([d["metadata"]["collection_id"] in k for k in applabel_to_longlabel().keys()]):
                 try:
                     d['metadata']['collection_name'] = d["metadata"]["collection_id"]
@@ -170,9 +171,10 @@ class Video(Scene):
                     d['metadata']['category'] = ','.join([applabel_to_longlabel()[a] for a in applabel])
                     d['metadata']['shortname'] = ','.join([a.split('_')[2] for a in applabel])
                 except Exception as e:
-                    print('[pycollector.video]: json import failed for v1 JSON "%s" with error "%s" - SKIPPING' % (str(d['metadata']), str(e)))
+                    print('[pycollector.video]: legacy json import failed for v1 JSON "%s" with error "%s" - SKIPPING' % (str(d['metadata']), str(e)))
                     d = None
-                
+
+            # V2 - new collection names, but activity names not in JSON
             elif isapi('v2'):
                 if not backend().collections().iscollectionid(d["metadata"]["collection_id"]):
                     print('[pycollector.video]: invalid collection ID "%s" - SKIPPING' % d["metadata"]["collection_id"])
@@ -192,8 +194,10 @@ class Video(Scene):
                     except Exception as e: 
                         print('[pycollector.video]: label fetch failed for %s with exception %s - SKIPPING' % (str(d['activity']), str(e)))
                         d = None
+            elif isapi('v1'):
+                raise ValueError('Legacy JSON import failed - v2 JSON imported with v1 API, set pycollector.admin.backend.api("v2")')
             else:
-                raise ValueError('Unsupported video json "%s"' % str(d["metadata"]))
+                raise ValueError('Legacy JSON import failed - "%s"' % str(d["metadata"]))
             
         else:
             # New style JSON: use labels stored directly in JSON
