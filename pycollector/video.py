@@ -157,22 +157,44 @@ class Video(Scene):
             d = None
 
         # Backwards compatible video import: should not be necessary with new app release
-        if not 'category' in d['metadata']:
+        if d is not None and not 'category' in d['metadata']:
             vipy.util.try_import('pycollector.admin.globals', message="Not authorized - Old style JSON requires admin access")
-            from pycollector.admin.globals import backend  
-            if not backend().collections().iscollectionid(d["metadata"]["collection_id"]):
-                print('[pycollector.video]: invalid collection ID "%s" - SKIPPING' % d["metadata"]["collection_id"])
-                d = None
-            else:
-                # Fetch labels from backend (yuck)
+            from pycollector.admin.globals import backend, isapi
+            from pycollector.admin.legacy import applabel_to_longlabel, shortname_synonyms
+            
+            if any([d["metadata"]["collection_id"] in k for k in applabel_to_longlabel().keys()]):
                 try:
-                    d['metadata']['collection_name'] = backend().collections().id_to_name(d["metadata"]["collection_id"])
-                    d['metadata']['category'] = ','.join([backend().collections()[d["metadata"]["collection_id"]].shortname_to_activity(a["label"], strict=False) for a in d['activity']])
-                    d['metadata']['shortname'] = ','.join([a["label"] for a in d['activity']])
-                except Exception as e: 
-                    print('[pycollector.video]: label fetch failed for %s with exception %s - SKIPPING' % (str(d['activity']), str(e)))
+                    d['metadata']['collection_name'] = d["metadata"]["collection_id"]
+                    applabel = ['%s_%s_%s' % (d["metadata"]["project_id"], d["metadata"]["collection_id"], a['label']) for a in d['activity']]
+                    applabel = [a if a in applabel_to_longlabel() else '%s_%s_%s' % (d["metadata"]["project_id"], d["metadata"]["collection_id"], shortname_synonyms()[a.split('_')[2]]) for a in applabel]
+                    d['metadata']['category'] = ','.join([applabel_to_longlabel()[a] for a in applabel])
+                    d['metadata']['shortname'] = ','.join([a.split('_')[2] for a in applabel])
+                except Exception as e:
+                    print('[pycollector.video]: json import failed for v1 JSON "%s" with error "%s" - SKIPPING' % (str(d['metadata']), str(e)))
                     d = None
                 
+            elif isapi('v2'):
+                if not backend().collections().iscollectionid(d["metadata"]["collection_id"]):
+                    print('[pycollector.video]: invalid collection ID "%s" - SKIPPING' % d["metadata"]["collection_id"])
+                    d = None
+                else:
+                    try:
+                        # Fetch labels from backend (with legacy shortname translation)
+                        C = backend().collections()[d["metadata"]["collection_id"]]
+                        d['metadata']['collection_name'] = backend().collections().id_to_name(d["metadata"]["collection_id"])
+                        shortnames = []
+                        for a in d['activity']:
+                            if not (a['label'] in C.shortnames() or a['label'] in shortname_synonyms()):
+                                raise ValueError("Invalid shortname '%s' for collection shortnames '%s' and not in legacy synonyms '%s'" % (a['label'], str(C.shortnames()), str(shortname_synonyms())))
+                            shortnames.append(a['label'] if a['label'] in C.shortnames() else shortname_synonyms()[a['label']])
+                        d['metadata']['category'] = ','.join([C.shortname_to_activity(s, strict=False) for s in shortnames])
+                        d['metadata']['shortname'] = ','.join([s for s in shortnames])
+                    except Exception as e: 
+                        print('[pycollector.video]: label fetch failed for %s with exception %s - SKIPPING' % (str(d['activity']), str(e)))
+                        d = None
+            else:
+                raise ValueError('Unsupported video json "%s"' % str(d["metadata"]))
+            
         else:
             # New style JSON: use labels stored directly in JSON
             pass
@@ -251,6 +273,11 @@ class Video(Scene):
             # Import activities
             for a in d["activity"]:
                 try:
+                    # Legacy shortname display
+                    if a['label'] not in d_shortname_to_category:
+                        if a['label'] not in shortname_synonyms():
+                            raise ValueError("Invalid shortname '%s' for collection shortnames '%s' and not in legacy synonyms '%s'" % (a['label'], d_shortname_to_category, str(shortname_synonyms())))
+                        a['label'] = a['label'] if a['label'] in d_shortname_to_category else shortname_synonyms()[a['label']]  # legacy translation              
                     if (d["metadata"]["collection_id"] == "P004C009" and d["metadata"]["device_identifier"] == "android"):
                         shortlabel = "Buying (Machine)"
                     elif (d["metadata"]["collection_id"] == "P004C008" and d["metadata"]["device_identifier"] == "ios" and "Purchasing" in a["label"]):
@@ -286,7 +313,7 @@ class Video(Scene):
                                             
                 except Exception as e:
                     print(
-                        '[pycollector.video]: Filtering invalid activity "%s" with error "%s" for videoid=%s'
+                        '[pycollector.video]: Filtering invalid activity JSON "%s" with error "%s" for videoid=%s'
                         % (str(a), str(e), d["metadata"]["video_id"])
                     )
 
@@ -472,6 +499,17 @@ class Video(Scene):
     def program(self):
         return self.attributes['program_name']
 
+    def objectdetection(self, frame=1):
+        """Run an object detector on a given frame of video.  It is more efficient to construct an ObjectDetector() object once and reuse it."""        
+        from pycollector.detection import ObjectDetector
+        return ObjectDetector()(self.frame(frame))
+
+    def facedetection(self, frame=1):
+        """Run face detection on a given frame of video.  It is more efficient to construct a FaceDetector() object once and reuse it."""
+        from pycollector.detection import FaceDetector        
+        return FaceDetector()(self.frame(frame))
+    
+    
 def search():
     import pycollector.project
     return pycollector.project.Project(since='2020-09-01')
@@ -484,4 +522,3 @@ def last(n=1, program=None):
         return pycollector.project.Project(program_id=program, since='2020-09-01', last=n).last(n)
     else:
         return pycollector.project.Project(since='2020-09-01', last=n).last(n)
-
