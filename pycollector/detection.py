@@ -54,7 +54,7 @@ class ObjectDetector(object):
     """
     
     def __init__(self, batchsize=1, weightfile=None):    
-        self._mindim = 416
+        self._mindim = 416  # must be square
         indir = os.path.join(filepath(os.path.abspath(__file__)), 'model', 'yolov3')
         weightfile = os.path.join(indir, 'yolov3.weights') if weightfile is None else weightfile
         cfgfile = os.path.join(indir, 'yolov3.cfg')
@@ -119,22 +119,23 @@ class VideoProposal(Proposal):
        Track-based object proposals in video.
     """
     def allowable_objects(self):
-        return ['person', 'vehicle', 'car', 'motorcycle', 'object']
+        return ['person', 'vehicle', 'car', 'motorcycle', 'object', 'bicycle']
 
     def isallowable(self, v):
         assert isinstance(v, vipy.video.Video), "Invalid input - must be vipy.video.Video not '%s'" % (str(type(v)))
         return len(set(v.objectlabels())) == 1 and all([c.lower() in self.allowable_objects() for c in v.objectlabels()]) # for now
 
-    def __call__(self, v, conf=1E-2, iou=0.8, dt=1, target=None, activitybox=False, dilate=4.0):
+    def __call__(self, v, conf=1E-2, iou=0.8, dt=1, target=None, activitybox=False, dilate=4.0, dilate_height=None, dilate_width=None):
         assert isinstance(v, vipy.video.Video), "Invalid input - must be vipy.video.Video not '%s'" % (str(type(v)))
         self.gpu(vipy.globals.gpuindex())  # cpu if gpuindex == None
 
         # Optional target class
-        d_target_to_index = {'person':[self._cls2index['person']], 
+        d_target_to_index = {'person':[self._cls2index['person']],
+                             'bicycle':[self._cls2index['bicycle']],
                              'vehicle':[self._cls2index['car'], self._cls2index['motorbike'], self._cls2index['truck']], 
                              'car':[self._cls2index['car'], self._cls2index['truck']],
                              'motorcycle':[self._cls2index['motorbike']],
-                             'object':[self._cls2index[k] for k in set(self.classlist()).difference(set(['person', 'car', 'motorbike', 'truck', 'motorcycle']))]}
+                             'object':[self._cls2index[k] for k in ['backpack', 'handbag', 'suitcase', 'frisbee', 'sports ball', 'bottle', 'cup', 'bowl', 'laptop', 'book']]}
         d_index_to_target = {i:k for (k,v) in d_target_to_index.items() for i in v}
         assert all([k in self.allowable_objects() for k in d_target_to_index.keys()])        
         assert target is None or (isinstance(target, list) and all([t in d_target_to_index.keys() for t in target]))
@@ -143,13 +144,15 @@ class VideoProposal(Proposal):
         
         # Source video foveation: dilated crop of the activity box and resize (this transformation must be reversed)
         vc = v.clone(flushforward=True)  # to avoid memory leaks
-        bb = vc.activitybox(dilate=dilate).imclipshape(vc.width(), vc.height()) if activitybox else vipy.geometry.imagebox(vc.shape())
-        scale = max(bb.shape()) / float(self._mindim)  # for reversal
+        (dilate_height, dilate_width) = (dilate if dilate_height is None else dilate_height, dilate if dilate_width is None else dilate_width)
+        bb = vc.activitybox().dilate_height(dilate_height).dilate_width(dilate_width).imclipshape(vc.width(), vc.height()) if activitybox else vipy.geometry.imagebox(vc.shape())
+        scale = max(bb.shape()) / float(self._mindim)  # for reversal, input is maxsquare() resized to _mindim
 
         # Batched proposals on transformed video (preloads source and transformed videos, high mem requirement)
         ims = []
         img = vc.numpy()[::dt]  # source video, triggers load
         tensor = vc.flush().crop(bb, zeropad=False).maxsquare().mindim(self._mindim).torch()[::dt]  # transformed video, NxCxHxW, re-triggers load due to crop()
+
         for i in range(0, len(tensor), self._batchsize):
             dets = self._model(tensor[i:i+self._batchsize].type(self._tensortype).to(self._device))  # copy here
             for (j, det) in enumerate(dets):
@@ -166,7 +169,7 @@ class VideoProposal(Proposal):
                 # Objects in source video
                 objs = [obj.rescale(scale).translate(bb.xmin(), bb.ymin()) for obj in objs]
                 ims.append( vipy.image.Scene(array=img[i+j], objects=objs).nms(conf, iou) )
-                ims.append(ims[-1])  # add one more for inclusive track endpoints
+                
         return ims
 
     
@@ -176,29 +179,29 @@ class VideoProposalRefinement(VideoProposal):
        Track-based object proposal refinement of a weakly supervised loose object box from a human annotator.
     """
     
-    def __call__(self, v, proposalconf=5E-2, proposaliou=0.8, miniou=0.2, dt=1, meanfilter=15, mincover=0.8, shapeiou=0.7, smoothing='spline', splinefactor=None, strict=True, byclass=True, activitybox=True):
+    def __call__(self, v, proposalconf=5E-2, proposaliou=0.8, miniou=0.2, dt=1, meanfilter=15, mincover=0.8, shapeiou=0.7, smoothing='spline', splinefactor=None, strict=True, byclass=True, dilate_height=None, dilate_width=None, refinedclass=None, pdist=False):
         """Replace proposal in v by best (maximum overlap and confidence) object proposal in vc.  If no proposal exists, delete the proposal."""
-        assert isinstance(v, vipy.video.Video), "Invalid input - must be vipy.video.Video not '%s'" % (str(type(v)))
+        assert isinstance(v, vipy.video.Scene), "Invalid input - must be vipy.video.Scene not '%s'" % (str(type(v)))
         if not self.isallowable(v):
             warnings.warn("Invalid object labels '%s' for proposal, must be in '%s' - returning original video" % (str(v.objectlabels()), str(self.allowable_objects())))
             return v.setattribute('unrefined')
-        vp = super().__call__(v, proposalconf, proposaliou, dt=dt, activitybox=activitybox, dilate=4.0, target=[c.lower() for c in v.objectlabels()] if byclass else None)  # subsampled proposals
+        vp = super().__call__(v, proposalconf, proposaliou, dt=dt, activitybox=True, dilate_height=dilate_height, dilate_width=dilate_width, target=[c.lower() for c in v.objectlabels()] if byclass else None)  # subsampled proposals
         vc = v.clone(rekey=True, flushforward=True, flushbackward=True).trackfilter(lambda t: len(t) > dt)
         for (ti, t) in vc.tracks().items():
             t.resample(dt=dt)  # interpolated keyframes for source proposal
             bbprev = None  # last box assignment
             s = shapeiou  # shape assignment threshold
             for (f, bb) in zip(t.clone().keyframes(), t.clone().keyboxes()):  # clone because vc is being modified in-loop
-                fs = (f // dt)  # subsampled frame index
-                if fs>=0 and fs<len(vp):  
+                fs = int(f // dt)  # subsampled frame index, guaranteed incremental [0,1,2,...] by resample()
+                if fs>=0 and fs<=len(vp):  
                     # Assignment: maximum (overlap with previous box + same shape as previous box + overlap with human box) * (objectness confidence + class confidence)
                     # Assignment constraints: (new box must not be too small relative to collector box) and (new box must be mostly contained within the collector box) and (new box must mostly overlap previous box) 
-                    assignment = sorted([(bbp, (((bbp.shapeiou(bbprev) + bbp.iou(bbprev)) if bbprev is not None else 1.0) + bb.iou(bbp))*bbp.confidence())
-                                         for bbp in vp[fs].objects() 
-                                         if (bb.iou(bbp)>miniou and   # refinement overlaps proposal
-                                             bbp.cover(bb)>mincover and  # refinement covers proposal 
-                                             (bbprev is None or bbprev.shapeiou(bbp)>s) and  # refinement and proposal have similar shape
-                                             (byclass is False or bbp.category().lower() == bb.category().lower())  # refine by target object only
+                    assignment = sorted([(bbp, (((bbp.shapeiou(bbprev) + bbp.iou(bbprev)) if bbprev is not None else 1.0) + (bb.iou(bbp) if not pdist else bb.pdist(bbp)))*bbp.confidence())
+                                         for bbp in vp[min(fs, len(vp)-1)].objects() 
+                                         if (bb.iou(bbp)>=miniou and   # refinement overlaps proposal (proposal is loose)
+                                             bbp.cover(bb)>=mincover and  # refinement is covered by proposal (proposal is loose, refinement is inside)
+                                             (bbprev is None or bbprev.shapeiou(bbp)>s) and  # refinement has similar shape over time
+                                             (byclass is False or (refinedclass is None and (bbp.category().lower() == bb.category().lower())) or (refinedclass is not None and bbp.category().lower()==refinedclass))  # refine by target object only
                                          )], key=lambda x: x[1])
                     if len(assignment) > 0:
                         (bbp, iou) = assignment[-1]  # best assignment
@@ -208,7 +211,7 @@ class VideoProposalRefinement(VideoProposal):
                     else:
                         if strict:
                             vc.tracks()[ti].delete(f)  # Delete proposal that has no object proposal, otherwise use source proposal for interpolation
-                        s = max(0, s-(0.001*dt)) if (bbprev is not None and bb.iou(bbprev)>miniou and bbprev.cover(bb)>mincover) else 0  # gate increase for shape deformation, or reset if we lost it
+                        s = max(0, s-(0.01*dt))  # gate increase (shape assignment threshold decrease) for shape deformation
 
         # Remove empty tracks:
         # if a track does not have an assignment for the last (or first) source proposal, then it will be truncated here
@@ -220,7 +223,7 @@ class VideoProposalRefinement(VideoProposal):
             return vc.trackmap(lambda t: t.smoothshape(width=meanfilter//dt).smooth(3))
         elif smoothing == 'spline':
             # Cubic spline track smoothing with mean shape smoothing 
-            return vc.trackmap(lambda t: t.smoothshape(width=meanfilter//dt).spline(smoothingfactor=splinefactor))
+            return vc.trackmap(lambda t: t.smoothshape(width=meanfilter//dt).spline(smoothingfactor=splinefactor, strict=False))
         elif smoothing is None:
             return vc
         else:
@@ -233,15 +236,18 @@ class ActorAssociation(VideoProposalRefinement):
        Select the best object proposal track of the target class associated with the primary actor class by gated spatial IOU and cover.
        Add the best object track to the scene and associate with all activities performed by the primary actor.
     """
-    def __call__(self, v, target, miniou=0.01, mincover=0.01):
+    def __call__(self, v, target, dt=3):
         assert target.lower() in self.allowable_objects(), "Actor Association must be to an allowable target class '%s'" % str(self.allowable_objects())
         assert len(v.objectlabels()) == 1, "Actor Association can only be performed with scenes containing a single actor"
-        assert target not in v.objectlabels(), "Actor Association must be with a class different from the actor class (for now)"
-        vp = v.clone(rekey=True).trackmap(lambda t: t.category(target))
-        vp = super().__call__(vp, miniou=miniou, mincover=mincover, byclass=True, activitybox=False)
-        vc = v.clone()  # for idempotence
+        
+        va = super().__call__(v.clone(), dt=dt)  # tight proposal for primary actor (same keys)
+        vi = va.clone(rekey=True).meanmask().savetmp() if target in v.objectlabels() else None
+        vp = super().__call__(vi if vi is not None else va.clone(rekey=True), dt=dt, miniou=0, mincover=0, byclass=True, refinedclass=target.lower(), dilate_height=4.0, dilate_width=16.0, pdist=True)  # close proposal for associated object (primary object blurred)
+        vc = va.clone()  # for idempotence (same keys as v)
         for t in vp.tracklist():
-            vc.activitymap(lambda a: a.add(t)).add(t)            
+            vc.activitymap(lambda a: a.add(t)).add(t)
+        if vi is not None:
+            os.remove(vi.filename())  # cleanup temporary masked video
         return vc
 
     
