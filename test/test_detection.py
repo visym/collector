@@ -1,7 +1,6 @@
 import vipy
 import pycollector.detection
 
-
 def test_face():
     im = vipy.image.Image(url='https://upload.wikimedia.org/wikipedia/en/d/d6/Friends_season_one_cast.jpg')
     d = pycollector.detection.FaceDetector()
@@ -51,3 +50,15 @@ def _test_proposal():
     #vipy.globals.gpuindex(0)
     #for videoid in videoids:
     #    collectorproposal_vs_objectproposal(Video(videoid), dt=3).annotate().saveas(os.path.join(remkdir('test_proposal'), '%s.mp4' % videoid))
+
+
+def _test_actor_association():
+    from pycollector.admin.globals import backend  # admin only
+    C = backend().collections()
+    P = pycollector.detection.ActorAssociation()
+    V = vipy.util.scpload('scp://ma01-5200-0052:/tmp/57e1d8821c0df241.pkl')    
+    for v in V:
+        for o in C.collection(v.project(), v.collection()).secondary_objects():
+            target = o if o != 'Friend' else 'Person'
+            vp = P(v, target, dt=10).annotate().saveas('/tmp/%s.mp4' % v.videoid())
+            print(vp)
