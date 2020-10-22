@@ -180,13 +180,16 @@ class VideoProposalRefinement(VideoProposal):
        Track-based object proposal refinement of a weakly supervised loose object box from a human annotator.
     """
     
-    def __call__(self, v, proposalconf=5E-2, proposaliou=0.8, miniou=0.2, dt=1, meanfilter=15, mincover=0.8, shapeiou=0.7, smoothing='spline', splinefactor=None, strict=True, byclass=True, dilate_height=None, dilate_width=None, refinedclass=None, pdist=False):
+    def __call__(self, v, proposalconf=5E-2, proposaliou=0.8, miniou=0.2, dt=1, meanfilter=15, mincover=0.8, shapeiou=0.7, smoothing='spline', splinefactor=None, strict=True, byclass=True, dilate_height=None, dilate_width=None, refinedclass=None, pdist=False, minconf=1E-2):
         """Replace proposal in v by best (maximum overlap and confidence) object proposal in vc.  If no proposal exists, delete the proposal."""
         assert isinstance(v, vipy.video.Scene), "Invalid input - must be vipy.video.Scene not '%s'" % (str(type(v)))
+        assert not (byclass is False and refinedclass is not None), "Invalid input"
+        
         if not self.isallowable(v):
             warnings.warn("Invalid object labels '%s' for proposal, must be in '%s' - returning original video" % (str(v.objectlabels()), str(self.allowable_objects())))
             return v.setattribute('unrefined')
-        vp = super().__call__(v, proposalconf, proposaliou, dt=dt, activitybox=True, dilate_height=dilate_height, dilate_width=dilate_width, target=[c.lower() for c in v.objectlabels()] if byclass else None)  # subsampled proposals
+        target = None if not byclass else [c.lower() for c in v.objectlabels()] if refinedclass is None else [refinedclass.lower()]  # classes for proposals
+        vp = super().__call__(v, proposalconf, proposaliou, dt=dt, activitybox=True, dilate_height=dilate_height, dilate_width=dilate_width, target=target)  # subsampled proposals
         vc = v.clone(rekey=True, flushforward=True, flushbackward=True).trackfilter(lambda t: len(t) > dt)
         for (ti, t) in vc.tracks().items():
             t.resample(dt=dt)  # interpolated keyframes for source proposal
@@ -202,11 +205,13 @@ class VideoProposalRefinement(VideoProposal):
                                          if (bb.iou(bbp)>=miniou and   # refinement overlaps proposal (proposal is loose)
                                              bbp.cover(bb)>=mincover and  # refinement is covered by proposal (proposal is loose, refinement is inside)
                                              (bbprev is None or bbprev.shapeiou(bbp)>s) and  # refinement has similar shape over time
-                                             (byclass is False or (refinedclass is None and (bbp.category().lower() == bb.category().lower())) or (refinedclass is not None and bbp.category().lower()==refinedclass))  # refine by target object only
+                                             (byclass is False or (refinedclass is None and (bbp.category().lower() == bb.category().lower())) or (refinedclass is not None and bbp.category().lower()==refinedclass.lower()))  # refine by target object only
                                          )], key=lambda x: x[1])
-                    if len(assignment) > 0:
-                        (bbp, iou) = assignment[-1]  # best assignment
-                        vc.tracks()[ti].replace(f, bbp.clone().category( t.category()) )        
+
+                    (bbp, iou) = assignment[-1] if len(assignment)>0 else (None, None)  # best assignment                    
+                    if iou is not None and iou > minconf:
+                        newcategory = t.category() if refinedclass is None else refinedclass
+                        vc.tracks()[ti].category(newcategory).replace(f, bbp.clone().category(newcategory))
                         bbprev = bbp.clone() # update last assignment
                         s = shapeiou
                     else:
@@ -243,10 +248,10 @@ class ActorAssociation(VideoProposalRefinement):
         
         va = super().__call__(v.clone(), dt=dt)  # tight proposal for primary actor (same keys)
         vi = va.clone(rekey=True).meanmask().savetmp() if target in v.objectlabels() else None
-        vp = super().__call__(vi if vi is not None else va.clone(rekey=True), dt=dt, miniou=0, mincover=0, byclass=True, refinedclass=target.lower(), dilate_height=4.0, dilate_width=16.0, pdist=True)  # close proposal for associated object (primary object blurred)
+        vp = super().__call__(vi if vi is not None else va.clone(rekey=True), dt=dt, miniou=0, mincover=0, byclass=True, refinedclass=target, dilate_height=4.0, dilate_width=16.0, pdist=True)  # close proposal for associated object (primary object blurred)
         vc = va.clone()  # for idempotence (same keys as v)
         for t in vp.tracklist():
-            vc.activitymap(lambda a: a.add(t)).add(t)
+            vc.activitymap(lambda a: a.add(t) if a.during_interval(t.startframe(), t.endframe()) else a).add(t)
         if vi is not None:
             os.remove(vi.filename())  # cleanup temporary masked video
         return vc
