@@ -461,6 +461,9 @@ class Video(Scene):
     def collectorid(self):
         return self.attributes["collector_id"] if "collector_id" in self._load_json().attributes else None
 
+    def subjectid(self):
+        return self.attributes["subject_id"][0] if "subject_id" in self._load_json().attributes else None
+        
     def collectionid(self):
         return self.attributes["collection_id"] if "collection_id" in self._load_json().attributes else None
 
