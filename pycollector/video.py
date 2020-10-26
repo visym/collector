@@ -32,6 +32,11 @@ from pycollector.util import allmondays_since, yyyymmdd_to_date, is_email_addres
 from pycollector.util import lowerif, timestamp, fromdate, ismonday
 from pycollector.globals import print
 
+try:
+    import ujson as json  # faster
+except ImportError:
+    import json
+
 
 class Video(Scene):
     """pycollector.video.Video class
@@ -71,16 +76,46 @@ class Video(Scene):
         self._is_json_loaded = None
         self._mindim = mindim
         self._verbose = False  # FIXME
+        self._fetch = fetch
         if fetch:
             self._load_json()
 
+    @classmethod
+    def from_json(obj, s):
+        d = json.loads(s) if not isinstance(s, dict) else s
+        v = Scene.from_json(d)  
+        v._is_json_loaded = d['_is_json_loaded']
+        v._dt = d['_dt']
+        v._mindim = d['_mindim']
+        v._verbose = d['_verbose']
+        v._jsonfile = d['_jsonfile']
+        v._jsonurl = d['_jsonurl']        
+        v._mp4file = d['_mp4file']
+        v._mp4url = d['_mp4url']
+        v._fetch = d['_fetch']
+        v.__class__ = Video
+        return v
+        
+    def json(self, encode=True):
+        d = super().json(encode=False)
+        d['_is_json_loaded'] = self._is_json_loaded
+        d['_dt'] = self._dt
+        d['_mindim'] = self._mindim
+        d['_verbose'] = self._verbose
+        d['_jsonfile'] = self._jsonfile
+        d['_jsonurl'] = self._jsonurl        
+        d['_mp4file'] = self._mp4file
+        d['_mp4url'] = self._mp4url
+        d['_fetch'] = self._fetch  
+        return json.dumps(d) if encode else d
+    
     def __repr__(self):
         return str("<pycollector.video: uploaded=%s, activities=%s, scene=%s>" % (self.timestamp().strftime("%Y-%m-%d %H:%M")
                                                                                   if self.timestamp() is not None
                                                                                   else str(None),
                                                                                   self.activity_categories(),
                                                                                   str(super().__repr__())))
-            
+    
     def _load_json(self):
         """Lazy JSON download, parse, and import"""
 
@@ -248,7 +283,7 @@ class Video(Scene):
                 t = Track(
                     category=obj["label"],
                     framerate=float(d["metadata"]["frame_rate"]),
-                    keyframes=[f for (f, bb) in zip(keyframes, keyboxes) if bb.isvalid()],
+                    keyframes=[int(f) for (f, bb) in zip(keyframes, keyboxes) if bb.isvalid()],
                     boxes=[bb for (f, bb) in zip(keyframes, keyboxes) if bb.isvalid()],
                     boundary="strict",
                 )
@@ -346,8 +381,10 @@ class Video(Scene):
 
         # Resample tracks
         if self._dt > 1 and self._is_json_loaded:
-            self.trackmap(lambda t: t.resample(self._dt))
-        
+            self.trackmap(lambda t: t.resample(self._dt).significant_digits(2))
+
+        assert vipy.version.is_at_least('1.8.34')            
+        self.trackmap(lambda t: t.significant_digits(2))            
         return self
 
     def variant(self):
@@ -461,6 +498,9 @@ class Video(Scene):
     def collectorid(self):
         return self.attributes["collector_id"] if "collector_id" in self._load_json().attributes else None
 
+    def subjectid(self):
+        return self.attributes["subject_id"][0] if "subject_id" in self._load_json().attributes else None
+        
     def collectionid(self):
         return self.attributes["collection_id"] if "collection_id" in self._load_json().attributes else None
 

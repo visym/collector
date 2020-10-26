@@ -2,10 +2,11 @@ import os
 import numpy as np
 import pycollector.detection
 from pycollector.globals import print
-from vipy.util import findpkl, toextension, filepath, filebase, jsonlist, ishtml, ispkl
+from vipy.util import findpkl, toextension, filepath, filebase, jsonlist, ishtml, ispkl, filetail, temphtml, listpkl
 import random
 import vipy
 import vipy.util
+import shutil
 
 
 def tocsv(pklfile):
@@ -15,7 +16,7 @@ def tocsv(pklfile):
 
 def isdataset(indir):
     """Does the provided path contain a collector dataset?"""
-    assert os.path.isdir(indir) and len(findpkl(indir))>0
+    return os.path.isdir(indir) and len(listpkl(indir))>0
 
 
 def disjoint_activities(V, activitylist):    
@@ -27,16 +28,49 @@ def disjoint_activities(V, activitylist):
     return V
 
 
+def reference(V, outdir, mindim=512):
+    assert isinstance(V, list) and all([isinstance(v, vipy.video.Video) for v in V]), "Invalid input"
+    
+    V_dist = [(v, mindim, vipy.util.repath(v.filename(), filepath(v.filename()), vipy.util.remkdir(outdir))) for v in V]
+    return (Batch(V_dist, strict=False)
+            .map(lambda x: x[0].mindim(x[1]).saveas(x[2], flush=True).print())
+            .result()) 
+
+def activityclip(V, outdir, subdir='videos'):
+    """Dataset filename structure: /outdir/$SUBDIR/$ACTIVITY_CATEGORY/$VIDEOID_$ACTIVITYINDEX.mp4"""
+    activitylist = [a for v in V for a in v.activityclip()]
+    V_dist = [(a, os.path.join(remkdir(outdir), subdir, a.category(), '%s_%d%s' % (filebase(a.filename()), k, mediaextension(a.filename())))) for (k,a) in activitylist]
+    return (Batch(V_dist, strict=False)
+            .map(lambda x: x[0].filename(x[1], copy=True).print())
+            .result())
+
+def objectclip(V, outdir, subdir='videos'):
+    """Dataset filename structure: /outdir/$SUBDIR/$OBJECT_CATEGORY/$VIDEOID.mp4"""     
+    tracklist = [t for v in V for t in v.tracksplit()]
+    V_dist = [(t, os.path.join(remkdir(outdir), subdir, t.category(), filetail(t))) for t in tracklist]
+    return (Batch(V_dist, strict=False)
+            .map(lambda x: x[0].filename(x[1], copy=True).print())
+            .result())
+
+def subjectclip(V, outdir, subdir='videos'):
+    """Dataset filename structure: /outdir/$SUBDIR/$SUBJECT_ID/$VIDEOID.mp4"""
+    tracklist = [t for v in V for t in v.trackclip()]
+    V_dist = [(t, os.path.join(remkdir(outdir), subdir, t.subjectid(), filetail(t))) for t in tracklist]
+    return (Batch(V_dist, strict=False)
+            .map(lambda x: x[0].filename(x[1], copy=True).print())
+            .result())
+
 def stabilize(V, outdir=None):
     assert vipy.version.is_at_least('1.8.33')
     assert all([isinstance(v, vipy.video.Video) for v in V]), "Invalid input"
     from vipy.flow import Flow
     from vipy.batch import Batch
-    return (Batch([(v, vipy.util.repath(v.filename(), filepath(v.filename(), depth=2), vipy.util.remkdir(outdir)) if outdir is not None else v.filename()) for v in V], strict=False)
+    V_dist = [(v, vipy.util.repath(v.filename(), filepath(v.filename(), depth=2), vipy.util.remkdir(outdir)) if outdir is not None else v.filename()) for v in V]
+    return (Batch(V_dist, strict=False)
             .filter(lambda x: x[0].canload())
             .map(lambda x: Flow(flowdim=256).stabilize(x[0], residual=True).saveas(x[1], flush=True).print())
             .filter(lambda x: (x is not None) and (not x.hasattribute('unstabilized'))) # remove unstabilized and failed
-            .result())  # Not order preserving
+            .result())  
 
 
 def resize_dataset(indir, outdir, dilate=1.2, maxdim=256, maxsquare=True):
@@ -159,7 +193,7 @@ def asmeva(V):
 
 
 
-def tohtml(outfile, pklfile=None, videolist=None, mindim=512, title='Visualization', fraction=1.0):
+def tohtml(outfile, pklfile=None, videolist=None, mindim=512, title='Visualization', fraction=1.0, display=False):
     """Generate a standalone HTML file containing quicklooks for each annotated activity in dataset, along with some helpful provenance information for where the annotation came from"""
     
     assert pklfile is not None or videolist is not None, "Must provide either dataset pklfile or videolist=vipy.util.load(pklfile)"
@@ -179,7 +213,7 @@ def tohtml(outfile, pklfile=None, videolist=None, mindim=512, title='Visualizati
     quicklooks = [imq for (imq, v) in quicklist]  # for HTML display purposes
     provenance = [{'clip':str(v), 'activities':str(';'.join([str(a) for a in v.activitylist()])), 'category':v.category()} for (imq, v) in quicklist]
     (quicklooks, provenance) = zip(*sorted([(q,p) for (q,p) in zip(quicklooks, provenance)], key=lambda x: x[1]['category']))  # sorted in category order
-    return vipy.visualize.tohtml(quicklooks, provenance, title='%s' % title, outfile=outfile, mindim=mindim)
+    return vipy.visualize.tohtml(quicklooks, provenance, title='%s' % title, outfile=outfile, mindim=mindim, display=display)
 
 
 def activitymontage(pklfile, gridrows=30, gridcols=50, mindim=64):
@@ -208,3 +242,173 @@ def activitymontage_bycategory(pklfile, gridcols=49, mindim=64):
     outfile = os.path.join(filepath(pklfile), '%s_%d_bycategory.mp4' % (filebase(pklfile), gridcols))
     print('[pycollector.dataset.activitymontage_bycategory]: rows=%s' % str(sorted(d_category.keys())))
     return vipy.visualize.videomontage(actlist, mindim, mindim, gridrows=len(d_category), gridcols=gridcols).saveas(outfile).filename()
+
+
+
+
+
+class Dataset(object):
+    def __init__(self,
+                 indir=None,
+                 videolist=None,
+                 backup=True):
+
+        assert indir is not None or videolist is not None, "Invalid arguments"
+        indir = os.path.abspath(os.path.expanduser(indir))                
+        assert videolist is not None or os.path.exists(indir)
+        assert isdataset(indir)
+        
+        self._indir = indir
+        if videolist is not None:
+            pklfile = self.pklfile('raw')
+            vipy.util.save(videolist, pklfile)
+        
+        self._backup = backup
+        
+    def __repr__(self):
+        return str('<pycollector.dataset: "%s">' % self._indir)
+
+    def backup(self, pklfile):
+        pass
+    
+
+    def transform(self, src, dst, f_transform):
+        
+        assert src != dst
+        
+        assert self.hastransform(src), "Source dataset '%s' does not exist" % self.pklfile(src)                
+        self.save(f_transform(self.load(src)), dst)
+        return self
+        
+    def transforms(self):
+        return [filebase(f) for f in listpkl(self._indir)]
+        
+    def hastransform(self, transform):
+        return os.path.exists(self.pkl(transform))
+
+    def pklfile(self, transform):
+        return os.path.join(self._indir('%s.pkl' % transform))
+    
+    def load(self, transform):
+        assert self.hastransform(transform)
+        print('[pycollector.dataset]: Loading "%s" ...' % self.pklfile(transform))
+        return vipy.util.load(self.pklfile(transform))
+
+    def save(self, V, transform):
+        print('[pycollector.dataset]: Saving "%s" ...' % self.pklfile(transform))
+        return vipy.util.save(V, self.pklfile(transform))        
+    
+    def raw_to_ref(self):
+        return self.transform('raw', 'ref', lambda V: reference(V, os.path.join(self._indir, 'ref')))
+
+    def ref_to_clips(self):
+        return self.transform('ref', 'clips', lambda V: activityclip(V, os.path.join(self._indir, 'clips')))        
+    
+    def ref_to_tight(self):
+        return self.transform('ref', 'tight', lambda V: boundingbox_refinement(V))
+
+    def ref_to_tight_clips(self):
+        return self.ref_to_clips().transform('clips', 'tight_clips', lambda V: boundingbox_refinement(V))
+    
+    def ref_to_stabilized(self):
+        return self.transform('ref', 'stabilized', lambda V: stabilize(V, os.path.join(self._indir, 'stabilized')))
+        
+    def ref_to_stabilized_clips(self):        
+        return self.ref_to_clips().transform('clips', 'stabilized_clips', lambda V: stabilize(V, os.path.join(self._indir, 'stabilized_clips')))
+
+    def stabilized_clips_to_tight_stabilized_clips(self):
+        if not self.hastransform('stabilized_clips'):
+            self.ref_to_stabilized_clips()
+        return self.transform('stabilized_clips', 'tight_stabilized_clips', lambda V: boundingbox_refinement(V))
+            
+    def ref_to_tight_stabilized_clips(self):
+        return self.ref_to_stabilized_clips().stabilized_clips_to_tight_stabilized_clips()
+
+    def tgz(self, tf, transformlist=[], extralist=[], bz2=False):
+        assert (vipy.util.istgz(tf) and not bz2) or (vipy.util.isbz2(tf) and bz2)
+        tf = os.path.abspath(os.path.expanduser(tf))       
+        self.backup(tf)        
+
+        if any([not self.hastransform(f) for f in transformlist]):
+            warnings.warn('Invalid transforms')
+        if any([not os.path.exists(f) for f in extralist]):
+            warnings.warn('Invalid extras file')
+            
+        filelist = [self.pklfile(f) for f in transformlist if self.hastransform(f)] 
+        filelist = filelist + [i for i in extralist if os.path.exists(i)]
+        filelist = [f.replace(filepath(self._indir), '')[1:] for f in filelist]
+        
+        cmd = 'tar %scvf %s -C %s %s' % ('j' if bz2 else 'z', tf, filepath(self._indir), ' '.join(filelist))
+        print('[pycollector.dataset]: executing "%s"' % cmd)
+        assert shutil.which('tar') is not None, "tar not found on path"
+        
+        os.system(cmd)
+
+        # Too slow:
+        # with tarfile.open(tf, mode=mode) as obj:
+        #    for f in filelist:
+        #        arcname = '%s/%s' % (filetail(self._indir), filetail(f))
+        #        print('[pycollector.dataset]: %s -> %s' % (f, arcname))
+        #        obj.add(f, arcname=arcname)
+
+        return tf
+
+    def md5sum(self, filename):
+        """Equivalent to os.system('md5sum %s' % filename)"""
+        assert isbz2(filename) or istgz(filename)
+        return vipy.downloader.generate_md5(filename)
+    
+    def bz2(self, bz2file, transformlist=[], extralist=[]):
+        assert vipy.util.isbz2(bz2file)
+        return self.tgz(bz2file, transformlist, extralist, bz2=True)
+        
+    def split(self, transform):
+        assert self.hastransform(transform)
+        V = vipy.util.load(self._tight_stabilized_pkl)
+        (trainset, valset, testset) = split(V)
+
+    def trainset(self):
+        return self.load('trainset')
+
+    def traincsv(self, csvfile=None):
+        csv = [v.csv() for v in self.trainset()]        
+        return vipy.util.writecsv(csv, csvfile) if csvfile is not None else (csv[0], csv[1:])
+
+    def trainhtml(self, htmlfile=None, fraction=0.01, display=True):
+        htmlfile = htmlfile if htmlfile is not None else temphtml()
+        return tohtml(htmlfile, pklfile=self._trainpkl, mindim=512, title='Training set Visualization', fraction=fraction, display=display)
+        
+    def valset(self):
+        return self.load('valset')        
+
+    def valcsv(self, csvfile=None):
+        csv = [v.csv() for v in self.valset()]        
+        return vipy.util.writecsv(csv, csvfile) if csvfile is not None else (csv[0], csv[1:])
+    
+    def testset(self):
+        return self.load('testset')                
+
+    def testcsv(self, csvfile=None):
+        csv = [v.csv() for v in self.testset()]        
+        return vipy.util.writecsv(csv, csvfile) if csvfile is not None else (csv[0], csv[1:])
+    
+
+        
+    
+class ActivityDataset(Dataset):
+    def videos_to_clips(self):
+        assert os.path.exists(self._videos_pkl)        
+        return vipy.util.save(activityclip(vipy.util.load(self._videos_pkl), remkdir(self._clips_dir)), self._clips_pkl)
+
+    
+class FaceDataset(Dataset):
+    def videos_to_clips(self):
+        assert os.path.exists(self._videos_pkl)        
+        return vipy.util.save(subjectclip(vipy.util.load(self._videos_pkl), remkdir(self._clips_dir)), self._clips_pkl)
+
+    
+class ObjectDataset(Dataset):
+    def videos_to_clips(self):
+        assert os.path.exists(self._videos_pkl)        
+        return vipy.util.save(objectclip(vipy.util.load(self._videos_pkl), remkdir(self._clips_dir)), self._clips_pkl)
+    
