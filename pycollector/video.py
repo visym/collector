@@ -32,6 +32,11 @@ from pycollector.util import allmondays_since, yyyymmdd_to_date, is_email_addres
 from pycollector.util import lowerif, timestamp, fromdate, ismonday
 from pycollector.globals import print
 
+try:
+    import ujson as json  # faster
+except ImportError:
+    import json
+
 
 class Video(Scene):
     """pycollector.video.Video class
