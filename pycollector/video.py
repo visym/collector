@@ -76,7 +76,6 @@ class Video(Scene):
         self._is_json_loaded = None
         self._mindim = mindim
         self._verbose = False  # FIXME
-        self._fetch = fetch
         if fetch:
             self._load_json()
 
@@ -92,7 +91,6 @@ class Video(Scene):
         v._jsonurl = d['_jsonurl']        
         v._mp4file = d['_mp4file']
         v._mp4url = d['_mp4url']
-        v._fetch = d['_fetch']
         v.__class__ = Video
         return v
         
@@ -106,7 +104,6 @@ class Video(Scene):
         d['_jsonurl'] = self._jsonurl        
         d['_mp4file'] = self._mp4file
         d['_mp4url'] = self._mp4url
-        d['_fetch'] = self._fetch  
         return json.dumps(d) if encode else d
     
     def __repr__(self):
@@ -188,31 +185,35 @@ class Video(Scene):
                 
 
         else:
-            print('[pycollector.video]: empty JSON "%s" - SKIPPING' % jsonfile)
+            print('[pycollector.video]: empty JSON "%s"' % jsonfile)
             d = None
 
         # Backwards compatible video import: should not be necessary with new app release
         if d is not None and not 'category' in d['metadata']:
             vipy.util.try_import('pycollector.admin.globals', message="Not authorized - Old style JSON requires admin access")
             from pycollector.admin.globals import backend, isapi
-            from pycollector.admin.legacy import applabel_to_longlabel, shortname_synonyms
+            from pycollector.admin.legacy import applabel_to_longlabel, shortname_synonyms, applabel_to_piplabel
 
             # V1 - old collection name pattern
-            if any([d["metadata"]["collection_id"] in k for k in applabel_to_longlabel().keys()]):
+            if any([d["metadata"]["collection_id"] in k for k in applabel_to_piplabel().keys()]):
                 try:
                     d['metadata']['collection_name'] = d["metadata"]["collection_id"]
                     applabel = ['%s_%s_%s' % (d["metadata"]["project_id"], d["metadata"]["collection_id"], a['label']) for a in d['activity']]
-                    applabel = [a if a in applabel_to_longlabel() else '%s_%s_%s' % (d["metadata"]["project_id"], d["metadata"]["collection_id"], shortname_synonyms()[a.split('_')[2]]) for a in applabel]
-                    d['metadata']['category'] = ','.join([applabel_to_longlabel()[a] for a in applabel])
+                    applabel = [a if a in applabel_to_piplabel() else '%s_%s_%s' % (d["metadata"]["project_id"], d["metadata"]["collection_id"], shortname_synonyms()[a.split('_')[2]]) for a in applabel]
+                    d['metadata']['category'] = ','.join([applabel_to_piplabel()[a] for a in applabel])
                     d['metadata']['shortname'] = ','.join([a.split('_')[2] for a in applabel])
                 except Exception as e:
-                    print('[pycollector.video]: legacy json import failed for v1 JSON "%s" with error "%s" - SKIPPING' % (str(d['metadata']), str(e)))
+                    print('[pycollector.video]: legacy json import failed for v1 JSON "%s" with error "%s"' % (str(d['metadata']), str(e)))
                     d = None
 
             # V2 - new collection names, but activity names not in JSON
-            elif isapi('v2'):
+            elif isapi('v1') or isapi('v2'):
+                version = 'v1' if isapi('v1') else 'v2'
+                if version == 'v1':
+                    backend('prod', 'v2')  # temporary switch
+
                 if not backend().collections().iscollectionid(d["metadata"]["collection_id"]):
-                    print('[pycollector.video]: invalid collection ID "%s" - SKIPPING' % d["metadata"]["collection_id"])
+                    print('[pycollector.video]: invalid collection ID "%s"' % d["metadata"]["collection_id"])
                     d = None
                 else:
                     try:
@@ -227,12 +228,14 @@ class Video(Scene):
                         d['metadata']['category'] = ','.join([C.shortname_to_activity(s, strict=False) for s in shortnames])
                         d['metadata']['shortname'] = ','.join([s for s in shortnames])
                     except Exception as e: 
-                        print('[pycollector.video]: label fetch failed for %s with exception %s - SKIPPING' % (str(d['activity']), str(e)))
+                        print('[pycollector.video]: label fetch failed for %s with exception %s' % (str(d['activity']), str(e)))
                         d = None
-            elif isapi('v1'):
-                raise ValueError('Legacy JSON import failed - v2 JSON imported with v1 API, set pycollector.admin.backend.api("v2")')
+
+                if version == 'v1':
+                    backend('prod', 'v1')  # switch back
             else:
-                raise ValueError('Legacy JSON import failed - "%s"' % str(d["metadata"]))
+                print('[pycollector.video]: Legacy JSON import failed for JSON with metadata - "%s"' % str(d["metadata"]))
+                d = None
             
         else:
             # New style JSON: use labels stored directly in JSON
@@ -377,6 +380,7 @@ class Video(Scene):
                     self.clear()  # remove this old video from consideration
                     self._is_json_loaded = False
         else:
+            print('[pycollector.video]: JSON load failed - SKIPPING')
             self._is_json_loaded = False
 
         # Resample tracks

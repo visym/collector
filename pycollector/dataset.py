@@ -2,7 +2,7 @@ import os
 import numpy as np
 import pycollector.detection
 from pycollector.globals import print
-from vipy.util import findpkl, toextension, filepath, filebase, jsonlist, ishtml, ispkl, filetail, temphtml, listpkl
+from vipy.util import findpkl, toextension, filepath, filebase, jsonlist, ishtml, ispkl, filetail, temphtml, listpkl, listext
 import random
 import vipy
 import vipy.util
@@ -12,11 +12,6 @@ import shutil
 def tocsv(pklfile):
     """Convert a dataset to a standalne CSV file"""
     pass
-
-
-def isdataset(indir):
-    """Does the provided path contain a collector dataset?"""
-    return os.path.isdir(indir) and len(listpkl(indir))>0
 
 
 def disjoint_activities(V, activitylist):    
@@ -244,104 +239,73 @@ def activitymontage_bycategory(pklfile, gridcols=49, mindim=64):
     return vipy.visualize.videomontage(actlist, mindim, mindim, gridrows=len(d_category), gridcols=gridcols).saveas(outfile).filename()
 
 
-
-
-
 class Dataset(object):
     def __init__(self,
-                 indir=None,
-                 videolist=None,
-                 backup=True):
+                 indir,
+                 format='.json'):
 
-        assert indir is not None or videolist is not None, "Invalid arguments"
         indir = os.path.abspath(os.path.expanduser(indir))                
-        assert videolist is not None or os.path.exists(indir)
-        assert isdataset(indir)
         
         self._indir = indir
-        if videolist is not None:
-            pklfile = self.pklfile('raw')
-            vipy.util.save(videolist, pklfile)
-        
-        self._backup = backup
-        
+        self._savefile_ext = format
+
+        assert self._savefile_ext in ['.pkl', '.json'], "invalid format '%s'" % str(format)
+
     def __repr__(self):
         return str('<pycollector.dataset: "%s">' % self._indir)
 
-    def backup(self, pklfile):
-        pass
-    
+    def isdataset(self):
+        return len(self.transforms()) > 0
 
-    def transform(self, src, dst, f_transform):
-        
-        assert src != dst
-        
-        assert self.hastransform(src), "Source dataset '%s' does not exist" % self.pklfile(src)                
+    def transform(self, src, dst, f_transform):        
+        assert self.hastransform(src), "Source dataset '%s' does not exist" % self.savefile(src)                
+        assert src != dst, "Source and destination cannot be the same"
         self.save(f_transform(self.load(src)), dst)
         return self
         
     def transforms(self):
-        return [filebase(f) for f in listpkl(self._indir)]
+        return [filebase(f) for f in listext(self._indir, self._savefile_ext)]
         
     def hastransform(self, transform):
-        return os.path.exists(self.pkl(transform))
+        return transform in self.transforms()
 
-    def pklfile(self, transform):
-        return os.path.join(self._indir('%s.pkl' % transform))
+    def save(self, videolist, transform, nourl=True, castas=vipy.video.Scene, relpath=True):
+        if relpath:
+            print('[pycollector.dataset]: setting relative paths')
+            videolist = [v.relpath(filepath(self.savefile(transform))) for v in videolist]
+        if nourl: 
+            print('[pycollector.dataset]: removing URLs')
+            videolist = [v.nourl() for v in videolist]           
+        if castas is not None:
+            assert hasattr(castas, 'cast'), "Invalid cast"
+            print('[pycollector.dataset]: casting as "%s"' % (str(type(castas))))
+            videolist = [castas.cast(v) for v in videolist]                     
+        print('[pycollector.dataset]: Saving %d videos to "%s"' % (len(videolist), self.savefile(transform)))
+        vipy.util.save(videolist, self.savefile(transform))
+
+    def savefile(self, transform):
+        return os.path.join(self._indir('%s%s' % (transform, self._savefile_ext)))
     
     def load(self, transform):
         assert self.hastransform(transform)
-        print('[pycollector.dataset]: Loading "%s" ...' % self.pklfile(transform))
-        return vipy.util.load(self.pklfile(transform))
-
-    def save(self, V, transform):
-        print('[pycollector.dataset]: Saving "%s" ...' % self.pklfile(transform))
-        return vipy.util.save(V, self.pklfile(transform))        
-    
-    def raw_to_ref(self):
-        return self.transform('raw', 'ref', lambda V: reference(V, os.path.join(self._indir, 'ref')))
-
-    def ref_to_clips(self):
-        return self.transform('ref', 'clips', lambda V: activityclip(V, os.path.join(self._indir, 'clips')))        
-    
-    def ref_to_tight(self):
-        return self.transform('ref', 'tight', lambda V: boundingbox_refinement(V))
-
-    def ref_to_tight_clips(self):
-        return self.ref_to_clips().transform('clips', 'tight_clips', lambda V: boundingbox_refinement(V))
-    
-    def ref_to_stabilized(self):
-        return self.transform('ref', 'stabilized', lambda V: stabilize(V, os.path.join(self._indir, 'stabilized')))
-        
-    def ref_to_stabilized_clips(self):        
-        return self.ref_to_clips().transform('clips', 'stabilized_clips', lambda V: stabilize(V, os.path.join(self._indir, 'stabilized_clips')))
-
-    def stabilized_clips_to_tight_stabilized_clips(self):
-        if not self.hastransform('stabilized_clips'):
-            self.ref_to_stabilized_clips()
-        return self.transform('stabilized_clips', 'tight_stabilized_clips', lambda V: boundingbox_refinement(V))
-            
-    def ref_to_tight_stabilized_clips(self):
-        return self.ref_to_stabilized_clips().stabilized_clips_to_tight_stabilized_clips()
+        print('[pycollector.dataset]: Loading "%s" ...' % self.savefile(transform))
+        return vipy.util.load(self.savefile(transform))
 
     def tgz(self, tf, transformlist=[], extralist=[], bz2=False):
         assert (vipy.util.istgz(tf) and not bz2) or (vipy.util.isbz2(tf) and bz2)
         tf = os.path.abspath(os.path.expanduser(tf))       
         self.backup(tf)        
 
-        if any([not self.hastransform(f) for f in transformlist]):
-            warnings.warn('Invalid transforms')
-        if any([not os.path.exists(f) for f in extralist]):
-            warnings.warn('Invalid extras file')
+        assert all([self.hastransform(f) for f in transformlist]), "Invalid transform list '%s'" % str(transformlist)
+        assert all([os.path.exists(f) for f in extralist]), "Invalid extra list '%s'" % str(extralist)
             
-        filelist = [self.pklfile(f) for f in transformlist if self.hastransform(f)] 
+        filelist = [self.savefile(f) for f in transformlist if self.hastransform(f)] 
         filelist = filelist + [i for i in extralist if os.path.exists(i)]
         filelist = [f.replace(filepath(self._indir), '')[1:] for f in filelist]
         
         cmd = 'tar %scvf %s -C %s %s' % ('j' if bz2 else 'z', tf, filepath(self._indir), ' '.join(filelist))
-        print('[pycollector.dataset]: executing "%s"' % cmd)
         assert shutil.which('tar') is not None, "tar not found on path"
-        
+        print('[pycollector.dataset]: executing "%s"' % cmd)        
         os.system(cmd)
 
         # Too slow:
@@ -364,8 +328,7 @@ class Dataset(object):
         
     def split(self, transform):
         assert self.hastransform(transform)
-        V = vipy.util.load(self._tight_stabilized_pkl)
-        (trainset, valset, testset) = split(V)
+        (trainset, valset, testset) = split_dataset(self.load(transform))
 
     def trainset(self):
         return self.load('trainset')
