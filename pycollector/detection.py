@@ -235,6 +235,10 @@ class VideoProposalRefinement(VideoProposal):
             raise ValueError('Unknown smoothing "%s"' % str(smoothing))
 
 
+class ActorProposalRefinement(VideoProposalRefinement):
+    """Only refine the primary actor and nothing else"""
+    pass
+
 class ActorAssociation(VideoProposalRefinement):
     """pycollector.detection.VideoAssociation() class
        
