@@ -2,12 +2,13 @@ import os
 import numpy as np
 import pycollector.detection
 from pycollector.globals import print
-from vipy.util import findpkl, toextension, filepath, filebase, jsonlist, ishtml, ispkl, filetail, temphtml, listpkl, listext
+from vipy.util import findpkl, toextension, filepath, filebase, jsonlist, ishtml, ispkl, filetail, temphtml, listpkl, listext, templike
 import random
 import vipy
 import vipy.util
 import shutil
-
+from vipy.batch import Batch
+import uuid
 
 def tocsv(pklfile):
     """Convert a dataset to a standalne CSV file"""
@@ -31,98 +32,7 @@ def reference(V, outdir, mindim=512):
             .map(lambda x: x[0].mindim(x[1]).saveas(x[2], flush=True).print())
             .result()) 
 
-def activityclip(V, outdir, subdir='videos'):
-    """Dataset filename structure: /outdir/$SUBDIR/$ACTIVITY_CATEGORY/$VIDEOID_$ACTIVITYINDEX.mp4"""
-    activitylist = [a for v in V for a in v.activityclip()]
-    V_dist = [(a, os.path.join(remkdir(outdir), subdir, a.category(), '%s_%d%s' % (filebase(a.filename()), k, mediaextension(a.filename())))) for (k,a) in activitylist]
-    return (Batch(V_dist, strict=False)
-            .map(lambda x: x[0].filename(x[1], copy=True).print())
-            .result())
 
-def objectclip(V, outdir, subdir='videos'):
-    """Dataset filename structure: /outdir/$SUBDIR/$OBJECT_CATEGORY/$VIDEOID.mp4"""     
-    tracklist = [t for v in V for t in v.tracksplit()]
-    V_dist = [(t, os.path.join(remkdir(outdir), subdir, t.category(), filetail(t))) for t in tracklist]
-    return (Batch(V_dist, strict=False)
-            .map(lambda x: x[0].filename(x[1], copy=True).print())
-            .result())
-
-def subjectclip(V, outdir, subdir='videos'):
-    """Dataset filename structure: /outdir/$SUBDIR/$SUBJECT_ID/$VIDEOID.mp4"""
-    tracklist = [t for v in V for t in v.trackclip()]
-    V_dist = [(t, os.path.join(remkdir(outdir), subdir, t.subjectid(), filetail(t))) for t in tracklist]
-    return (Batch(V_dist, strict=False)
-            .map(lambda x: x[0].filename(x[1], copy=True).print())
-            .result())
-
-def stabilize(V, outdir=None):
-    assert vipy.version.is_at_least('1.8.33')
-    assert all([isinstance(v, vipy.video.Video) for v in V]), "Invalid input"
-    from vipy.flow import Flow
-    from vipy.batch import Batch
-    V_dist = [(v, vipy.util.repath(v.filename(), filepath(v.filename(), depth=2), vipy.util.remkdir(outdir)) if outdir is not None else v.filename()) for v in V]
-    return (Batch(V_dist, strict=False)
-            .filter(lambda x: x[0].canload())
-            .map(lambda x: Flow(flowdim=256).stabilize(x[0], residual=True).saveas(x[1], flush=True).print())
-            .filter(lambda x: (x is not None) and (not x.hasattribute('unstabilized'))) # remove unstabilized and failed
-            .result())  
-
-
-def resize_dataset(indir, outdir, dilate=1.2, maxdim=256, maxsquare=True):
-    """Convert redistributable dataset by resizing the activity tube.
-    
-       * Indir: /path/to/src that contains trainset.pkl
-       * outdir: should be /mypath/src
-
-    """
-
-    (indir, outdir) = (os.path.normpath(indir), os.path.normpath(outdir))
-    print('[pycollector.dataset]: converting %s -> %s' % (indir, outdir))
-    pklfiles = [f for f in findpkl(indir) if filebase(f) in set(['trainset','valset','testset'])]
-    assert len(pklfiles) > 0
-    for pklfile in pklfiles:
-        b = vipy.batch.Batch(vipy.util.load(pklfile), 24)
-        dataset = b.filter(lambda v: v.hastracks()).map(lambda v: v.activitytube(dilate=dilate, maxdim=maxdim).saveas(v.filename().replace(indir, outdir)).print()).result()
-        vipy.util.distsave(dataset, datapath=indir, outfile=pklfile.replace(indir, outdir))
-    return outdir
-
-
-def boundingbox_refinement(V, ngpu=None, batchsize=1, minlength=5, dt=3, checkpoint=False):
-    # Proposals:  Improve collector proposal for each video with an optimal object proposal.  This will result in filtering away a small number of hard positives.
-    print('[pycollector.dataset]: bounding box refinement for %d videos' % (len(V)))
-    model = pycollector.detection.VideoProposalRefinement(batchsize=batchsize)  # =8 (0046) =20 (0053)
-    V_dist = [(v,dt) for v in V]  
-    B = vipy.batch.Batch(V_dist, ngpu=ngpu, strict=False, checkpoint=checkpoint)
-    V = B.scattermap(lambda net,x: net(x[0], proposalconf=5E-2, proposaliou=0.8, miniou=0.2, dt=x[1], mincover=0.8, byclass=True, shapeiou=0.7, smoothing='spline', splinefactor=None, strict=True).print(), model).result()  
-    V = [v for v in V if (v is not None) and (not v.hasattribute('unrefined'))]  # remove videos that failed refinement
-    V = [v.activityfilter(lambda a: any([a.hastrack(t) and len(t)>minlength and t.during(a.startframe(), a.endframe()) for t in v.tracklist()])) for v in V]  # get rid of activities without tracks greater than dt
-    if ngpu is not None:
-        B.shutdown()  # garbage collect GPU resources
-    return V
-
-
-def split_dataset(A, trainfraction=0.7, testfraction=0.1, valfraction=0.2, seed=42, verbose=True):
-    assert all([isinstance(a, vipy.video.Video) for a in A]), "Invalid input"
-    
-    np.random.seed(seed)
-    d = vipy.util.groupbyasdict(A, lambda a: a.category())
-    (trainset, testset, valset) = ([],[],[])
-    for (c,v) in d.items():
-        np.random.shuffle(v)
-        if len(v) < 3:
-            print('[pycollector.dataset]: skipping category "%s" with too few examples' % c)
-            continue
-
-        (testlist, vallist, trainlist) = vipy.util.dividelist(v, (testfraction, valfraction, trainfraction))
-        testset.extend(testlist)
-        valset.extend(vallist)  
-        trainset.extend(trainlist)
-
-    if verbose:
-        print('[pycollector.dataset]: trainset=%d (%1.1f)' % (len(trainset), trainfraction))
-        print('[pycollector.dataset]: valset=%d (%1.1f)' % (len(valset), valfraction))
-        print('[pycollector.dataset]: testset=%d (%1.1f)' % (len(testset), testfraction))
-    return (trainset, testset, valset)
 
 
 def asmeva(V):
@@ -188,61 +98,19 @@ def asmeva(V):
 
 
 
-def tohtml(outfile, pklfile=None, videolist=None, mindim=512, title='Visualization', fraction=1.0, display=False):
-    """Generate a standalone HTML file containing quicklooks for each annotated activity in dataset, along with some helpful provenance information for where the annotation came from"""
+
+
+
+
+
+
+class Dataset():
+    """pycollector.dataset.Dataset() class
     
-    assert pklfile is not None or videolist is not None, "Must provide either dataset pklfile or videolist=vipy.util.load(pklfile)"
-    assert videolist is None or all([isinstance(v, vipy.video.Video) for v in videolist]), "videolist must be vipy.video.Video"
-    assert ishtml(outfile), "Output file must be .html"
-    assert pklfile is None or ispkl(pklfile), "Pickle file must be .pkl as part of a collector dataset"
-    assert fraction > 0 and fraction <= 1.0, "Fraction must be between [0,1]"
+       This class is designed to be used with vipy.batch.Batch() for massively parallel operations 
+    """
 
-    import vipy.util  # This should not be necessary, but we get "UnboundLocalError" without it, not sure why..
-    import vipy.batch  # requires pip install vipy[all]
-    dataset = vipy.util.load(pklfile) if pklfile is not None else videolist
-    dataset = dataset if not isinstance(dataset, tuple) else dataset[0]  # backwards compatible
-    dataset = [dataset[k] for k in np.random.permutation(range(len(dataset)))[0:int(len(dataset)*fraction)]]
-
-    vipy.globals.max_workers(pct=0.8)
-    quicklist = vipy.batch.Batch(dataset).filter(lambda v: not v.isdegenerate()).map(lambda v: (v.load().quicklook(), v.flush().print()))
-    quicklooks = [imq for (imq, v) in quicklist]  # for HTML display purposes
-    provenance = [{'clip':str(v), 'activities':str(';'.join([str(a) for a in v.activitylist()])), 'category':v.category()} for (imq, v) in quicklist]
-    (quicklooks, provenance) = zip(*sorted([(q,p) for (q,p) in zip(quicklooks, provenance)], key=lambda x: x[1]['category']))  # sorted in category order
-    return vipy.visualize.tohtml(quicklooks, provenance, title='%s' % title, outfile=outfile, mindim=mindim, display=display)
-
-
-def activitymontage(pklfile, gridrows=30, gridcols=50, mindim=64):
-    """30x50 activity montage, each 64x64 elements using the output of prepare_dataset"""
-    (vidlist, d_category) = vipy.util.load(pklfile)
-    actlist = [v.mindim(mindim) for v in vidlist]
-    np.random.seed(42); random.shuffle(actlist)
-    actlist = actlist[0:gridrows*gridcols]
-    return vipy.visualize.videomontage(actlist, mindim, mindim, gridrows=gridrows, gridcols=gridcols).saveas(toextension(pklfile, 'mp4')).filename()
-
-
-def activitymontage_bycategory(pklfile, gridcols=49, mindim=64):
-    """num_categoryes x gridcols activity montage, each row is a category"""
-    np.random.seed(42)
-    (vidlist, d_category) = vipy.util.load(pklfile)
-
-    actlist = []
-    for k in sorted(d_category.keys()):
-        actlist_k = [v for v in vidlist if v.category() == k]
-        random.shuffle(actlist_k)
-        assert len(actlist_k) >= gridcols
-        actlist.extend(actlist_k[0:gridcols])
-        outfile = os.path.join(filepath(pklfile), '%s_%s.mp4' % (filebase(pklfile), k))
-        print(vipy.visualize.videomontage(actlist_k[0:15], 256, 256, gridrows=3, gridcols=5).saveas(outfile).filename())
-
-    outfile = os.path.join(filepath(pklfile), '%s_%d_bycategory.mp4' % (filebase(pklfile), gridcols))
-    print('[pycollector.dataset.activitymontage_bycategory]: rows=%s' % str(sorted(d_category.keys())))
-    return vipy.visualize.videomontage(actlist, mindim, mindim, gridrows=len(d_category), gridcols=gridcols).saveas(outfile).filename()
-
-
-class Dataset(object):
-    def __init__(self,
-                 indir,
-                 format='.json'):
+    def __init__(self, indir, format='.json'):
 
         indir = os.path.abspath(os.path.expanduser(indir))                
         
@@ -251,17 +119,137 @@ class Dataset(object):
 
         assert self._savefile_ext in ['.pkl', '.json'], "invalid format '%s'" % str(format)
 
+        self._schema = lambda dstdir, v, indir=self._indir: os.path.join(indir, dstdir, v.category(), filetail(v.filename()))
+        
+
     def __repr__(self):
         return str('<pycollector.dataset: "%s">' % self._indir)
 
-    def isdataset(self):
-        return len(self.transforms()) > 0
-
-    def transform(self, src, dst, f_transform):        
-        assert self.hastransform(src), "Source dataset '%s' does not exist" % self.savefile(src)                
+    def map(self, src, dst, f_transform, resume=False, model=None, f_rebatch=None, strict=True, save=True):        
+        assert self.hastransform(src), "Source dataset '%s' does not exist" % self._savefile(src)                
         assert src != dst, "Source and destination cannot be the same"
-        self.save(f_transform(self.load(src)), dst)
+
+        V_src = self.load(src)
+        assert all([isinstance(v, vipy.video.Video) or isinstance(v, vipy.image.Image) for v in V]), "Invalid input"
+
+        if strict:
+            assert all([v.category() is not None for v in V_src]), "Invalid category"
+            assert all([v.url() is not None or v.filename() is not None for v in V_src])
+
+        if self.hastransform(dst) and resume:
+            V_dst = self.load(dst)
+            completed = set([v.attributes['batchid'] for v in V_dst if 'batchid' in v.attributes]) 
+            V = [v for v in V_src if not 'batchid' in v.attributes or v.attributes['batchid'] in completed]
+        else:
+            V = V_src
+        
+        V = f_rebatch(V) if f_rebatch is not None else V
+        B = Batch(V, strict=False, as_completed=True, checkpoint=True)
+        V = B.map(f_transform).result() if not model else B.scattermap(f_transform, model).result()
+        if any([v is None for v in V]):
+            print('pycollector.dataset]: %d failed' % len([v for v in V if v is None]))
+        V_dst.extend([v for v in V if v is not None]) 
+        self.save(V_dst, dst) if save else V_dst
         return self
+
+    def net(self, src, dst, model):
+        f_net = lambda net,v: net(v).print()
+        return self.map(src, dst, f_net, model=model)
+
+    def init(self, src, videolist, strict=True):
+        if strict:
+            assert all([v.category() is not None for v in V_src]), "Invalid category"
+            assert all([v.url() is not None or v.filename() is not None for v in V_src])
+        assert all([isinstance(v, vipy.video.Video) or isinstance(v, vipy.image.Image) for v in V]), "Invalid input"
+        
+    def fetch(self, src, dst):
+        f_saveas = lambda v, dstdir=dst, f=self._schema: f(dstdir, v)
+        f_fetch = (lambda v, f=f_schema: v.filename(f(v)).download().print())
+        return self.map(src, dst, f_fetch)
+        
+    def stabilize(self, src, dst, resume=False):
+        from vipy.flow import Flow
+        from vipy.batch import Batch
+        
+        f_saveas = lambda v, dstdir=dst, f=self._schema: f(dstdir, v)
+        f_stabilize = (lambda v, f=f_saveas: Flow(flowdim=256).stabilize(v, residual=True).saveas(f(v), flush=True).print() if v.canload() else None)
+        return self.map(src, dst, f_stabilize, resume=resume)
+
+    def refine(self, src, dst, resume=False, batchsize=1, dt=3):        
+        model = pycollector.detection.VideoProposalRefinement(batchsize=batchsize)  # =8 (0046) =20 (0053)
+        f_refine = (lambda net,v,dt=dt: net(v, proposalconf=5E-2, proposaliou=0.8, miniou=0.2, dt=dt, mincover=0.8, byclass=True, shapeiou=0.7, smoothing='spline', splinefactor=None, strict=True).print(), model)
+        V = self.map(src, dst, f_stabilize, resume=resume, model=model, save=False)
+        V = [v for v in V if (v is not None) and (not v.hasattribute('unrefined'))]  # remove videos that failed refinement
+        V = [v.activityfilter(lambda a: any([a.hastrack(t) and len(t)>minlength and t.during(a.startframe(), a.endframe()) for t in v.tracklist()])) for v in V]  # get rid of activities without tracks greater than dt
+        return self.save(V, dst)
+            
+    def trackcrop(self, src, dst, dilate=1.0, mindim=512, maxsquare=True, resume=False):
+        f_saveas = lambda v, dstdir=dst, f=self._schema: f(dstdir, v)
+        f_trackcrop = lambda v, d=dilate, m=mindim, f=f_saveas, b=maxsquare: v.trackcrop(dilate=d).mindim(m).maxsquareif(b).saveas(f(v)).print() if v.hastracks() else None
+        return self.map(src, dst, f_trackcrop, resume=resume)        
+
+    def tubelet(self, src, dst, dilate=1.0, maxdim=512):
+        f_saveas = lambda v, dstdir=dst, f=self._schema: f(dstdir, v)
+        f_tubelet = lambda v, d=dilate, m=maxdim, f=f_saveas: v.activitytube(dilate=d, maxdim=512).saveas(f(v)).print() if v.hastracks() else None
+        return self.map(src, dst, f_tubelet, resume=resume)        
+
+    def resize(self, src, dst, mindim):
+        f_saveas = lambda v, dstdir=dst, f=self._schema: f(dstdir, v)
+        f_tubelet = lambda v, m=mindim, f=f_saveas: v.mindim(m).saveas(f(v)).print()
+        return self.map(src, dst, f_tubelet, resume=resume)        
+
+    def tohtml(self, src, outfile, mindim=512, title='Visualization', fraction=1.0, display=False, clip=True, activities=True, category=True):
+        """Generate a standalone HTML file containing quicklooks for each annotated activity in dataset, along with some helpful provenance information for where the annotation came from"""
+    
+        assert ishtml(outfile), "Output file must be .html"
+        assert fraction > 0 and fraction <= 1.0, "Fraction must be between [0,1]"
+        
+        import vipy.util  # This should not be necessary, but we get "UnboundLocalError" without it, not sure why..
+        import vipy.batch  # requires pip install vipy[all]
+
+        dataset = self.load(src)
+        assert all([isinstance(v, vipy.video.Video) for v in dataset])
+        dataset = [dataset[k] for k in np.random.permutation(range(len(dataset)))[0:int(len(dataset)*fraction)]]
+        
+        quicklist = Batch(dataset).map(lambda v: (v.load().quicklook(), v.flush().print()) if v.canload() else (None, None)).result()
+        quicklooks = [imq for (imq, v) in quicklist if imq is not None]  # keep original video for HTML display purposes
+        provenance = [{'clip':str(v), 'activities':str(';'.join([str(a) for a in v.activitylist()])), 'category':v.category()} for (imq, v) in quicklist]
+        (quicklooks, provenance) = zip(*sorted([(q,p) for (q,p) in zip(quicklooks, provenance)], key=lambda x: x[1]['category']))  # sorted in category order
+        return vipy.visualize.tohtml(quicklooks, provenance, title='%s' % title, outfile=outfile, mindim=mindim, display=display)
+
+    def activitymontage(src, gridrows=30, gridcols=50, mindim=64, bycategory=False):
+        """30x50 activity montage, each 64x64 elements using the output of prepare_dataset"""
+        vidlist = self.load(src)
+        actlist = [v.mindim(mindim) for v in vidlist]
+        np.random.seed(42); random.shuffle(actlist)
+        actlist = actlist[0:gridrows*gridcols]
+        return vipy.visualize.videomontage(actlist, mindim, mindim, gridrows=gridrows, gridcols=gridcols).saveas(toextension(pklfile, 'mp4')).filename()
+
+    def activitymontage_bycategory(src, gridcols=49, mindim=64):
+        """num_categoryes x gridcols activity montage, each row is a category"""
+        np.random.seed(42)
+        vidlist = self.load(src)
+        categories = list(set([v.category() for v in vidlist]))
+
+        actlist = []
+        for k in sorted(categories):
+            actlist_k = [v for v in vidlist if v.category() == k]
+            random.shuffle(actlist_k)
+            assert len(actlist_k) >= gridcols
+            actlist.extend(actlist_k[0:gridcols])
+            outfile = os.path.join(filepath(pklfile), '%s_%s.mp4' % (filebase(pklfile), k))
+            print(vipy.visualize.videomontage(actlist_k[0:15], 256, 256, gridrows=3, gridcols=5).saveas(outfile).filename())
+
+        outfile = os.path.join(filepath(pklfile), '%s_%d_bycategory.mp4' % (filebase(pklfile), gridcols))
+        print('[pycollector.dataset.activitymontage_bycategory]: rows=%s' % str(sorted(categories)))
+        return vipy.visualize.videomontage(actlist, mindim, mindim, gridrows=len(categories), gridcols=gridcols).saveas(outfile).filename()
+
+
+    def activityclip(self, src, dst):
+        pass
+
+    def trackclip(self, src, dst):
+        pass
         
     def transforms(self):
         return [filebase(f) for f in listext(self._indir, self._savefile_ext)]
@@ -269,10 +257,10 @@ class Dataset(object):
     def hastransform(self, transform):
         return transform in self.transforms()
 
-    def save(self, videolist, transform, nourl=True, castas=vipy.video.Scene, relpath=True):
+    def save(self, videolist, transform, nourl=True, castas=vipy.video.Scene, relpath=True, batchid=True):
         if relpath:
             print('[pycollector.dataset]: setting relative paths')
-            videolist = [v.relpath(filepath(self.savefile(transform))) for v in videolist]
+            videolist = [v.relpath(filepath(self._savefile(transform))) for v in videolist]
         if nourl: 
             print('[pycollector.dataset]: removing URLs')
             videolist = [v.nourl() for v in videolist]           
@@ -280,16 +268,18 @@ class Dataset(object):
             assert hasattr(castas, 'cast'), "Invalid cast"
             print('[pycollector.dataset]: casting as "%s"' % (str(type(castas))))
             videolist = [castas.cast(v) for v in videolist]                     
-        print('[pycollector.dataset]: Saving %d videos to "%s"' % (len(videolist), self.savefile(transform)))
-        vipy.util.save(videolist, self.savefile(transform))
+        if batchid:
+            videolist = [v.setattribute('batchid', str(uuid.uuid4())[:10]) for v in videolist]           
+        print('[pycollector.dataset]: Saving %d videos to "%s"' % (len(videolist), self._savefile(transform)))
+        vipy.util.save(videolist, self._savefile(transform))
 
-    def savefile(self, transform):
+    def _savefile(self, transform):
         return os.path.join(self._indir('%s%s' % (transform, self._savefile_ext)))
     
     def load(self, transform):
         assert self.hastransform(transform)
-        print('[pycollector.dataset]: Loading "%s" ...' % self.savefile(transform))
-        return vipy.util.load(self.savefile(transform))
+        print('[pycollector.dataset]: Loading "%s" ...' % self._savefile(transform))
+        return vipy.util.load(self._savefile(transform))
 
     def tgz(self, tf, transformlist=[], extralist=[], bz2=False):
         assert (vipy.util.istgz(tf) and not bz2) or (vipy.util.isbz2(tf) and bz2)
@@ -299,7 +289,7 @@ class Dataset(object):
         assert all([self.hastransform(f) for f in transformlist]), "Invalid transform list '%s'" % str(transformlist)
         assert all([os.path.exists(f) for f in extralist]), "Invalid extra list '%s'" % str(extralist)
             
-        filelist = [self.savefile(f) for f in transformlist if self.hastransform(f)] 
+        filelist = [self._savefile(f) for f in transformlist if self.hastransform(f)] 
         filelist = filelist + [i for i in extralist if os.path.exists(i)]
         filelist = [f.replace(filepath(self._indir), '')[1:] for f in filelist]
         
@@ -326,9 +316,29 @@ class Dataset(object):
         assert vipy.util.isbz2(bz2file)
         return self.tgz(bz2file, transformlist, extralist, bz2=True)
         
-    def split(self, transform):
-        assert self.hastransform(transform)
-        (trainset, valset, testset) = split_dataset(self.load(transform))
+    def split(src, trainfraction=0.7, testfraction=0.1, valfraction=0.2, seed=42, verbose=True):
+        A = self.load(src)
+        assert all([isinstance(a, vipy.video.Video) for a in A]), "Invalid input"
+    
+        np.random.seed(seed)
+        d = vipy.util.groupbyasdict(A, lambda a: a.category())
+        (trainset, testset, valset) = ([],[],[])
+        for (c,v) in d.items():
+            np.random.shuffle(v)
+            if len(v) < 3:
+                print('[pycollector.dataset]: skipping category "%s" with too few examples' % c)
+                continue
+
+            (testlist, vallist, trainlist) = vipy.util.dividelist(v, (testfraction, valfraction, trainfraction))
+            testset.extend(testlist)
+            valset.extend(vallist)  
+            trainset.extend(trainlist)
+
+        if verbose:
+            print('[pycollector.dataset]: trainset=%d (%1.1f)' % (len(trainset), trainfraction))
+            print('[pycollector.dataset]: valset=%d (%1.1f)' % (len(valset), valfraction))
+            print('[pycollector.dataset]: testset=%d (%1.1f)' % (len(testset), testfraction))
+        return (trainset, testset, valset)
 
     def trainset(self):
         return self.load('trainset')
@@ -337,10 +347,6 @@ class Dataset(object):
         csv = [v.csv() for v in self.trainset()]        
         return vipy.util.writecsv(csv, csvfile) if csvfile is not None else (csv[0], csv[1:])
 
-    def trainhtml(self, htmlfile=None, fraction=0.01, display=True):
-        htmlfile = htmlfile if htmlfile is not None else temphtml()
-        return tohtml(htmlfile, pklfile=self._trainpkl, mindim=512, title='Training set Visualization', fraction=fraction, display=display)
-        
     def valset(self):
         return self.load('valset')        
 
@@ -359,19 +365,26 @@ class Dataset(object):
         
     
 class ActivityDataset(Dataset):
-    def videos_to_clips(self):
-        assert os.path.exists(self._videos_pkl)        
-        return vipy.util.save(activityclip(vipy.util.load(self._videos_pkl), remkdir(self._clips_dir)), self._clips_pkl)
+    """Dataset filename structure: /dataset/$DSTDIR/$ACTIVITY_CATEGORY/$VIDEOID_$ACTIVITYINDEX.mp4"""
+    def __init__(self, indir, format='.json'):
+        super().__init__(indir, format)
+        self._schema = lambda dstdir, v, indir=self._indir, schema=self._schema: os.path.join(indir, dstdir, v.category(), filetail(v.filename()))    
 
-    
 class FaceDataset(Dataset):
-    def videos_to_clips(self):
-        assert os.path.exists(self._videos_pkl)        
-        return vipy.util.save(subjectclip(vipy.util.load(self._videos_pkl), remkdir(self._clips_dir)), self._clips_pkl)
+    """Dataset filename structure: /outdir/$SUBDIR/$SUBJECT_ID/$VIDEOID.mp4""" 
+    def __init__(self, indir, format='.json'):
+        super().__init__(indir, format)
+        self._schema = lambda dstdir, v, indir=self._indir, schema=self._schema: os.path.join(indir, dstdir, v.subjectid(), filetail(v.filename()))    
 
+    def load(self, transform):
+        V = super().load(transform)
+        assert all([isinstance(v, pycollector.video.Video) for v in V]), "Face dataset requires subject ID"
+        return V
     
 class ObjectDataset(Dataset):
-    def videos_to_clips(self):
-        assert os.path.exists(self._videos_pkl)        
-        return vipy.util.save(objectclip(vipy.util.load(self._videos_pkl), remkdir(self._clips_dir)), self._clips_pkl)
-    
+    """Dataset filename structure: /outdir/$SUBDIR/$OBJECT_CATEGORY/$VIDEOID.mp4"""     
+    def __init__(self, indir, format='.json'):
+        super().__init__(indir, format)
+        self._schema = lambda dstdir, v, indir=self._indir, schema=self._schema: os.path.join(indir, dstdir, v.category(), filetail(v.filename()))    
+
+
