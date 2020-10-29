@@ -2,7 +2,7 @@ import os
 import numpy as np
 import pycollector.detection
 from pycollector.globals import print
-from vipy.util import findpkl, toextension, filepath, filebase, jsonlist, ishtml, ispkl, filetail, temphtml, listpkl, listext, templike, tempdir
+from vipy.util import findpkl, toextension, filepath, filebase, jsonlist, ishtml, ispkl, filetail, temphtml, listpkl, listext, templike, tempdir, remkdir
 import random
 import vipy
 import vipy.util
@@ -90,15 +90,14 @@ class Dataset():
        This class is designed to be used with vipy.batch.Batch() for massively parallel operations 
     """
 
-    def __init__(self, indir, format='json', resume=False, strict=True):
+    def __init__(self, indir, resume=False, strict=True):
 
         indir = os.path.abspath(os.path.expanduser(indir))                
         
         self._indir = indir
         assert os.path.isdir(indir), "invalid input directory"
         
-        assert format in ['pkl', 'json'], "invalid format '%s'" % str(format)
-        self._savefile_ext = format        
+        self._savefile_ext = ['pkl', 'json']
 
         self._schema = lambda dstdir, v, indir=self._indir: os.path.join(indir, dstdir, v.category(), filetail(v.filename()))
         self._dataset = {}  # cache
@@ -110,7 +109,7 @@ class Dataset():
         return str('<pycollector.dataset: "%s">' % self._indir)
 
     def map(self, src, dst, f_transform, resume=False, model=None, f_rebatch=None, strict=True, save=True):        
-        assert self.has_dataset(src), "Source dataset '%s' does not exist" % self._savefile(src)                
+        assert self.has_dataset(src), "Source dataset '%s' does not exist" % src                
         assert src != dst, "Source and destination cannot be the same"
 
         V_src = self.dataset(src)
@@ -237,7 +236,7 @@ class Dataset():
         pass
         
     def datasets(self):
-        return [filebase(f) for f in listext(self._indir, '.%s' % self._savefile_ext)]
+        return list(set([filebase(f) for e in self._savefile_ext for f in listext(self._indir, '.%s' % e)]))
         
     def has_dataset(self, src):
         return src in self.datasets()
@@ -257,28 +256,32 @@ class Dataset():
             videolist = [v.setattribute('batchid', str(uuid.uuid4())[:10]) for v in videolist]           
         else:
             videolist = [v.delattribute('batchid') for v in videolist]           
-        print('[pycollector.dataset]: Saving %d videos to "%s"' % (len(videolist), self._savefile(dst)))
-        vipy.util.save(videolist, self._savefile(dst))
+        for f in self._savefiles(dst):
+            print('[pycollector.dataset]: Saving %d videos to "%s"' % (len(videolist), f))
+            vipy.util.save(videolist, f)
         self._dataset[dst] = videolist  # cache writeback
         return self
 
-    def _savefile(self, dst):
-        return os.path.join(self._indir, '%s.%s' % (dst, self._savefile_ext))
-    
-    def load(self, transform):
-        assert self.has_dataset(transform)
-        print('[pycollector.dataset]: Loading "%s" ...' % self._savefile(transform))
-        return vipy.util.load(self._savefile(transform))
+    def _savefiles(self, dst):
+        return [self._savefile(dst, ext) for ext in self._savefile_ext]
+
+    def _savefile(self, dst, format='pkl'): 
+        return os.path.join(self._indir, '%s.%s' % (dst, format))
+
+    def load(self, src):
+        assert self.has_dataset(src)
+        print('[pycollector.dataset]: Loading "%s" ...' % self._savefile(src))
+        return vipy.util.load(self._savefile(src))
 
     def simlink(self, src, dst):
         assert self.has_dataset(src)
-        os.symlink(self._savefile(src), self._savefile(dst))
+        [os.symlink(s, d) for (s, d) in zip(self._savefiles(src), self._savefiles(dst))]
         return self
 
     def name(self):
         return filetail(self._indir)
 
-    def archive(self, outfile, datasetlist, extras=None, root=None):
+    def archive(self, outfile, datasetlist, extras=None, root=None, nopkl=False):
         """Create a archive file from a list of datasets.  This will be archived as:
 
            outfile.{tar.gz|.tgz|.bz2}
@@ -311,10 +314,10 @@ class Dataset():
             distsrc = '%s_dist' % src  # relocatable, sanitized, sharable, will be renamed back to src in archive
             self.save(self.dataset(src), distsrc, relpath=True, nourl=True, castas=vipy.video.Scene, batchid=False)
             dirlist = [os.path.join(self._indir, d) for d in set([PurePath(v.filename()).parts[0] for v in self.dataset(distsrc)])]
-            assert all([os.path.isdir(d) for d in dirlist]), "Relocatable data for dataset '%s' not found" % src
-
-            deletelist.append(self._savefile(distsrc))  # for cleanup
-            archivelist.append(os.path.relpath(self._savefile(distsrc), filepath(self._indir)))
+            assert all([os.path.isdir(d) for d in dirlist]), "Relocatable data for dataset '%s' not found in %s" % (src, self._indir)
+            deletelist.extend(self._savefiles(distsrc))  # for cleanup
+            
+            archivelist.extend([os.path.relpath(f, filepath(self._indir)) for f in self._savefiles(distsrc) if nopkl is False or '.pkl' not in f])
             archivelist.extend([os.path.relpath(d, filepath(self._indir)) for d in dirlist])
 
         outfile = os.path.abspath(os.path.expanduser(outfile))       
@@ -330,7 +333,7 @@ class Dataset():
             d = tempdir()
             args = ['-C', os.path.join(d)]
             for f in set(extras):
-                shutil.copyfile(f, os.path.join(d, self.name(), filetail(f)))
+                shutil.copyfile(f, os.path.join(remkdir(os.path.join(d, self.name())), filetail(f)))
                 deletelist.append(os.path.join(d, self.name(), filetail(f)))
                 args.append(os.path.join(self.name(), filetail(f)))
             cmd += ' '.join(args)
