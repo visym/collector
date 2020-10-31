@@ -2,7 +2,7 @@ import os
 import numpy as np
 import pycollector.detection
 from pycollector.globals import print
-from vipy.util import findpkl, toextension, filepath, filebase, jsonlist, ishtml, ispkl, filetail, temphtml, listpkl, listext, templike, tempdir, remkdir, tolist, fileext
+from vipy.util import findpkl, toextension, filepath, filebase, jsonlist, ishtml, ispkl, filetail, temphtml, listpkl, listext, templike, tempdir, remkdir, tolist, fileext, writelist, tempcsv
 import random
 import vipy
 import vipy.util
@@ -12,7 +12,7 @@ import uuid
 from pathlib import PurePath
 import warnings
 import copy 
-
+import atexit
 
 
 def disjoint_activities(V, activitylist):    
@@ -92,20 +92,21 @@ class Dataset():
        This class is designed to be used with vipy.batch.Batch() for massively parallel operations 
     """
 
-    def __init__(self, indir, resume=False, strict=True):
+    def __init__(self, indir, resume=True, strict=True, ext=['pkl']):
 
         indir = os.path.abspath(os.path.expanduser(indir))                
         
         self._indir = indir
         assert os.path.isdir(indir), "invalid input directory"
         
-        self._savefile_ext = ['pkl', 'json']
+        self._savefile_ext = tolist(ext)
 
-        self._schema = (lambda dstdir, v, k=None, indir=self._indir: os.path.join(indir, dstdir, v.category(), 
-                                                                                  ('%s_%d.%s' % (filebase(v.filename()), k, fileext(v.filename(), withdot=False)) 
-                                                                                  if k is not None 
-                                                                                  else filetail(v.filename()))))
-        
+        self._schema = (lambda dstdir, v, k=None, indir=self._indir, ext=None: os.path.join(indir, dstdir, v.category(), 
+                                                                                            ('%s%s.%s' % (filebase(v.filename()), 
+                                                                                                          ('_%s' % str(k)) if k is not None else '', 
+                                                                                                          (fileext(v.filename(), withdot=False) if ext is None else str(ext))))
+                                                                                            if (k is not None or ext is not None) 
+                                                                                            else filetail(v.filename())))
         self._dataset = {}  # cache
         self._Batch = vipy.batch.Batch  # Batch() API
         self._resume = resume
@@ -114,74 +115,278 @@ class Dataset():
     def __repr__(self):
         return str('<pycollector.dataset: "%s">' % self._indir)
 
-    def map(self, src, dst, f_transform, resume=False, model=None, f_rebatch=None, strict=True, save=True):        
+    def map(self, src, dst, f_transform, model=None, f_rebatch=None, strict=True, save=True):        
         assert self.has_dataset(src), "Source dataset '%s' does not exist" % src                
         assert src != dst, "Source and destination cannot be the same"
 
+        V_dst = self.dataset(dst) if self.has_dataset(dst) else []
         V_src = self.dataset(src)
-        assert all([isinstance(v, vipy.video.Video) or isinstance(v, vipy.image.Image) for v in V_src]), "Invalid input"
-        if strict:
-            assert all([v.category() is not None for v in V_src]), "Invalid category"
-            assert all([v.url() is not None or v.filename() is not None for v in V_src])
-
-        if self.has_dataset(dst) and resume:
-            V_dst = self.dataset(dst)
-            completed = set([v.attributes['batchid'] for v in V_dst if v.hasattribute('batchid')]) 
-            V = [v for v in V_src if not 'batchid' in v.attributes or v.attributes['batchid'] in completed]
-        else:
-            V_dst = []
-            V = V_src
-        
-        V = f_rebatch(V) if f_rebatch is not None else V
-        B = self._Batch(V, strict=False, as_completed=True, checkpoint=True)
+        V_src = f_rebatch(V_src) if f_rebatch is not None else V_src
+        B = self._Batch(V_src, strict=False, as_completed=True, checkpoint=True)
         V = B.map(f_transform).result() if not model else B.scattermap(f_transform, model).result()
         if any([v is None for v in V]):
-            print('pycollector.dataset]: %d failed' % len([v for v in V if v is None]))
+            print('pycollector.dataset][%s->%s]: %d failed' % (src, dst, len([v for v in V if v is None])))
         V_dst.extend([v for v in V if v is not None]) 
-        return self.save(V_dst, dst) if save else V_dst
+        self._dataset[dst] = V_dst
+        return self.save(dst) if save else self
 
-    def init(self, V_src, dst):
-        if self._strict:
-            assert all([v.category() is not None for v in V_src]), "Invalid category"
-            assert all([v.url() is not None or v.filename() is not None for v in V_src])
-        assert all([isinstance(v, vipy.video.Video) or isinstance(v, vipy.image.Image) for v in V_src]), "Invalid input"
-        return self.save(V_src, dst, nourl=False, castas=None, relpath=False, batchid=True)
+    def new(self, newset, dst):
+        assert all([isinstance(v, vipy.video.Video) or isinstance(v, vipy.image.Image) for vl in newset for v in tolist(vl)]), "Invalid input"
+        if self._strict:            
+            assert all([v.category() is not None for vl in newset for v in tolist(vl)]), "Invalid category"
+            assert all([v.url() is not None or v.filename() is not None for vl in newset for v in tolist(vl)])
+        self._dataset[dst] = newset
+        return self
+
+    def dedupe(self, src, key):
+        self._dataset[src] = list({key(v):v for v in self.dataset(src)}.values())
+        return self
+        
+    def datasets(self):
+        return list(set([filebase(f) for e in self._savefile_ext for f in listext(self._indir, '.%s' % e)]).union(set(self._dataset.keys())))
+        
+    def has_dataset(self, src):
+        return src in self.datasets()
+
+    def union(self, srclist, dst, key=None):
+        assert isinstance(srclist, list)
+        srcset = [v for src in srclist for v in self.dataset(src)]
+        if key is not None:
+            srcset = list({key(v):v for v in srcset}.values())
+        else:
+            pass
+        self._dataset[dst] = srcset
+        return self
+    
+    def difference(self, srclistA, srclistB, dst, key):
+        srcsetA = self.union(tolist(srclistA), '_union1', key=key).dataset('_union1')
+        srcsetB = self.union(tolist(srclistB), '_union2', key=key).dataset('_union2')
+        assert key is not None, "Key is required"
+
+        idset = set([key(v) for v in srcsetA]).difference([key(v) for v in srcsetB])            
+        diffset = [v for v in srcsetA if key(v) in idset]
+        self._dataset[dst] = diffset
+        return self
+        
+    def filter(self, src, f):
+        self.load(src)
+        self._dataset[src] = [v for v in self.dataset(src) if f(v) is True]
+        return self
+
+    def isloaded(self, d):
+        return d in self._dataset
+
+
+    def restore(self, dst):
+        self._dataset[dst] = self._Batch.checkpoint()
+        return self
+
+    def save(self, dst, nourl=False, castas=None, relpath=False):
+        assert self.has_dataset(dst) and self.isloaded(dst)
+        videolist = self.dataset(dst)
+        if relpath:
+            print('[pycollector.dataset]: setting relative paths')
+            videolist = [v.relpath(filepath(self._savefile(dst))) if os.path.isabs(v.filename()) else v for v in videolist]
+        if nourl: 
+            print('[pycollector.dataset]: removing URLs')
+            videolist = [v.nourl() for v in videolist]           
+        if castas is not None:
+            assert hasattr(castas, 'cast'), "Invalid cast"
+            print('[pycollector.dataset]: casting as "%s"' % (str(castas)))
+            videolist = [castas.cast(v) for v in videolist]                     
+        for f in self._savefiles(dst):
+            print('[pycollector.dataset]: Saving %d videos to "%s"' % (len(videolist), f))
+            vipy.util.save(videolist, f)
+        return self
+
+    def _savefiles(self, dst, ext=None):
+        assert ext is None or isinstance(ext, list), "Invalid input"
+        return [self._savefile(dst, ext) for ext in (self._savefile_ext if ext is None else ext)]
+
+    def _savefile(self, d, format='pkl'): 
+        return os.path.join(self._indir, '%s.%s' % (d, format))
+
+    def load(self, src, format='pkl', flush=False):
+        assert self.has_dataset(src)
+        if not self.isloaded(src) or flush:
+            print('[pycollector.dataset]: Loading "%s" ...' % self._savefile(src, format=format))
+            self._dataset[src] = vipy.util.load(self._savefile(src))
+        return self
+
+    def rename(self, src, dst):
+        assert self.has_dataset(src)
+        [os.symlink(s, d) for (s, d) in zip(self._savefiles(src), self._savefiles(dst))]
+        return self
+
+    def name(self):
+        return filetail(self._indir)
+
+    def archive(self, outfile, datasetlist, extras=None, root=None, ext=None):
+        """Create a archive file from a list of datasets.  This will be archived as:
+
+           outfile.{tar.gz|.tgz|.bz2}
+               outfile
+                 dataset1.{json|pkl}
+                 dataset2.{json|pkl}
+                 dataset1/
+                     video3.mp4
+                 dataset2/
+                     video4.mp4
+                 extras1.ext
+                 extras2.ext
+    
+           -outfile [str]:  the filename of the archive.  The filebase will be used as the root of the archive file.
+           -datasetlist [list]:  a list of datasets(), must be elements in datasets()
+           -extras [list]:  a list of absolute paths to files that will be copied into the root
+           
+        """
+        assert vipy.util.istgz(outfile) or vipy.util.isbz2(outfile), "Allowable extensions are .tar.gz, .tgz or .bz2"
+        assert all([self.has_dataset(d) for d in datasetlist]), "Invalid dataset list '%s'" % str(datasetlist)
+        root = filetail(outfile.replace('.tar.gz','').replace('.tgz','').replace('.bz2','')) if root is None else root
+        if root != self.name():
+            warnings.warn('Archive file "%s" with root "%s" does not match dataset name "%s"' % (outfile, root, self.name()))
+
+        deletelist = []
+        archivelist = []
+        for src in datasetlist:
+            assert all([isinstance(v, vipy.video.Video) or isinstance(v, vipy.image.Image) for v in self.dataset(src)])
+            assert '_dist' not in src, "Archive must be created from original source dataset"
+            distsrc = '%s_dist' % src  # relocatable, sanitized, sharable, will be renamed back to src in archive
+            self.save(self.dataset(src), distsrc, relpath=True, nourl=True, castas=vipy.video.Scene)
+            deletelist.extend(self._savefiles(distsrc))  # for cleanup            
+            archivelist.extend([os.path.relpath(f, filepath(self._indir)) for f in self._savefiles(distsrc, ext=tolist(ext))])
+            archivelist.extend([os.path.relpath(v.filename(), filepath(self._indir)) for v in self.dataset(distsrc)])  # should exist
+                                                        
+        filelist = vipy.util.writelist(archivelist, tempcsv())
+        outfile = os.path.abspath(os.path.expanduser(outfile))       
+        cmd = ('tar %scvf %s %s %s -C %s --files-from %s ' % ('j' if vipy.util.isbz2(outfile) else 'z', 
+                                                              outfile, 
+                                                              '--transform "flags=r;s|%s/|%s/|"' % (self.name(), root),
+                                                              ' '.join(['--transform "flags=r;s|%s|%s|"' % (filetail(self._savefile('%s_dist') % src), filetail(self._savefile(src))) for src in datasetlist]),
+                                                              filepath(self._indir),
+                                                              filelist))
+
+        if extras is not None:
+            assert isinstance(extras, list) and all([os.path.exists(f) for f in extras]), "Invalid extras"
+            d = tempdir()
+            args = ['-C', os.path.join(d)]
+            for f in set(extras):
+                shutil.copyfile(f, os.path.join(remkdir(os.path.join(d, self.name())), filetail(f)))
+                deletelist.append(os.path.join(d, self.name(), filetail(f)))
+                args.append(os.path.join(self.name(), filetail(f)))
+            cmd += ' '.join(args)
+
+        assert shutil.which('tar') is not None, "tar not found on path"
+        print('[pycollector.dataset]: executing "%s"' % cmd)        
+        print('[pycollector.dataset]: -Note that tar will print out the pre-transform filenames during add and not the extract filenames ...')
+        os.system(cmd)
+        
+        deletelist.append(filelist)
+        for f in deletelist:
+            if os.path.exists(f):
+                os.remove(f)  # cleanup
+        return outfile
+
+    def md5sum(self, filename):
+        """Equivalent to os.system('md5sum %s' % filename)"""
+        assert isbz2(filename) or istgz(filename)
+        return vipy.downloader.generate_md5(filename)
+    
+    def split(src, dstlist, trainfraction=0.7, testfraction=0.1, valfraction=0.2, seed=42, verbose=True):
+        A = self.dataset(src)
+        assert all([isinstance(a, vipy.video.Video) for a in A]), "Invalid input"
+    
+        np.random.seed(seed)
+        d = vipy.util.groupbyasdict(A, lambda a: a.category())
+        (trainset, testset, valset) = ([],[],[])
+        for (c,v) in d.items():
+            np.random.shuffle(v)
+            if len(v) < 3:
+                print('[pycollector.dataset]: skipping category "%s" with too few examples' % c)
+                continue
+
+            (testlist, vallist, trainlist) = vipy.util.dividelist(v, (testfraction, valfraction, trainfraction))
+            testset.extend(testlist)
+            valset.extend(vallist)  
+            trainset.extend(trainlist)
+
+        if verbose:
+            print('[pycollector.dataset]: trainset=%d (%1.1f)' % (len(trainset), trainfraction))
+            print('[pycollector.dataset]: valset=%d (%1.1f)' % (len(valset), valfraction))
+            print('[pycollector.dataset]: testset=%d (%1.1f)' % (len(testset), testfraction))
+        
+        self._dataset[dstlist[0]] = trainset
+        self._dataset[dstlist[1]] = testset
+        self._dataset[dstlist[2]] = valset
+        return self
+
+
+    def tocsv(self, src, csvfile=None):
+        csv = [v.csv() for v in self.dataset(src)]        
+        return vipy.util.writecsv(csv, csvfile) if csvfile is not None else (csv[0], csv[1:])
+
+    def dataset(self, src, flush=False):
+        return self.load(src, flush=flush)._dataset[src]
 
     def fetch(self, src, dst):
         f_saveas = lambda v, dstdir=dst, f=self._schema: f(dstdir, v)
         f_fetch = (lambda v, f=f_saveas: v.filename(f(v)).download().print())
         return self.map(src, dst, f_fetch)
         
-    def activityclip_stabilize_and_refine(self, src, dst, batchsize=1, dt=5, minlength=5):
+
+    def stabilize_refine_activityclip(self, src, dst, batchsize=1, dt=5, minlength=5, maxsize=2048):
         from vipy.flow import Flow
         model = pycollector.detection.VideoProposalRefinement(batchsize=batchsize)  # =8 (0046) =20 (0053)
-        f_process = lambda net,v,dt=dt,f=self._schema,dst=dst: [net(Flow(flowdim=256).stabilize(a, residual=True).saveas(f(dst,v,k), flush=True).print(),
-                                                                               proposalconf=5E-2, 
-                                                                               proposaliou=0.8, 
-                                                                               miniou=0.2, 
-                                                                               dt=dt, 
-                                                                               mincover=0.8, 
-                                                                               byclass=True, 
-                                                                               shapeiou=0.7, 
-                                                                               smoothing='spline', 
-                                                                               splinefactor=None, 
-                                                                               strict=True).print() 
-                                                                           for (k,a) in enumerate(v.activityclip())]
-        V = self.map(src, dst, f_process, model=model, save=False)
+        f_process = (lambda net,v,dt=dt,f=self._schema,dst=dst,maxsize=maxsize: 
+                     [a.saveas(f(dst,a,k)).pkl().print() for (k,a) in enumerate(net(Flow(flowdim=256).stabilize(v, strict=False, residual=True, maxsize=maxsize).saveas(f(dst,v), flush=True).pkl().print(),
+                                                                                    proposalconf=5E-2, 
+                                                                                    proposaliou=0.8, 
+                                                                                    miniou=0.2, 
+                                                                                    dt=dt, 
+                                                                                    mincover=0.8, 
+                                                                                    byclass=True, 
+                                                                                    shapeiou=0.7, 
+                                                                                    smoothing='spline', 
+                                                                                    splinefactor=None, 
+                                                                                    strict=True).print().pkl(f(dst,v,'refined',ext='pkl')).activityclip())
+                      if not a.hasattribute('unstabilized') and not a.hasattribute('unrefined')])
+
+        V = self.map(src, dst, f_process, model=model, save=False).dataset(dst)
         V = [v for clips in V for v in clips if (v is not None) and not v.hasattribute('unrefined') and not v.hasattribute('unstabilized')]  # unpack clips, remove videos that failed
+        V = [v.activityfilter(lambda a: any([a.hastrack(t) and len(t)>minlength and t.during(a.startframe(), a.endframe()) for t in v.tracklist()])) for v in V]  # get rid of activities without tracks greater than dt
+        return self.save(V, dst)
+
+    def refine_activityclip(self, src, dst, batchsize=1, dt=5, minlength=5):
+        model = pycollector.detection.VideoProposalRefinement(batchsize=batchsize)  # =8 (0046) =20 (0053)
+        f_process = (lambda net,v,dt=dt,f=self._schema,dst=dst: 
+                     [a.saveas(f(dst,a,k)).pkl().print() for (k,a) in enumerate(net(v,
+                                                                                    proposalconf=5E-2, 
+                                                                                    proposaliou=0.8, 
+                                                                                    miniou=0.2, 
+                                                                                    dt=dt, 
+                                                                                    mincover=0.8, 
+                                                                                    byclass=True, 
+                                                                                    shapeiou=0.7, 
+                                                                                    smoothing='spline', 
+                                                                                    splinefactor=None, 
+                                                                                    strict=True).print().pkl(f(dst,v,'refined',ext='pkl')).activityclip())
+                      if not a.hasattribute('unrefined')])
+
+        V = self.map(src, dst, f_process, model=model, save=False).dataset(dst)
+        V = [v for clips in V for v in clips if (v is not None) and not v.hasattribute('unrefined')]  # unpack clips, remove videos that failed
         V = [v.activityfilter(lambda a: any([a.hastrack(t) and len(t)>minlength and t.during(a.startframe(), a.endframe()) for t in v.tracklist()])) for v in V]  # get rid of activities without tracks greater than dt
         return self.save(V, dst)
 
     def stabilize(self, src, dst):
         from vipy.flow import Flow
         f_saveas = lambda v, dstdir=dst, f=self._schema: f(dstdir, v)
-        f_stabilize = (lambda v, f=f_saveas: Flow(flowdim=256).stabilize(v, residual=True).saveas(f(v), flush=True).print() if v.canload() else None)
+        f_stabilize = (lambda v, f=f_saveas: Flow(flowdim=256).stabilize(v, strict=False, residual=True).saveas(f(v), flush=True).print() if v.canload() else None)
         return self.map(src, dst, f_stabilize, resume=self._resume)
 
     def refine(self, src, dst, batchsize=1, dt=3, minlength=5):        
         model = pycollector.detection.VideoProposalRefinement(batchsize=batchsize)  # =8 (0046) =20 (0053)
         f = lambda net, v, dt=dt: net(v, proposalconf=5E-2, proposaliou=0.8, miniou=0.2, dt=dt, mincover=0.8, byclass=True, shapeiou=0.7, smoothing='spline', splinefactor=None, strict=True).print()
-        V = self.map(src, dst, f, resume=self._resume, model=model, save=False)
+        V = self.map(src, dst, f, resume=self._resume, model=model, save=False).dataset(dst)
         V = [v for v in V if (v is not None) and (not v.hasattribute('unrefined'))]  # remove videos that failed refinement
         V = [v.activityfilter(lambda a: any([a.hastrack(t) and len(t)>minlength and t.during(a.startframe(), a.endframe()) for t in v.tracklist()])) for v in V]  # get rid of activities without tracks greater than dt
         return self.save(V, dst)
@@ -259,179 +464,6 @@ class Dataset():
     def trackclip(self, src, dst):
         pass
         
-    def datasets(self):
-        return list(set([filebase(f) for e in self._savefile_ext for f in listext(self._indir, '.%s' % e)]))
-        
-    def has_dataset(self, src):
-        return src in self.datasets()
-
-    def union(self, srclist, dst=None, dedupe=True):
-        assert isinstance(srclist, list)
-        srcset = [v for src in srclist for v in self.dataset(src)]
-        if dedupe and all([v.hasattribute('batchid') for v in srcset]):
-            srcset = list({v.attribute['batchid']:v for v in srcset}.values())
-        elif dedupe:
-            warnings.warn('batch ID not found - deduplication based on filename')
-            srcset = list({filetail(v.filename()):v for v in srcset}.values())
-        return self.save(srcset, dst) if dst is not None else srcset
-    
-    def difference(self, srclistA, srclistB, dst=None, dedupe=True):
-        srcsetA = self.union(tolist(srclistA), dedupe=dedupe)
-        srcsetB = self.union(tolist(srclistB), dedupe=dedupe)        
-
-        if all([v.hasattribute('batchid') for v in srcsetA+srcsetB]):
-            idset = set([v.attribute['batchid'] for v in srcsetA]).difference([v.attribute['batchid'] for v in srcsetB])            
-            diffset = [v for v in srcsetA if v.attributes['batchid'] in idset]
-        else:
-            warnings.warn('batch ID not found - computing difference based on filename')
-            idset = set([filetail(v.filename()) for v in srcsetA]).difference([filetail(v.filename()) for v in srcsetB])            
-            diffset = [v for v in srcsetA if filetail(v.filename()) in idset]
-        return self.save(diffset, dst) if dst is not None else diffset
-        
-    def save(self, videolist, dst, nourl=False, castas=None, relpath=False, batchid=True):
-        if relpath:
-            print('[pycollector.dataset]: setting relative paths')
-            videolist = [v.relpath(filepath(self._savefile(dst))) if os.path.isabs(v.filename()) else v for v in videolist]
-        if nourl: 
-            print('[pycollector.dataset]: removing URLs')
-            videolist = [v.nourl() for v in videolist]           
-        if castas is not None:
-            assert hasattr(castas, 'cast'), "Invalid cast"
-            print('[pycollector.dataset]: casting as "%s"' % (str(castas)))
-            videolist = [castas.cast(v) for v in videolist]                     
-        if batchid:
-            videolist = [v.setattribute('batchid', str(uuid.uuid4())[:10]) for v in videolist]           
-        else:
-            videolist = [v.delattribute('batchid') for v in videolist]           
-        for f in self._savefiles(dst):
-            print('[pycollector.dataset]: Saving %d videos to "%s"' % (len(videolist), f))
-            vipy.util.save(videolist, f)
-        self._dataset[dst] = videolist  # cache writeback
-        return self
-
-    def _savefiles(self, dst):
-        return [self._savefile(dst, ext) for ext in self._savefile_ext]
-
-    def _savefile(self, d, format='pkl'): 
-        return os.path.join(self._indir, '%s.%s' % (d, format))
-
-    def load(self, src, format='pkl', flush=False):
-        assert self.has_dataset(src)
-        if src not in self._dataset or flush:
-            print('[pycollector.dataset]: Loading "%s" ...' % self._savefile(src, format=format))
-            self._dataset[src] = vipy.util.load(self._savefile(src))
-        return self
-
-    def simlink(self, src, dst):
-        assert self.has_dataset(src)
-        [os.symlink(s, d) for (s, d) in zip(self._savefiles(src), self._savefiles(dst))]
-        return self
-
-    def name(self):
-        return filetail(self._indir)
-
-    def archive(self, outfile, datasetlist, extras=None, root=None, nopkl=False):
-        """Create a archive file from a list of datasets.  This will be archived as:
-
-           outfile.{tar.gz|.tgz|.bz2}
-               outfile
-                 dataset1.{json|pkl}
-                 dataset2.{json|pkl}
-                 dataset1/
-                     video3.mp4
-                 dataset2/
-                     video4.mp4
-                 extras1.ext
-                 extras2.ext
-    
-           -outfile [str]:  the filename of the archive.  The filebase will be used as the root of the archive file.
-           -datasetlist [list]:  a list of datasets(), must be elements in datasets()
-           -extras [list]:  a list of absolute paths to files that will be copied into the root
-           
-        """
-        assert vipy.util.istgz(outfile) or vipy.util.isbz2(outfile), "Allowable extensions are .tar.gz, .tgz or .bz2"
-        assert all([self.has_dataset(d) for d in datasetlist]), "Invalid dataset list '%s'" % str(datasetlist)
-        root = filetail(outfile.replace('.tar.gz','').replace('.tgz','').replace('.bz2','')) if root is None else root
-        if root != self.name():
-            warnings.warn('Archive file "%s" with root "%s" does not match dataset name "%s"' % (outfile, root, self.name()))
-
-
-        deletelist = []
-        archivelist = []
-        for src in datasetlist:
-            assert '_dist' not in src, "Archive must be created from original source dataset"
-            distsrc = '%s_dist' % src  # relocatable, sanitized, sharable, will be renamed back to src in archive
-            self.save(self.dataset(src), distsrc, relpath=True, nourl=True, castas=vipy.video.Scene, batchid=False)
-            dirlist = [os.path.join(self._indir, d) for d in set([PurePath(v.filename()).parts[0] for v in self.dataset(distsrc)])]
-            assert all([os.path.isdir(d) for d in dirlist]), "Relocatable data for dataset '%s' not found in %s" % (src, self._indir)
-            deletelist.extend(self._savefiles(distsrc))  # for cleanup
-            
-            archivelist.extend([os.path.relpath(f, filepath(self._indir)) for f in self._savefiles(distsrc) if nopkl is False or '.pkl' not in f])
-            archivelist.extend([os.path.relpath(d, filepath(self._indir)) for d in dirlist])
-
-        outfile = os.path.abspath(os.path.expanduser(outfile))       
-        cmd = ('tar %scvf %s %s %s -C %s %s ' % ('j' if vipy.util.isbz2(outfile) else 'z', 
-                                                 outfile, 
-                                                 '--transform "flags=r;s|%s/|%s/|"' % (self.name(), root),
-                                                 ' '.join(['--transform "flags=r;s|%s|%s|"' % (filetail(self._savefile('%s_dist') % src), filetail(self._savefile(src))) for src in datasetlist]),
-                                                 filepath(self._indir),
-                                                 ' '.join(archivelist)))
-
-        if extras is not None:
-            assert isinstance(extras, list) and all([os.path.exists(f) for f in extras]), "Invalid extras"
-            d = tempdir()
-            args = ['-C', os.path.join(d)]
-            for f in set(extras):
-                shutil.copyfile(f, os.path.join(remkdir(os.path.join(d, self.name())), filetail(f)))
-                deletelist.append(os.path.join(d, self.name(), filetail(f)))
-                args.append(os.path.join(self.name(), filetail(f)))
-            cmd += ' '.join(args)
-
-        assert shutil.which('tar') is not None, "tar not found on path"
-        print('[pycollector.dataset]: executing "%s"' % cmd)        
-        print('[pycollector.dataset]: Note that tar will print out the pre-transform filenames during add and not the extract filenames ...')
-        os.system(cmd)
-
-        for f in deletelist:
-            if os.path.exists(f):
-                os.remove(f)  # cleanup
-        return outfile
-
-    def md5sum(self, filename):
-        """Equivalent to os.system('md5sum %s' % filename)"""
-        assert isbz2(filename) or istgz(filename)
-        return vipy.downloader.generate_md5(filename)
-    
-    def split(src, trainfraction=0.7, testfraction=0.1, valfraction=0.2, seed=42, verbose=True):
-        A = self.dataset(src)
-        assert all([isinstance(a, vipy.video.Video) for a in A]), "Invalid input"
-    
-        np.random.seed(seed)
-        d = vipy.util.groupbyasdict(A, lambda a: a.category())
-        (trainset, testset, valset) = ([],[],[])
-        for (c,v) in d.items():
-            np.random.shuffle(v)
-            if len(v) < 3:
-                print('[pycollector.dataset]: skipping category "%s" with too few examples' % c)
-                continue
-
-            (testlist, vallist, trainlist) = vipy.util.dividelist(v, (testfraction, valfraction, trainfraction))
-            testset.extend(testlist)
-            valset.extend(vallist)  
-            trainset.extend(trainlist)
-
-        if verbose:
-            print('[pycollector.dataset]: trainset=%d (%1.1f)' % (len(trainset), trainfraction))
-            print('[pycollector.dataset]: valset=%d (%1.1f)' % (len(valset), valfraction))
-            print('[pycollector.dataset]: testset=%d (%1.1f)' % (len(testset), testfraction))
-        return (trainset, testset, valset)
-
-    def tocsv(self, src, csvfile=None):
-        csv = [v.csv() for v in self.dataset(src)]        
-        return vipy.util.writecsv(csv, csvfile) if csvfile is not None else (csv[0], csv[1:])
-
-    def dataset(self, src, flush=False):
-        return self.load(src, flush=flush)._dataset[src]
 
     def trainset(self):
         return self.dataset('trainset')
@@ -442,6 +474,9 @@ class Dataset():
     def testset(self):
         return self.dataset('testset')                
 
+    def restore(self, dst):
+        """Restore destination from checkpoint"""
+        pass
         
     
 class ActivityDataset(Dataset):
