@@ -2,7 +2,7 @@ import os
 import numpy as np
 import pycollector.detection
 from pycollector.globals import print
-from vipy.util import findpkl, toextension, filepath, filebase, jsonlist, ishtml, ispkl, filetail, temphtml, listpkl, listext, templike, tempdir, remkdir
+from vipy.util import findpkl, toextension, filepath, filebase, jsonlist, ishtml, ispkl, filetail, temphtml, listpkl, listext, templike, tempdir, remkdir, tolist, fileext
 import random
 import vipy
 import vipy.util
@@ -11,6 +11,8 @@ from vipy.batch import Batch
 import uuid
 from pathlib import PurePath
 import warnings
+import copy 
+
 
 
 def disjoint_activities(V, activitylist):    
@@ -99,7 +101,11 @@ class Dataset():
         
         self._savefile_ext = ['pkl', 'json']
 
-        self._schema = lambda dstdir, v, indir=self._indir: os.path.join(indir, dstdir, v.category(), filetail(v.filename()))
+        self._schema = (lambda dstdir, v, k=None, indir=self._indir: os.path.join(indir, dstdir, v.category(), 
+                                                                                  ('%s_%d.%s' % (filebase(v.filename()), k, fileext(v.filename(), withdot=False)) 
+                                                                                  if k is not None 
+                                                                                  else filetail(v.filename()))))
+        
         self._dataset = {}  # cache
         self._Batch = vipy.batch.Batch  # Batch() API
         self._resume = resume
@@ -143,13 +149,31 @@ class Dataset():
 
     def fetch(self, src, dst):
         f_saveas = lambda v, dstdir=dst, f=self._schema: f(dstdir, v)
-        f_fetch = (lambda v, f=f_schema: v.filename(f(v)).download().print())
+        f_fetch = (lambda v, f=f_saveas: v.filename(f(v)).download().print())
         return self.map(src, dst, f_fetch)
         
+    def activityclip_stabilize_and_refine(self, src, dst, batchsize=1, dt=5, minlength=5):
+        from vipy.flow import Flow
+        model = pycollector.detection.VideoProposalRefinement(batchsize=batchsize)  # =8 (0046) =20 (0053)
+        f_process = lambda net,v,dt=dt,f=self._schema,dst=dst: [net(Flow(flowdim=256).stabilize(a, residual=True).saveas(f(dst,v,k), flush=True).print(),
+                                                                               proposalconf=5E-2, 
+                                                                               proposaliou=0.8, 
+                                                                               miniou=0.2, 
+                                                                               dt=dt, 
+                                                                               mincover=0.8, 
+                                                                               byclass=True, 
+                                                                               shapeiou=0.7, 
+                                                                               smoothing='spline', 
+                                                                               splinefactor=None, 
+                                                                               strict=True).print() 
+                                                                           for (k,a) in enumerate(v.activityclip())]
+        V = self.map(src, dst, f_process, model=model, save=False)
+        V = [v for clips in V for v in clips if (v is not None) and not v.hasattribute('unrefined') and not v.hasattribute('unstabilized')]  # unpack clips, remove videos that failed
+        V = [v.activityfilter(lambda a: any([a.hastrack(t) and len(t)>minlength and t.during(a.startframe(), a.endframe()) for t in v.tracklist()])) for v in V]  # get rid of activities without tracks greater than dt
+        return self.save(V, dst)
+
     def stabilize(self, src, dst):
         from vipy.flow import Flow
-        from vipy.batch import Batch
-        
         f_saveas = lambda v, dstdir=dst, f=self._schema: f(dstdir, v)
         f_stabilize = (lambda v, f=f_saveas: Flow(flowdim=256).stabilize(v, residual=True).saveas(f(v), flush=True).print() if v.canload() else None)
         return self.map(src, dst, f_stabilize, resume=self._resume)
@@ -241,6 +265,29 @@ class Dataset():
     def has_dataset(self, src):
         return src in self.datasets()
 
+    def union(self, srclist, dst=None, dedupe=True):
+        assert isinstance(srclist, list)
+        srcset = [v for src in srclist for v in self.dataset(src)]
+        if dedupe and all([v.hasattribute('batchid') for v in srcset]):
+            srcset = list({v.attribute['batchid']:v for v in srcset}.values())
+        elif dedupe:
+            warnings.warn('batch ID not found - deduplication based on filename')
+            srcset = list({filetail(v.filename()):v for v in srcset}.values())
+        return self.save(srcset, dst) if dst is not None else srcset
+    
+    def difference(self, srclistA, srclistB, dst=None, dedupe=True):
+        srcsetA = self.union(tolist(srclistA), dedupe=dedupe)
+        srcsetB = self.union(tolist(srclistB), dedupe=dedupe)        
+
+        if all([v.hasattribute('batchid') for v in srcsetA+srcsetB]):
+            idset = set([v.attribute['batchid'] for v in srcsetA]).difference([v.attribute['batchid'] for v in srcsetB])            
+            diffset = [v for v in srcsetA if v.attributes['batchid'] in idset]
+        else:
+            warnings.warn('batch ID not found - computing difference based on filename')
+            idset = set([filetail(v.filename()) for v in srcsetA]).difference([filetail(v.filename()) for v in srcsetB])            
+            diffset = [v for v in srcsetA if filetail(v.filename()) in idset]
+        return self.save(diffset, dst) if dst is not None else diffset
+        
     def save(self, videolist, dst, nourl=False, castas=None, relpath=False, batchid=True):
         if relpath:
             print('[pycollector.dataset]: setting relative paths')
@@ -265,13 +312,15 @@ class Dataset():
     def _savefiles(self, dst):
         return [self._savefile(dst, ext) for ext in self._savefile_ext]
 
-    def _savefile(self, dst, format='pkl'): 
-        return os.path.join(self._indir, '%s.%s' % (dst, format))
+    def _savefile(self, d, format='pkl'): 
+        return os.path.join(self._indir, '%s.%s' % (d, format))
 
-    def load(self, src):
+    def load(self, src, format='pkl', flush=False):
         assert self.has_dataset(src)
-        print('[pycollector.dataset]: Loading "%s" ...' % self._savefile(src))
-        return vipy.util.load(self._savefile(src))
+        if src not in self._dataset or flush:
+            print('[pycollector.dataset]: Loading "%s" ...' % self._savefile(src, format=format))
+            self._dataset[src] = vipy.util.load(self._savefile(src))
+        return self
 
     def simlink(self, src, dst):
         assert self.has_dataset(src)
@@ -382,9 +431,7 @@ class Dataset():
         return vipy.util.writecsv(csv, csvfile) if csvfile is not None else (csv[0], csv[1:])
 
     def dataset(self, src, flush=False):
-        if src not in self._dataset or flush:
-            self._dataset[src] = self.load(src)
-        return self._dataset[src]
+        return self.load(src, flush=flush)._dataset[src]
 
     def trainset(self):
         return self.dataset('trainset')
@@ -401,13 +448,13 @@ class ActivityDataset(Dataset):
     """Dataset filename structure: /dataset/$DSTDIR/$ACTIVITY_CATEGORY/$VIDEOID_$ACTIVITYINDEX.mp4"""
     def __init__(self, indir, format='.json'):
         super().__init__(indir, format)
-        self._schema = lambda dstdir, v, indir=self._indir, schema=self._schema: os.path.join(indir, dstdir, v.category(), filetail(v.filename()))    
 
 class FaceDataset(Dataset):
     """Dataset filename structure: /outdir/$SUBDIR/$SUBJECT_ID/$VIDEOID.mp4""" 
     def __init__(self, indir, format='.json'):
         super().__init__(indir, format)
         self._schema = lambda dstdir, v, indir=self._indir, schema=self._schema: os.path.join(indir, dstdir, v.subjectid(), filetail(v.filename()))    
+        raise
 
     def load(self, transform):
         V = super().load(transform)
@@ -419,5 +466,5 @@ class ObjectDataset(Dataset):
     def __init__(self, indir, format='.json'):
         super().__init__(indir, format)
         self._schema = lambda dstdir, v, indir=self._indir, schema=self._schema: os.path.join(indir, dstdir, v.category(), filetail(v.filename()))    
-
+        raise
 
