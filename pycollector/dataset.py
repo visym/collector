@@ -2,7 +2,7 @@ import os
 import numpy as np
 import pycollector.detection
 from pycollector.globals import print
-from vipy.util import findpkl, toextension, filepath, filebase, jsonlist, ishtml, ispkl, filetail, temphtml, listpkl, listext, templike, tempdir, remkdir, tolist, fileext, writelist, tempcsv, newpathroot
+from vipy.util import findpkl, toextension, filepath, filebase, jsonlist, ishtml, ispkl, filetail, temphtml, listpkl, listext, templike, tempdir, remkdir, tolist, fileext, writelist, tempcsv, newpathroot, listjson
 import random
 import vipy
 import vipy.util
@@ -170,7 +170,7 @@ class Dataset():
         return self
         
     def filter(self, src, f):
-        self.load(src)
+        assert self.has_dataset(src) and self.isloaded(src)
         self._dataset[src] = [v for v in self.dataset(src) if f(v) is True]
         return self
 
@@ -192,11 +192,10 @@ class Dataset():
         assert format in self._valid_ext        
         return os.path.join(self._indir, '%s.%d' % (d, format))
     
-    def load(self, src, format='pkl', flush=False):
+    def load(self, src, format='pkl'):
         assert self.has_dataset(src)
-        if not self.isloaded(src) or flush:
-            print('[pycollector.dataset]: Loading "%s" ...' % self._savefile(src, format))
-            self._dataset[src] = vipy.util.load(self._savefile(src, format))
+        print('[pycollector.dataset]: Loading "%s" ...' % self._savefile(src, format))
+        self._dataset[src] = vipy.util.load(self._savefile(src, format))
         return self
 
     def name(self):
@@ -244,14 +243,13 @@ class Dataset():
             assert srcdir is not None and not os.path.isabs(srcdir), "srcdir must be a relative path to '%s' of the subdirectory containing the media of dataset '%s' for staging" % (self._indir, src)
             assert os.path.isdir(os.path.join(self._indir, srcdir)), "srcdir must be a subdirectory of '%s'" % (self._indir)
             assert format in self._valid_ext, "Format must be in '%s'" % (str(self._valid_ext))
-            
+
             outname = outname if outname is not None else src  # out/src.pkl -> out/outname.pkl            
             print('[pycollector.dataset]: staging "%s" -> "%s"' % (src, os.path.join(stagedir, outname)))
             
-            V = [v.filename(os.path.relpath(v.filename(), filepath(self._indir))) for v in self.dataset(src)]  # /path/to/srcdir/$CATEGORY/$VIDEOID -> srcdir/$CATEGORY/$VIDEOID 
-            if outdir is not None:
-                outdir = outdir if outdir is not None else srcdir                
-                V = [v.filename(newpathroot(v.filename(), outdir)) for v in V]  # srcdir/$CATEGORY/$VIDEOID -> outdir/$CATEGORY/$VIDEOID
+            V = [v.relpath(self._indir) for v in self.dataset(src)]  # /path/to/srcdir/$CATEGORY/$VIDEOID -> srcdir/$CATEGORY/$VIDEOID
+            outdir = outdir if outdir is not None else srcdir                
+            V = [v.filename(newpathroot(v.filename(), outdir)) for v in V]  # srcdir/$CATEGORY/$VIDEOID -> outdir/$CATEGORY/$VIDEOID
             os.symlink(os.path.join(self._indir, srcdir), os.path.join(stagedir, outdir))  # /path/to/srcdir -> /path/to/stagedir/out/outdir                
             self._saveas(V, os.path.join(stagedir, '%s.%s' % (outname, format)), relpath=False, nourl=True, castas=vipy.video.Scene, noadmin=True, strict=self._strict)
             
@@ -280,15 +278,19 @@ class Dataset():
                  extras1.ext
                  extras2.ext    
         """
+        stagedir = os.path.join(self._stagedir, out)
         outfile = os.path.join(self._indir, outfile) if outfile is not None else os.path.join(self._indir, '%s.tar.gz' % out)        
         assert vipy.util.istgz(outfile) or vipy.util.isbz2(outfile), "Allowable extensions are .tar.gz, .tgz or .bz2"
         assert os.path.isdir(os.path.join(self._stagedir, out)), "Use stage() to stage datasets for archive()"
         assert shutil.which('tar') is not None, "tar not found on path"
-    
-        cmd = ('tar %scvf %s -C %s %s' % ('j' if vipy.util.isbz2(outfile) else 'z', 
-                                          outfile, 
-                                          self._stagedir,
-                                          out))
+
+        csvfile = writelist(list(set([v.filename() for f in set(listpkl(stagedir)+listjson(stagedir)) for v in vipy.util.load(f)])),
+                            os.path.join(stagedir, 'archivelist.csv'))
+        
+        cmd = ('tar %scvf %s -C %s --files-from=%s' % ('j' if vipy.util.isbz2(outfile) else 'z', 
+                                                       outfile, 
+                                                       self._stagedir,
+                                                       csvfile))
 
         print('[pycollector.dataset]: executing "%s"' % cmd)        
         os.system(cmd)  # too slow to use python "tarfile" package
@@ -337,8 +339,9 @@ class Dataset():
         csv = [v.csv() for v in self.dataset(src)]        
         return vipy.util.writecsv(csv, csvfile) if csvfile is not None else (csv[0], csv[1:])
 
-    def dataset(self, src, flush=False):
-        return self.load(src, flush=flush)._dataset[src]
+    def dataset(self, src):
+        assert self.has_dataset(src) and self.isloaded(src)
+        return self._dataset[src]
 
     def fetch(self, src, dst):
         f_saveas = lambda v, dstdir=dst, f=self._schema: f(dstdir, v)
