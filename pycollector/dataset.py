@@ -92,7 +92,7 @@ class Dataset():
        This class is designed to be used with vipy.batch.Batch() for massively parallel operations 
     """
 
-    def __init__(self, indir, resume=True, strict=True, ext=['pkl']):
+    def __init__(self, indir, strict=True, ext=['pkl'], checkpoint=True):
 
         indir = os.path.abspath(os.path.expanduser(indir))                
         
@@ -107,10 +107,12 @@ class Dataset():
                                                                                                           (fileext(v.filename(), withdot=False) if ext is None else str(ext))))
                                                                                             if (k is not None or ext is not None) 
                                                                                             else filetail(v.filename())))
+        
         self._dataset = {}  # cache
         self._Batch = vipy.batch.Batch  # Batch() API
-        self._resume = resume
         self._strict = strict
+        self._checkpoint = checkpoint
+        self._stagedir = remkdir(os.path.join(indir, '.archive'))
 
     def __repr__(self):
         return str('<pycollector.dataset: "%s">' % self._indir)
@@ -122,7 +124,7 @@ class Dataset():
         V_dst = self.dataset(dst) if self.has_dataset(dst) else []
         V_src = self.dataset(src)
         V_src = f_rebatch(V_src) if f_rebatch is not None else V_src
-        B = self._Batch(V_src, strict=False, as_completed=True, checkpoint=True)
+        B = self._Batch(V_src, strict=False, as_completed=True, checkpoint=self._checkpoint)
         V = B.map(f_transform).result() if not model else B.scattermap(f_transform, model).result()
         if any([v is None for v in V]):
             print('pycollector.dataset][%s->%s]: %d failed' % (src, dst, len([v for v in V if v is None])))
@@ -181,22 +183,10 @@ class Dataset():
         self._dataset[dst] = self._Batch.checkpoint()
         return self
 
-    def save(self, dst, nourl=False, castas=None, relpath=False):
+    def save(self, dst, nourl=False, castas=None, relpath=False, noadmin=False, strict=True):
         assert self.has_dataset(dst) and self.isloaded(dst)
         videolist = self.dataset(dst)
-        if relpath:
-            print('[pycollector.dataset]: setting relative paths')
-            videolist = [v.relpath(filepath(self._savefile(dst))) if os.path.isabs(v.filename()) else v for v in videolist]
-        if nourl: 
-            print('[pycollector.dataset]: removing URLs')
-            videolist = [v.nourl() for v in videolist]           
-        if castas is not None:
-            assert hasattr(castas, 'cast'), "Invalid cast"
-            print('[pycollector.dataset]: casting as "%s"' % (str(castas)))
-            videolist = [castas.cast(v) for v in videolist]                     
-        for f in self._savefiles(dst):
-            print('[pycollector.dataset]: Saving %d videos to "%s"' % (len(videolist), f))
-            vipy.util.save(videolist, f)
+        [self._saveas(videolist, f, nourl, castas, relpath, noadmin, strict) for f in self._savefiles()]
         return self
 
     def _savefiles(self, dst, ext=None):
@@ -221,7 +211,56 @@ class Dataset():
     def name(self):
         return filetail(self._indir)
 
-    def archive(self, outfile, datasetlist, extras=None, root=None, ext=None):
+    def take(self, src, n):
+        assert self.has_dataset(src)
+        self._dataset[src] = [self._dataset[src][k] for k in random.sample(range(0, len(self.dataset(src))), n)]
+        return self
+
+    def _saveas(self, V, outfile, nourl=False, castas=None, relpath=False, noadmin=False, strict=True):
+        if relpath:
+            print('[pycollector.dataset]: setting relative paths')
+            videolist = [v.relpath(filepath(self._savefile(dst))) if os.path.isabs(v.filename()) else v for v in videolist]
+        if nourl: 
+            print('[pycollector.dataset]: removing URLs')
+            videolist = [v.nourl() for v in videolist]           
+        if noadmin:
+            videolist = [v.delattribute('admin') for v in videolist]
+        if castas is not None:
+            assert hasattr(castas, 'cast'), "Invalid cast"
+            print('[pycollector.dataset]: casting as "%s"' % (str(castas)))
+            videolist = [castas.cast(v) for v in videolist]                     
+        if strict:
+            assert all([isinstance(v, vipy.video.Video) or isinstance(v, vipy.image.Image) for v in self.dataset(src)])
+            assert all([not vipy.util.isstring(v) or not is_email_address(v) for vid in V for (k,v) in vid.attributes.items()]), "Email addresses cannot be in archives"
+            assert all([not v.hasattribute('admin') for v in self.dataset(distsrc)]), "Admin query cannot be in archive"
+        print('[pycollector.dataset]: Saving %d videos to "%s"' % (len(videolist), outfile))
+        vipy.util.save(videolist, outfile)
+        return self
+
+        
+    def stage(self, out, src=None, srcname=None, srcdir=None, strict=True):        
+        stagedir = remkdir(os.path.join(self._stagedir, out))
+        if src is not None and self.has_dataset(src):
+            V = self.dataset(src)
+            oldsrcdir = os.path.split(V[0])[0]    # /path/to/srcdir/$CATEGORY/$ID
+            newsrcdir = srcdir if srcdir is not None else oldsrcdir
+            V = [v.filename(os.path.relpath(v.filename(), filepath(self._indir)).replace(oldsrcdir, newsrcdir)) for v in V]
+            self._saveas(V, os.path.join(stagedir, '%s.pkl' % (srcname)), relpath=True, nourl=True, castas=vipy.video.Scene, strict=strict)
+            os.simlink(os.path.join(self._indir, oldsrcdir), os.path.join(stagedir, newsrcdir))
+
+        elif src is not None and os.path.exists(src):
+            os.simlink(src, os.path.join(stagedir, filetail(src) if srcname is None else srcname))
+        else:
+            remkdir(stagedir, flush=True)            
+
+        return self
+
+    def archive(self, out, outfile=None):  #, datasetlist, extras=None, root=None, ext=None, strict=True):
+
+        stagedir = os.path.join(self._stagedir, out)
+        assert os.path.isdir(stagedir)
+        raise
+
         """Create a archive file from a list of datasets.  This will be archived as:
 
            outfile.{tar.gz|.tgz|.bz2}
@@ -255,8 +294,13 @@ class Dataset():
             self.save(self.dataset(src), distsrc, relpath=True, nourl=True, castas=vipy.video.Scene)
             deletelist.extend(self._savefiles(distsrc))  # for cleanup            
             archivelist.extend([os.path.relpath(f, filepath(self._indir)) for f in self._savefiles(distsrc, ext=tolist(ext))])
-            archivelist.extend([os.path.relpath(v.filename(), filepath(self._indir)) for v in self.dataset(distsrc)])  # should exist
-                                                        
+            archivelist.extend([os.path.relpath(v.filename(), filepath(self._indir)) for v in self.dataset(distsrc)]) 
+
+            if strict:
+                assert all([not vipy.util.isstring(v) or not is_email_address(v) for vid in self.dataset(distsrc) for (k,v) in vid.attributes.items()]), "Email addresses cannot be in archives"
+                assert all([not v.hasattribute('admin') for v in self.dataset(distsrc)]), "Admin query cannot be in archive"
+
+        # Tar archive
         filelist = vipy.util.writelist(archivelist, tempcsv())
         outfile = os.path.abspath(os.path.expanduser(outfile))       
         cmd = ('tar %scvf %s %s %s -C %s --files-from %s ' % ('j' if vipy.util.isbz2(outfile) else 'z', 
@@ -279,12 +323,15 @@ class Dataset():
         assert shutil.which('tar') is not None, "tar not found on path"
         print('[pycollector.dataset]: executing "%s"' % cmd)        
         print('[pycollector.dataset]: -Note that tar will print out the pre-transform filenames during add and not the extract filenames ...')
-        os.system(cmd)
-        
+        os.system(cmd)  # too slow to use python "tarfile" package
+
+        # Cleanup
         deletelist.append(filelist)
         for f in deletelist:
             if os.path.exists(f):
-                os.remove(f)  # cleanup
+                os.remove(f) 
+
+        print('[pycollector.dataset]: %s, MD5=%s' % (outfile, self.md5sum(outfile)))
         return outfile
 
     def md5sum(self, filename):
@@ -292,7 +339,12 @@ class Dataset():
         assert isbz2(filename) or istgz(filename)
         return vipy.downloader.generate_md5(filename)
     
-    def split(src, dstlist, trainfraction=0.7, testfraction=0.1, valfraction=0.2, seed=42, verbose=True):
+    def split_like(src, likeset, dst, key):
+        ids = set([key(v) for v in likeset])
+        self.new([v for v in self.dataset(src) if key(v) in ids], dst).save(dst)
+        return self
+
+    def split(src, traindst, testdst, valdst, trainfraction=0.7, testfraction=0.1, valfraction=0.2, seed=42):
         A = self.dataset(src)
         assert all([isinstance(a, vipy.video.Video) for a in A]), "Invalid input"
     
@@ -310,14 +362,13 @@ class Dataset():
             valset.extend(vallist)  
             trainset.extend(trainlist)
 
-        if verbose:
-            print('[pycollector.dataset]: trainset=%d (%1.1f)' % (len(trainset), trainfraction))
-            print('[pycollector.dataset]: valset=%d (%1.1f)' % (len(valset), valfraction))
-            print('[pycollector.dataset]: testset=%d (%1.1f)' % (len(testset), testfraction))
+        print('[pycollector.dataset]: trainset=%d (%1.1f)' % (len(trainset), trainfraction))
+        print('[pycollector.dataset]: valset=%d (%1.1f)' % (len(valset), valfraction))
+        print('[pycollector.dataset]: testset=%d (%1.1f)' % (len(testset), testfraction))
         
-        self._dataset[dstlist[0]] = trainset
-        self._dataset[dstlist[1]] = testset
-        self._dataset[dstlist[2]] = valset
+        self._dataset[traindst] = trainset
+        self._dataset[testdst] = testset
+        self._dataset[valdst] = valset
         return self
 
 
@@ -334,7 +385,7 @@ class Dataset():
         return self.map(src, dst, f_fetch)
         
 
-    def stabilize_refine_activityclip(self, src, dst, batchsize=1, dt=5, minlength=5, maxsize=2048):
+    def stabilize_refine_activityclip(self, src, dst, batchsize=1, dt=5, minlength=5, maxsize=512*3):
         from vipy.flow import Flow
         model = pycollector.detection.VideoProposalRefinement(batchsize=batchsize)  # =8 (0046) =20 (0053)
         f_process = (lambda net,v,dt=dt,f=self._schema,dst=dst,maxsize=maxsize: 
@@ -381,12 +432,12 @@ class Dataset():
         from vipy.flow import Flow
         f_saveas = lambda v, dstdir=dst, f=self._schema: f(dstdir, v)
         f_stabilize = (lambda v, f=f_saveas: Flow(flowdim=256).stabilize(v, strict=False, residual=True).saveas(f(v), flush=True).print() if v.canload() else None)
-        return self.map(src, dst, f_stabilize, resume=self._resume)
+        return self.map(src, dst, f_stabilize)
 
     def refine(self, src, dst, batchsize=1, dt=3, minlength=5):        
         model = pycollector.detection.VideoProposalRefinement(batchsize=batchsize)  # =8 (0046) =20 (0053)
         f = lambda net, v, dt=dt: net(v, proposalconf=5E-2, proposaliou=0.8, miniou=0.2, dt=dt, mincover=0.8, byclass=True, shapeiou=0.7, smoothing='spline', splinefactor=None, strict=True).print()
-        V = self.map(src, dst, f, resume=self._resume, model=model, save=False).dataset(dst)
+        V = self.map(src, dst, f, model=model, save=False).dataset(dst)
         V = [v for v in V if (v is not None) and (not v.hasattribute('unrefined'))]  # remove videos that failed refinement
         V = [v.activityfilter(lambda a: any([a.hastrack(t) and len(t)>minlength and t.during(a.startframe(), a.endframe()) for t in v.tracklist()])) for v in V]  # get rid of activities without tracks greater than dt
         return self.save(V, dst)
@@ -394,17 +445,17 @@ class Dataset():
     def trackcrop(self, src, dst, dilate=1.0, mindim=512, maxsquare=True):
         f_saveas = lambda v, dstdir=dst, f=self._schema: f(dstdir, v)
         f_trackcrop = lambda v, d=dilate, m=mindim, f=f_saveas, b=maxsquare: v.trackcrop(dilate=d).mindim(m).maxsquareif(b).saveas(f(v)).print() if v.hastracks() else None
-        return self.map(src, dst, f_trackcrop, resume=self._resume)        
+        return self.map(src, dst, f_trackcrop)        
 
     def tubelet(self, src, dst, dilate=1.0, maxdim=512):
         f_saveas = lambda v, dstdir=dst, f=self._schema: f(dstdir, v)
         f_tubelet = lambda v, d=dilate, m=maxdim, f=f_saveas: v.activitytube(dilate=d, maxdim=512).saveas(f(v)).print() if v.hastracks() else None
-        return self.map(src, dst, f_tubelet, resume=self._resume)        
+        return self.map(src, dst, f_tubelet)        
 
     def resize(self, src, dst, mindim):
         f_saveas = lambda v, dstdir=dst, f=self._schema: f(dstdir, v)
         f_tubelet = lambda v, m=mindim, f=f_saveas: v.mindim(m).saveas(f(v)).print()
-        return self.map(src, dst, f_tubelet, resume=self._resume)        
+        return self.map(src, dst, f_tubelet)        
 
     def tohtml(self, src, outfile, mindim=512, title='Visualization', fraction=1.0, display=False, clip=True, activities=True, category=True):
         """Generate a standalone HTML file containing quicklooks for each annotated activity in dataset, along with some helpful provenance information for where the annotation came from"""
@@ -456,7 +507,7 @@ class Dataset():
     def copy(self, src, dst):
         f_saveas = lambda v, dstdir=dst, f=self._schema: f(dstdir, v)
         f = lambda v, f=f_saveas: v.saveas(f(v)).print() if v.isdownloaded() else v.download().saveas(f(v)).print()
-        return self.map(src, dst, f, resume=False)
+        return self.map(src, dst, f)
 
     def activityclip(self, src, dst):
         pass
