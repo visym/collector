@@ -190,7 +190,7 @@ class Dataset():
 
     def _savefile(self, d, format):
         assert format in self._valid_ext        
-        return os.path.join(self._indir, '%s.%d' % (d, format))
+        return os.path.join(self._indir, '%s.%s' % (d, format))
     
     def load(self, src, format='pkl'):
         assert self.has_dataset(src)
@@ -373,6 +373,8 @@ class Dataset():
 
     def refine_activityclip_stabilize(self, src, dst, batchsize=1, dt=3, minlength=5, padwidthfrac=1.0, padheightfrac=0.2):
         """Refine the bounding box, split into clips then stabilzie the clips.  This is more memory efficient for stabilization"""
+        assert self.has_dataset(src) and self.isloaded(src)
+
         from vipy.flow import Flow
         model = pycollector.detection.VideoProposalRefinement(batchsize=batchsize)  # =8 (0046) =20 (0053)
         f_process = (lambda net,v,dt=dt,f=self._schema,dst=dst,padwidthfrac=padwidthfrac,padheightfrac=padheightfrac: 
