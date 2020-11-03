@@ -7,7 +7,6 @@ import random
 import vipy
 import vipy.util
 import shutil
-from vipy.batch import Batch
 import uuid
 from pathlib import PurePath
 import warnings
@@ -94,7 +93,9 @@ class Dataset():
     """
 
     def __init__(self, indir, strict=True, checkpoint=True):
-
+ 
+        from vipy.batch import Batch       
+        
         indir = os.path.abspath(os.path.expanduser(indir))                
         
         self._indir = indir
