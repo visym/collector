@@ -472,7 +472,7 @@ class Dataset():
         (quicklooks, provenance) = zip(*sorted([(q,p) for (q,p) in zip(quicklooks, provenance)], key=lambda x: x[1]['category']))  # sorted in category order
         return vipy.visualize.tohtml(quicklooks, provenance, title='%s' % title, outfile=outfile, mindim=mindim, display=display)
 
-    def activitymontage(src, outfile, gridrows=30, gridcols=50, mindim=64, bycategory=False):
+    def activitymontage(self, src, outfile, gridrows=30, gridcols=50, mindim=64, bycategory=False):
         """30x50 activity montage, each 64x64 elements using the output of prepare_dataset"""
         vidlist = self.dataset(src)
         actlist = [v.mindim(mindim) for v in vidlist]
@@ -480,7 +480,7 @@ class Dataset():
         actlist = actlist[0:gridrows*gridcols]
         return vipy.visualize.videomontage(actlist, mindim, mindim, gridrows=gridrows, gridcols=gridcols).saveas(outfile).filename()
 
-    def activitymontage_bycategory(src, outfile, gridcols=49, mindim=64):
+    def activitymontage_bycategory(self, src, outfile, gridcols=49, mindim=64):
         """num_categoryes x gridcols activity montage, each row is a category"""
         np.random.seed(42)
         vidlist = self.dataset(src)
