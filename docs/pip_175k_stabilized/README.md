@@ -1,6 +1,6 @@
 # People in Public - 175k - Stabilized
 
-[![Collector visualization](https://i3.ytimg.com/vi/HjNa7_T-Xkc/maxresdefault.jpg)](https://youtu.be/HjNa7_T-Xkc)
+[![Collector visualization]()]()
 
 # Overview
 
