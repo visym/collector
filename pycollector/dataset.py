@@ -308,12 +308,12 @@ class Dataset():
         assert vipy.util.isbz2(filename) or vipy.util.istgz(filename)
         return vipy.downloader.generate_md5(filename)
     
-    def split_like(src, likeset, dst, key):
+    def split_like(self, src, likeset, dst, key):
         ids = set([key(v) for v in likeset])
         self.new([v for v in self.dataset(src) if key(v) in ids], dst).save(dst)
         return self
 
-    def split(src, traindst, testdst, valdst, trainfraction=0.7, testfraction=0.1, valfraction=0.2, seed=42):
+    def split(self, src, traindst, testdst, valdst, trainfraction=0.7, testfraction=0.1, valfraction=0.2, seed=42):
         A = self.dataset(src)
         assert all([isinstance(a, vipy.video.Video) for a in A]), "Invalid input"
     
@@ -472,15 +472,15 @@ class Dataset():
         (quicklooks, provenance) = zip(*sorted([(q,p) for (q,p) in zip(quicklooks, provenance)], key=lambda x: x[1]['category']))  # sorted in category order
         return vipy.visualize.tohtml(quicklooks, provenance, title='%s' % title, outfile=outfile, mindim=mindim, display=display)
 
-    def activitymontage(src, gridrows=30, gridcols=50, mindim=64, bycategory=False):
+    def activitymontage(src, outfile, gridrows=30, gridcols=50, mindim=64, bycategory=False):
         """30x50 activity montage, each 64x64 elements using the output of prepare_dataset"""
         vidlist = self.dataset(src)
         actlist = [v.mindim(mindim) for v in vidlist]
         np.random.seed(42); random.shuffle(actlist)
         actlist = actlist[0:gridrows*gridcols]
-        return vipy.visualize.videomontage(actlist, mindim, mindim, gridrows=gridrows, gridcols=gridcols).saveas(toextension(pklfile, 'mp4')).filename()
+        return vipy.visualize.videomontage(actlist, mindim, mindim, gridrows=gridrows, gridcols=gridcols).saveas(outfile).filename()
 
-    def activitymontage_bycategory(src, gridcols=49, mindim=64):
+    def activitymontage_bycategory(src, outfile, gridcols=49, mindim=64):
         """num_categoryes x gridcols activity montage, each row is a category"""
         np.random.seed(42)
         vidlist = self.dataset(src)
@@ -492,10 +492,10 @@ class Dataset():
             random.shuffle(actlist_k)
             assert len(actlist_k) >= gridcols
             actlist.extend(actlist_k[0:gridcols])
-            outfile = os.path.join(filepath(pklfile), '%s_%s.mp4' % (filebase(pklfile), k))
+            outfile = os.path.join(filepath(outfile), '%s_%s.mp4' % (filebase(outfile), k))
             print(vipy.visualize.videomontage(actlist_k[0:15], 256, 256, gridrows=3, gridcols=5).saveas(outfile).filename())
 
-        outfile = os.path.join(filepath(pklfile), '%s_%d_bycategory.mp4' % (filebase(pklfile), gridcols))
+        outfile = os.path.join(filepath(outfile), '%s_%d_bycategory.mp4' % (filebase(outfile), gridcols))
         print('[pycollector.dataset.activitymontage_bycategory]: rows=%s' % str(sorted(categories)))
         return vipy.visualize.videomontage(actlist, mindim, mindim, gridrows=len(categories), gridcols=gridcols).saveas(outfile).filename()
 
