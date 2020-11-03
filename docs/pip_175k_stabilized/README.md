@@ -10,22 +10,25 @@ make collecting annotated video datasets as easily and cheaply as recording a vi
 classes (http://mevadata.org).  This package provides a release of this dataset, containing 184,379 annotated activity instances collected by 
 over 150 subjects in 44 countries around the world. 
 
-# Download
+This dataset contains 184,379 stabilized video clips of 68 classes of activities performed by people in public places.  The activity labels are subsets of the 37 activities in the [Multiview Extended Video with Activities (MEVA)](https://mevadata.org) dataset and is consistent with the [Activities in Extended Video (ActEV)](https://actev.nist.gov/) challenge.  
 
-This dataset contains 184,379 stabilized video clips of 68 classes of activities performed by people in public places.  The activity labels are subsets of the 37 activities in the [Multiview Extended Video with Activities (MEVA)](https://mevadata.org) dataset and is consistent with the [Activities in Extended Video (ActEV)](https://actev.nist.gov/) challenge.  [Background stabilization](https://github.com/visym/vipy/blob/bc20f6f32492badd181faa0ccf7b0029f1f63fee/vipy/video.py#L2084-L2087) was performed using an affine coarse to fine optical-flow method, followed by [actor bounding box stabilization](https://github.com/visym/collector/blob/adc5486c7f88291b77f9a707a78763c2b5958406/pycollector/detection.py#L177-L236).  Stabilizations exhibit low artifacts for small motions in the region near the center of the actor box.  All stabilizations can be filtered using the attribute "v.getattribute('stabilize')" on the stabilization residual as desired.
+[Background stabilization](https://github.com/visym/vipy/blob/bc20f6f32492badd181faa0ccf7b0029f1f63fee/vipy/video.py#L2084-L2087) was performed using an affine coarse to fine optical-flow method, followed by [actor bounding box stabilization](https://github.com/visym/collector/blob/adc5486c7f88291b77f9a707a78763c2b5958406/pycollector/detection.py#L177-L236).  Stabilizations exhibit low artifacts for small motions in the region near the center of the actor box.  All stabilizations can be filtered using the attribute "v.getattribute('stabilize')" on the stabilization residual as desired.  Remaining stabilization artifacts are due to non-planar scene structure, rolling shutter distortion, and sub-pixel optical flow correspondence errors. 
+
+# Download
 
 * [pip_175k_stabilized_0.tar.gz (12.4 GB)](https://dl.dropboxusercontent.com/s/j8p4gxeyjit3z1z/pip_175k_stabilized_0.tar.gz)&nbsp;&nbsp;MD5:1b66b03173dab65318454bf77b898b52&nbsp;&nbsp;&nbsp;&nbsp;
 * pip_175k_stabilized_{1-9}.tar.gz (XXX GB) uploading ...
 
 # Quickstart
 
-See (pip-175k)[https://visym.github.io/collector/pip_175k/].
+See [pip-175k](https://visym.github.io/collector/pip_175k/).
 
 To extract the smallest video crop containing the stabilized track for a vipy.video.Scene() object v:
 
 ```python
 import vipy
 v.crop(v.trackbox(dilate=1.0).maxsquare()).saveas('/path/to/out.mp4')
+v.getattribute('stabilize')   # returns a stabilization residual (bigger is worse)
 ```
 
 # License
