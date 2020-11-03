@@ -2,7 +2,7 @@ import os
 import numpy as np
 import pycollector.detection
 from pycollector.globals import print
-from vipy.util import findpkl, toextension, filepath, filebase, jsonlist, ishtml, ispkl, filetail, temphtml, listpkl, listext, templike, tempdir, remkdir, tolist, fileext, writelist, tempcsv, newpathroot, listjson
+from vipy.util import findpkl, toextension, filepath, filebase, jsonlist, ishtml, ispkl, filetail, temphtml, listpkl, listext, templike, tempdir, remkdir, tolist, fileext, writelist, tempcsv, newpathroot, listjson, extlist
 import random
 import vipy
 import vipy.util
@@ -254,15 +254,16 @@ class Dataset():
             self._saveas(V, os.path.join(stagedir, '%s.%s' % (outname, format)), relpath=False, nourl=True, castas=vipy.video.Scene, noadmin=True, strict=self._strict)
             
         elif src is not None and os.path.exists(src):
-            print('[pycollector.dataset]: staging "%s" -> "%s"' % (src, os.path.join(stagedir, filetail(src))))
-            os.symlink(src, os.path.join(stagedir, filetail(src)))
+            stagename = os.path.join(stagedir, filetail(src) if outname is None else outname)
+            print('[pycollector.dataset]: staging "%s" -> "%s"' % (src, stagename))
+            os.symlink(src, stagename)
         else:
             print('[pycollector.dataset]: creating staging for "%s"' % stagedir)
             remkdir(stagedir, flush=True)            
 
         return self
 
-    def archive(self, out, outfile=None):
+    def archive(self, out, outfile=None, verbose=True):
         """Create a archive file from a list of datasets.  This will be archived as:
 
            Archive layout as generated from repeated calls to stage()
@@ -284,17 +285,22 @@ class Dataset():
         assert os.path.isdir(os.path.join(self._stagedir, out)), "Use stage() to stage datasets for archive()"
         assert shutil.which('tar') is not None, "tar not found on path"
 
-        csvfile = writelist(list(set([v.filename() for f in set(listpkl(stagedir)+listjson(stagedir)) for v in vipy.util.load(f)])),
-                            os.path.join(stagedir, 'archivelist.csv'))
+        pwd = os.getcwd()
+        os.chdir(stagedir)
+        videolist = list(set([v.abspath().filename() for f in set(listpkl(stagedir)+listjson(stagedir)) for v in vipy.util.load(f)]))
+        extraslist = listpkl(stagedir) + listjson(stagedir) + listext(stagedir, '.md') + listext(stagedir, '.pdf') + listext(stagedir, '.txt')
+        filesfrom = writelist([os.path.relpath(f, self._stagedir) for f in videolist+extraslist], os.path.join(stagedir, 'archivelist.csv'))
         
-        cmd = ('tar %scvf %s -C %s --files-from=%s' % ('j' if vipy.util.isbz2(outfile) else 'z', 
-                                                       outfile, 
-                                                       self._stagedir,
-                                                       csvfile))
+        cmd = ('tar %scvf %s -C %s --files-from=%s %s' % ('j' if vipy.util.isbz2(outfile) else 'z', 
+                                                          outfile, 
+                                                          self._stagedir,
+                                                          filesfrom,
+                                                          ' > /dev/null' if not verbose else ''))
 
         print('[pycollector.dataset]: executing "%s"' % cmd)        
         os.system(cmd)  # too slow to use python "tarfile" package
         print('[pycollector.dataset]: %s, MD5=%s' % (outfile, self.md5sum(outfile)))
+        os.chdir(pwd)  # restore 
         return outfile
 
     def md5sum(self, filename):
