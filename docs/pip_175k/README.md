@@ -121,7 +121,7 @@ This temporal padding may result in negative start times for some activities.
 
 # Best Practices for Training
 
-[Notebook demo](best_practices.html) showing best practices for using the PIP-175k dataset for training.
+[Notebook demo](https://htmlpreview.github.io/?https://github.com/visym/collector/blob/master/docs/pip_175k/best_practices.html) showing best practices for using the PIP-175k dataset for training.
 
 # License
 
