@@ -72,7 +72,7 @@ class ObjectDetector(object):
         self._index2cls = {k:c for (c,k) in self._cls2index.items()}
         self.gpu(vipy.globals.gpuindex())  # cpu if gpuindex==None
 
-    def __call__(self, im, conf=5E-1, iou=0.5):
+    def __call__(self, im, conf=5E-1, iou=0.5, union=False):
         assert isinstance(im, vipy.image.Image), "Invalid input - must be vipy.image.Image object and not '%s'" % (str(type(im)))
         self.gpu(vipy.globals.gpuindex())  # cpu if gpuindex==None
 
@@ -87,7 +87,8 @@ class ObjectDetector(object):
                                          category='%s' % self._index2cls[int(np.argmax(d[5:]))])
                    for d in dets if float(d[4]) > conf]
         objects = [obj.rescale(scale) for obj in objects]
-        return vipy.image.Scene(array=im.numpy(), objects=objects).nms(conf, iou).union(im)
+        imd = vipy.image.Scene(array=im.numpy(), objects=objects).nms(conf, iou)
+        return imd if not union else imd.union(im)
 
     def classlist(self):
         return list(self._cls2index.keys())

@@ -119,6 +119,10 @@ v.stabilize().show()
 
 This temporal padding may result in negative start times for some activities.
 
+# Best Practices for Training
+
+[Notebook demo](best_practices.html) showing best practices for using the PIP-175k dataset for training.
+
 # License
 
 Creative Commons Attribution 4.0 International [(CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/)
