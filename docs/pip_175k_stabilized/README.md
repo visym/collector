@@ -30,6 +30,9 @@ import vipy
 v.crop(v.trackbox(dilate=1.0).maxsquare()).saveas('/path/to/out.mp4')
 v.getattribute('stabilize')   # returns a stabilization residual (bigger is worse)
 ```
+# Best Practices for Training
+
+[Notebook demo](https://htmlpreview.github.io/?https://github.com/visym/collector/blob/master/docs/pip_175k/best_practices.html) showing best practices for using the PIP-175k dataset for training.
 
 # License
 
