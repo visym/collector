@@ -2,7 +2,7 @@
 
 # People in Public - 175k - Stabilized
 
-[![Collector visualization](https://rawcdn.githack.com/visym/collector/5381e805cac4195ddebe25389b0e40368536a710/docs/pip_175k_stabilized/pip_175k_stabilized.webp)](https://rawcdn.githack.com/visym/collector/5381e805cac4195ddebe25389b0e40368536a710/docs/pip_175k_stabilized/pip_175k_stabilized.webp)
+![](pip_175k_stabilized.webp)
 
 # Overview
 
