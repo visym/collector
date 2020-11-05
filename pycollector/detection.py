@@ -87,7 +87,7 @@ class ObjectDetector(object):
                                          category='%s' % self._index2cls[int(np.argmax(d[5:]))])
                    for d in dets if float(d[4]) > conf]
         objects = [obj.rescale(scale) for obj in objects]
-        imd = vipy.image.Scene(array=im.numpy(), objects=objects).nms(conf, iou)
+        imd = im.clone().array(im.numpy()).objects(objects).nms(conf, iou)  # clone for shared attributese
         return imd if not union else imd.union(im)
 
     def classlist(self):
@@ -104,11 +104,41 @@ class ObjectDetector(object):
 
 
 class VideoDetector(ObjectDetector):
-    def __call__(v, conf=0.5, iou=0.5):
-        assert isinstance(v, vipy.video.Video)
-        raise NotImplementedError('Coming Soon')
+    def __call__(self, v, conf=0.5, iou=0.5):
+        assert isinstance(v, vipy.video.Video), "Invalid input"        
+        for im in v.stream():
+            yield super().__call__(im, conf=conf, iou=iou)
 
-    
+            
+class MultiscaleVideoDetector(ObjectDetector):
+    """Run VideoDetector on every frame of video, tiling the frame to a mosaic each of size (self._mindim, self._mindim)"""
+    def __call__(self, v, conf=0.5, iou=0.5):
+        f = super().__call__        
+        assert isinstance(v, vipy.video.Video), "Invalid input"
+        for imf in v.stream():
+            imcoarse = f(imf)
+            imfine = imf.clone().untile( [f(im, conf=conf, iou=iou) for im in imf.tile(self._mindim, self._mindim, overlaprows=0, overlapcols=0)])
+            yield imcoarse.union(imfine).nms(conf, iou)
+
+
+class VideoTracker(VideoDetector):
+    def __call__(self, v, conf=0.5, iou=0.5):
+        assert isinstance(v, vipy.video.Video), "Invalid input"        
+        for (k, im) in enumerate(super().__call__(v, conf=conf, iou=iou)):
+            yield v.assign(k, im.objects())
+
+class MultiscaleVideoTracker(ObjectDetector):
+    def __call__(self, v, conf=0.5, iou=0.5, n=30):
+        f = super().__call__
+        assert isinstance(v, vipy.video.Video), "Invalid input"
+        for (k, imf) in enumerate(v.stream()):
+            imcoarse = f(imf)
+            imtiles = imf.tile(self._mindim, self._mindim, overlaprows=0, overlapcols=0)
+            imlast = v.frame(max(0, k-1))
+            imfine = imf.clone().untile([f(im, conf=conf, iou=iou) for im in imtiles if (k%n == 0) or len(imlast.clone().objectfilter(lambda o: o.iou((im.attributes['tile']['crop'])) > 0))])
+            yield v.assign(k, imcoarse.union(imfine).nms(conf, iou).objects())
+            
+        
 class Proposal(ObjectDetector):
     def __call__(self, v, conf=1E-2, iou=0.8):
         return super().__call__(v, conf, iou)
