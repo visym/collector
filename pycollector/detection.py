@@ -124,8 +124,8 @@ class MultiscaleVideoDetector(ObjectDetector):
 class VideoTracker(VideoDetector):
     def __call__(self, v, conf=0.5, iou=0.5):
         assert isinstance(v, vipy.video.Video), "Invalid input"        
-        for (k, im) in enumerate(super().__call__(v, conf=conf, iou=iou)):
-            yield v.assign(k, im.objects())
+        for (k, im) in enumerate(super().__call__(v.clone(), conf=conf, iou=iou)):
+            yield v.assign(k, im.objects(), miniou=iou)
 
 class MultiscaleVideoTracker(ObjectDetector):
     def __call__(self, v, conf=0.5, iou=0.5, n=30):
