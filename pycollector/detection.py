@@ -117,25 +117,27 @@ class MultiscaleVideoDetector(ObjectDetector):
         assert isinstance(v, vipy.video.Video), "Invalid input"
         for imf in v.stream():
             imcoarse = f(imf)
-            imfine = imf.clone().untile( [f(im, conf=conf, iou=iou) for im in imf.tile(self._mindim, self._mindim, overlaprows=0, overlapcols=0)])
+            imfine = imf.clone().untile( [f(im, conf=conf, iou=iou) for im in imf.tile(self._mindim, self._mindim, overlaprows=self._mindim//2, overlapcols=self._mindim//2)])
             yield imcoarse.union(imfine).nms(conf, iou)
 
 
 class VideoTracker(VideoDetector):
-    def __call__(self, v, conf=0.5, iou=0.5):
+    def __call__(self, v, conf=0.5, iou=0.5, maxarea=1.0):
         assert isinstance(v, vipy.video.Video), "Invalid input"        
         for (k, im) in enumerate(super().__call__(v.clone(), conf=conf, iou=iou)):
-            yield v.assign(k, im.objects(), miniou=iou)
+            yield v.assign(k, im.objectfilter(lambda o: o.area() <= maxarea*im.area()).objects(), miniou=iou)
 
+            
 class MultiscaleVideoTracker(ObjectDetector):
-    def __call__(self, v, conf=0.5, iou=0.5, n=30):
+    def __call__(self, v, conf=0.5, iou=0.5, n=30, maxarea=1.0):
         f = super().__call__
         assert isinstance(v, vipy.video.Video), "Invalid input"
         for (k, imf) in enumerate(v.stream()):
-            imcoarse = f(imf)
-            imtiles = imf.tile(self._mindim, self._mindim, overlaprows=0, overlapcols=0)
+            imcoarse = imf.clone().untile([f(im) for im in imf.clone().mindim(self._mindim).tile(self._mindim, self._mindim, overlaprows=self._mindim//2, overlapcols=self._mindim//2)]).mindim(imf.mindim())
+            imtiles = imf.tile(self._mindim, self._mindim, overlaprows=self._mindim//2, overlapcols=self._mindim//2)
             imlast = v.frame(max(0, k-1))
-            imfine = imf.clone().untile([f(im, conf=conf, iou=iou) for im in imtiles if (k%n == 0) or len(imlast.clone().objectfilter(lambda o: o.iou((im.attributes['tile']['crop'])) > 0))])
+            imfine = imf.clone().untile([f(im, conf=conf, iou=iou).objectfilter(lambda o: o.area()<=maxarea*im.area() and o.clone().dilate(1.1).isinterior(im.width(), im.height()))  # not too big or occluded by image boundary
+                                         for im in imtiles if (k%n == 0) or len(imlast.clone().objectfilter(lambda o: o.iou((im.attributes['tile']['crop'])) > 0))])
             yield v.assign(k, imcoarse.union(imfine).nms(conf, iou).objects())
             
         
