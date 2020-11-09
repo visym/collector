@@ -103,22 +103,28 @@ class ObjectDetector(object):
         return self
 
 
-class VideoDetector(ObjectDetector):
+class MultiscaleObjectDetector(ObjectDetector):
+    """Run VideoDetector on every frame of video, tiling the frame to a mosaic each of size (self._mindim, self._mindim)"""
+    def __call__(self, imf, conf=0.5, iou=0.5, maxarea=1.0):
+        (f, n) = (super().__call__, self._mindim)
+        imcoarse = imf.clone().untile([f(im) for im in imf.clone().mindim(n).tile(n, n, overlaprows=n//2, overlapcols=n//2)]).mindim(imf.mindim()).nms(conf, iou)
+        imfine = imf.clone().untile( [f(im, conf=conf, iou=iou).objectfilter(lambda o: o.area()<=maxarea*im.area() and o.clone().dilate(1.1).isinterior(im.width(), im.height()))
+                                      for im in imf.tile(n, n, overlaprows=n//2, overlapcols=n//2)])
+        return imf.union(imcoarse).union(imfine, iou).nms(conf, iou)
+    
+class VideoDetector(ObjectDetector):  
     def __call__(self, v, conf=0.5, iou=0.5):
         assert isinstance(v, vipy.video.Video), "Invalid input"        
         for im in v.stream():
             yield super().__call__(im, conf=conf, iou=iou)
 
             
-class MultiscaleVideoDetector(ObjectDetector):
+class MultiscaleVideoDetector(MultiscaleObjectDetector):
     """Run VideoDetector on every frame of video, tiling the frame to a mosaic each of size (self._mindim, self._mindim)"""
     def __call__(self, v, conf=0.5, iou=0.5):
-        f = super().__call__        
         assert isinstance(v, vipy.video.Video), "Invalid input"
         for imf in v.stream():
-            imcoarse = f(imf)
-            imfine = imf.clone().untile( [f(im, conf=conf, iou=iou) for im in imf.tile(self._mindim, self._mindim, overlaprows=self._mindim//2, overlapcols=self._mindim//2)])
-            yield imcoarse.union(imfine).nms(conf, iou)
+            yield super().__call__(imf, conf, iou)
 
 
 class VideoTracker(VideoDetector):
@@ -129,16 +135,19 @@ class VideoTracker(VideoDetector):
 
             
 class MultiscaleVideoTracker(ObjectDetector):
-    def __call__(self, v, conf=0.5, iou=0.5, n=30, maxarea=1.0):
-        f = super().__call__
+    def __call__(self, v, conf=0.5, iou=0.5, stride=30, maxarea=1.0):
+        (f, n) = (super().__call__, self._mindim)
         assert isinstance(v, vipy.video.Video), "Invalid input"
+        assert stride > 0, "Invalid input"
         for (k, imf) in enumerate(v.stream()):
-            imcoarse = imf.clone().untile([f(im) for im in imf.clone().mindim(self._mindim).tile(self._mindim, self._mindim, overlaprows=self._mindim//2, overlapcols=self._mindim//2)]).mindim(imf.mindim())
-            imtiles = imf.tile(self._mindim, self._mindim, overlaprows=self._mindim//2, overlapcols=self._mindim//2)
-            imlast = v.frame(max(0, k-1))
+            imcoarse = imf.clone().untile([f(im) for im in imf.clone().mindim(n).tile(n, n, overlaprows=n//2, overlapcols=n//2)]).mindim(imf.mindim())
             imfine = imf.clone().untile([f(im, conf=conf, iou=iou).objectfilter(lambda o: o.area()<=maxarea*im.area() and o.clone().dilate(1.1).isinterior(im.width(), im.height()))  # not too big or occluded by image boundary
-                                         for im in imtiles if (k%n == 0) or len(imlast.clone().objectfilter(lambda o: o.iou((im.attributes['tile']['crop'])) > 0))])
-            yield v.assign(k, imcoarse.union(imfine).nms(conf, iou).objects())
+                                         for im in imf.tile(n, n, overlaprows=n//2, overlapcols=n//2)
+                                         if (k%stride == 0) or len(imlast.clone().objectfilter(lambda o: o.iou((im.attributes['tile']['crop'])) > 0))])
+            imfine = imfine if imfine is not None else imf            
+            v.assign(k, imcoarse.union(imfine).nms(conf, iou).objects())  # in-place
+            imlast = v.frame(k, img=imf.array())  # for imfine tracker only in regions with objects            
+            yield v
             
         
 class Proposal(ObjectDetector):

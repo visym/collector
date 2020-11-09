@@ -47,7 +47,7 @@ class ActivityRecognition(object):
         return vipy.activity.Activity(startframe=0, endframe=self._num_frames, category=c[0], actorid=video.actorid(), confidence=s[0]) if (threshold is None or s[0]>threshold) else None
             
     def top1(self, video=None, tensor=None, threshold=None):
-        return topk(k=1, video=video, tensor=tensor, threshold=threshold)
+        return self.topk(k=1, video=video, tensor=tensor, threshold=threshold)
 
     def topk(self, k, video=None, tensor=None, threshold=None):
         logits = self.__call__(video, tensor)
