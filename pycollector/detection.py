@@ -136,7 +136,7 @@ class VideoTracker(VideoDetector):
             
 class MultiscaleVideoTracker(ObjectDetector):
     def __call__(self, v, conf=0.5, iou=0.5, stride=30, maxarea=1.0):
-        (f, n) = (super().__call__, self._mindim)
+        (f, n, imlast) = (super().__call__, self._mindim, None)
         assert isinstance(v, vipy.video.Video), "Invalid input"
         assert stride > 0, "Invalid input"
         for (k, imf) in enumerate(v.stream()):
