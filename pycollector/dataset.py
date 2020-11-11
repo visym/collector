@@ -248,7 +248,7 @@ class Dataset():
             outname = outname if outname is not None else src  # out/src.pkl -> out/outname.pkl            
             print('[pycollector.dataset]: staging "%s" -> "%s"' % (src, os.path.join(stagedir, outname)))
             
-            V = [v.relpath(self._indir) for v in self.dataset(src)]  # /path/to/srcdir/$CATEGORY/$VIDEOID -> srcdir/$CATEGORY/$VIDEOID
+            V = [v.clone().relpath(self._indir) for v in self.dataset(src)]  # /path/to/srcdir/$CATEGORY/$VIDEOID -> srcdir/$CATEGORY/$VIDEOID
             outdir = outdir if outdir is not None else srcdir                
             V = [v.filename(newpathroot(v.filename(), outdir)) for v in V]  # srcdir/$CATEGORY/$VIDEOID -> outdir/$CATEGORY/$VIDEOID
             os.symlink(os.path.join(self._indir, srcdir), os.path.join(stagedir, outdir))  # /path/to/srcdir -> /path/to/stagedir/out/outdir                
