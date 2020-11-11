@@ -291,11 +291,11 @@ class Dataset():
         extraslist = listpkl(stagedir) + listjson(stagedir) + listext(stagedir, '.md') + listext(stagedir, '.pdf') + listext(stagedir, '.txt')
         filesfrom = writelist([os.path.relpath(f, self._stagedir) for f in videolist+extraslist], os.path.join(stagedir, 'archivelist.csv'))
         
-        cmd = ('tar %scvf %s -C %s --files-from=%s %s' % ('j' if vipy.util.isbz2(outfile) else 'z', 
-                                                          outfile, 
-                                                          self._stagedir,
-                                                          filesfrom,
-                                                          ' > /dev/null' if not verbose else ''))
+        cmd = ('tar %scvf %s -C %s --dereference --files-from=%s %s' % ('j' if vipy.util.isbz2(outfile) else 'z', 
+                                                                        outfile, 
+                                                                        self._stagedir,
+                                                                        filesfrom,
+                                                                        ' > /dev/null' if not verbose else ''))
 
         print('[pycollector.dataset]: executing "%s"' % cmd)        
         os.system(cmd)  # too slow to use python "tarfile" package
