@@ -87,7 +87,7 @@ class ObjectDetector(object):
                                          category='%s' % self._index2cls[int(np.argmax(d[5:]))])
                    for d in dets if float(d[4]) > conf]
         objects = [obj.rescale(scale) for obj in objects]
-        imd = vipy.image.Scene(array=im.numpy(), objects=objects).nms(conf, iou)
+        imd = im.clone().array(im.numpy()).objects(objects).nms(conf, iou)  # clone for shared attributese
         return imd if not union else imd.union(im)
 
     def classlist(self):
@@ -103,12 +103,53 @@ class ObjectDetector(object):
         return self
 
 
-class VideoDetector(ObjectDetector):
-    def __call__(v, conf=0.5, iou=0.5):
-        assert isinstance(v, vipy.video.Video)
-        raise NotImplementedError('Coming Soon')
-
+class MultiscaleObjectDetector(ObjectDetector):
+    """Run VideoDetector on every frame of video, tiling the frame to a mosaic each of size (self._mindim, self._mindim)"""
+    def __call__(self, imf, conf=0.5, iou=0.5, maxarea=1.0):
+        (f, n) = (super().__call__, self._mindim)
+        imcoarse = imf.clone().untile([f(im) for im in imf.clone().mindim(n).tile(n, n, overlaprows=n//2, overlapcols=n//2)]).mindim(imf.mindim()).nms(conf, iou)
+        imfine = imf.clone().untile( [f(im, conf=conf, iou=iou).objectfilter(lambda o: o.area()<=maxarea*im.area() and o.clone().dilate(1.1).isinterior(im.width(), im.height()))
+                                      for im in imf.tile(n, n, overlaprows=n//2, overlapcols=n//2)])
+        return imf.union(imcoarse).union(imfine, iou).nms(conf, iou)
     
+class VideoDetector(ObjectDetector):  
+    def __call__(self, v, conf=0.5, iou=0.5):
+        assert isinstance(v, vipy.video.Video), "Invalid input"        
+        for im in v.stream():
+            yield super().__call__(im, conf=conf, iou=iou)
+
+            
+class MultiscaleVideoDetector(MultiscaleObjectDetector):
+    """Run VideoDetector on every frame of video, tiling the frame to a mosaic each of size (self._mindim, self._mindim)"""
+    def __call__(self, v, conf=0.5, iou=0.5):
+        assert isinstance(v, vipy.video.Video), "Invalid input"
+        for imf in v.stream():
+            yield super().__call__(imf, conf, iou)
+
+
+class VideoTracker(VideoDetector):
+    def __call__(self, v, conf=0.5, iou=0.5, maxarea=1.0):
+        assert isinstance(v, vipy.video.Video), "Invalid input"        
+        for (k, im) in enumerate(super().__call__(v.clone(), conf=conf, iou=iou)):
+            yield v.assign(k, im.objectfilter(lambda o: o.area() <= maxarea*im.area()).objects(), miniou=iou)
+
+            
+class MultiscaleVideoTracker(ObjectDetector):
+    def __call__(self, v, conf=0.5, iou=0.5, stride=30, maxarea=1.0, maxhistory=30, smoothing=None):
+        (f, n, imlast) = (super().__call__, self._mindim, None)
+        assert isinstance(v, vipy.video.Video), "Invalid input"
+        assert stride > 0, "Invalid input"
+        for (k, imf) in enumerate(v.stream()):
+            imcoarse = imf.clone().untile([f(im) for im in imf.clone().mindim(n).tile(n, n, overlaprows=n//2, overlapcols=n//2)]).mindim(imf.mindim())
+            imfine = imf.clone().untile([f(im, conf=conf, iou=iou).objectfilter(lambda o: o.area()<=maxarea*im.area() and o.clone().dilate(1.1).isinterior(im.width(), im.height()))  # not too big or occluded by image boundary
+                                         for im in imf.tile(n, n, overlaprows=n//2, overlapcols=n//2)
+                                         if (k%stride == 0) or len(imlast.clone().objectfilter(lambda o: o.iou((im.attributes['tile']['crop'])) > 0))])
+            imfine = imfine if imfine is not None else imf            
+            v.assign(k, imcoarse.union(imfine).nms(conf, iou).objects(), miniou=iou, maxhistory=maxhistory)  # in-place
+            imlast = v.frame(k, img=imf.array())  # for imfine tracker only in regions with objects
+            yield v
+            
+        
 class Proposal(ObjectDetector):
     def __call__(self, v, conf=1E-2, iou=0.8):
         return super().__call__(v, conf, iou)

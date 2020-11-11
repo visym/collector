@@ -7,7 +7,6 @@ import random
 import vipy
 import vipy.util
 import shutil
-from vipy.batch import Batch
 import uuid
 from pathlib import PurePath
 import warnings
@@ -93,11 +92,13 @@ class Dataset():
        This class is designed to be used with vipy.batch.Batch() for massively parallel operations 
     """
 
-    def __init__(self, indir, strict=True, checkpoint=True):
-
+    def __init__(self, indir=None, strict=True, checkpoint=True):
+ 
+        from vipy.batch import Batch       
+        
         indir = os.path.abspath(os.path.expanduser(indir))                
         
-        self._indir = indir
+        self._indir = indir if indir is not None else tempdir()
         assert os.path.isdir(indir), "invalid input directory"
         
         self._schema = (lambda dstdir, v, k=None, indir=self._indir, ext=None: os.path.join(indir, dstdir, v.category(), 
@@ -480,6 +481,9 @@ class Dataset():
         actlist = actlist[0:gridrows*gridcols]
         return vipy.visualize.videomontage(actlist, mindim, mindim, gridrows=gridrows, gridcols=gridcols).saveas(outfile).filename()
 
+    def stabilizemontage(self, src, outfile, gridrows=6, gridcols=10):
+         return vipy.visualize.videomontage([a.flush().crop(a.trackbox(dilate=1.2).maxsquare()).mindim(256).annotate() for a in self.take(src, gridrows*gridcols)], 128, 128, gridrows, gridcols).saveas(outfile)
+         
     def activitymontage_bycategory(self, src, outfile, gridcols=49, mindim=64):
         """num_categoryes x gridcols activity montage, each row is a category"""
         np.random.seed(42)

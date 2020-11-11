@@ -312,6 +312,8 @@ class Video(Scene):
                 variantlist = list(set([c.split('#')[1] if '#' in c else None for c in d['metadata']['category'].split(',')]))
                 if len(variantlist) != 1:
                     print('[pycollector.video]: WARNING - Ignoring mixed variant "%s"' % str(variantlist))
+                elif all([len(v)==0 for v in variantlist]):
+                    pass  # empty variant
                 elif any(['=' not in v or v.count('&') != (v.count('=')-1) for v in variantlist]):
                     print('[pycollector.video]: WARNING - Ignoring invalid variant "%s"' % str(variantlist))                    
                 else:
