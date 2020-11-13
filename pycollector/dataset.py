@@ -248,7 +248,7 @@ class Dataset():
             outname = outname if outname is not None else src  # out/src.pkl -> out/outname.pkl            
             print('[pycollector.dataset]: staging "%s" -> "%s"' % (src, os.path.join(stagedir, outname)))
             
-            V = [v.relpath(self._indir) for v in self.dataset(src)]  # /path/to/srcdir/$CATEGORY/$VIDEOID -> srcdir/$CATEGORY/$VIDEOID
+            V = [v.clone().relpath(self._indir) for v in self.dataset(src)]  # /path/to/srcdir/$CATEGORY/$VIDEOID -> srcdir/$CATEGORY/$VIDEOID
             outdir = outdir if outdir is not None else srcdir                
             V = [v.filename(newpathroot(v.filename(), outdir)) for v in V]  # srcdir/$CATEGORY/$VIDEOID -> outdir/$CATEGORY/$VIDEOID
             os.symlink(os.path.join(self._indir, srcdir), os.path.join(stagedir, outdir))  # /path/to/srcdir -> /path/to/stagedir/out/outdir                
@@ -292,11 +292,11 @@ class Dataset():
         extraslist = listpkl(stagedir) + listjson(stagedir) + listext(stagedir, '.md') + listext(stagedir, '.pdf') + listext(stagedir, '.txt')
         filesfrom = writelist([os.path.relpath(f, self._stagedir) for f in videolist+extraslist], os.path.join(stagedir, 'archivelist.csv'))
         
-        cmd = ('tar %scvf %s -C %s --files-from=%s %s' % ('j' if vipy.util.isbz2(outfile) else 'z', 
-                                                          outfile, 
-                                                          self._stagedir,
-                                                          filesfrom,
-                                                          ' > /dev/null' if not verbose else ''))
+        cmd = ('tar %scvf %s -C %s --dereference --files-from=%s %s' % ('j' if vipy.util.isbz2(outfile) else 'z', 
+                                                                        outfile, 
+                                                                        self._stagedir,
+                                                                        filesfrom,
+                                                                        ' > /dev/null' if not verbose else ''))
 
         print('[pycollector.dataset]: executing "%s"' % cmd)        
         os.system(cmd)  # too slow to use python "tarfile" package
