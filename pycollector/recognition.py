@@ -360,7 +360,14 @@ class ActivityRecognition_PIP175k(pl.LightningModule, ActivityRecognition):
         net = pycollector.model.ResNets_3D_PyTorch.resnet.generate_model(50, n_classes=1139)
         pretrain = torch.load(pthfile, map_location='cpu')
         net.load_state_dict(pretrain['state_dict'])
+
+        # Inflate RGB -> RGBA 
+        t = torch.split(net.net.conv1.weight.data, dim=1, split_size_or_sections=1)
+        net.conv1.weight.data = torch.cat( (*t, t[-1]) ).contiguous()
+        net.conv1.in_channels = 4
+
         self.net = net
+
         return self
 
     def totensor(self, v, training=False):
