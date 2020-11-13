@@ -9,16 +9,31 @@ from pycollector.video import Video
 from pycollector.model.yolov3.network import Darknet
 from pycollector.globals import print
 from pycollector.model.pyvideoresearch.bases.resnet50_3d import ResNet503D, ResNet3D, Bottleneck3D
+import pycollector.model.ResNets_3D_PyTorch.resnet
+
+import os
+import torch
+from torch import nn
+import torch.nn.functional as F
+from torchvision.datasets import MNIST
+import torch.utils.data
+from torch.utils.data import DataLoader, random_split, Dataset
+from torchvision import transforms
+import pytorch_lightning as pl
 
 
 class ActivityRecognition(object):
-    def __init__(self):
+    def __init__(self, pretrained=True):
         self.net =  None
         self._class_to_index = {}
         self._num_frames = 0
+
+    @classmethod
+    def transformer(cls):
+        return cls(pretrained=False)
         
-    def class_to_index(self):
-        return self._class_to_index
+    def class_to_index(self, c=None):
+        return self._class_to_index if c is None else self._class_to_index[c]
     
     def index_to_class(self, index=None):
         d = {v:k for (k,v) in self.class_to_index().items()}
@@ -29,8 +44,11 @@ class ActivityRecognition(object):
         assert video is not None or tensor is not None
         return self.net(tensor)
 
+    def forward(self, x):
+        return self.__call__(tensor=x)
+    
     def classlist(self):
-        return [k for (k,v) in sorted(list(self.class_to_index().items()), lambda k,v: v)]
+        return [k for (k,v) in sorted(list(self.class_to_index().items()), key=lambda x: x[0])]
 
     def fromindex(self, k):
         index_to_class = {v:k for (k,v) in self.class_to_index().items()}
@@ -56,7 +74,34 @@ class ActivityRecognition(object):
 
     def temporal_support(self):
         return self._num_frames
+
+    def totensor(self, training=False):
+        raise
+
+    def binary_vector(self, categories):
+        y = np.zeros(len(self.classlist())).astype(np.float32)
+        for c in tolist(categories):
+            y[self.class_to_index(c)] = 1
+        return torch.from_numpy(y)
+        
+    def dataloader(self, videolist, training=False):
+        assert all([isinstance(v, vipy.video.Video) for v in videolist]), "Invalid input"
+        class _Dataset(torch.utils.data.Dataset):
+            def __init__(self, videolist, transformer=self.transformer(), training=training):
+                self._videolist = videolist
+                self._transformer = transformer
+                self._training = training
+            def __getitem__(self, k):
+                return {'tensor':self._transformer.totensor(self._videolist[k].resize(224,224), training=self._training),
+                        'label_vector':self._transformer.binary_vector(self._videolist[k].category()),
+                        'label_index':self._transformer.class_to_index(self._videolist[k].category()),                        
+                        'category':self._videolist[k].category()}            
+            def __len__(self):
+                return len(self._videolist)
+            
+        return DataLoader(_Dataset(videolist))
     
+
     
 class MevaActivityRecognition(ActivityRecognition):
     def __init__(self, weightfile=None):
@@ -225,3 +270,124 @@ class MevaActivityRecognition(ActivityRecognition):
         return d_pip_to_meva[cls]
 
     
+class ActivityRecognition_PIP175k(pl.LightningModule, ActivityRecognition):
+    
+    def __init__(self, pretrained=True):
+        super().__init__()
+        self._input_size = 224
+        self._mean = [0.485, 0.456, 0.406]
+        self._std = [0.229, 0.224, 0.225]
+        self._num_frames = 64
+
+        if pretrained:
+            self._load_pretrained()
+        self._class_to_index =  {}
+
+        self._class_to_index =  {'car_drops_off_person': 0,
+                                 'car_makes_u_turn': 1,
+                                 'car_picks_up_person': 2,
+                                 'car_reverses': 3,
+                                 'car_starts': 4,
+                                 'car_stops': 5,
+                                 'car_turns_left': 6,
+                                 'car_turns_right': 7,
+                                 'hand_interacts_with_person_highfive': 8,
+                                 'hand_interacts_with_person_holdhands': 9,
+                                 'hand_interacts_with_person_shakehands': 10,
+                                 'motorcycle_drops_off_person': 11,
+                                 'motorcycle_makes_u_turn': 12,
+                                 'motorcycle_picks_up_person': 13,
+                                 'motorcycle_reverses': 14,
+                                 'motorcycle_starts': 15,
+                                 'motorcycle_stops': 16,
+                                 'motorcycle_turns_left': 17,
+                                 'motorcycle_turns_right': 18,
+                                 'person_abandons_package': 19,
+                                 'person_carries_heavy_object': 20,
+                                 'person_closes_car_door': 21,
+                                 'person_closes_car_trunk': 22,
+                                 'person_closes_facility_door': 23,
+                                 'person_closes_motorcycle_trunk': 24,
+                                 'person_embraces_person': 25,
+                                 'person_enters_car': 26,
+                                 'person_enters_scene_through_structure': 27,
+                                 'person_exits_car': 28,
+                                 'person_exits_scene_through_structure': 29,
+                                 'person_interacts_with_laptop': 30,
+                                 'person_loads_car': 31,
+                                 'person_loads_motorcycle': 32,
+                                 'person_opens_car_door': 33,
+                                 'person_opens_car_trunk': 34,
+                                 'person_opens_facility_door': 35,
+                                 'person_opens_motorcycle_trunk': 36,
+                                 'person_picks_up_object': 37,
+                                 'person_purchases_from_machine': 38,
+                                 'person_puts_down_object': 39,
+                                 'person_reads_document': 40,
+                                 'person_rides_bicycle': 41,
+                                 'person_sits_down': 42,
+                                 'person_stands_up': 43,
+                                 'person_steals_object': 44,
+                                 'person_talks_on_phone': 45,
+                                 'person_talks_to_person': 46,
+                                 'person_texts_on_phone': 47,
+                                 'person_transfers_object_to_car': 48,
+                                 'person_transfers_object_to_motorcycle': 49,
+                                 'person_transfers_object_to_person': 50,
+                                 'person_unloads_car': 51,
+                                 'person_unloads_motorcycle': 52}
+
+    @classmethod
+    def from_checkpoint(cls, checkpointpath):
+        return cls().load_from_checkpoint(checkpointpath)  # lightning
+    
+    def forward(self, x):
+        return self.net(x)
+        
+    def _load_trained(self):
+        raise
+        
+    def _load_pretrained(self):
+
+        pthfile = vipy.util.tocache('r3d50_KMS_200ep.pth')
+        if not os.path.exists(pthfile) or not vipy.downloader.verify_sha1(pthfile, '39ea626355308d8f75307cab047a8d75862c3261'):
+            print('[pycollector.recognition]: Downloading pretrained weights ...')
+            os.system('wget -c https://dl.dropboxusercontent.com/s/t3xge6lrfqpklr0/r3d50_kms_200ep.pth -O %s' % pthfile) 
+        assert vipy.downloader.verify_sha1(pthfile, '39ea626355308d8f75307cab047a8d75862c3261'), "SHA1 check failed"
+
+        net = pycollector.model.ResNets_3D_PyTorch.resnet.generate_model(50, n_classes=1139)
+        pretrain = torch.load(pthfile, map_location='cpu')
+        net.load_state_dict(pretrain['state_dict'])
+        self.net = net
+        return self
+
+    def totensor(self, v, training=False):
+        assert isinstance(v, vipy.video.Video), "Invalid input"
+        assert v.width() == v.height(), "Video must be square"
+        v = v.resize(self._input_size, self._input_size).centercrop( (self._input_size, self._input_size) )
+        v = v.normalize(mean=self._mean, std=self._std, scale=1.0/255.0)  # [0,255] -> [0,1], triggers load()                                                                                                                                                   
+        tensor = v.torch(startframe=0, length=self._num_frames, boundary='repeat', order='cdhw')
+        #tensor = tensor.unsqueeze(0)  # batch dimension (B=1)xCxDxHxW
+        return tensor
+
+    def configure_optimizers(self):
+        optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
+        return optimizer
+
+    def training_step(self, batch, batch_nb):
+        (x,y) = (batch['tensor'], batch['label_index'])
+        y_hat = self.forward(x)
+        return {'loss': F.cross_entropy(y_hat, y)}
+
+    def validation_step(self, batch, batch_nb):
+        (x,y) = (batch['tensor'], batch['label_index'])        
+        y_hat = self.forward(x)
+        return {'val_loss': F.cross_entropy(y_hat, y)}
+
+    def validation_end(self, outputs):
+        avg_loss = torch.stack([x['val_loss'] for x in outputs]).mean()
+        return {'avg_val_loss': avg_loss}
+
+    def finetune(self, trainset, valset=None):
+        """Default training options"""
+        return pl.Trainer().fit(self, self.dataloader(trainset), self.dataloader(valset) if valset is not None else None)
