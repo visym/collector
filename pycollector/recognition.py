@@ -272,13 +272,15 @@ class MevaActivityRecognition(ActivityRecognition):
     
 class ActivityRecognition_PIP175k(pl.LightningModule, ActivityRecognition):
     
-    def __init__(self, pretrained=True):
+    def __init__(self, pretrained=True, deterministic=False):
         super().__init__()
         self._input_size = 224
         self._mean = [0.485, 0.456, 0.406]
         self._std = [0.229, 0.224, 0.225]
         self._num_frames = 64
-
+        if deterministic:
+            np.random.seed(42)
+        
         if pretrained:
             self._load_pretrained()
         self._class_to_index =  {}
@@ -364,11 +366,22 @@ class ActivityRecognition_PIP175k(pl.LightningModule, ActivityRecognition):
     def totensor(self, v, training=False):
         assert isinstance(v, vipy.video.Video), "Invalid input"
         assert v.width() == v.height(), "Video must be square"
-        v = v.resize(self._input_size, self._input_size).centercrop( (self._input_size, self._input_size) )
-        v = v.normalize(mean=self._mean, std=self._std, scale=1.0/255.0)  # [0,255] -> [0,1], triggers load()                                                                                                                                                   
-        tensor = v.torch(startframe=0, length=self._num_frames, boundary='repeat', order='cdhw')
-        #tensor = tensor.unsqueeze(0)  # batch dimension (B=1)xCxDxHxW
-        return tensor
+
+        v = v.crop(v.trackbox().maxsquare().dilate(1.2))
+        
+        if training:
+            v = v.fliplr() if np.random.rand() > 0.5 else v
+            v = v.resize(rows=320, cols=320) if np.random.rand() > 0.5 else v.resize(rows=256, cols=256)
+            v = v.randomcrop( (self.input_size, self.input_size) )
+        else:
+            v = v.resize(self._input_size, self._input_size)
+            v = v.centercrop( (self._input_size, self._input_size) )
+            
+        v = v.normalize(mean=self._mean, std=self._std, scale=1.0/255.0)  # [0,255] -> [0,1], triggers load()
+        startframe = np.random.randint(max(0, len(v)-self._num_frames-1))  
+        t = v.torch(startframe=startframe, length=self._num_frames, boundary='repeat', order='cdhw')  # 64x RGB in [-0.5, 0.5]
+        b = v.clone().binarymask().bias(-0.5).torch(startframe=startframe, length=self._num_frames, boundary='repeat', order='cdhw')  # 64x A in [-0.5, 0.5]
+        return torch.cat((t,b), dim=0)  # C=RGBA x D=64 x H=224 x W=224
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
