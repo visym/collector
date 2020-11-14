@@ -362,9 +362,9 @@ class ActivityRecognition_PIP175k(pl.LightningModule, ActivityRecognition):
         net.load_state_dict(pretrain['state_dict'])
 
         # Inflate RGB -> RGBA 
-        t = torch.split(net.net.conv1.weight.data, dim=1, split_size_or_sections=1)
-        net.conv1.weight.data = torch.cat( (*t, t[-1]) ).contiguous()
-        net.conv1.in_channels = 4
+        #t = torch.split(net.conv1.weight.data, dim=1, split_size_or_sections=1)
+        #net.conv1.weight.data = torch.cat( (*t, t[-1]) ).contiguous()
+        #net.conv1.in_channels = 4
 
         self.net = net
 
