@@ -18,18 +18,19 @@ This dataset contains 184,379 stabilized video clips of 68 classes of activities
 
 # Download
 
-* [pip_175k_stabilized_0.tar.gz (11.5 GB)](https://dl.dropboxusercontent.com/s/j8p4gxeyjit3z1z/pip_175k_stabilized_0.tar.gz)&nbsp;&nbsp;MD5:1b66b03173dab65318454bf77b898b52&nbsp;&nbsp;&nbsp;&nbsp;
-* [pip_175k_stabilized_1.tar.gz (11.8 GB)](https://dl.dropboxusercontent.com/s/llw0e7ck9i1kxwp/pip_175k_stabilized_1.tar.gz)&nbsp;&nbsp;MD5:c3e4864a237168b7fc23d5031915cff8&nbsp;&nbsp;&nbsp;&nbsp;
-* pip_175k_stabilized_{2-9}.tar.gz (12.1 GB) - uploading ...
-
-
-
+* [pip_175k_stabilized_0.tar.gz (11.5 GB)](https://dl.dropboxusercontent.com/s/h7j4391iyqfo85d/pip_175k_stabilized_0.tar.gz)&nbsp;&nbsp;MD5:99139862b128f9eff9deafd636225442&nbsp;&nbsp;&nbsp;&nbsp;
+* [pip_175k_stabilized_1.tar.gz (11.8 GB)](https://dl.dropboxusercontent.com/s/zwxzdirbp6kvq93/pip_175k_stabilized_1.tar.gz)&nbsp;&nbsp;MD5:95d337019a0dd2f24ee197bc7e371b97&nbsp;&nbsp;&nbsp;&nbsp;
+* [pip_175k_stabilized_2.tar.gz (11.9 GB)](https://dl.dropboxusercontent.com/s/rg9t5edfmyp6uq0/pip_175k_stabilized_2.tar.gz)&nbsp;&nbsp;MD5:388198296dae0dd7d27d1a3b983f84e9&nbsp;&nbsp;&nbsp;&nbsp;
+* [pip_175k_stabilized_3.tar.gz (11.8 GB)](https://dl.dropboxusercontent.com/s/n82mkbstgidnon7/pip_175k_stabilized_3.tar.gz)&nbsp;&nbsp;MD5:45d52bbd432a10f5cddd4bd1353a2282&nbsp;&nbsp;&nbsp;&nbsp;
+* [pip_175k_stabilized_4.tar.gz (11.8 GB)](https://dl.dropboxusercontent.com/s/gqrricwj3vyp4sc/pip_175k_stabilized_4.tar.gz)&nbsp;&nbsp;MD5:4fdf2aa880771c7bce6f5952017dd6e2&nbsp;&nbsp;&nbsp;&nbsp;
+* [pip_175k_stabilized_5.tar.gz (11.8 GB)](https://dl.dropboxusercontent.com/s/yfkma0kt30810h1/pip_175k_stabilized_5.tar.gz)&nbsp;&nbsp;MD5:30ae8634ec25a6d54d25e8ba94b75361&nbsp;&nbsp;&nbsp;&nbsp;
+* [pip_175k_stabilized_6-7.tar.gz (20.5 GB)](https://dl.dropboxusercontent.com/s/yoabjhep9g6ozs1/pip_175k_stabilized_6-7.tar.gz)&nbsp;&nbsp;MD5:b18e0ba7d0ea411a1b8ef4fe2e3d8b59&nbsp;&nbsp;&nbsp;&nbsp;
 
 # Quickstart
 
 See [pip-175k](https://visym.github.io/collector/pip_175k/).
 
-To extract the smallest video crop containing the stabilized track for a vipy.video.Scene() object v:
+To extract the smallest square video crop containing the stabilized track for a vipy.video.Scene() object v:
 
 ```python
 import vipy
