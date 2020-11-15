@@ -11,7 +11,8 @@ _USER_NAME = os.environ['VISYM_COLLECTOR_PYTEST_EMAIL']
 _PASSWORD = os.environ['VISYM_COLLECTOR_PYTEST_PASSWORD']
 _PROGRAM_ID = 'MEVA'
 
-## Tests for Dashboard
+
+@pytest.mark.skip(reason="Skip testing for now")
 @pytest.mark.parametrize("username, password", [(_USER_NAME, _PASSWORD)])
 def test_get_user_video(username,password):
     """test get user video
@@ -27,6 +28,9 @@ def test_get_user_video(username,password):
 
 
 
+
+
+@pytest.mark.skip(reason="Skip testing for now")
 @pytest.mark.parametrize("username, password, program_id", [(_USER_NAME, _PASSWORD, _PROGRAM_ID)])
 def test_get_user_videos(username,password, program_id):
     """test get user video

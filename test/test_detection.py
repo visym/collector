@@ -4,7 +4,7 @@ from vipy.util import remkdir
 import pycollector.detection
 import pytest 
 
-@pytest.mark.skip(reason="Skip testing for now")
+# @pytest.mark.skip(reason="Skip testing for now")
 def test_face():
     im = vipy.image.Image(url='https://upload.wikimedia.org/wikipedia/en/d/d6/Friends_season_one_cast.jpg')
     d = pycollector.detection.FaceDetector()
