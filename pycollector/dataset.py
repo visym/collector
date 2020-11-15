@@ -165,7 +165,7 @@ class Dataset():
         srcsetB = self.union(tolist(srclistB), '_union2', key=key).dataset('_union2')
         assert key is not None, "Key is required"
 
-        idset = set([key(v) for v in srcsetA]).difference([key(v) for v in srcsetB])            
+        idset = set([key(v) for v in srcsetA]).difference([key(v) for v in srcsetB])   # in A but not in B
         diffset = [v for v in srcsetA if key(v) in idset]
         self._dataset[dst] = diffset
         return self
@@ -397,7 +397,7 @@ class Dataset():
                                                  smoothing='spline', 
                                                  splinefactor=None, 
                                                  strict=True).print().pkl(f(dst,v,'refined',ext='pkl')).activityclip())
-                      if not a.hasattribute('unstabilized') and not a.hasattribute('unrefined')])
+                      if a.hastracks() and not a.hasattribute('unrefined')])
 
         V = self.map(src, dst, f_process, model=model, save=False).dataset(dst)
         V = [v for clips in V for v in clips if (v is not None) and not v.hasattribute('unrefined') and not v.hasattribute('unstabilized')]  # unpack clips, remove videos that failed
@@ -525,9 +525,6 @@ class Dataset():
     def testset(self):
         return self.dataset('testset')                
 
-    def restore(self, dst):
-        """Restore destination from checkpoint"""
-        pass
         
     
 class ActivityDataset(Dataset):

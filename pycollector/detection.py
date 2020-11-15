@@ -233,6 +233,9 @@ class VideoProposalRefinement(VideoProposal):
         vp = super().__call__(v, proposalconf, proposaliou, dt=dt, activitybox=True, dilate_height=dilate_height, dilate_width=dilate_width, target=target)  # subsampled proposals
         vc = v.clone(rekey=True, flushforward=True, flushbackward=True).trackfilter(lambda t: len(t) > dt)
         for (ti, t) in vc.tracks().items():
+            if len(t) <= 1:
+                continue  # no human annotation, skip
+
             t.resample(dt=dt)  # interpolated keyframes for source proposal
             bbprev = None  # last box assignment
             s = shapeiou  # shape assignment threshold
@@ -262,10 +265,13 @@ class VideoProposalRefinement(VideoProposal):
 
         # Remove empty tracks:
         # if a track does not have an assignment for the last (or first) source proposal, then it will be truncated here
-        vc = vc.trackfilter(lambda t: len(t)>dt)  
+        vc = vc.trackfilter(lambda t: len(t)>dt)    # may be empty
 
         # Proposal smoothing
-        if smoothing == 'mean':
+        if not vc.hastracks():
+            warnings.warn('VideoProposalRefinement returned no tracks')
+            return vc.setattribute('unrefined')
+        elif smoothing == 'mean':
             # Mean track smoothing: mean shape smoothing with mean coordinate smoothing with very small support for unstabilized video
             return vc.trackmap(lambda t: t.smoothshape(width=meanfilter//dt).smooth(3))
         elif smoothing == 'spline':

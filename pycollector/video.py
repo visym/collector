@@ -308,7 +308,7 @@ class Video(Scene):
             variant = {}
             d_shortname_to_category = {s:c for (s,c) in zip(d['metadata']['shortname'].split(','), d['metadata']['category'].split(','))}            
             if '#' in d['metadata']['category']:
-                d_shortname_to_category = {s:c.split('#')[0] for (s,c) in d_shortname_to_category.items()}
+                d_shortname_to_category = {s:c.split('#')[0] for (s,c) in d_shortname_to_category.items()}  # shortname and category may be empty
                 variantlist = list(set([c.split('#')[1] if '#' in c else None for c in d['metadata']['category'].split(',')]))
                 if len(variantlist) != 1:
                     print('[pycollector.video]: WARNING - Ignoring mixed variant "%s"' % str(variantlist))
@@ -350,22 +350,22 @@ class Video(Scene):
                                                     tracks=d_trackid_to_track,
                                                     framerate=d["metadata"]["frame_rate"],
                                                     attributes=d["metadata"]))
-
-                    # Joint activity?
-                    if 'Joint' in variant:
-                        self.add(vipy.activity.Activity(category=variant['Joint'].split(':')[0],
-                                                        shortlabel=variant['Joint'].split(':')[1] if ':' in variant['Joint'] else None,
-                                                        startframe=int(a["start_frame"]),
-                                                        endframe=int(a["end_frame"]),
-                                                        tracks=d_trackid_to_track,
-                                                        framerate=d["metadata"]["frame_rate"],
-                                                        attributes=d["metadata"]))
                                             
                 except Exception as e:
                     print(
                         '[pycollector.video]: Filtering invalid activity JSON "%s" with error "%s" for videoid=%s'
                         % (str(a), str(e), d["metadata"]["video_id"])
                     )
+
+            # Joint activity?  Occurs simultaneously with any JSON defined activities
+            if 'Joint' in variant:
+                self.add(vipy.activity.Activity(category=variant['Joint'].split(':')[0],
+                                                shortlabel=variant['Joint'].split(':')[1] if ':' in variant['Joint'] else None,
+                                                startframe=min([int(a["start_frame"]) for a in d["activity"]]) if len(d["activity"])>0 else 0,
+                                                endframe=max([int(a["end_frame"]) for a in d["activity"]]) if len(d["activity"])>0 else int(np.round(float(d["metadata"]["duration"])*float(d["metadata"]['frame_rate']))),
+                                                tracks=d_trackid_to_track,
+                                                framerate=d["metadata"]["frame_rate"],
+                                                attributes=d["metadata"]))
 
             if d["metadata"]["rotate"] == "rot90ccw":
                 self.rot90ccw()
