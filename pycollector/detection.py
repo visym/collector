@@ -5,7 +5,7 @@ import vipy
 import shutil
 import numpy as np
 import warnings
-from vipy.util import remkdir, filetail, readlist, tolist, filepath
+from vipy.util import remkdir, filetail, readlist, tolist, filepath, chunklistbysize
 from pycollector.video import Video
 from pycollector.model.yolov3.network import Darknet
 from pycollector.globals import print
@@ -74,7 +74,7 @@ class ObjectDetector(object):
 
     def __call__(self, im, conf=5E-1, iou=0.5, union=False):
         assert isinstance(im, vipy.image.Image), "Invalid input - must be vipy.image.Image object and not '%s'" % (str(type(im)))
-        self.gpu(vipy.globals.gpuindex())  # cpu if gpuindex==None
+        #self.gpu(vipy.globals.gpuindex())  # cpu if gpuindex==None
 
         scale = max(im.shape()) / float(self._mindim)  # to undo
         t = im.clone().maxsquare().mindim(self._mindim).mat2gray().torch().type(self._tensortype).to(self._device)  # triggers load
@@ -104,13 +104,36 @@ class ObjectDetector(object):
 
 
 class MultiscaleObjectDetector(ObjectDetector):
-    """Run VideoDetector on every frame of video, tiling the frame to a mosaic each of size (self._mindim, self._mindim)"""
+    """Run VideoDetector on every frame of video, tiling the frame to an overlapping  mosaic each of size (self._mindim, self._mindim), then recombining detections"""
     def __call__(self, imf, conf=0.5, iou=0.5, maxarea=1.0):
         (f, n) = (super().__call__, self._mindim)
-        imcoarse = imf.clone().untile([f(im) for im in imf.clone().mindim(n).tile(n, n, overlaprows=n//2, overlapcols=n//2)]).mindim(imf.mindim()).nms(conf, iou)
-        imfine = imf.clone().untile( [f(im, conf=conf, iou=iou).objectfilter(lambda o: o.area()<=maxarea*im.area() and o.clone().dilate(1.1).isinterior(im.width(), im.height()))
-                                      for im in imf.tile(n, n, overlaprows=n//2, overlapcols=n//2)])
-        return imf.union(imcoarse).union(imfine, iou).nms(conf, iou)
+
+        imcoarse = imf.clone().mindim(n).tile(n, n, overlaprows=n//2, overlapcols=n//2)
+        imfine = imf.tile(n, n, overlaprows=n//2, overlapcols=n//2) if imf.mindim() > (n+(n//2)) else []
+        imlist = imcoarse+imfine
+        t = [im.clone().zeropadlike(n,n).mat2gray().torch().type(self._tensortype)for im in imlist]  # triggers load
+
+        imlistdet = []
+        for (imb, tb) in zip(chunklistbysize(imlist, self._batchsize), chunklistbysize(t, self._batchsize)):
+            tb = torch.cat(tb, dim=0).to(self._device)   # batch to device
+            batchdets = self._model(tb)
+            for (im, dets) in zip(imb, batchdets):
+                objects = [vipy.object.Detection(xcentroid=float(d[0]),
+                                                 ycentroid=float(d[1]),
+                                                 width=float(d[2]),
+                                                 height=float(d[3]),
+                                                 confidence=float(d[4]),
+                                                 category='%s' % self._index2cls[int(np.argmax(d[5:]))])
+                           for d in dets if float(d[4]) > conf]
+                imd = im.clone().array(im.numpy()).objects(objects).nms(conf, iou)  # clone for shared attributese
+                imlistdet.append(imd)
+
+        scale = max(imf.shape()) / float(self._mindim)  # to undo
+        imcoarsedet = imf.clone().untile(imlistdet[0:len(imcoarse)]).mindim(imf.mindim()).nms(conf, iou)
+        imfinedet = imf.clone().untile( [im.objectfilter(lambda o: o.area()<=maxarea*im.area() and o.clone().dilate(1.1).isinterior(im.width(), im.height()))  # not too big or occluded by image boundary 
+                                         for im in imlistdet[len(imcoarse):]] )
+        return imcoarsedet.union(imfinedet, iou).nms(conf, iou)
+
     
 class VideoDetector(ObjectDetector):  
     def __call__(self, v, conf=0.5, iou=0.5):
@@ -134,18 +157,18 @@ class VideoTracker(VideoDetector):
             yield v.assign(k, im.objectfilter(lambda o: o.area() <= maxarea*im.area()).objects(), miniou=iou)
 
             
-class MultiscaleVideoTracker(ObjectDetector):
+class MultiscaleVideoTracker(MultiscaleObjectDetector):
     def __call__(self, v, conf=0.5, iou=0.5, stride=30, maxarea=1.0, maxhistory=30, smoothing=None):
         (f, n, imlast) = (super().__call__, self._mindim, None)
         assert isinstance(v, vipy.video.Video), "Invalid input"
         assert stride > 0, "Invalid input"
         for (k, imf) in enumerate(v.stream()):
-            imcoarse = imf.clone().untile([f(im) for im in imf.clone().mindim(n).tile(n, n, overlaprows=n//2, overlapcols=n//2)]).mindim(imf.mindim())
-            imfine = imf.clone().untile([f(im, conf=conf, iou=iou).objectfilter(lambda o: o.area()<=maxarea*im.area() and o.clone().dilate(1.1).isinterior(im.width(), im.height()))  # not too big or occluded by image boundary
-                                         for im in imf.tile(n, n, overlaprows=n//2, overlapcols=n//2)
-                                         if (k%stride == 0) or len(imlast.clone().objectfilter(lambda o: o.iou((im.attributes['tile']['crop'])) > 0))])
-            imfine = imfine if imfine is not None else imf            
-            v.assign(k, imcoarse.union(imfine).nms(conf, iou).objects(), miniou=iou, maxhistory=maxhistory)  # in-place
+            #imcoarse = imf.clone().untile([f(im) for im in imf.clone().mindim(n).tile(n, n, overlaprows=n//2, overlapcols=n//2)]).mindim(imf.mindim())
+            #imfine = imf.clone().untile([f(im, conf=conf, iou=iou).objectfilter(lambda o: o.area()<=maxarea*im.area() and o.clone().dilate(1.1).isinterior(im.width(), im.height()))  # not too big or occluded by image boundary
+            #                             for im in imf.tile(n, n, overlaprows=n//2, overlapcols=n//2)
+            #                             if (k%stride == 0) or len(imlast.clone().objectfilter(lambda o: o.iou((im.attributes['tile']['crop'])) > 0))])
+            #imfine = imfine if imfine is not None else imf            
+            v.assign(k, f(imf, conf, iou, maxarea).objects(), miniou=iou, maxhistory=maxhistory)  # in-place
             imlast = v.frame(k, img=imf.array())  # for imfine tracker only in regions with objects
             yield v
             
