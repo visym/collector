@@ -11,44 +11,6 @@ _USER_NAME = os.environ['VISYM_COLLECTOR_PYTEST_EMAIL']
 _PASSWORD = os.environ['VISYM_COLLECTOR_PYTEST_PASSWORD']
 _PROGRAM_ID = 'MEVA'
 
-## Tests for Dashboard
-@pytest.mark.parametrize("username, password", [(_USER_NAME, _PASSWORD)])
-def test_get_user_video(username,password):
-    """test get user video
-    """
-
-    # testing objects and functions 
-    api = API(username=username, password=password)
-    assert api.username == username
-    # assert api.is_token_expired() == False
-
-    creator_cognito_username =  api.cognito_username 
-    print("cognito_username: ", api.cognito_username)
-
-
-
-@pytest.mark.parametrize("username, password, program_id", [(_USER_NAME, _PASSWORD, _PROGRAM_ID)])
-def test_get_user_videos(username,password, program_id):
-    """test get user video
-    """
-    
-    # testing objects and functions 
-    api = API(username=username, password=password)
-    project =  api.get_project(program_id=None)
-
-    assert len(project) > 0
-    
-    # show the df of project
-    print(project.df)
-
-    # project.video.last()    
-
-    # # fetch video
-    # videos = project.videos()
-    # assert len(videos) > 0
-
-    # # Download video 
-    # videos[0].download() 
 
 
 @pytest.mark.skip(reason="Skip testing for now")
