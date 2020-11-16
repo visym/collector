@@ -34,9 +34,11 @@ To extract the smallest square video crop containing the stabilized track for a 
 
 ```python
 import vipy
-v.crop(v.trackbox(dilate=1.0).maxsquare()).saveas('/path/to/out.mp4')
-v.getattribute('stabilize')   # returns a stabilization residual (bigger is worse)
+v = vipy.util.load('/path/to/stabilized.pkl')[0]   # load videos and take one
+vs = v.crop(v.trackbox(dilate=1.0).maxsquare()).resize(224,224).saveas('/path/to/out.mp4')
+vs.getattribute('stabilize')   # returns a stabilization residual (bigger is worse)
 ```
+
 # Best Practices for Training
 
 [Notebook demo](https://htmlpreview.github.io/?https://github.com/visym/collector/blob/master/docs/pip_175k/best_practices.html)&nbsp;[[html]](https://htmlpreview.github.io/?https://github.com/visym/collector/blob/master/docs/pip_175k/best_practices.html)[[ipynb]](https://github.com/visym/collector/blob/master/docs/pip_175k/best_practices.ipynb) showing best practices for using the PIP-175k dataset for training.
