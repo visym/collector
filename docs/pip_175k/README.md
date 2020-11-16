@@ -51,8 +51,9 @@ pip = vipy.util.load('valset.pkl')
 v = pip[0]  # first video 
 v.play()   # display unannotated video
 v.show()   # generate video annotations and play when complete
+v.fastshow()   # generate streaming video annotations
 v.quicklook().show()   # display video summary image
-v[0].savefig().saveas('out.png')  # save annotated first frame of first video, convert rgba to rgb colorspace, and save to a PNG
+v[0].savefig().saveas('out.png')  # save annotated first frame of first video, and save to a PNG
 v.tracks()  # tracks ID and tracks in this video
 v.activities()  # activity ID and activities in this video
 v_doors = [v for v in pip if 'door' in v.category()]  # only videos with door categories
@@ -66,7 +67,7 @@ d_category_to_counts = vipy.util.countby(pip, lambda v: v.category())
 ```python
 v.csv('/path/to/out.csv')  # export annotations for this video as flat CSV file (with header)
 pipcsv = [v.csv() for v in pip]  # export all annotations for this dataset as list of tuples
-v.dict()  # export this annotated video as python dictionary
+v.json()  # export this annotated video as json 
 v.torch()   # export frames as torch tensor
 v.numpy()  # export frames as numpy array
 labels = [(labels, im) for (labels, im) in v.labeled_frames()]  # framewise activity labels for multi-label loss
@@ -76,7 +77,7 @@ mp4file = v.filename()  # absolute path the the MP4 video file
 mp4file_resized = v.resize(cols=256).saveas('resized.mp4').filename() # absolute path the resized MP4 video file                                                      
 ```
 
-If you are training with this dataset, we recommend [following this demo to generate framewise activity labels and tensors](https://github.com/visym/vipy/blob/master/demo/training.ipynb).
+If you are training with this dataset, we recommend [following this demo to generate framewise activity labels and tensors](https://github.com/visym/vipy/blob/master/demo/training.ipynb) and use the [best practices](https://htmlpreview.github.io/?https://github.com/visym/collector/blob/master/docs/pip_175k/best_practices.html).  
 
 Alternatively, contact us and we can work with you to export a dataset to your specifications that can be imported directly by your toolchain.
 
@@ -95,7 +96,7 @@ Alternatively, contact us and we can work with you to export a dataset to your s
 * PIP does not enforce MEVA excluded objects:  Phones, Pens/Pencils/Markers, Individual Sheets of Paper, Money, Hat, Gloves, Apple (or similarly sized food items).  We leave the choice of prop up to the collectors
 * PIP is exported from the raw uploaded original video by creating an actor centered tublet, clipping each activity, dilating by 2x, cropping around the actor, setting to maxsquare, resizing to 512x512 and encoding to H.264.
 
-* Moving camera.  Our cameras are hand-held, which means that the background is not stabilized.  We provide optical flow based stabilization tools runnable as:
+* Moving camera.  Our cameras are hand-held, which means that the background is not stabilized.  We provide optical flow based stabilization tools and a [stabilized version of this dataset](https://github.com/visym/collector/tree/master/docs/pip_175k_stabilized).   You can run your own stabilization using:
 
 ```python
 v.stabilize().show()

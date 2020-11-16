@@ -399,6 +399,12 @@ class Video(Scene):
         self.trackmap(lambda t: t.significant_digits(2))            
         return self
 
+    def isedited(self):
+        return '_' in self._jsonfile and filebase(self._jsonfile).split('_')[0] == self.videoid()  # edited JSON has the structure $VIDEOID_TIMESTAMP.json
+
+    def editedat(self):
+        return filebase(self._jsonfile).split('_')[1] if self.isedited() else None
+
     def variant(self):
         """Category variant"""
         return self.attributes['variant'] if 'variant' in self.attributes else None
