@@ -25,18 +25,9 @@ def test_get_project():
     # testing objects and functions 
     new_project_client = Project(program_id="MEVA", alltime=True, username=username, password=password)
 
-
-    # print("print collector ids")
-    # print(new_project_client.collectorID())
-
-    # print("print collectoremail")
-    # print(new_project_client.collectoremail())
-
-    # print(new_project_client.df)
-
-
-    # # Fetching Videos
-    # videos = new_project_client.videos()
+    # Fetching Videos
+    videos = new_project_client.videos()
+    assert len(videos) >= 1
 
     # # quickshow video
     # videos[0].quickshow()
