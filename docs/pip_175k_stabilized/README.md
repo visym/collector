@@ -14,28 +14,31 @@ over 150 subjects in 44 countries around the world.
 
 This dataset contains 184,379 stabilized video clips of 68 classes of activities performed by people in public places.  The activity labels are subsets of the 37 activities in the [Multiview Extended Video with Activities (MEVA)](https://mevadata.org) dataset and is consistent with the [Activities in Extended Video (ActEV)](https://actev.nist.gov/) challenge.  
 
-[Background stabilization](https://github.com/visym/vipy/blob/bc20f6f32492badd181faa0ccf7b0029f1f63fee/vipy/video.py#L2084-L2087) was performed using an affine coarse to fine optical-flow method, followed by [actor bounding box stabilization](https://github.com/visym/collector/blob/adc5486c7f88291b77f9a707a78763c2b5958406/pycollector/detection.py#L177-L236).  Stabilizations exhibit low artifacts for small motions in the region near the center of the actor box.  All stabilizations can be filtered using the provided stabilization residual which measures the quality of the stabilization.  Remaining stabilization artifacts are due to non-planar scene structure, rolling shutter distortion, and sub-pixel optical flow correspondence errors. 
+[Background stabilization](https://github.com/visym/vipy/blob/bc20f6f32492badd181faa0ccf7b0029f1f63fee/vipy/flow.py#L307-L328) was performed using an affine coarse to fine optical-flow method, followed by [actor bounding box stabilization](https://github.com/visym/collector/blob/adc5486c7f88291b77f9a707a78763c2b5958406/pycollector/detection.py#L177-L236).  Stabilization is designed to minimize distortion for small motions in the region near the center of the actor box.  Remaining stabilization artifacts are due to non-planar scene structure, rolling shutter distortion, and sub-pixel optical flow correspondence errors.  Stabilization artifacts manifest as a subtly shifting background relative to the actor which may affect optical flow based methods.  All stabilizations can be filtered using the provided stabilization residual which measures the quality of the stabilization.  
 
 # Download
 
-* [pip_175k_stabilized_0.tar.gz (11.5 GB)](https://dl.dropboxusercontent.com/s/j8p4gxeyjit3z1z/pip_175k_stabilized_0.tar.gz)&nbsp;&nbsp;MD5:1b66b03173dab65318454bf77b898b52&nbsp;&nbsp;&nbsp;&nbsp;
-* [pip_175k_stabilized_1.tar.gz (11.8 GB)](https://dl.dropboxusercontent.com/s/llw0e7ck9i1kxwp/pip_175k_stabilized_1.tar.gz)&nbsp;&nbsp;MD5:c3e4864a237168b7fc23d5031915cff8&nbsp;&nbsp;&nbsp;&nbsp;
-* pip_175k_stabilized_{2-9}.tar.gz (12.1 GB) - uploading ...
-
-
-
+* [pip_175k_stabilized_0.tar.gz (11.5 GB)](https://dl.dropboxusercontent.com/s/h7j4391iyqfo85d/pip_175k_stabilized_0.tar.gz)&nbsp;&nbsp;MD5:99139862b128f9eff9deafd636225442&nbsp;&nbsp;&nbsp;&nbsp;
+* [pip_175k_stabilized_1.tar.gz (11.8 GB)](https://dl.dropboxusercontent.com/s/zwxzdirbp6kvq93/pip_175k_stabilized_1.tar.gz)&nbsp;&nbsp;MD5:95d337019a0dd2f24ee197bc7e371b97&nbsp;&nbsp;&nbsp;&nbsp;
+* [pip_175k_stabilized_2.tar.gz (11.9 GB)](https://dl.dropboxusercontent.com/s/rg9t5edfmyp6uq0/pip_175k_stabilized_2.tar.gz)&nbsp;&nbsp;MD5:388198296dae0dd7d27d1a3b983f84e9&nbsp;&nbsp;&nbsp;&nbsp;
+* [pip_175k_stabilized_3.tar.gz (11.8 GB)](https://dl.dropboxusercontent.com/s/n82mkbstgidnon7/pip_175k_stabilized_3.tar.gz)&nbsp;&nbsp;MD5:45d52bbd432a10f5cddd4bd1353a2282&nbsp;&nbsp;&nbsp;&nbsp;
+* [pip_175k_stabilized_4.tar.gz (11.8 GB)](https://dl.dropboxusercontent.com/s/gqrricwj3vyp4sc/pip_175k_stabilized_4.tar.gz)&nbsp;&nbsp;MD5:4fdf2aa880771c7bce6f5952017dd6e2&nbsp;&nbsp;&nbsp;&nbsp;
+* [pip_175k_stabilized_5.tar.gz (11.8 GB)](https://dl.dropboxusercontent.com/s/yfkma0kt30810h1/pip_175k_stabilized_5.tar.gz)&nbsp;&nbsp;MD5:30ae8634ec25a6d54d25e8ba94b75361&nbsp;&nbsp;&nbsp;&nbsp;
+* [pip_175k_stabilized_6-7.tar.gz (20.5 GB)](https://dl.dropboxusercontent.com/s/yoabjhep9g6ozs1/pip_175k_stabilized_6-7.tar.gz)&nbsp;&nbsp;MD5:b18e0ba7d0ea411a1b8ef4fe2e3d8b59&nbsp;&nbsp;&nbsp;&nbsp;
 
 # Quickstart
 
 See [pip-175k](https://visym.github.io/collector/pip_175k/).
 
-To extract the smallest video crop containing the stabilized track for a vipy.video.Scene() object v:
+To extract the smallest square video crop containing the stabilized track for a vipy.video.Scene() object v:
 
 ```python
 import vipy
-v.crop(v.trackbox(dilate=1.0).maxsquare()).saveas('/path/to/out.mp4')
-v.getattribute('stabilize')   # returns a stabilization residual (bigger is worse)
+v = vipy.util.load('/path/to/stabilized.pkl')[0]   # load videos and take one
+vs = v.crop(v.trackbox(dilate=1.0).maxsquare()).resize(224,224).saveas('/path/to/out.mp4')
+vs.getattribute('stabilize')   # returns a stabilization residual (bigger is worse)
 ```
+
 # Best Practices for Training
 
 [Notebook demo](https://htmlpreview.github.io/?https://github.com/visym/collector/blob/master/docs/pip_175k/best_practices.html)&nbsp;[[html]](https://htmlpreview.github.io/?https://github.com/visym/collector/blob/master/docs/pip_175k/best_practices.html)[[ipynb]](https://github.com/visym/collector/blob/master/docs/pip_175k/best_practices.ipynb) showing best practices for using the PIP-175k dataset for training.
