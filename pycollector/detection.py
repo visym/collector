@@ -111,7 +111,7 @@ class MultiscaleObjectDetector(ObjectDetector):
         imcoarse = imf.clone().mindim(n).tile(n, n, overlaprows=n//2, overlapcols=n//2)
         imfine = imf.tile(n, n, overlaprows=n//2, overlapcols=n//2) if imf.mindim() > (n+(n//2)) else []
         imlist = imcoarse+imfine
-        t = [im.clone().maxsquare().mat2gray().torch().type(self._tensortype)for im in imlist]  # triggers load
+        t = [im.clone().maxsquare().cornerpadcrop(n,n).mat2gray().torch().type(self._tensortype)for im in imlist]  # triggers load
 
         imlistdet = []
         for (imb, tb) in zip(chunklistbysize(imlist, self._batchsize), chunklistbysize(t, self._batchsize)):
