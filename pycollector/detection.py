@@ -152,10 +152,10 @@ class MultiscaleVideoDetector(MultiscaleObjectDetector):
 
 
 class VideoTracker(VideoDetector):
-    def __call__(self, v, conf=0.5, iou=0.5, maxarea=1.0):
+    def __call__(self, v, conf=0.5, iou=0.5, maxarea=1.0, smoothing=None):
         assert isinstance(v, vipy.video.Video), "Invalid input"        
         for (k, im) in enumerate(super().__call__(v.clone(), conf=conf, iou=iou)):
-            yield v.assign(k, im.objectfilter(lambda o: o.area() <= maxarea*im.area()).objects(), miniou=iou)
+            yield v.assign(k, im.objectfilter(lambda o: o.area() <= maxarea*im.area()).objects(), miniou=iou, minconf=conf)
 
             
 class MultiscaleVideoTracker(MultiscaleObjectDetector):
@@ -169,7 +169,7 @@ class MultiscaleVideoTracker(MultiscaleObjectDetector):
             #                             for im in imf.tile(n, n, overlaprows=n//2, overlapcols=n//2)
             #                             if (k%stride == 0) or len(imlast.clone().objectfilter(lambda o: o.iou((im.attributes['tile']['crop'])) > 0))])
             #imfine = imfine if imfine is not None else imf            
-            v.assign(k, f(imf, conf, iou, maxarea).objects(), miniou=iou, maxhistory=maxhistory)  # in-place
+            v.assign(k, f(imf, conf, iou, maxarea).objects(), miniou=iou, maxhistory=maxhistory, minconf=conf)  # in-place
             imlast = v.frame(k, img=imf.array())  # for imfine tracker only in regions with objects
             yield v
             

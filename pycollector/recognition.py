@@ -22,6 +22,19 @@ from torchvision import transforms
 import pytorch_lightning as pl
 
 
+class Dataset(torch.utils.data.Dataset):
+    def __init__(self, videolist, transformer, training, validation):
+        self._videolist = videolist
+        self._transformer = transformer
+        (self._training, self._validation) = (training, validation)
+
+    def __getitem__(self, k):
+        return self._transformer.totensor(self._videolist[k], training=self._training, validation=self._validation)
+
+    def __len__(self):
+        return len(self._videolist)
+
+
 class ActivityRecognition(object):
     def __init__(self, pretrained=True):
         self.net =  None
@@ -42,13 +55,16 @@ class ActivityRecognition(object):
     def __call__(self, video=None, tensor=None):
         assert self.net is not None, "Invalid network"
         assert video is not None or tensor is not None
-        return self.net(tensor)
+        return self.net(tensor) if tensor is not None else self.net(self.totensor(video))
 
     def forward(self, x):
         return self.__call__(tensor=x)
     
     def classlist(self):
         return [k for (k,v) in sorted(list(self.class_to_index().items()), key=lambda x: x[0])]
+
+    def num_classes(self):
+        return len(self.classlist())
 
     def fromindex(self, k):
         index_to_class = {v:k for (k,v) in self.class_to_index().items()}
@@ -82,26 +98,15 @@ class ActivityRecognition(object):
         y = np.zeros(len(self.classlist())).astype(np.float32)
         for c in tolist(categories):
             y[self.class_to_index(c)] = 1
-        return torch.from_numpy(y)
+        return torch.from_numpy(y).type(torch.FloatTensor)
         
-    def dataloader(self, videolist, training=False):
-        assert all([isinstance(v, vipy.video.Video) for v in videolist]), "Invalid input"
-        class _Dataset(torch.utils.data.Dataset):
-            def __init__(self, videolist, transformer=self.transformer(), training=training):
-                self._videolist = videolist
-                self._transformer = transformer
-                self._training = training
-            def __getitem__(self, k):
-                return {'tensor':self._transformer.totensor(self._videolist[k].resize(224,224), training=self._training),
-                        'label_vector':self._transformer.binary_vector(self._videolist[k].category()),
-                        'label_index':self._transformer.class_to_index(self._videolist[k].category()),                        
-                        'category':self._videolist[k].category()}            
-            def __len__(self):
-                return len(self._videolist)
-            
-        return DataLoader(_Dataset(videolist))
+    def dataloader(self, videolist, training=False, validation=False, num_workers=0, batchsize=1):
+        assert all([isinstance(v, vipy.video.Video) for v in videolist]), "Invalid input"            
+        return DataLoader(Dataset(videolist, self.transformer(), training, validation), 
+                          num_workers=num_workers, 
+                          batch_size=batchsize,
+                          pin_memory=True)
     
-
     
 class MevaActivityRecognition(ActivityRecognition):
     def __init__(self, weightfile=None):
@@ -280,11 +285,7 @@ class ActivityRecognition_PIP175k(pl.LightningModule, ActivityRecognition):
         self._num_frames = 64
         if deterministic:
             np.random.seed(42)
-        
-        if pretrained:
-            self._load_pretrained()
-        self._class_to_index =  {}
-
+    
         self._class_to_index =  {'car_drops_off_person': 0,
                                  'car_makes_u_turn': 1,
                                  'car_picks_up_person': 2,
@@ -339,12 +340,16 @@ class ActivityRecognition_PIP175k(pl.LightningModule, ActivityRecognition):
                                  'person_unloads_car': 51,
                                  'person_unloads_motorcycle': 52}
 
+        if pretrained:
+            self._load_pretrained()
+            self.net.fc = nn.Linear(self.net.fc.in_features, self.num_classes())
+
     @classmethod
     def from_checkpoint(cls, checkpointpath):
         return cls().load_from_checkpoint(checkpointpath)  # lightning
     
     def forward(self, x):
-        return self.net(x)
+        return self.net(x)  # lighting handles device
         
     def _load_trained(self):
         raise
@@ -362,52 +367,64 @@ class ActivityRecognition_PIP175k(pl.LightningModule, ActivityRecognition):
         net.load_state_dict(pretrain['state_dict'])
 
         # Inflate RGB -> RGBA 
-        #t = torch.split(net.conv1.weight.data, dim=1, split_size_or_sections=1)
-        #net.conv1.weight.data = torch.cat( (*t, t[-1]) ).contiguous()
-        #net.conv1.in_channels = 4
+        
+        t = torch.split(net.conv1.weight.data, dim=1, split_size_or_sections=1)
+        net.conv1.weight.data = torch.cat( (*t, t[-1]), dim=1).contiguous()
+        net.conv1.in_channels = 4
 
         self.net = net
 
         return self
 
-    def totensor(self, v, training=False):
-        assert isinstance(v, vipy.video.Video), "Invalid input"
-        assert v.width() == v.height(), "Video must be square"
-
-        v = v.crop(v.trackbox().maxsquare().dilate(1.2))
+    def totensor(self, v, training=False, validation=False):
+        assert isinstance(v, vipy.video.Scene), "Invalid input"
         
+        v = v.crop(v.trackbox().maxsquare().dilate(1.2))
+        v = v.normalize(mean=self._mean, std=self._std, scale=1.0/255.0)  # [0,255] -> [0,1], triggers load()
+        startframe = np.random.randint(len(v)-self._num_frames-1) if (len(v)-self._num_frames-1)>0 else 0
+        v = v.clip(startframe, startframe+self._num_frames)
+        v = v.crop(v.trackbox().maxsquare().dilate(1.2))
+
         if training:
             v = v.fliplr() if np.random.rand() > 0.5 else v
-            v = v.resize(rows=320, cols=320) if np.random.rand() > 0.5 else v.resize(rows=256, cols=256)
-            v = v.randomcrop( (self.input_size, self.input_size) )
+            v = v.resize(self._input_size, self._input_size)
+        elif validation:
+            v = v.resize(self._input_size, self._input_size)
         else:
             v = v.resize(self._input_size, self._input_size)
-            v = v.centercrop( (self._input_size, self._input_size) )
-            
-        v = v.normalize(mean=self._mean, std=self._std, scale=1.0/255.0)  # [0,255] -> [0,1], triggers load()
-        startframe = np.random.randint(max(0, len(v)-self._num_frames-1))  
-        t = v.torch(startframe=startframe, length=self._num_frames, boundary='repeat', order='cdhw')  # 64x RGB in [-0.5, 0.5]
-        b = v.clone().binarymask().bias(-0.5).torch(startframe=startframe, length=self._num_frames, boundary='repeat', order='cdhw')  # 64x A in [-0.5, 0.5]
-        return torch.cat((t,b), dim=0)  # C=RGBA x D=64 x H=224 x W=224
+
+        t = v.torch(startframe=0, length=self._num_frames, boundary='repeat', order='cdhw')  # 64x RGB in [-0.5, 0.5]
+        b = v.clone().binarymask().bias(-0.5).torch(startframe=0, length=self._num_frames, boundary='repeat', order='cdhw')  # 64x A in [-0.5, 0.5]
+        t = torch.cat((t,b), dim=0)  # C=RGBA x D=64 x H=224 x W=224
+
+        if training or validation:
+            labellist = list(set([lbl for labels in v.activitylabels(startframe, startframe+self._num_frames) for lbl in labels]))
+            return (t, self.binary_vector(labellist))
+        else:
+            return t
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
         return optimizer
 
     def training_step(self, batch, batch_nb):
-        (x,y) = (batch['tensor'], batch['label_index'])
+        (x,y) = batch
         y_hat = self.forward(x)
-        return {'loss': F.cross_entropy(y_hat, y)}
+        return {'loss': F.binary_cross_entropy_with_logits(y_hat, y)}
 
     def validation_step(self, batch, batch_nb):
-        (x,y) = (batch['tensor'], batch['label_index'])        
+        (x,y) = batch
         y_hat = self.forward(x)
-        return {'val_loss': F.cross_entropy(y_hat, y)}
+        return {'val_loss': F.binary_cross_entropy_with_logits(y_hat, y)}
 
     def validation_end(self, outputs):
         avg_loss = torch.stack([x['val_loss'] for x in outputs]).mean()
         return {'avg_val_loss': avg_loss}
 
-    def finetune(self, trainset, valset=None):
+    def finetune(self, trainset, valset=None, gpus=None, num_workers=0, batchsize=1, outdir='.'):
         """Default training options"""
-        return pl.Trainer().fit(self, self.dataloader(trainset), self.dataloader(valset) if valset is not None else None)
+        return pl.Trainer(gpus=gpus, 
+                          accelerator='dp',
+                          default_root_dir=outdir).fit(self, 
+                                                       self.dataloader(trainset, num_workers=num_workers, training=True, batchsize=batchsize), 
+                                                       self.dataloader(valset, validation=True, num_workers=num_workers, batchsize=batchsize) if valset is not None else None)
