@@ -123,11 +123,11 @@ class YOLOLayer(nn.Module):
         FloatTensor = torch.cuda.FloatTensor if device is not None and 'cpu' not in str(device) else torch.FloatTensor
         self.stride = self.img_dim / self.grid_size
         # Calculate offsets for each grid
-        self.grid_x = torch.arange(g).repeat(g, 1).view([1, 1, g, g]).type(FloatTensor).to(device)
-        self.grid_y = torch.arange(g).repeat(g, 1).t().view([1, 1, g, g]).type(FloatTensor).to(device)
-        self.scaled_anchors = FloatTensor([(a_w / self.stride, a_h / self.stride) for a_w, a_h in self.anchors]).to(device)
-        self.anchor_w = self.scaled_anchors[:, 0:1].view((1, self.num_anchors, 1, 1)).to(device)
-        self.anchor_h = self.scaled_anchors[:, 1:2].view((1, self.num_anchors, 1, 1)).to(device)
+        self.grid_x = torch.arange(g, dtype=torch.float32, device=device).repeat(g, 1).view([1, 1, g, g])
+        self.grid_y = torch.arange(g, dtype=torch.float32, device=device).repeat(g, 1).t().view([1, 1, g, g])
+        self.scaled_anchors = FloatTensor([(a_w / self.stride, a_h / self.stride) for a_w, a_h in self.anchors], device=device)
+        self.anchor_w = self.scaled_anchors[:, 0:1].view((1, self.num_anchors, 1, 1))
+        self.anchor_h = self.scaled_anchors[:, 1:2].view((1, self.num_anchors, 1, 1))
 
     def forward(self, x, targets=None, img_dim=None):
 
@@ -159,11 +159,11 @@ class YOLOLayer(nn.Module):
             self.compute_grid_offsets(grid_size, device=x.device)
 
         # Add offset and scale with anchors
-        pred_boxes = FloatTensor(prediction[..., :4].shape).to(x.device)
-        pred_boxes[..., 0] = x.data + self.grid_x.to(x.device)
-        pred_boxes[..., 1] = y.data + self.grid_y.to(x.device)
-        pred_boxes[..., 2] = torch.exp(w.data) * self.anchor_w.to(x.device)
-        pred_boxes[..., 3] = torch.exp(h.data) * self.anchor_h.to(x.device)
+        pred_boxes = FloatTensor(prediction[..., :4].shape, device=x.device)
+        pred_boxes[..., 0] = x.data + self.grid_x
+        pred_boxes[..., 1] = y.data + self.grid_y
+        pred_boxes[..., 2] = torch.exp(w.data) * self.anchor_w
+        pred_boxes[..., 3] = torch.exp(h.data) * self.anchor_h
 
         output = torch.cat(
             (
@@ -175,7 +175,7 @@ class YOLOLayer(nn.Module):
         )
 
         if targets is None:
-            return output, 0
+            return output, 0 
         else:
             iou_scores, class_mask, obj_mask, noobj_mask, tx, ty, tw, th, tcls, tconf = build_targets(
                 pred_boxes=pred_boxes,
@@ -257,7 +257,8 @@ class Darknet(nn.Module):
                 loss += layer_loss
                 yolo_outputs.append(x)
             layer_outputs.append(x)
-        yolo_outputs = to_cpu(torch.cat(yolo_outputs, 1))
+        #yolo_outputs = to_cpu(torch.cat(yolo_outputs, 1))  # JEBYRNE: this breaks DataParallel()
+        yolo_outputs = torch.cat(yolo_outputs, 1)
         return yolo_outputs if targets is None else (loss, yolo_outputs)
 
     def load_darknet_weights(self, weights_path):

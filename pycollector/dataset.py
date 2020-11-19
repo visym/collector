@@ -132,6 +132,19 @@ class Dataset():
         self._dataset[dst] = V_dst
         return self.save(dst) if save else self
 
+    def powerset_to_index(self, src):        
+        assert self.has_dataset(src)
+        V = self.load(src).dataset(src) if not self.isloaded(src) else self.dataset(src)
+        powerset = list(sorted(set([tuple(sorted(list(a))) for v in V for a in v.activitylabel()])))
+        return {c:k for (k,c) in enumerate(powerset)}
+
+    def label_to_index(self, src):
+        assert self.has_dataset(src)
+        V = self.load(src).dataset(src) if not self.isloaded(src) else self.dataset(src)
+        labelset = list(sorted(set([v.category() for v in V])))
+        return {c:k for (k,c) in enumerate(labelset)}
+
+
     def new(self, newset, dst):
         if self._strict:
             assert all([isinstance(v, vipy.video.Video) or isinstance(v, vipy.image.Image) for vl in newset for v in tolist(vl)]), "Invalid input"  # for map
@@ -147,6 +160,9 @@ class Dataset():
     def datasets(self):
         return list(set([filebase(f) for e in self._valid_ext for f in listext(self._indir, '.%s' % e)]).union(set(self._dataset.keys())))
         
+    def list(self):
+        return self.datasets()
+
     def has_dataset(self, src):
         return src in self.datasets()
 
@@ -402,6 +418,30 @@ class Dataset():
         V = self.map(src, dst, f_process, model=model, save=False).dataset(dst)
         V = [v for clips in V for v in clips if (v is not None) and not v.hasattribute('unrefined') and not v.hasattribute('unstabilized')]  # unpack clips, remove videos that failed
         V = [v.activityfilter(lambda a: any([a.hastrack(t) and len(t)>minlength and t.during(a.startframe(), a.endframe()) for t in v.tracklist()])) if minlength is not None else v for v in V]  # get rid of activities without tracks greater than dt
+        return self.new(V, dst).save(dst)
+
+    def refine_stabilize(self, src, dst, batchsize=1, dt=3, minlength=5, padwidthfrac=1.0, padheightfrac=0.2):
+        """Refine the bounding box, split into clips then stabilzie the clips.  This is more memory efficient for stabilization"""
+        assert self.has_dataset(src) and self.isloaded(src)
+
+        from vipy.flow import Flow
+        model = pycollector.detection.VideoProposalRefinement(batchsize=batchsize)  # =8 (0046) =20 (0053)
+        f_process = (lambda net,v,dt=dt,f=self._schema,dst=dst,padwidthfrac=padwidthfrac,padheightfrac=padheightfrac: 
+                     Flow(flowdim=256).stabilize(net(v,
+                                                     proposalconf=5E-2, 
+                                                     proposaliou=0.8, 
+                                                     miniou=0.2, 
+                                                     dt=dt, 
+                                                     mincover=0.8, 
+                                                     byclass=True, 
+                                                     shapeiou=0.7, 
+                                                     smoothing='spline', 
+                                                     splinefactor=None, 
+                                                     strict=True).print().pkl(f(dst,v,'refined',ext='pkl')),
+                                                 strict=False, residual=True, padwidthfrac=padwidthfrac, padheightfrac=padheightfrac, maxsize=None).saveas(f(dst,v,'stabilized')).pkl().print())
+
+        V = self.map(src, dst, f_process, model=model, save=False).dataset(dst)
+        V = [v for v in V if (v is not None) and not v.hasattribute('unrefined') and not v.hasattribute('unstabilized')]  # remove videos that failed
         return self.new(V, dst).save(dst)
     
     def refine_activityclip(self, src, dst, batchsize=1, dt=5, minlength=5):

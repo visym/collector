@@ -12,6 +12,7 @@ from pycollector.globals import print
 from pycollector.model.face.detection import FaceRCNN 
 
 
+
 class TorchNet(object):
     def gpu(self, k):
         deviceid = 'cuda:%d' % k if torch.cuda.is_available() and k is not None else 'cpu'
@@ -53,7 +54,7 @@ class ObjectDetector(object):
 
     """
     
-    def __init__(self, batchsize=1, weightfile=None):    
+    def __init__(self, batchsize=1, weightfile=None, gpu=None):    
         self._mindim = 416  # must be square
         indir = os.path.join(filepath(os.path.abspath(__file__)), 'model', 'yolov3')
         weightfile = os.path.join(indir, 'yolov3.weights') if weightfile is None else weightfile
@@ -70,15 +71,15 @@ class ObjectDetector(object):
         assert isinstance(self._batchsize, int), "Batchsize must be integer"
         self._cls2index = {c:k for (k,c) in enumerate(readlist(os.path.join(indir, 'coco.names')))}
         self._index2cls = {k:c for (c,k) in self._cls2index.items()}
-        self.gpu(vipy.globals.gpuindex())  # cpu if gpuindex==None
-
+        self.gpu(gpu)
+        
     def __call__(self, im, conf=5E-1, iou=0.5, union=False):
         assert isinstance(im, vipy.image.Image), "Invalid input - must be vipy.image.Image object and not '%s'" % (str(type(im)))
         #self.gpu(vipy.globals.gpuindex())  # cpu if gpuindex==None
 
         scale = max(im.shape()) / float(self._mindim)  # to undo
         t = im.clone().maxsquare().mindim(self._mindim).mat2gray().torch().type(self._tensortype).to(self._device)  # triggers load
-        dets = self._model(t)[0]
+        dets = self._model(t)[0].detach().cpu().numpy()
         objects = [vipy.object.Detection(xcentroid=float(d[0]),
                                          ycentroid=float(d[1]),
                                          width=float(d[2]),
@@ -94,12 +95,17 @@ class ObjectDetector(object):
         return list(self._cls2index.keys())
     
     def gpu(self, k):
-        deviceid = 'cuda:%d' % k if torch.cuda.is_available() and k is not None else 'cpu'
+        deviceid = 'cuda:%d' % tolist(k)[0] if torch.cuda.is_available() and k is not None else 'cpu'
         device = torch.device(deviceid)
-        self._tensortype = torch.cuda.FloatTensor if deviceid != 'cpu' and torch.cuda.is_available() else torch.FloatTensor        
-        self._model = self._model.to(device)  # does this leak memory on multiple calls?
-        self._model.eval()  # Set in evaluation mode
+        self._tensortype = torch.cuda.FloatTensor if deviceid != 'cpu' and torch.cuda.is_available() else torch.FloatTensor       
+        self._model.to(device)  # does this leak memory on multiple calls?
         self._device = device
+        self._gpu = k
+
+        if k is not None and len(tolist(k))>1:
+            self._model = torch.nn.DataParallel(self._model, device_ids=[torch.device('cuda:%d' % d) for d in tolist(k)], output_device=device)
+            self._model.to(device)  # does this leak memory on multiple calls?
+        self._model.eval()  # Set in evaluation mode
         return self
 
 
@@ -116,7 +122,7 @@ class MultiscaleObjectDetector(ObjectDetector):
         imlistdet = []
         for (imb, tb) in zip(chunklistbysize(imlist, self._batchsize), chunklistbysize(t, self._batchsize)):
             tb = torch.cat(tb, dim=0).to(self._device)   # batch to device
-            batchdets = self._model(tb)
+            batchdets = self._model(tb).detach().cpu().numpy()            
             for (im, dets) in zip(imb, batchdets):
                 objects = [vipy.object.Detection(xcentroid=float(d[0]),
                                                  ycentroid=float(d[1]),
@@ -155,21 +161,16 @@ class VideoTracker(VideoDetector):
     def __call__(self, v, conf=0.5, iou=0.5, maxarea=1.0, smoothing=None):
         assert isinstance(v, vipy.video.Video), "Invalid input"        
         for (k, im) in enumerate(super().__call__(v.clone(), conf=conf, iou=iou)):
-            yield v.assign(k, im.objectfilter(lambda o: o.area() <= maxarea*im.area()).objects(), miniou=iou, minconf=conf)
+            yield v.assign(k, im.objectfilter(lambda o: o.area() <= maxarea*im.area()).objects(), miniou=iou, minconf=conf, maxconf=conf)
 
             
 class MultiscaleVideoTracker(MultiscaleObjectDetector):
-    def __call__(self, v, conf=0.5, iou=0.5, stride=30, maxarea=1.0, maxhistory=30, smoothing=None):
+    def __call__(self, v, conf=0.05, iou=0.5, maxarea=1.0, maxhistory=5, smoothing=None, objects=None, mincover=0.8, maxconf=0.2):
         (f, n, imlast) = (super().__call__, self._mindim, None)
         assert isinstance(v, vipy.video.Video), "Invalid input"
-        assert stride > 0, "Invalid input"
+        assert objects is None or all([o in self.classlist() for o in objects]), "Invalid object list"
         for (k, imf) in enumerate(v.stream()):
-            #imcoarse = imf.clone().untile([f(im) for im in imf.clone().mindim(n).tile(n, n, overlaprows=n//2, overlapcols=n//2)]).mindim(imf.mindim())
-            #imfine = imf.clone().untile([f(im, conf=conf, iou=iou).objectfilter(lambda o: o.area()<=maxarea*im.area() and o.clone().dilate(1.1).isinterior(im.width(), im.height()))  # not too big or occluded by image boundary
-            #                             for im in imf.tile(n, n, overlaprows=n//2, overlapcols=n//2)
-            #                             if (k%stride == 0) or len(imlast.clone().objectfilter(lambda o: o.iou((im.attributes['tile']['crop'])) > 0))])
-            #imfine = imfine if imfine is not None else imf            
-            v.assign(k, f(imf, conf, iou, maxarea).objects(), miniou=iou, maxhistory=maxhistory, minconf=conf)  # in-place
+            v.assign(k, f(imf, conf, iou, maxarea).objectfilter(lambda o: o.category() in objects if objects is not None else True).objects(), miniou=iou, maxhistory=maxhistory, minconf=conf, maxconf=maxconf, mincover=mincover)  # in-place
             imlast = v.frame(k, img=imf.array())  # for imfine tracker only in regions with objects
             yield v
             
