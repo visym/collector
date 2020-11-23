@@ -221,6 +221,9 @@ class Video(Scene):
                 if not backend().collections().iscollectionid(d["metadata"]["collection_id"]):
                     print('[pycollector.video]: invalid collection ID "%s"' % d["metadata"]["collection_id"])
                     d = None
+                elif len(d['activity']) == 1 and len(d['activity'][0]['label']) == 0:
+                    d['metadata']['category'] = ''
+                    d['metadata']['shortname'] = ''                    
                 else:
                     try:
                         # Fetch labels from backend (with legacy shortname translation)
