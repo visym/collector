@@ -222,6 +222,7 @@ class Video(Scene):
                     print('[pycollector.video]: invalid collection ID "%s"' % d["metadata"]["collection_id"])
                     d = None
                 elif len(d['activity']) == 1 and len(d['activity'][0]['label']) == 0:
+                    d['activity'] = []
                     d['metadata']['category'] = ''
                     d['metadata']['shortname'] = ''                    
                 else:
