@@ -13,6 +13,7 @@ import warnings
 import copy 
 import atexit
 from pycollector.util import is_email_address
+import torch
 
 
 def disjoint_activities(V, activitylist):    
@@ -92,7 +93,7 @@ class Dataset():
        This class is designed to be used with vipy.batch.Batch() for massively parallel operations 
     """
 
-    def __init__(self, indir=None, strict=True, checkpoint=True):
+    def __init__(self, indir=None, strict=True, checkpoint=False):
  
         from vipy.batch import Batch       
         
@@ -102,11 +103,9 @@ class Dataset():
         assert os.path.isdir(indir), "invalid input directory"
         
         self._schema = (lambda dstdir, v, k=None, indir=self._indir, ext=None: os.path.join(indir, dstdir, v.category(), 
-                                                                                            ('%s%s.%s' % (filebase(v.filename()), 
+                                                                                            ('%s%s.%s' % (v.attributes['video_id'],
                                                                                                           ('_%s' % str(k)) if k is not None else '', 
-                                                                                                          (fileext(v.filename(), withdot=False) if ext is None else str(ext))))
-                                                                                            if (k is not None or ext is not None) 
-                                                                                            else filetail(v.filename())))
+                                                                                                          (fileext(v.filename(), withdot=False) if ext is None else str(ext))))))
         self._valid_ext = ['pkl', 'json']
         self._dataset = {}  # cache
         self._Batch = vipy.batch.Batch  # Batch() API
@@ -121,15 +120,13 @@ class Dataset():
         assert self.has_dataset(src), "Source dataset '%s' does not exist" % src                
         assert src != dst, "Source and destination cannot be the same"
 
-        V_dst = self.dataset(dst) if self.has_dataset(dst) else []
         V_src = self.dataset(src)
         V_src = f_rebatch(V_src) if f_rebatch is not None else V_src
         B = self._Batch(V_src, strict=False, as_completed=True, checkpoint=self._checkpoint)
         V = B.map(f_transform).result() if not model else B.scattermap(f_transform, model).result()
         if any([v is None for v in V]):
             print('pycollector.dataset][%s->%s]: %d failed' % (src, dst, len([v for v in V if v is None])))
-        V_dst.extend([v for v in V if v is not None]) 
-        self._dataset[dst] = V_dst
+        self._dataset[dst] = [v for v in V if v is not None]
         return self.save(dst) if save else self
 
     def powerset_to_index(self, src):        
@@ -248,7 +245,7 @@ class Dataset():
         """Stage a dataset for archiving
         
            -out:  the archive name
-           -src:  the dataset name to add to the archive
+           -src:  the dataset name to add to the archive, or an absolute path to a filename
            -srcdir:  the subdirectory that contains the media for this dataset
            -outname:  the dataset name in the archive
            -outdir:  the media subdirectory name to add to the archive
@@ -372,6 +369,17 @@ class Dataset():
         return self.map(src, dst, f_fetch)
         
 
+    def track(self, src, dst, batchsize=16, conf=0.05, iou=0.5, maxhistory=5, smoothing=None, objects=None, mincover=0.8, maxconf=0.2):
+        model = pycollector.detection.VideoTracker(batchsize=batchsize)
+        f_track = lambda net,v,b=batchsize: net.gpu(list(range(torch.cuda.device_count())), batchsize=b*torch.cuda.device_count()).track(v, conf, iou, maxhistory, smoothing, objects, mincover, maxconf).print()
+        return self.map(src, dst, f_track, model=model)
+
+    def actor_association(self, src, dst, d_category_to_object, batchsize):
+        model = pycollector.detection.ActorAssociation(batchsize=batchsize)
+        f = lambda net,v,b=batchsize: net.gpu(list(range(torch.cuda.device_count())), batchsize=b*torch.cuda.device_count())(v, d_category_to_object[v.category()]) if v.category() in d_category_to_object else v
+        return self.map(src, dst, f, model=model)
+
+
     def stabilize_refine_activityclip(self, src, dst, batchsize=1, dt=5, minlength=5, maxsize=512*3):
         from vipy.flow import Flow
         model = pycollector.detection.VideoProposalRefinement(batchsize=batchsize)  # =8 (0046) =20 (0053)
@@ -465,6 +473,11 @@ class Dataset():
         V = [v.activityfilter(lambda a: any([a.hastrack(t) and len(t)>minlength and t.during(a.startframe(), a.endframe()) for t in v.tracklist()])) for v in V]  # get rid of activities without tracks greater than dt
         return self.new(V,dst).save(dst)
 
+    def pad_activityclip(self, src, dst, t=2):        
+        f_tubelet = lambda v, t=t, f=self._schema, dst=dst: [a.saveas(f(dst,a,k)).print() for (k,a) in enumerate(v.activitymap(lambda x: x.padto(t)).activityclip())]
+        V = [a for V in self.map(src, dst, f_tubelet, save=False).dataset(dst) for a in V if a is not None]  # unpack
+        return self.new(V, dst).save(dst)
+        
     def stabilize(self, src, dst):
         from vipy.flow import Flow
         f_saveas = lambda v, dstdir=dst, f=self._schema: f(dstdir, v)

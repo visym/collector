@@ -71,58 +71,20 @@ class ObjectDetector(object):
         assert isinstance(self._batchsize, int), "Batchsize must be integer"
         self._cls2index = {c:k for (k,c) in enumerate(readlist(os.path.join(indir, 'coco.names')))}
         self._index2cls = {k:c for (c,k) in self._cls2index.items()}
-        self.gpu(gpu)
+
+        self._device = None
+        self._gpulist = gpu
+        self.gpu(gpu, batchsize)
         
     def __call__(self, im, conf=5E-1, iou=0.5, union=False):
-        assert isinstance(im, vipy.image.Image), "Invalid input - must be vipy.image.Image object and not '%s'" % (str(type(im)))
+        assert isinstance(im, vipy.image.Image) or (isinstance(im, list) and all([isinstance(i, vipy.image.Image) for i in im])), "Invalid input - must be vipy.image.Image object and not '%s'" % (str(type(im)))
         #self.gpu(vipy.globals.gpuindex())  # cpu if gpuindex==None
 
-        scale = max(im.shape()) / float(self._mindim)  # to undo
-        t = im.clone().maxsquare().mindim(self._mindim).mat2gray().torch().type(self._tensortype).to(self._device)  # triggers load
-        dets = self._model(t)[0].detach().cpu().numpy()
-        objects = [vipy.object.Detection(xcentroid=float(d[0]),
-                                         ycentroid=float(d[1]),
-                                         width=float(d[2]),
-                                         height=float(d[3]),
-                                         confidence=float(d[4]),
-                                         category='%s' % self._index2cls[int(np.argmax(d[5:]))])
-                   for d in dets if float(d[4]) > conf]
-        objects = [obj.rescale(scale) for obj in objects]
-        imd = im.clone().array(im.numpy()).objects(objects).nms(conf, iou)  # clone for shared attributese
-        return imd if not union else imd.union(im)
-
-    def classlist(self):
-        return list(self._cls2index.keys())
-    
-    def gpu(self, k):
-        deviceid = 'cuda:%d' % tolist(k)[0] if torch.cuda.is_available() and k is not None else 'cpu'
-        device = torch.device(deviceid)
-        self._tensortype = torch.cuda.FloatTensor if deviceid != 'cpu' and torch.cuda.is_available() else torch.FloatTensor       
-        self._model.to(device)  # does this leak memory on multiple calls?
-        self._device = device
-        self._gpu = k
-
-        if k is not None and len(tolist(k))>1:
-            self._model = torch.nn.DataParallel(self._model, device_ids=[torch.device('cuda:%d' % d) for d in tolist(k)], output_device=device)
-            self._model.to(device)  # does this leak memory on multiple calls?
-        self._model.eval()  # Set in evaluation mode
-        return self
-
-
-class MultiscaleObjectDetector(ObjectDetector):
-    """Run VideoDetector on every frame of video, tiling the frame to an overlapping  mosaic each of size (self._mindim, self._mindim), then recombining detections"""
-    def __call__(self, imf, conf=0.5, iou=0.5, maxarea=1.0):
-        (f, n) = (super().__call__, self._mindim)
-
-        imcoarse = imf.clone().mindim(n).tile(n, n, overlaprows=n//2, overlapcols=n//2)
-        imfine = imf.tile(n, n, overlaprows=n//2, overlapcols=n//2) if imf.mindim() > (n+(n//2)) else []
-        imlist = imcoarse+imfine
-        t = [im.clone().maxsquare().cornerpadcrop(n,n).mat2gray().torch().type(self._tensortype)for im in imlist]  # triggers load
-
-        imlistdet = []
-        for (imb, tb) in zip(chunklistbysize(imlist, self._batchsize), chunklistbysize(t, self._batchsize)):
-            tb = torch.cat(tb, dim=0).to(self._device)   # batch to device
-            batchdets = self._model(tb).detach().cpu().numpy()            
+        imbatch = tolist(im)
+        imbdets = []
+        t = torch.cat([im.clone().maxsquare().mindim(self._mindim).mat2gray().torch() for im in imbatch]).type(self._tensortype)  # triggers load
+        for (imb, tb) in zip(chunklistbysize(imbatch, self._batchsize), chunklistbysize(t, self._batchsize)):
+            batchdets = self._model(tb.to(self._device)).detach().cpu().numpy()
             for (im, dets) in zip(imb, batchdets):
                 objects = [vipy.object.Detection(xcentroid=float(d[0]),
                                                  ycentroid=float(d[1]),
@@ -131,15 +93,84 @@ class MultiscaleObjectDetector(ObjectDetector):
                                                  confidence=float(d[4]),
                                                  category='%s' % self._index2cls[int(np.argmax(d[5:]))])
                            for d in dets if float(d[4]) > conf]
-                imd = im.clone().array(im.numpy()).objects(objects).nms(conf, iou)  # clone for shared attributese
-                imlistdet.append(imd)
 
-        scale = max(imf.shape()) / float(self._mindim)  # to undo
-        imcoarsedet = imf.clone().untile(imlistdet[0:len(imcoarse)]).mindim(imf.mindim()).nms(conf, iou)
-        imfinedet = imf.clone().untile( [im.objectfilter(lambda o: o.area()<=maxarea*im.area() and o.clone().dilate(1.1).isinterior(im.width(), im.height()))  # not too big or occluded by image boundary 
-                                         for im in imlistdet[len(imcoarse):]] )
-        imcoarsedet = imcoarsedet.union(imfinedet, iou) if imfinedet is not None else imcoarsedet            
-        return imcoarsedet.nms(conf, iou)
+                scale = max(im.shape()) / float(self._mindim)  # to undo
+                objects = [obj.rescale(scale) for obj in objects]
+                imd = im.clone().array(im.numpy()).objects(objects).nms(conf, iou)  # clone for shared attributese
+                imbdets.append(imd if not union else imd.union(im))
+            
+        return imbdets if self._batchsize > 1 else imbdets[0]
+
+    def classlist(self):
+        return list(self._cls2index.keys())
+    
+    def gpu(self, k, batchsize=None):
+        assert batchsize is None or (isinstance(batchsize, int) and batchsize > 0), "Batchsize must be integer"
+        assert k is None or isinstance(k, int) or (isinstance(k, list) and len(k)>0), "Input must be a non-empty list of integer GPU ids"
+        self._batchsize = batchsize if batchsize is not None else self._batchsize
+
+        deviceid = 'cuda:%d' % tolist(k)[0] if torch.cuda.is_available() and k is not None else 'cpu'
+        device = torch.device(deviceid)
+        self._tensortype = torch.cuda.FloatTensor if deviceid != 'cpu' and torch.cuda.is_available() else torch.FloatTensor       
+
+        if self._device != device or k != self._gpulist:
+            self._model.to(device)  # does this leak memory on multiple calls?
+
+            if k is not None and len(tolist(k))>1:
+                self._model = torch.nn.DataParallel(self._model, device_ids=[torch.device('cuda:%d' % d) for d in tolist(k)], output_device=device)
+                self._model.to(device)  # does this leak memory on multiple calls?
+
+            self._device = device
+            self._gpulist = k
+            self._model.eval()  # Set in evaluation mode
+        return self
+
+
+class MultiscaleObjectDetector(ObjectDetector):
+    """Run VideoDetector on every frame of video, tiling the frame to an overlapping  mosaic each of size (self._mindim, self._mindim), then recombining detections"""
+    def __call__(self, imlist, conf=0.5, iou=0.5, maxarea=1.0):
+        (f, n) = (super().__call__, self._mindim)
+        assert isinstance(imlist, vipy.image.Image) or isinstance(imlist, list) and all([isinstance(im, vipy.image.Image) for im in imlist]), "invalid input"
+        imlist = tolist(imlist)
+
+        (imlist_batch, n_coarse, n_fine, imlist_multiscale) = ([], [], [], [])
+        for im in imlist:
+            imcoarse = im.clone().mindim(n).tile(n, n, overlaprows=n//2, overlapcols=n//2)
+            imfine = im.clone().tile(n, n, overlaprows=n//2, overlapcols=n//2) if im.mindim() > (n+(n//2)) else []
+            n_coarse.append(len(imcoarse))
+            n_fine.append(len(imfine))
+            imlist_batch.append(imcoarse+imfine)
+            imlist_multiscale.extend(imcoarse+imfine)
+
+        t = [im.clone().maxsquare().cornerpadcrop(n,n).mat2gray().torch().type(self._tensortype)for im in imlist_multiscale]  # triggers load
+        batchdets = []
+        for tb in chunklistbysize(t, self._batchsize):
+            batchdets.append(self._model(torch.cat(tb, dim=0).to(self._device)).detach().cpu().numpy())  # batch to device
+        batchdets = np.concatenate(batchdets, axis=0)
+
+        imlistdet = []
+        for (k, (iml, imb, nf, nc)) in enumerate(zip(imlist, imlist_batch, n_fine, n_coarse)):
+            imlist_multiscale_det = []
+            batchdet = batchdets[0:nf+nc]
+            batchdets = batchdets[nf+nc:]
+            for (im, dets) in zip(imb, batchdet):
+                objects = [vipy.object.Detection(xcentroid=float(d[0]),
+                                                 ycentroid=float(d[1]),
+                                                 width=float(d[2]),
+                                                 height=float(d[3]),
+                                                 confidence=float(d[4]),
+                                                 category='%s' % self._index2cls[int(np.argmax(d[5:]))])
+                           for d in dets if float(d[4]) > conf]
+                imd = im.clone().array(im.numpy()).objects(objects).nms(conf, iou)  # clone for shared attributese
+                imlist_multiscale_det.append(imd)
+
+            imcoarsedet = iml.clone().untile(imlist_multiscale_det[0:nc]).mindim(iml.mindim()).nms(conf, iou)
+            imfinedet = iml.clone().untile( [im.objectfilter(lambda o: o.area()<=maxarea*im.area() and o.clone().dilate(1.1).isinterior(im.width(), im.height()))  # not too big or occluded by image boundary 
+                                             for im in imlist_multiscale_det[nc:]] )
+            imcoarsedet = imcoarsedet.union(imfinedet, iou) if imfinedet is not None else imcoarsedet            
+            imlistdet.append(imcoarsedet.nms(conf, iou))
+
+        return imlistdet[0] if len(imlistdet) == 1 else imlistdet
 
     
 class VideoDetector(ObjectDetector):  
@@ -157,24 +188,43 @@ class MultiscaleVideoDetector(MultiscaleObjectDetector):
             yield super().__call__(imf, conf, iou)
 
 
-class VideoTracker(VideoDetector):
-    def __call__(self, v, conf=0.5, iou=0.5, maxarea=1.0, smoothing=None):
-        assert isinstance(v, vipy.video.Video), "Invalid input"        
-        for (k, im) in enumerate(super().__call__(v.clone(), conf=conf, iou=iou)):
-            yield v.assign(k, im.objectfilter(lambda o: o.area() <= maxarea*im.area()).objects(), miniou=iou, minconf=conf, maxconf=conf)
-
-            
-class MultiscaleVideoTracker(MultiscaleObjectDetector):
-    def __call__(self, v, conf=0.05, iou=0.5, maxarea=1.0, maxhistory=5, smoothing=None, objects=None, mincover=0.8, maxconf=0.2):
-        (f, n, imlast) = (super().__call__, self._mindim, None)
+class VideoTracker(ObjectDetector):
+    def __call__(self, v, conf=0.05, iou=0.5, maxhistory=5, smoothing=None, objects=None, mincover=0.8, maxconf=0.2):
+        (f, n) = (super().__call__, self._mindim)
         assert isinstance(v, vipy.video.Video), "Invalid input"
         assert objects is None or all([o in self.classlist() for o in objects]), "Invalid object list"
-        for (k, imf) in enumerate(v.stream()):
-            v.assign(k, f(imf, conf, iou, maxarea).objectfilter(lambda o: o.category() in objects if objects is not None else True).objects(), miniou=iou, maxhistory=maxhistory, minconf=conf, maxconf=maxconf, mincover=mincover)  # in-place
-            imlast = v.frame(k, img=imf.array())  # for imfine tracker only in regions with objects
-            yield v
+        vc = v.clone().clear()  
+        for (k, vb) in enumerate(vc.stream().batch(self._batchsize)):
+            for (j, im) in enumerate(f(vb.framelist(), conf, iou, union=False)):
+                yield vc.assign(k*self._batchsize+j, im.clone().objectfilter(lambda o: o.category() in objects if objects is not None else True).objects(), miniou=iou, maxhistory=maxhistory, minconf=conf, maxconf=maxconf, mincover=mincover)  # in-place            
+
+    def track(self, v, conf=0.05, iou=0.5, maxhistory=5, smoothing=None, objects=None, mincover=0.8, maxconf=0.2):
+        (f, n) = (super().__call__, self._mindim)
+        assert isinstance(v, vipy.video.Video), "Invalid input"
+        assert objects is None or all([o in self.classlist() for o in objects]), "Invalid object list"
+        vc = v.clone().clear()  
+        for (k, vb) in enumerate(vc.stream().batch(self._batchsize)):
+            for (j, im) in enumerate(f(vb.framelist(), conf, iou, union=False)):
+                vc.assign(k*self._batchsize+j, im.clone().objectfilter(lambda o: o.category() in objects if objects is not None else True).objects(), miniou=iou, maxhistory=maxhistory, minconf=conf, maxconf=maxconf, mincover=mincover)  # in-place            
+        return vc
             
+
+class MultiscaleVideoTracker(MultiscaleObjectDetector):
+    def __call__(self, v, conf=0.05, iou=0.5, maxarea=1.0, maxhistory=5, smoothing=None, objects=None, mincover=0.8, maxconf=0.2):
+        (f, n) = (super().__call__, self._mindim)
+        assert isinstance(v, vipy.video.Video), "Invalid input"
+        assert objects is None or all([o in self.classlist() for o in objects]), "Invalid object list"
+        vc = v.clone().clear()  
+        for (k, vb) in enumerate(vc.stream().batch(self._batchsize)):
+            for (j, im) in enumerate(f(vb.framelist(), conf, iou, maxarea)):
+                yield vc.assign(k*self._batchsize+j, im.clone().objectfilter(lambda o: o.category() in objects if objects is not None else True).objects(), miniou=iou, maxhistory=maxhistory, minconf=conf, maxconf=maxconf, mincover=mincover)  # in-place            
         
+    def track(self, v, conf=0.05, iou=0.5, maxhistory=5, smoothing=None, objects=None, mincover=0.8, maxconf=0.2):
+        for vt in self.__call__(v.clone(), conf, iou, 1.0, maxhistory, smoothing, objects, mincover, maxconf):
+            pass
+        return vt
+        
+
 class Proposal(ObjectDetector):
     def __call__(self, v, conf=1E-2, iou=0.8):
         return super().__call__(v, conf, iou)
@@ -322,7 +372,8 @@ class ActorAssociation(VideoProposalRefinement):
         assert target.lower() in self.allowable_objects(), "Actor Association must be to an allowable target class '%s'" % str(self.allowable_objects())
         assert len(v.objectlabels()) == 1, "Actor Association can only be performed with scenes containing a single actor"
         
-        va = super().__call__(v.clone(), dt=dt)  # tight proposal for primary actor (same keys)
+        #va = super().__call__(v.clone(), dt=dt)  # tight proposal for primary actor (same keys)
+        va = v.clone()  # assume tight proposal for primary actor already (Proposals already generated)
         vi = va.clone(rekey=True).meanmask().savetmp() if target in v.objectlabels() else None
         vp = super().__call__(vi if vi is not None else va.clone(rekey=True), dt=dt, miniou=0, mincover=0, byclass=True, refinedclass=target, dilate_height=4.0, dilate_width=16.0, pdist=True)  # close proposal for associated object (primary object blurred)
         vc = va.clone()  # for idempotence (same keys as v)
