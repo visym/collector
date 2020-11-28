@@ -93,7 +93,7 @@ class Dataset():
        This class is designed to be used with vipy.batch.Batch() for massively parallel operations 
     """
 
-    def __init__(self, indir=None, strict=True, checkpoint=False):
+    def __init__(self, indir=None, strict=True, checkpoint=False, order=True):
  
         from vipy.batch import Batch       
         
@@ -102,31 +102,37 @@ class Dataset():
         self._indir = indir if indir is not None else tempdir()
         assert os.path.isdir(indir), "invalid input directory"
         
-        self._schema = (lambda dstdir, v, k=None, indir=self._indir, ext=None: os.path.join(indir, dstdir, v.category(), 
-                                                                                            ('%s%s.%s' % (v.attributes['video_id'],
-                                                                                                          ('_%s' % str(k)) if k is not None else '', 
-                                                                                                          (fileext(v.filename(), withdot=False) if ext is None else str(ext))))))
+        self._schema = (lambda dstdir, v, k=None, indir=self._indir, ext=None, category=None: os.path.join(indir, dstdir, 
+                                                                                                           v.category() if category is None else category,
+                                                                                                           ('%s%s.%s' % (v.attributes['video_id'] if v.hasattribute('video_id') else filebase(v.filename()),
+                                                                                                                         ('_%s' % str(k)) if k is not None else '', 
+                                                                                                                         (fileext(v.filename(), withdot=False) if ext is None else str(ext))))))
         self._valid_ext = ['pkl', 'json']
         self._dataset = {}  # cache
         self._Batch = vipy.batch.Batch  # Batch() API
         self._strict = strict
         self._checkpoint = checkpoint
         self._stagedir = os.path.join(indir, '.archive')
+        self._order = order
 
     def __repr__(self):
         return str('<pycollector.dataset: "%s">' % self._indir)
 
-    def map(self, src, dst, f_transform, model=None, f_rebatch=None, strict=True, save=True):        
+    def map(self, src, dst, f_transform, model=None, f_rebatch=None, strict=True, save=False, order=None):        
         assert self.has_dataset(src), "Source dataset '%s' does not exist" % src                
         assert src != dst, "Source and destination cannot be the same"
-
+        
+        order = order if order is not None else self._order
         V_src = self.dataset(src)
         V_src = f_rebatch(V_src) if f_rebatch is not None else V_src
+        V_src = [v.setattribute('_order',k) for (k,v) in enumerate(V_src)] if order else V_src
         B = self._Batch(V_src, strict=False, as_completed=True, checkpoint=self._checkpoint)
-        V = B.map(f_transform).result() if not model else B.scattermap(f_transform, model).result()
+        V = B.map(f_transform).result() if not model else B.scattermap(f_transform, model).result()  # not order preserving
         if any([v is None for v in V]):
             print('pycollector.dataset][%s->%s]: %d failed' % (src, dst, len([v for v in V if v is None])))
-        self._dataset[dst] = [v for v in V if v is not None]
+        self._dataset[dst] = [v.delattribute('_order') for v in sorted([x for x in V if x is not None], key=lambda y: y.attributes['_order'])]  if order else [x for x in V if x is not None]   # restore order
+        #if strict:
+        #    assert len(self.dataset(src)) == len(self.dataset(dst)), "Strict map cannot have failures"
         return self.save(dst) if save else self
 
     def powerset_to_index(self, src):        
@@ -209,7 +215,7 @@ class Dataset():
     def load(self, src, format='pkl'):
         assert self.has_dataset(src)
         print('[pycollector.dataset]: Loading "%s" ...' % self._savefile(src, format))
-        self._dataset[src] = vipy.util.load(self._savefile(src, format))
+        self._dataset[src] = vipy.util.load(self._savefile(src, format), abspath=True)
         return self
 
     def name(self):
@@ -301,7 +307,7 @@ class Dataset():
 
         pwd = os.getcwd()
         os.chdir(stagedir)
-        videolist = list(set([v.abspath().filename() for f in set(listpkl(stagedir)+listjson(stagedir)) for v in vipy.util.load(f)]))
+        videolist = list(set([v.abspath().filename() for f in set(listpkl(stagedir)+listjson(stagedir)) for v in vipy.util.load(f, abspath=True)]))
         extraslist = listpkl(stagedir) + listjson(stagedir) + listext(stagedir, '.md') + listext(stagedir, '.pdf') + listext(stagedir, '.txt')
         filesfrom = writelist([os.path.relpath(f, self._stagedir) for f in videolist+extraslist], os.path.join(stagedir, 'archivelist.csv'))
         
@@ -379,6 +385,10 @@ class Dataset():
         f = lambda net,v,b=batchsize: net.gpu(list(range(torch.cuda.device_count())), batchsize=b*torch.cuda.device_count())(v, d_category_to_object[v.category()]) if v.category() in d_category_to_object else v
         return self.map(src, dst, f, model=model)
 
+    def instance_mining(self, src, dst, batchsize, conf=0.05, iou=0.5, maxhistory=5, smoothing=None, objects=None, mincover=0.8, maxconf=0.2):
+        model = pycollector.detection.MultiscaleVideoTracker(batchsize=batchsize)
+        f_process = lambda net,v,o=objects,f=self._schema,dst=dst: net.gpu(list(range(torch.cuda.device_count()))).track(v, objects=o, verbose=False, conf=conf, iou=iou, maxhistory=maxhistory, smoothing=smoothing, mincover=mincover, maxconf=maxconf).pkl(f(dst,v,category='tracks',ext='pkl')).print()
+        return self.map(src, dst, f_process, model=model, save=False)  
 
     def stabilize_refine_activityclip(self, src, dst, batchsize=1, dt=5, minlength=5, maxsize=512*3):
         from vipy.flow import Flow
@@ -477,7 +487,7 @@ class Dataset():
         f_tubelet = lambda v, t=t, f=self._schema, dst=dst: [a.saveas(f(dst,a,k)).print() for (k,a) in enumerate(v.activitymap(lambda x: x.padto(t)).activityclip())]
         V = [a for V in self.map(src, dst, f_tubelet, save=False).dataset(dst) for a in V if a is not None]  # unpack
         return self.new(V, dst).save(dst)
-        
+
     def stabilize(self, src, dst):
         from vipy.flow import Flow
         f_saveas = lambda v, dstdir=dst, f=self._schema: f(dstdir, v)
