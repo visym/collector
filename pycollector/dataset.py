@@ -168,11 +168,11 @@ class Datasets():
 
     def fetch(self, src):
         D = self.load(src)
-        assert D.isvipy() and all([v.hasattribute('video_id') and v.category() is not None]), "Invalid dataset"
+        assert D.isvipy() and all([v.hasattribute('video_id') and v.category() is not None for v in self.list()]), "Invalid dataset"
 
         f_saveas = lambda v, outdir=os.path.join(self._indir, src): os.path.join(outdir, v.category(), '%s.%s' % (v.attributes['video_id'], fileext(v.filename(), withdot=False)))
         f_fetch = lambda v, f=f_saveas: v.filename(f(v)).download().print()
-        return self.map(src, f_fetch, dst)
+        return self.map(src, f_fetch, dst=None)
         
     def track(self, src, dst=None, batchsize=16, conf=0.05, iou=0.5, maxhistory=5, smoothing=None, objects=None, mincover=0.8, maxconf=0.2):
         model = pycollector.detection.VideoTracker(batchsize=batchsize)
@@ -566,7 +566,7 @@ class Dataset():
         B = Batch(self.list(), strict=strict, as_completed=True, checkpoint=checkpoint, warnme=False)
         V = B.map(f_transform).result() if not model else B.scattermap(f_transform, model).result() 
         if any([v is None for v in V]):
-            print('pycollector.datasets][%s->]: %d failed' % (src, len([v for v in V if v is None])))
+            print('pycollector.datasets][%s->]: %d failed' % (str(self), len([v for v in V if v is None])))
         return Dataset(V, id=dst)
 
     def localmap(self, f):
