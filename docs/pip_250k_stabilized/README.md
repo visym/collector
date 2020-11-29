@@ -16,14 +16,14 @@ This dataset contains 314,649 stabilized video clips of 66 classes of activities
 
 [Background stabilization](https://github.com/visym/vipy/blob/bc20f6f32492badd181faa0ccf7b0029f1f63fee/vipy/flow.py#L307-L328) was performed using an affine coarse to fine optical-flow method, followed by [actor bounding box stabilization](https://github.com/visym/collector/blob/adc5486c7f88291b77f9a707a78763c2b5958406/pycollector/detection.py#L177-L236).  Stabilization is designed to minimize distortion for small motions in the region near the center of the actor box.  Remaining stabilization artifacts are due to non-planar scene structure, rolling shutter distortion, and sub-pixel optical flow correspondence errors.  Stabilization artifacts manifest as a subtly shifting background relative to the actor which may affect optical flow based methods.  All stabilizations can be filtered using the provided stabilization residual which measures the quality of the stabilization.  
 
-# Download
+## Download
 
 * [pip_250k_stabilized.tar.gz (46.8 GB)](https://dl.dropboxusercontent.com/s/n586unwwmehalmt/pip_250k_stabilized.tar.gz)&nbsp;&nbsp;MD5:2ce1dc937bc3f4807939e599cf2199c8&nbsp;&nbsp;&nbsp;&nbsp;
     * An incremental release of 99,980 videos, to augment pip-175k-stabilized.
 * [pip_250k_full_stabilized.tar.gz (158.0 GB)](https://dl.dropboxusercontent.com/s/0k68bd3yx02mlz7/pip_250k_full_stabilized.tar.gz)&nbsp;&nbsp;MD5:60f6e2b563469f2d2e7e2fa62372940d&nbsp;&nbsp;&nbsp;
     * The full release of 314,649 videos that includes pip-175k-stabilized.
 
-# Quickstart
+## Quickstart
 
 See [pip-175k](https://visym.github.io/collector/pip_175k/).
 
@@ -36,7 +36,7 @@ vs = v.crop(v.trackbox(dilate=1.0).maxsquare()).resize(224,224).saveas('/path/to
 vs.getattribute('stabilize')   # returns a stabilization residual (bigger is worse)
 ```
 
-# Best Practices for Training
+## Best Practices
 
 [Notebook demo](https://htmlpreview.github.io/?https://github.com/visym/collector/blob/master/docs/pip_175k/best_practices.html)&nbsp;[[html]](https://htmlpreview.github.io/?https://github.com/visym/collector/blob/master/docs/pip_175k/best_practices.html)[[ipynb]](https://github.com/visym/collector/blob/master/docs/pip_175k/best_practices.ipynb) showing best practices for using the PIP-175k dataset for training.
 
@@ -44,7 +44,7 @@ vs.getattribute('stabilize')   # returns a stabilization residual (bigger is wor
 
 ![](num_activities_histogram.png)
 
-## Errata
+# Errata
 
 * The classes "person_leaves_scene_through_structure" and "person_exits_scene_through_structure" are synonymous and should be merged.
 * The classes "person_comes_into_scene_through_structure" and "person_enters_scene_through_structure" are synonymous and should be merged.
