@@ -16,7 +16,7 @@ This dataset contains 184,379 stabilized video clips of 66 classes of activities
 
 [Background stabilization](https://github.com/visym/vipy/blob/bc20f6f32492badd181faa0ccf7b0029f1f63fee/vipy/flow.py#L307-L328) was performed using an affine coarse to fine optical-flow method, followed by [actor bounding box stabilization](https://github.com/visym/collector/blob/adc5486c7f88291b77f9a707a78763c2b5958406/pycollector/detection.py#L177-L236).  Stabilization is designed to minimize distortion for small motions in the region near the center of the actor box.  Remaining stabilization artifacts are due to non-planar scene structure, rolling shutter distortion, and sub-pixel optical flow correspondence errors.  Stabilization artifacts manifest as a subtly shifting background relative to the actor which may affect optical flow based methods.  All stabilizations can be filtered using the provided stabilization residual which measures the quality of the stabilization.  
 
-# Download
+## Download
 
 * [pip_175k_stabilized_0.tar.gz (11.5 GB)](https://dl.dropboxusercontent.com/s/h7j4391iyqfo85d/pip_175k_stabilized_0.tar.gz)&nbsp;&nbsp;MD5:99139862b128f9eff9deafd636225442&nbsp;&nbsp;&nbsp;&nbsp;
 * [pip_175k_stabilized_1.tar.gz (11.8 GB)](https://dl.dropboxusercontent.com/s/zwxzdirbp6kvq93/pip_175k_stabilized_1.tar.gz)&nbsp;&nbsp;MD5:95d337019a0dd2f24ee197bc7e371b97&nbsp;&nbsp;&nbsp;&nbsp;
@@ -28,7 +28,7 @@ This dataset contains 184,379 stabilized video clips of 66 classes of activities
 * [pip_175k_stabilized_6-9.tar.gz (41.2 GB)](https://dl.dropboxusercontent.com/s/g2qzku5uw57q9d8/pip_175k_stabilized_6-9.tar.gz)&nbsp;&nbsp;MD5:68ef20fbeeba6b9b9872610bca72584b&nbsp;&nbsp;&nbsp;&nbsp;
 
 
-# Quickstart
+## Quickstart
 
 See [pip-175k](https://visym.github.io/collector/pip_175k/).
 
@@ -41,7 +41,7 @@ vs = v.crop(v.trackbox(dilate=1.0).maxsquare()).resize(224,224).saveas('/path/to
 vs.getattribute('stabilize')   # returns a stabilization residual (bigger is worse)
 ```
 
-# Best Practices for Training
+## Best Practices 
 
 [Notebook demo](https://htmlpreview.github.io/?https://github.com/visym/collector/blob/master/docs/pip_175k/best_practices.html)&nbsp;[[html]](https://htmlpreview.github.io/?https://github.com/visym/collector/blob/master/docs/pip_175k/best_practices.html)[[ipynb]](https://github.com/visym/collector/blob/master/docs/pip_175k/best_practices.ipynb) showing best practices for using the PIP-175k dataset for training.
 
