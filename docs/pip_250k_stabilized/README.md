@@ -2,7 +2,7 @@
 
 # People in Public - 250k - Stabilized
 
-![](../pip_175k/pip_175k_stabilized.webp)
+![](../pip_175k_stabilized/pip_175k_stabilized.webp)
 
 # Overview
 
@@ -42,7 +42,7 @@ vs.getattribute('stabilize')   # returns a stabilization residual (bigger is wor
 
 # Class Distribution
 
-<object data="num_activities_histogram.pdf" type="application/pdf">
+![](num_activities_histogram.png)
 
 # License
 
