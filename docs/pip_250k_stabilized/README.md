@@ -42,7 +42,7 @@ vs.getattribute('stabilize')   # returns a stabilization residual (bigger is wor
 
 # Class Distribution
 
-![](num_activities_histogram.pdf)
+<object data="num_activities_histogram.pdf" type="application/pdf">
 
 # License
 

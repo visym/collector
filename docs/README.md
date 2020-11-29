@@ -30,5 +30,6 @@ Our goal is to make all datasets freely available to the computer vision researc
     * [pip_175k.tar.gz (55.3GB)](https://dl.dropboxusercontent.com/s/xwiacwo9y5uci9v/pip_175k.tar.gz)&nbsp;&nbsp;MD5:9e49f8608ba0170dfaa1ed558351f0df&nbsp;&nbsp;[[README]](pip_175k/README.md)&nbsp;&nbsp;
     * Visualization of [Training set random sample (87MB)](https://rawcdn.githack.com/visym/collector/5b051c625ef458417a16ed48d5a0693ef59fd9ff/docs/pip_175k/trainset_small.html),&nbsp;[full validation set (1.1GB)](https://dl.dropboxusercontent.com/s/8fp77nvxeywrq7f/pip_175k_valset.html)
     * People in Public - 175k - stabilized.  Background stabilized videos for pip-175k.  [[README]](pip_175k_stabilized/README.md)&nbsp;&nbsp;
-* **People in Public - 250k - stabilized.**  This dataset contains 314,649 background stabilized videos with a 251,721/31,464/31,464 train/test/val split.  [[README]](pip_250k_stabilized/README.md)&nbsp;&nbsp;
+* **People in Public - 250k - stabilized.**  This dataset contains 314,649 background stabilized videos clips of 68 classes of activities performed by people in public places. [[README]](pip_250k_stabilized/README.md)&nbsp;&nbsp;
+    * [pip_250k_full_stabilized.tar.gz (158.0 GB)](https://dl.dropboxusercontent.com/s/0k68bd3yx02mlz7/pip_250k_full_stabilized.tar.gz)&nbsp;&nbsp;MD5:60f6e2b563469f2d2e7e2fa62372940d&nbsp;&nbsp;&nbsp;
 
