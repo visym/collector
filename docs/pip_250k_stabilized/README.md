@@ -44,9 +44,11 @@ vs.getattribute('stabilize')   # returns a stabilization residual (bigger is wor
 
 ![](num_activities_histogram.png)
 
+* The category mapping from [PIP to MEVA](pip_to_meva.txt) is available for training.
+ 
 # Errata
 
-* The classes "person_leaves_scene_through_structure" and "person_exits_scene_through_structure" are synonymous and should be merged.
+* The classes "person_leaves_scene_through_structure" and "person_exits_scene_through_structure" are synonymous and should be merged.  
 * The classes "person_comes_into_scene_through_structure" and "person_enters_scene_through_structure" are synonymous and should be merged.
 
 
