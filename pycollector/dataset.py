@@ -135,19 +135,22 @@ class Datasets():
     def load(self, src, format='pkl'):
         if isinstance(src, Dataset):
             return src
-        elif src in self._datasets:
-            return self._datasets[src]
         elif isinstance(src, list):
             return Dataset(src)
+        elif src in self._datasets:
+            return self._datasets[src]
         else:
             return self.reload(src, format)
 
     def new(self, dst):
-        return self.cache(dst, D)
+        return self.cache(dst).load(dst)
+
+    def cached(self):
+        return list(self._datasets.keys())
 
     def cache(self, dst):
         D = self.load(dst)
-        self._dataset[D.id()] = D
+        self._datasets[D.id()] = D
         return self
 
     def flush(self, dst):
@@ -181,9 +184,10 @@ class Datasets():
         f = lambda net,v,b=batchsize: net.gpu(list(range(torch.cuda.device_count())), batchsize=b*torch.cuda.device_count())(v, d_category_to_object[v.category()]) if v.category() in d_category_to_object else v
         return self.map(src, f, model=model, dst=dst)
 
-    def instance_mining(self, src, dst=None, batchsize=1, conf=0.05, iou=0.5, maxhistory=5, smoothing=None, objects=None, mincover=0.8, maxconf=0.2):
+    def instance_mining(self, src, dstdir=None, dst=None, batchsize=1, conf=0.05, iou=0.5, maxhistory=5, smoothing=None, objects=None, mincover=0.8, maxconf=0.2):
         model = pycollector.detection.MultiscaleVideoTracker(batchsize=batchsize)
-        f_process = lambda net,v,o=objects,f=self._schema,dst=dst: net.gpu(list(range(torch.cuda.device_count()))).track(v, objects=o, verbose=False, conf=conf, iou=iou, maxhistory=maxhistory, smoothing=smoothing, mincover=mincover, maxconf=maxconf).pkl(f(dst,v,category='tracks',ext='pkl')).print()
+        dstdir = dstdir if dstdir is not None else (dst if dst is not None else 'instance_mining')
+        f_process = lambda net,v,o=objects,f=self._schema,dst=dstdir: net.gpu(list(range(torch.cuda.device_count()))).track(v, objects=o, verbose=False, conf=conf, iou=iou, maxhistory=maxhistory, smoothing=smoothing, mincover=mincover, maxconf=maxconf).pkl(f(dst,v,category='tracks',ext='pkl')).print()
         return self.map(src, f_process, model=model, dst=dst)  
 
     def stabilize_refine_activityclip(self, src, dst, batchsize=1, dt=5, minlength=5, maxsize=512*3):
@@ -565,7 +569,99 @@ class Dataset():
             print('pycollector.datasets][%s->]: %d failed' % (src, len([v for v in V if v is None])))
         return Dataset(V, id=dst)
 
+    def localmap(self, f):
+        self._objlist = [f(v) for v in self._objlist]
+        return self
+
+    def flatmap(self, f):
+        self._objlist = [x for v in self._objlist for x in f(v)]
+        return self
     
+    def stats(self, outdir=None, object_categories=['Person', 'Car'], plot=True):
+        """Analyze the dataset to return helpful statistics and plots"""
+        assert self.isvipy()
+
+        import matplotlib.pyplot as plt        
+        import vipy.metrics
+        from vipy.show import colorlist        
+
+        videos = self.list()
+        #scenes = [a for m in videos for a in m.activityclip() if m is not None]  # This can introduce doubles
+        scenes = videos
+        activities = [a for s in scenes for a in s.activities().values()]
+        tracks = [t for s in scenes for t in s.tracks().values()]
+        outdir = tempdir() if outdir is None else outdir
+        
+        # Category distributions
+        d = {}
+        d['activity_categories'] = set([a.category() for a in activities])
+        d['object_categories'] = set([t.category() for t in tracks])
+        d['videos'] = set([v.filename() for v in videos if v is not None])
+        d['num_activities'] = sorted([(k,len(v)) for (k,v) in vipy.util.groupbyasdict(activities, lambda a: a.category()).items()], key=lambda x: x[1])
+        d['video_density'] = sorted([(v.filename(),len(v.activities())) for v in videos if v is not None], key=lambda x: x[1])
+
+        # Helpful plots
+        if plot:
+            # Histogram of instances
+            (categories, freq) = zip(*reversed(d['num_activities']))
+            barcolors = ['blue' if c.startswith('person') else 'green' for c in categories]
+            d['num_activities_histogram'] = vipy.metrics.histogram(freq, categories, barcolors=barcolors, outfile=os.path.join(outdir, 'num_activities_histogram.pdf'), ylabel='Instances', fontsize=6)
+            colors = colorlist()
+
+            # Scatterplot of people and vehicles box sizes
+            (x, y) = zip(*[(t.meanshape()[1], t.meanshape()[0]) for t in tracks])
+            plt.clf()
+            plt.figure()
+            plt.grid(True)
+            d_category_to_color = dict(zip(object_categories, ['blue', 'green']))
+            for c in object_categories:
+                xcyc = [(t.meanshape()[1], t.meanshape()[0]) for t in tracks if ((t.category() == c) and (t.meanshape() is not None))]
+                if len(xcyc) > 0:
+                    (xc, yc) = zip(*xcyc)
+                    plt.scatter(xc, yc, c=d_category_to_color[c], label=c)
+            plt.xlabel('bounding box (width)')
+            plt.ylabel('bounding box (height)')
+            plt.axis([0, 1000, 0, 1000])                
+            plt.legend()
+            plt.gca().set_axisbelow(True)        
+            d['object_bounding_box_scatterplot'] = os.path.join(outdir, 'object_bounding_box_scatterplot.pdf')
+            plt.savefig(d['object_bounding_box_scatterplot'])
+        
+            # 2D histogram of people and vehicles box sizes
+            for c in object_categories:
+                xcyc = [(t.meanshape()[1], t.meanshape()[0]) for t in tracks if ((t.category() == c) and (t.meanshape() is not None))]
+                if len(xcyc) > 0:
+                    (xc, yc) = zip(*xcyc)
+                    plt.clf()
+                    plt.figure()
+                    plt.hist2d(xc, yc, bins=10)
+                    plt.xlabel('Bounding box (width)')
+                    plt.ylabel('Bounding box (height)')
+                    
+                    d['2D_%s_bounding_box_histogram' % c] = os.path.join(outdir, '2D_%s_bounding_box_histogram.pdf' % c)
+                    plt.savefig(d['2D_%s_bounding_box_histogram' % c])
+
+            # Mean track size per activity category
+            d_category_to_xy = {k:np.mean([t.meanshape() for v in vlist for t in v.tracklist()], axis=0) for (k,vlist) in vipy.util.groupbyasdict(scenes, lambda v: v.category()).items()}        
+            plt.clf()
+            plt.figure()
+            plt.grid(True)
+            d_category_to_color = {c:colors[k % len(colors)] for (k,c) in enumerate(d_category_to_xy.keys())}
+            for c in d_category_to_xy.keys():
+                (xc, yc) = d_category_to_xy[c]
+                plt.scatter(xc, yc, c=d_category_to_color[c], label=c)
+            plt.xlabel('bounding box (width)')
+            plt.ylabel('bounding box (height)')
+            plt.axis([0, 600, 0, 600])                
+            plt.gca().set_axisbelow(True)        
+            lgd = plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0.)
+            d['activity_bounding_box_scatterplot'] = os.path.join(outdir, 'activity_bounding_box_scatterplot.pdf')
+            plt.savefig(d['activity_bounding_box_scatterplot'], bbox_extra_artists=(lgd,), bbox_inches='tight')
+    
+        return d
+
+
+
 class ActivityDataset(Dataset):
     """Dataset filename structure: /dataset/$DSTDIR/$ACTIVITY_CATEGORY/$VIDEOID_$ACTIVITYINDEX.mp4"""
     def __init__(self, indir, format='.json'):

@@ -1,32 +1,27 @@
 <a href="https://github.com/visym/collector" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#151513; color:#fff; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
 
-# People in Public - 175k - Stabilized
+# People in Public - 250k - Stabilized
 
-![](pip_175k_stabilized.webp)
+![](../pip_175k/pip_175k_stabilized.webp)
 
 # Overview
 
 The People in Public dataset is a consented large scale video dataset of people doing things in public places.  Our team has pioneered the use of a 
 custom designed mobile app that combines video collection, activity labeling and bounding box annotation into a single step.  Our goal is to 
 make collecting annotated video datasets as easily and cheaply as recording a video.  Currently, we are collecting a dataset of the MEVA 
-classes (http://mevadata.org).  This package provides a release of this dataset, containing 184,379 annotated activity instances collected by 
+classes (http://mevadata.org).  This package provides a release of this dataset, containing 314,649 annotated activity instances collected by 
 over 150 subjects in 44 countries around the world. 
 
-This dataset contains 184,379 stabilized video clips of 68 classes of activities performed by people in public places.  The activity labels are subsets of the 37 activities in the [Multiview Extended Video with Activities (MEVA)](https://mevadata.org) dataset and is consistent with the [Activities in Extended Video (ActEV)](https://actev.nist.gov/) challenge.  
+This dataset contains 314,649 stabilized video clips of 68 classes of activities performed by people in public places.  The activity labels are subsets of the 37 activities in the [Multiview Extended Video with Activities (MEVA)](https://mevadata.org) dataset and is consistent with the [Activities in Extended Video (ActEV)](https://actev.nist.gov/) challenge.  
 
 [Background stabilization](https://github.com/visym/vipy/blob/bc20f6f32492badd181faa0ccf7b0029f1f63fee/vipy/flow.py#L307-L328) was performed using an affine coarse to fine optical-flow method, followed by [actor bounding box stabilization](https://github.com/visym/collector/blob/adc5486c7f88291b77f9a707a78763c2b5958406/pycollector/detection.py#L177-L236).  Stabilization is designed to minimize distortion for small motions in the region near the center of the actor box.  Remaining stabilization artifacts are due to non-planar scene structure, rolling shutter distortion, and sub-pixel optical flow correspondence errors.  Stabilization artifacts manifest as a subtly shifting background relative to the actor which may affect optical flow based methods.  All stabilizations can be filtered using the provided stabilization residual which measures the quality of the stabilization.  
 
 # Download
 
-* [pip_175k_stabilized_0.tar.gz (11.5 GB)](https://dl.dropboxusercontent.com/s/h7j4391iyqfo85d/pip_175k_stabilized_0.tar.gz)&nbsp;&nbsp;MD5:99139862b128f9eff9deafd636225442&nbsp;&nbsp;&nbsp;&nbsp;
-* [pip_175k_stabilized_1.tar.gz (11.8 GB)](https://dl.dropboxusercontent.com/s/zwxzdirbp6kvq93/pip_175k_stabilized_1.tar.gz)&nbsp;&nbsp;MD5:95d337019a0dd2f24ee197bc7e371b97&nbsp;&nbsp;&nbsp;&nbsp;
-* [pip_175k_stabilized_2.tar.gz (11.9 GB)](https://dl.dropboxusercontent.com/s/rg9t5edfmyp6uq0/pip_175k_stabilized_2.tar.gz)&nbsp;&nbsp;MD5:388198296dae0dd7d27d1a3b983f84e9&nbsp;&nbsp;&nbsp;&nbsp;
-* [pip_175k_stabilized_3.tar.gz (11.8 GB)](https://dl.dropboxusercontent.com/s/n82mkbstgidnon7/pip_175k_stabilized_3.tar.gz)&nbsp;&nbsp;MD5:45d52bbd432a10f5cddd4bd1353a2282&nbsp;&nbsp;&nbsp;&nbsp;
-* [pip_175k_stabilized_4.tar.gz (11.8 GB)](https://dl.dropboxusercontent.com/s/gqrricwj3vyp4sc/pip_175k_stabilized_4.tar.gz)&nbsp;&nbsp;MD5:4fdf2aa880771c7bce6f5952017dd6e2&nbsp;&nbsp;&nbsp;&nbsp;
-* [pip_175k_stabilized_5.tar.gz (11.8 GB)](https://dl.dropboxusercontent.com/s/yfkma0kt30810h1/pip_175k_stabilized_5.tar.gz)&nbsp;&nbsp;MD5:30ae8634ec25a6d54d25e8ba94b75361&nbsp;&nbsp;&nbsp;&nbsp;
-<!--- * [pip_175k_stabilized_6-7.tar.gz (20.5 GB)](https://dl.dropboxusercontent.com/s/yoabjhep9g6ozs1/pip_175k_stabilized_6-7.tar.gz)&nbsp;&nbsp;MD5:b18e0ba7d0ea411a1b8ef4fe2e3d8b59&nbsp;&nbsp;&nbsp;&nbsp; --->
-* [pip_175k_stabilized_6-9.tar.gz (41.2 GB)](https://dl.dropboxusercontent.com/s/g2qzku5uw57q9d8/pip_175k_stabilized_6-9.tar.gz)&nbsp;&nbsp;MD5:68ef20fbeeba6b9b9872610bca72584b&nbsp;&nbsp;&nbsp;&nbsp;
-
+* [pip_250k_stabilized.tar.gz (46.8 GB)](https://dl.dropboxusercontent.com/s/n586unwwmehalmt/pip_250k_stabilized.tar.gz)&nbsp;&nbsp;MD5:2ce1dc937bc3f4807939e599cf2199c8&nbsp;&nbsp;&nbsp;&nbsp;
+    * An incremental release of X videos, to augment pip-175k-stabilized.
+* [pip_250k_full_stabilized.tar.gz (158.0 GB)](https://dl.dropboxusercontent.com/s/0k68bd3yx02mlz7/pip_250k_full_stabilized.tar.gz)&nbsp;&nbsp;MD5:60f6e2b563469f2d2e7e2fa62372940d&nbsp;&nbsp;&nbsp;
+    * The full release of 314,649 videos that includes pip-175k-stabilized.
 
 # Quickstart
 
@@ -44,6 +39,10 @@ vs.getattribute('stabilize')   # returns a stabilization residual (bigger is wor
 # Best Practices for Training
 
 [Notebook demo](https://htmlpreview.github.io/?https://github.com/visym/collector/blob/master/docs/pip_175k/best_practices.html)&nbsp;[[html]](https://htmlpreview.github.io/?https://github.com/visym/collector/blob/master/docs/pip_175k/best_practices.html)[[ipynb]](https://github.com/visym/collector/blob/master/docs/pip_175k/best_practices.ipynb) showing best practices for using the PIP-175k dataset for training.
+
+# Class Distribution
+
+![](num_activities_histogram.pdf)
 
 # License
 
