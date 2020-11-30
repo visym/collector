@@ -11,6 +11,7 @@ from pycollector.model.yolov3.network import Darknet
 from pycollector.globals import print
 from pycollector.model.face.detection import FaceRCNN 
 import copy
+import pycollector.model.yolov5.models.yolo
 
 
 class TorchNet(object):
@@ -76,7 +77,78 @@ class FaceDetector(TorchNet):
         return vipy.image.Scene(array=im.numpy(), colorspace=im.colorspace(), objects=[vipy.object.Detection('face', xmin=bb[0], ymin=bb[1], width=bb[2], height=bb[3], confidence=bb[4]) for bb in self._model(im)]).union(im)
 
 
-class ObjectDetector(TorchNet):
+class Yolov5(TorchNet):
+    """Yolov5 based object detector
+
+       >>> d = pycollector.detection.Detector()
+       >>> d(vipy.image.vehicles()).show()
+
+    """
+    
+    def __init__(self, batchsize=1, weightfile=None, gpu=None):    
+        self._mindim = 640  # must be square
+        indir = os.path.join(filepath(os.path.abspath(__file__)), 'model', 'yolov5')
+        cfgfile = os.path.join(indir, 'models', 'yolov5x.yaml')        
+        weightfile = os.path.join(indir, 'yolov5x.weights') if weightfile is None else weightfile
+        if not os.path.exists(weightfile) or not vipy.downloader.verify_sha1(weightfile, 'bdf2f9e0ac7b4d1cee5671f794f289e636c8d7d4'):
+            print('[pycollector.detection]: Downloading weights ...')
+            os.system('wget -c https://dl.dropboxusercontent.com/s/jcwvz9ncjwpoat0/yolov5x.weights -O %s' % weightfile)  # FIXME: replace with better solution
+        assert vipy.downloader.verify_sha1(weightfile, 'bdf2f9e0ac7b4d1cee5671f794f289e636c8d7d4'), "Object detector download failed"
+
+        # First import: load yolov5x.pt, disable fuse() in attempt_load(), save state_dict weights and load into newly pathed model
+        self._model = pycollector.model.yolov5.models.yolo.Model(cfgfile, 3, 80)
+        self._model.load_state_dict(torch.load(weightfile))
+        self._model.fuse()
+        self._model.eval()
+
+        self._batchsize = batchsize        
+        assert isinstance(self._batchsize, int), "Batchsize must be integer"
+        self._cls2index = {c:k for (k,c) in enumerate(readlist(os.path.join(indir, 'coco.names')))}
+        self._index2cls = {k:c for (c,k) in self._cls2index.items()}
+
+        self._device = None
+        self._gpulist = gpu
+        self.gpu(gpu, batchsize)
+        
+    def __call__(self, im, conf=5E-1, iou=0.5, union=False, objects=None):
+        assert isinstance(im, vipy.image.Image) or (isinstance(im, list) and all([isinstance(i, vipy.image.Image) for i in im])), "Invalid input - must be vipy.image.Image object and not '%s'" % (str(type(im)))
+
+        imlist = tolist(im)
+        imlistdets = []
+        t = torch.cat([im.clone().maxsquare().mindim(self._mindim).mat2gray().torch() for im in imlist]).type(self._tensortype)  # triggers load
+
+        assert len(t) <= self.batchsize(), "Invalid batch size"
+        t = t.pin_memory() if self.isgpu() else t
+        todevice = [b.to(d, non_blocking=True) for (b,d) in zip(t.split(self._batchsize) , self._devices)]  # async?
+        fromdevice = [m(b)[0] for (m,b) in zip(self._models, todevice)]   # async?
+        t_out = torch.cat([r.detach().cpu() for r in fromdevice], dim=0).numpy()
+        
+        #t_out = super().__call__(t).numpy()   # parallel multi-GPU evaluation, using TorchNet()
+
+        for (im, dets) in zip(imlist, t_out):
+            k_class = np.argmax(dets[:,5:], axis=1).flatten().tolist()
+            k_det = np.argwhere((dets[:,4] > conf).flatten() & np.array([((objects is None) or (self._index2cls[k] in set(objects))) for k in k_class])).flatten().tolist()
+            objectlist = [vipy.object.Detection(xcentroid=float(dets[k][0]),
+                                                ycentroid=float(dets[k][1]),
+                                                width=float(dets[k][2]),
+                                                height=float(dets[k][3]),
+                                                confidence=float(dets[k][4]),
+                                                category='%s' % self._index2cls[k_class[k]],
+                                                id=True)
+                          for k in k_det]
+
+            scale = max(im.shape()) / float(self._mindim)  # to undo
+            objectlist = [obj.rescale(scale) for obj in objectlist]
+            imd = im.clone().array(im.numpy()).objects(objectlist).nms(conf, iou)  # clone for shared attributese
+            imlistdets.append(imd if not union else imd.union(im))
+            
+        return imlistdets if self._batchsize > 1 else imlistdets[0]
+
+    def classlist(self):
+        return list(self._cls2index.keys())
+    
+    
+class Yolov3(TorchNet):
     """Yolov3 based object detector
 
        >>> d = pycollector.detection.Detector()
@@ -136,7 +208,12 @@ class ObjectDetector(TorchNet):
         return list(self._cls2index.keys())
     
 
-class MultiscaleObjectDetector(ObjectDetector):
+class ObjectDetector(Yolov3):
+    """Default object detector"""
+    pass
+
+
+class MultiscaleObjectDetector(ObjectDetector):  
     """Run VideoDetector on every frame of video, tiling the frame to an overlapping  mosaic each of size (self._mindim, self._mindim), then recombining detections"""
     def __call__(self, imlist, conf=0.5, iou=0.5, maxarea=1.0, objects=None):
         (f, n) = (super().__call__, self._mindim)
@@ -159,7 +236,7 @@ class MultiscaleObjectDetector(ObjectDetector):
         for (k, (iml, imb, nf, nc)) in enumerate(zip(imlist, imlist_multiscale, n_fine, n_coarse)):
             im_multiscale = imlistdet_multiscale_flat[0:nf+nc]; imlistdet_multiscale_flat = imlistdet_multiscale_flat[nf+nc:];
             imcoarsedet = iml.clone().untile(im_multiscale[0:nc]).mindim(iml.mindim()).nms(conf, iou)
-            imfinedet = iml.clone().untile( [im.objectfilter(lambda o: o.area()<=maxarea*im.area() and o.clone().dilate(1.1).isinterior(im.width(), im.height()))  # not too big or occluded by image boundary 
+            imfinedet = iml.clone().untile( [im.objectfilter(lambda o: o.area()<=maxarea*im.area() and o.clone().dilate(1.2).isinterior(im.width(), im.height()))  # not too big or occluded by image boundary 
                                              for im in im_multiscale[nc:]] )
             imcoarsedet = imcoarsedet.union(imfinedet, iou) if imfinedet is not None else imcoarsedet            
             imlistdet.append(imcoarsedet.nms(conf, iou))
@@ -199,7 +276,6 @@ class VideoTracker(ObjectDetector):
         return vt
 
     
-
 class MultiscaleVideoTracker(MultiscaleObjectDetector):
     def __call__(self, v, conf=0.05, iou=0.6, maxarea=1.0, maxhistory=5, smoothing=None, objects=None, mincover=0.6, maxconf=0.2):
         (f, n) = (super().__call__, self._mindim)
