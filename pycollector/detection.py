@@ -98,7 +98,7 @@ class Yolov5(TorchNet):
         # First import: load yolov5x.pt, disable fuse() in attempt_load(), save state_dict weights and load into newly pathed model
         self._model = pycollector.model.yolov5.models.yolo.Model(cfgfile, 3, 80)
         self._model.load_state_dict(torch.load(weightfile))
-        self._model.fuse()
+        self._model.fues()
         self._model.eval()
 
         self._batchsize = batchsize        
@@ -110,12 +110,12 @@ class Yolov5(TorchNet):
         self._gpulist = gpu
         self.gpu(gpu, batchsize)
         
-    def __call__(self, im, conf=5E-1, iou=0.5, union=False, objects=None):
+    def __call__(self, im, conf=1E-3, iou=0.5, union=False, objects=None):
         assert isinstance(im, vipy.image.Image) or (isinstance(im, list) and all([isinstance(i, vipy.image.Image) for i in im])), "Invalid input - must be vipy.image.Image object and not '%s'" % (str(type(im)))
 
         imlist = tolist(im)
         imlistdets = []
-        t = torch.cat([im.clone().maxsquare().mindim(self._mindim).mat2gray().torch() for im in imlist]).type(self._tensortype)  # triggers load
+        t = torch.cat([im.clone().maxsquare().mindim(self._mindim).gain(1.0/255.0).torch() for im in imlist]).type(self._tensortype)  # triggers load
 
         assert len(t) <= self.batchsize(), "Invalid batch size"
         t = t.pin_memory() if self.isgpu() else t
@@ -183,7 +183,7 @@ class Yolov3(TorchNet):
 
         imlist = tolist(im)
         imlistdets = []
-        t = torch.cat([im.clone().maxsquare().mindim(self._mindim).mat2gray().torch() for im in imlist]).type(self._tensortype)  # triggers load
+        t = torch.cat([im.clone().maxsquare().mindim(self._mindim).gain(1.0/255.0).torch() for im in imlist]).type(self._tensortype)  # triggers load
         t_out = super().__call__(t).numpy()   # parallel multi-GPU evaluation, using TorchNet()
         for (im, dets) in zip(imlist, t_out):
             k_class = np.argmax(dets[:,5:], axis=1).flatten().tolist()
@@ -231,12 +231,12 @@ class MultiscaleObjectDetector(ObjectDetector):
             imlist_multiscale_flat.extend(imcoarse+imfine)
 
         imlist_multiscale_flat = [im.maxsquare().cornerpadcrop(n,n) for im in imlist_multiscale_flat]
-        imlistdet_multiscale_flat = [im for iml in chunklistbysize(imlist_multiscale_flat, self.batchsize()) for im in tolist(f(iml, objects=objects))]
+        imlistdet_multiscale_flat = [im for iml in chunklistbysize(imlist_multiscale_flat, self.batchsize()) for im in tolist(f(iml, conf=conf, iou=iou, objects=objects))]
         imlistdet = []
         for (k, (iml, imb, nf, nc)) in enumerate(zip(imlist, imlist_multiscale, n_fine, n_coarse)):
             im_multiscale = imlistdet_multiscale_flat[0:nf+nc]; imlistdet_multiscale_flat = imlistdet_multiscale_flat[nf+nc:];
-            imcoarsedet = iml.clone().untile(im_multiscale[0:nc]).mindim(iml.mindim()).nms(conf, iou)
-            imfinedet = iml.clone().untile( [im.objectfilter(lambda o: o.area()<=maxarea*im.area() and o.clone().dilate(1.2).isinterior(im.width(), im.height()))  # not too big or occluded by image boundary 
+            imcoarsedet = iml.clone().untile([im.objectfilter(lambda o: o.clone().isinterior(im.width(), im.height(), border=1.0)) for im in im_multiscale[0:nc]]).mindim(iml.mindim()).nms(conf, iou)
+            imfinedet = iml.clone().untile( [im.objectfilter(lambda o: o.area()<=maxarea*im.area() and o.clone().isinterior(im.width(), im.height(), border=1.0))  # not too big or occluded by image boundary 
                                              for im in im_multiscale[nc:]] )
             imcoarsedet = imcoarsedet.union(imfinedet, iou) if imfinedet is not None else imcoarsedet            
             imlistdet.append(imcoarsedet.nms(conf, iou))
