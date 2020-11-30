@@ -33,13 +33,20 @@ class TorchNet(object):
 
         return self
 
+    def iscpu(self):
+        return any(['cpu' in d for d in self._devices])
+
+    def isgpu(self):
+        return any(['cuda' in d for d in self._devices])
+    
     def __call__(self, t):
         """Parallel evaluation of tensor to split across GPUs set up in gpu().  t should be of size (ngpu*batchsize)
         
            * Note: Do not use DataParallel, this replicates the multi-gpu batch on device 0 and results in out of memory
         """
         assert len(t) <= self.batchsize(), "Invalid batch size"
-        todevice = [b.to(d, non_blocking=True) for (b,d) in zip(t.pin_memory().split(self._batchsize), self._devices)]  # async?
+        t = t.pin_memory() if self.isgpu() else t
+        todevice = [b.to(d, non_blocking=True) for (b,d) in zip(t.split(self._batchsize) , self._devices)]  # async?
         fromdevice = [m(b) for (m,b) in zip(self._models, todevice)]   # async?
         return torch.cat([r.detach().cpu() for r in fromdevice], dim=0)
         
@@ -135,7 +142,8 @@ class MultiscaleObjectDetector(ObjectDetector):
         (f, n) = (super().__call__, self._mindim)
         assert isinstance(imlist, vipy.image.Image) or isinstance(imlist, list) and all([isinstance(im, vipy.image.Image) for im in imlist]), "invalid input"
         imlist = tolist(imlist)
-
+        scale = imlist[0].mindim() / n
+        
         (imlist_multiscale, imlist_multiscale_flat, n_coarse, n_fine) = ([], [], [], [])
         for im in imlist:
             imcoarse = im.clone().mindim(n).tile(n, n, overlaprows=n//2, overlapcols=n//2)
@@ -146,7 +154,7 @@ class MultiscaleObjectDetector(ObjectDetector):
             imlist_multiscale_flat.extend(imcoarse+imfine)
 
         imlist_multiscale_flat = [im.maxsquare().cornerpadcrop(n,n) for im in imlist_multiscale_flat]
-        imlistdet_multiscale_flat = [im for iml in chunklistbysize(imlist_multiscale_flat, self.batchsize()) for im in f(iml, objects=objects)]
+        imlistdet_multiscale_flat = [im for iml in chunklistbysize(imlist_multiscale_flat, self.batchsize()) for im in tolist(f(iml, objects=objects))]
         imlistdet = []
         for (k, (iml, imb, nf, nc)) in enumerate(zip(imlist, imlist_multiscale, n_fine, n_coarse)):
             im_multiscale = imlistdet_multiscale_flat[0:nf+nc]; imlistdet_multiscale_flat = imlistdet_multiscale_flat[nf+nc:];
