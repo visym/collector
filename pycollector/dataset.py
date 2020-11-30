@@ -135,15 +135,13 @@ class Datasets():
     def load(self, src, format='pkl'):
         if isinstance(src, Dataset):
             return src
-        elif isinstance(src, list):
-            return Dataset(src)
         elif src in self._datasets:
             return self._datasets[src]
         else:
             return self.reload(src, format)
 
-    def new(self, dst):
-        return self.cache(dst).load(dst)
+    def new(self, objlist, id):
+        return self.cache(Dataset(objlist, id=id))
 
     def cached(self):
         return list(self._datasets.keys())
@@ -403,6 +401,10 @@ class Dataset():
 
     def __repr__(self):
         return str('<pycollector.dataset: id="%s", len=%d, type=%s>' % (self.id(), len(self), str(type(self._objlist[0]))))
+
+    def __iter__(self):
+        for k in range(len(self)):
+            yield self._objlist[k]
 
     def __getitem__(self, k):
         assert k>=0 and k<len(self._objlist), "invalid index"
