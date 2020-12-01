@@ -15,6 +15,7 @@ import atexit
 from pycollector.util import is_email_address
 import torch
 from vipy.batch import Batch       
+import hashlib
 
 
 def disjoint_activities(V, activitylist):    
@@ -94,10 +95,9 @@ class Datasets():
        This class is designed to transform datasets with intermediate datasets saved in indir
     """
 
-    def __init__(self, indir, checkpoint=False, strict=False):
+    def __init__(self, indir, strict=False):
         self._indir = remkdir(os.path.abspath(os.path.expanduser(indir)))
         self._archive_ext = ['pkl', 'json']
-        self._checkpoint = checkpoint
         self._strict = strict
         self._datasets = {}
         
@@ -105,7 +105,7 @@ class Datasets():
                                                                                                            v.category() if category is None else category,
                                                                                                            ('%s%s.%s' % (v.attributes['video_id'] if v.hasattribute('video_id') else filebase(v.filename()),
                                                                                                                          ('_%s' % str(k)) if k is not None else '', 
-                                                                                                                        (fileext(v.filename(), withdot=False) if ext is None else str(ext))))))
+                                                                                                                         (fileext(v.filename(), withdot=False) if ext is None else str(ext))))))
         
         assert os.path.isdir(self._indir), "invalid input directory"
 
@@ -119,7 +119,7 @@ class Datasets():
         return str('<pycollector.datasets: "%s">' % self._indir)
 
     def list(self):
-        return list(set([filebase(f) for e in self._archive_ext for f in listext(self._indir, '.%s' % e)]))
+        return sorted(list(set([filebase(f) for e in self._archive_ext for f in listext(self._indir, '.%s' % e)])))
 
     def isdataset(self, src):
         return (src in self.list()) or isinstance(src, Dataset) or src in self._datasets
@@ -155,14 +155,14 @@ class Datasets():
         self._datasets.pop(dst, None)
         return self
 
-    def save(self, dst, format='pkl'):
-        self.load(dst).save(os.path.join(self._indir, '%s.%s' % (dst.id(), format)))        
+    def save(self, dst, format='pkl', nourl=False, castas=None, relpath=False, noadmin=False, strict=True, significant_digits=2, noemail=True, flush=True):
+        self.load(dst).save(os.path.join(self._indir, '%s.%s' % (self.load(dst).id(), format)), nourl=nourl, castas=castas, relpath=relpath, noadmin=noadmin, strict=strict, significant_digits=significant_digits, noemail=noemail, flush=flush)
         return self
     
-    def map(self, src, f_transform, model=None, dst=None):        
+    def map(self, src, f_transform, model=None, dst=None, ascompleted=True):        
         D = self.load(src)
         assert isinstance(D, Dataset), "Source dataset '%s' does not exist" % src                
-        return D.map(f_transform, model=model, dst=dst, checkpoint=self._checkpoint, strict=self._strict)
+        return D.map(f_transform, model=model, dst=dst, checkpoint=False, strict=self._strict, ascompleted=ascompleted)
 
     def fetch(self, src):
         D = self.load(src)
@@ -309,10 +309,11 @@ class Datasets():
         V = [v.activityfilter(lambda a: any([a.hastrack(t) and len(t)>minlength and t.during(a.startframe(), a.endframe()) for t in v.tracklist()])) for v in V]  # get rid of activities without tracks greater than dt
         return self.new(V,dst).save(dst)
             
-    def trackcrop(self, src, dstdir='trackcrop', dilate=1.0, mindim=512, maxsquare=True):
-        f_saveas = lambda v, dstdir=dstdir, f=self._schema: f(dstdir, v)
-        f_trackcrop = lambda v, d=dilate, m=mindim, f=f_saveas, b=maxsquare: v.trackcrop(dilate=d, maxsquare=b).mindim(m).saveas(f(v)).print() if v.hastracks() else None
-        return self.map(src, f_trackcrop).id('%s_trackcrop' % src)        
+    def trackcrop(self, src, dst=None, dilate=1.0, maxsquare=True):
+        dst = dst if dst is not None else '%s_trackcrop' % src
+        f_saveas = lambda v, dst=dst, src=src: vipy.util.newpathdir(v.filename(), src, dst)
+        f_trackcrop = lambda v, d=dilate, f=f_saveas, b=maxsquare: v.clone().trackcrop(dilate=d, maxsquare=b).saveas(f(v), flush=True).print() if v.hastracks() else None
+        return self.map(src, f_trackcrop, ascompleted=False).id(dst)
 
     def tubelet(self, src, dst, dilate=1.0, maxdim=512):
         f_saveas = lambda v, dstdir=dst, f=self._schema: f(dstdir, v)
@@ -375,9 +376,7 @@ class Datasets():
         return vipy.visualize.videomontage(actlist, mindim, mindim, gridrows=len(categories), gridcols=gridcols).saveas(outfile).filename()
 
     def copy(self, src, dst):
-        f_saveas = lambda v, dstdir=dst, f=self._schema: f(dstdir, v)
-        f = lambda v, f=f_saveas: v.saveas(f(v)).print() if v.isdownloaded() else v.download().saveas(f(v)).print()
-        return self.map(src, dst, f)
+        return self.new(self.load(src).list(), dst)
 
 
 class Transformer(Datasets):
@@ -474,9 +473,9 @@ class Dataset():
         print('[pycollector.dataset]: %s, MD5=%s' % (tarfile, vipy.downloader.generate_md5(tarfile)))
         return tarfile
         
-    def save(self, outfile, nourl=False, castas=None, relpath=False, noadmin=False, strict=True):
+    def save(self, outfile, nourl=False, castas=None, relpath=False, noadmin=False, strict=True, significant_digits=2, noemail=True, flush=True):
         objlist = self._objlist
-        if relpath or nourl or noadmin:
+        if relpath or nourl or noadmin or flush or noemail or (significant_digits is not None):
             assert self.isvipy(), "Invalid input"
         if relpath:
             print('[pycollector.dataset]: setting relative paths')
@@ -490,6 +489,16 @@ class Dataset():
             assert hasattr(castas, 'cast'), "Invalid cast"
             print('[pycollector.dataset]: casting as "%s"' % (str(castas)))
             objlist = [castas.cast(v) for v in objlist]                     
+        if significant_digits is not None:
+            assert isinstance(significant_digits, int) and significant_digits >= 1, "Invalid input"
+            objlist = [o.trackmap(lambda t: t.significant_digits(significant_digits)) for o in objlist]
+        if noemail:
+            for o in objlist:
+                for (k,v) in o.attributes.items():
+                    if isinstance(v, str) and is_email_address(v):
+                        o.attributes[k] = hashlib.sha1(v.encode("UTF-8")).hexdigest()[0:10]
+        if flush:
+            objlist = [o.flush() for o in objlist]  
 
         print('[pycollector.dataset]: Saving %s to "%s"' % (str(self), outfile))
         vipy.util.save(objlist, outfile)
@@ -564,8 +573,8 @@ class Dataset():
         csv = [v.csv() for v in self.list]        
         return vipy.util.writecsv(csv, csvfile) if csvfile is not None else (csv[0], csv[1:])
 
-    def map(self, f_transform, model=None, dst=None, checkpoint=False, strict=False):        
-        B = Batch(self.list(), strict=strict, as_completed=True, checkpoint=checkpoint, warnme=False)
+    def map(self, f_transform, model=None, dst=None, checkpoint=False, strict=False, ascompleted=True):        
+        B = Batch(self.list(), strict=strict, as_completed=ascompleted, checkpoint=checkpoint, warnme=False)
         V = B.map(f_transform).result() if not model else B.scattermap(f_transform, model).result() 
         if any([v is None for v in V]):
             print('pycollector.datasets][%s->]: %d failed' % (str(self), len([v for v in V if v is None])))

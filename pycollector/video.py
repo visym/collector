@@ -298,9 +298,8 @@ class Video(Scene):
                     framerate=float(d["metadata"]["frame_rate"]),
                     keyframes=[int(f) for (f, bb) in zip(keyframes, keyboxes) if bb.isvalid()],
                     boxes=[bb for (f, bb) in zip(keyframes, keyboxes) if bb.isvalid()],
-                    boundary="strict",
+                    boundary="strict"
                 )
-
                 if vipy.version.is_at_least("0.8.3"):
                     self.add(t, rangecheck=False)  # no rangecheck since all tracks are guarnanteed to be within image rectangle
                 else:
@@ -352,8 +351,7 @@ class Video(Scene):
                                                     startframe=int(a["start_frame"]),
                                                     endframe=int(a["end_frame"]),
                                                     tracks=d_trackid_to_track,
-                                                    framerate=d["metadata"]["frame_rate"],
-                                                    attributes=d["metadata"]))
+                                                    framerate=d["metadata"]["frame_rate"]))
                                             
                 except Exception as e:
                     print(
@@ -368,8 +366,8 @@ class Video(Scene):
                                                 startframe=min([int(a["start_frame"]) for a in d["activity"]]) if len(d["activity"])>0 else 0,
                                                 endframe=max([int(a["end_frame"]) for a in d["activity"]]) if len(d["activity"])>0 else int(np.round(float(d["metadata"]["duration"])*float(d["metadata"]['frame_rate']))),
                                                 tracks=d_trackid_to_track,
-                                                framerate=d["metadata"]["frame_rate"],
-                                                attributes=d["metadata"]))
+                                                framerate=d["metadata"]["frame_rate"]))
+
 
             if d["metadata"]["rotate"] == "rot90ccw":
                 self.rot90ccw()
