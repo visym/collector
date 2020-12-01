@@ -98,7 +98,7 @@ class Yolov5(TorchNet):
         # First import: load yolov5x.pt, disable fuse() in attempt_load(), save state_dict weights and load into newly pathed model
         self._model = pycollector.model.yolov5.models.yolo.Model(cfgfile, 3, 80)
         self._model.load_state_dict(torch.load(weightfile))
-        self._model.fues()
+        self._model.fuse()
         self._model.eval()
 
         self._batchsize = batchsize        
@@ -208,7 +208,7 @@ class Yolov3(TorchNet):
         return list(self._cls2index.keys())
     
 
-class ObjectDetector(Yolov3):
+class ObjectDetector(Yolov5):
     """Default object detector"""
     pass
 
