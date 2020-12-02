@@ -2,7 +2,7 @@ import os
 import numpy as np
 import pycollector.detection
 from pycollector.globals import print
-from vipy.util import findpkl, toextension, filepath, filebase, jsonlist, ishtml, ispkl, filetail, temphtml, listpkl, listext, templike, tempdir, remkdir, tolist, fileext, writelist, tempcsv, newpathroot, listjson, extlist, filefull
+from vipy.util import findpkl, toextension, filepath, filebase, jsonlist, ishtml, ispkl, filetail, temphtml, listpkl, listext, templike, tempdir, remkdir, tolist, fileext, writelist, tempcsv, newpathroot, listjson, extlist, filefull, tempdir
 import random
 import vipy
 import vipy.util
@@ -101,11 +101,12 @@ class Datasets():
         self._strict = strict
         self._datasets = {}
         
-        self._schema = (lambda dstdir, v, k=None, indir=self._indir, ext=None, category=None: os.path.join(indir, dstdir, 
-                                                                                                           v.category() if category is None else category,
-                                                                                                           ('%s%s.%s' % (v.attributes['video_id'] if v.hasattribute('video_id') else filebase(v.filename()),
-                                                                                                                         ('_%s' % str(k)) if k is not None else '', 
-                                                                                                                         (fileext(v.filename(), withdot=False) if ext is None else str(ext))))))
+        self._schema = (lambda dstdir, v, k=None, indir=self._indir, ext=None, category=None, newfile=True: os.path.join(indir, dstdir, 
+                                                                                                                         v.category() if category is None else category,
+                                                                                                                         ('%s%s.%s' % (v.attributes['video_id'] if v.hasattribute('video_id') else filebase(v.filename()),
+                                                                                                                                       ('_%s' % str(k)) if k is not None else '', 
+                                                                                                                                       (fileext(v.filename(), withdot=False) if ext is None else str(ext))))
+                                                                                                                         if newfile is False else filetail(v.filename())))
         
         assert os.path.isdir(self._indir), "invalid input directory"
 
@@ -124,7 +125,7 @@ class Datasets():
     def isdataset(self, src):
         return (src in self.list()) or isinstance(src, Dataset) or src in self._datasets
         
-    def reload(self, src, format='pkl'):
+    def reload(self, src, format='json'):
         assert self.isdataset(src), "Invalid dataset '%s'" % (str(src))
         loadfile = os.path.join(self._indir, '%s.%s' % (src, format))
         print('[pycollector.datasets]: Loading "%s" ...' % loadfile)
@@ -132,7 +133,7 @@ class Datasets():
         self._datasets[src] = D
         return D
         
-    def load(self, src, format='pkl'):
+    def load(self, src, format='json'):
         if isinstance(src, Dataset):
             return src
         elif src in self._datasets:
@@ -155,7 +156,7 @@ class Datasets():
         self._datasets.pop(dst, None)
         return self
 
-    def save(self, dst, format='pkl', nourl=False, castas=None, relpath=False, noadmin=False, strict=True, significant_digits=2, noemail=True, flush=True):
+    def save(self, dst, format='json', nourl=False, castas=None, relpath=False, noadmin=False, strict=True, significant_digits=2, noemail=True, flush=True):
         self.load(dst).save(os.path.join(self._indir, '%s.%s' % (self.load(dst).id(), format)), nourl=nourl, castas=castas, relpath=relpath, noadmin=noadmin, strict=strict, significant_digits=significant_digits, noemail=noemail, flush=flush)
         return self
     
@@ -311,8 +312,8 @@ class Datasets():
             
     def trackcrop(self, src, dst=None, dilate=1.0, maxsquare=True):
         dst = dst if dst is not None else '%s_trackcrop' % src
-        f_saveas = lambda v, dst=dst, src=src: vipy.util.newpathdir(v.filename(), src, dst)
-        f_trackcrop = lambda v, d=dilate, f=f_saveas, b=maxsquare: v.clone().trackcrop(dilate=d, maxsquare=b).saveas(f(v), flush=True).print() if v.hastracks() else None
+        f_saveas = lambda v, dst=dst, src=src, f=self._schema: f(dst, v, newfile=False)
+        f_trackcrop = lambda v, d=dilate, f=f_saveas, b=maxsquare: v.clone().trackcrop(dilate=d, maxsquare=b).saveas(f(v), flush=True).pack().print(sleep=1) if v is not None and v.clone().trackfilter(lambda t: len(t)>0).hastracks() else None
         return self.map(src, f_trackcrop, ascompleted=False).id(dst)
 
     def tubelet(self, src, dst, dilate=1.0, maxdim=512):
@@ -431,45 +432,55 @@ class Dataset():
     def clone(self):
         return copy.deepcopy(self)
 
-    def archive(self, tarfile, delprefix, mediadir='', format='pkl', castas=None, verbose=True, extrafiles=None):
-        """Create a archive file for the output of stage() for this dataset.  This will be archived as:
+    def archive(self, tarfile, delprefix, mediadir='', format='json', castas=vipy.video.Scene, verbose=False, extrafiles=None):
+        """Create a archive file for this dataset.  This will be archived as:
 
-           tarfile.{tar.gz|.tgz|.bz2}
-              archivename
-                 outfile.{json|pkl}
-                 $OUTDIR/
+           tarfilename.{tar.gz|.tgz|.bz2}
+              tarfilename
+                 tarfilename.{json|pkl}
+                 mediadir/
                      $SUBDIR/
                          video.mp4
                  extras1.ext
-                 extras2.ext    
+                 extras2.ext
+        
+            Inputs:
+              - tarfile: /path/to/tarfilename.tar.gz
+              - delprefix:  the absolute file path contained in the media filenames to be removed.  If a video has a delprefix='/a/b' then videos with path /a/b/c/d.mp4' -> 'c/d.mp4'
+              - mediadir:  the subdirectory name of the media to be contained in the archive.  Usually "videos".             
+              - extrafiles: list of tuples [(abspath, filename_in_archive),...]
         """
         assert self.isvipy(), "Source dataset must contain vipy objects for staging"
+        assert all([os.path.isabs(v.filename()) for v in self]), "Input dataset must have only absolute media paths"
         assert self.countby(lambda v: delprefix in v.filename()) > 0, "delprefix not found"
         assert self.countby(lambda v: delprefix in v.filename()) == len(self), "all media objects must have the same delprefix for relative path construction"
+        assert vipy.util.istgz(tarfile) or vipy.util.isbz2(tarfile), "Allowable extensions are .tar.gz, .tgz or .bz2"
+        assert shutil.which('tar') is not None, "tar not found on path"        
 
         D = self.clone()
-        stagedir = remkdir(filefull(tarfile))
-        print(stagedir)
+        stagedir = remkdir(os.path.join(tempdir(), filefull(filetail(tarfile))))
+        print('[pycollector.dataset]: creating staging directory "%s"' % stagedir)        
         D._objlist = [v.filename(v.filename().replace(os.path.normpath(delprefix), os.path.normpath(os.path.join(stagedir, mediadir))), symlink=True) for v in D.list()]
         pklfile = os.path.join(stagedir, '%s.%s' % (filetail(filefull(tarfile)), format))
-        D.save(pklfile, relpath=True, nourl=True, noadmin=True, castas=castas)
+        D.save(pklfile, relpath=True, nourl=True, noadmin=True, castas=castas, significant_digits=2, noemail=True, flush=True)
     
-        assert vipy.util.istgz(tarfile) or vipy.util.isbz2(tarfile), "Allowable extensions are .tar.gz, .tgz or .bz2"
-        assert shutil.which('tar') is not None, "tar not found on path"
-
-        # Copy extras to staging directory
+        # Copy extras (symlinked) to staging directory
         if extrafiles is not None:
-            for e in tolist(extrafiles):
-                shutil.copyfile(e, os.path.join(stagedir, filetail(e)))
+            for (e, a) in tolist(extrafiles):
+                assert os.path.exists(e), "Invalid extras file '%s'" % e
+                os.symlink(e, os.path.join(stagedir, filetail(e) if a is None else a))
 
+        # System command to run tar
         cmd = ('tar %scvf %s -C %s --dereference %s %s' % ('j' if vipy.util.isbz2(tarfile) else 'z', 
                                                            tarfile,
-                                                           filepath(tarfile),
-                                                           filetail(filefull(tarfile)),
+                                                           filepath(stagedir),
+                                                           filetail(stagedir),
                                                            ' > /dev/null' if not verbose else ''))
 
         print('[pycollector.dataset]: executing "%s"' % cmd)        
         os.system(cmd)  # too slow to use python "tarfile" package
+        print('[pycollector.dataset]: deleting staging directory "%s"' % stagedir)        
+        shutil.rmtree(stagedir)
         print('[pycollector.dataset]: %s, MD5=%s' % (tarfile, vipy.downloader.generate_md5(tarfile)))
         return tarfile
         
