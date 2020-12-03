@@ -19,8 +19,6 @@ import hashlib
 import torch.utils.data
 from torch.utils.data import DataLoader, random_split
 
-
-
     
 def disjoint_activities(V, activitylist):    
     assert all([isinstance(v, vipy.video.Video) for v in V])
@@ -543,7 +541,7 @@ class Dataset():
         return self.class_to_index()
 
     def powerset(self):
-        return list(sorted(set([tuple(sorted(list(a))) for v in self._objlist for a in v.activitylabel()])))        
+        return list(sorted(set([tuple(sorted(list(a))) for v in self._objlist for a in v.activitylabel() if len(a) > 0])))        
 
     def powerset_to_index(self):        
         assert self.isvipy(), "Invalid input"
@@ -612,6 +610,10 @@ class Dataset():
         self._objlist = [x for v in self._objlist for x in f(v)]
         return self
     
+    def count(self):
+        assert self.isvipy()
+        return vipy.util.countby(self.list(), lambda v: v.category())
+
     def stats(self, outdir=None, object_categories=['Person', 'Car'], plot=True):
         """Analyze the dataset to return helpful statistics and plots"""
         assert self.isvipy()
