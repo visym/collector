@@ -16,8 +16,12 @@ from pycollector.util import is_email_address
 import torch
 from vipy.batch import Batch       
 import hashlib
+import torch.utils.data
+from torch.utils.data import DataLoader, random_split
 
 
+
+    
 def disjoint_activities(V, activitylist):    
     assert all([isinstance(v, vipy.video.Video) for v in V])
     assert isinstance(activitylist, list) and len(activitylist)>0 and len(activitylist[0]) == 2
@@ -87,6 +91,7 @@ def asmeva(V):
     # person_abandons_package:  two seconds before, two seconds after
     V = [v.activitymap(lambda a: a.temporalpad(v.framerate()*2.0) if a.category() == 'person_abandons_package' else a) for v in V]
     return V
+
 
 
 class Datasets():
@@ -386,6 +391,19 @@ class Transformer(Datasets):
 
 
 
+class TorchDataset(torch.utils.data.Dataset):
+    def __init__(self, d, f_transformer):
+        assert isinstance(d, Dataset), "Invalid input"
+        self._dataset = d
+        self._f_transformer = f_transformer
+
+    def __getitem__(self, k):
+        return self._f_transformer(self._dataset[k])
+
+    def __len__(self):
+        return len(self._videolist)
+
+    
 class Dataset():
     """pycollector.dataset.Dataset() class
     
@@ -556,29 +574,24 @@ class Dataset():
     def take(self, n):
         return [self._objlist[k] for k in random.sample(range(0, len(self)), n)]
     
-    def split(self, trainfraction=0.7, testfraction=0.1, valfraction=0.2, seed=42):
+    def split(self, trainfraction=0.8, testfraction=0.1, valfraction=0.1, seed=42):
+        """Split the dataset by category by fraction so that video IDs are never in the same set"""
         assert self.isvipy(), "Invalid input"
-    
         np.random.seed(seed)
         A = self.list()
-        d = vipy.util.groupbyasdict(A, lambda a: a.category())
-        (trainset, testset, valset) = ([],[],[])
-        for (c,v) in d.items():
-            np.random.shuffle(v)
-            if len(v) < 3:
-                print('[pycollector.dataset]: skipping category "%s" with too few examples' % c)
-                continue
-
-            (testlist, vallist, trainlist) = vipy.util.dividelist(v, (testfraction, valfraction, trainfraction))
-            testset.extend(testlist)
-            valset.extend(vallist)  
-            trainset.extend(trainlist)
+        
+        # Video ID assignment
+        videoid = list(set([a.videoid() for a in A]))
+        np.random.shuffle(videoid)
+        (testid, valid, trainid) = vipy.util.dividelist(videoid, (testfraction, valfraction, trainfraction))        
+        d = vipy.util.groupbyasdict(A, lambda a: 'testset' if a.videoid() in testid else 'valset' if a.videoid() in valid else 'trainset')
+        (trainset, testset, valset) = (d['trainset'], d['testset'], d['valset'])        
 
         print('[pycollector.dataset]: trainset=%d (%1.1f)' % (len(trainset), trainfraction))
         print('[pycollector.dataset]: valset=%d (%1.1f)' % (len(valset), valfraction))
         print('[pycollector.dataset]: testset=%d (%1.1f)' % (len(testset), testfraction))
         
-        return (Dataset(trainset), Dataset(valset), Dataset(testset))
+        return (Dataset(trainset, id='trainset'), Dataset(valset, id='valset'), Dataset(testset, id='testset'))
 
     def tocsv(self, csvfile=None):
         csv = [v.csv() for v in self.list]        
@@ -603,10 +616,6 @@ class Dataset():
         """Analyze the dataset to return helpful statistics and plots"""
         assert self.isvipy()
 
-        import matplotlib.pyplot as plt        
-        import vipy.metrics
-        from vipy.show import colorlist        
-
         videos = self.list()
         #scenes = [a for m in videos for a in m.activityclip() if m is not None]  # This can introduce doubles
         scenes = videos
@@ -618,12 +627,16 @@ class Dataset():
         d = {}
         d['activity_categories'] = set([a.category() for a in activities])
         d['object_categories'] = set([t.category() for t in tracks])
-        d['videos'] = set([v.filename() for v in videos if v is not None])
+        #d['videos'] = set([v.filename() for v in videos if v is not None])
         d['num_activities'] = sorted([(k,len(v)) for (k,v) in vipy.util.groupbyasdict(activities, lambda a: a.category()).items()], key=lambda x: x[1])
-        d['video_density'] = sorted([(v.filename(),len(v.activities())) for v in videos if v is not None], key=lambda x: x[1])
+        #d['video_density'] = sorted([(v.filename(),len(v.activities())) for v in videos if v is not None], key=lambda x: x[1])
 
         # Helpful plots
         if plot:
+            import matplotlib.pyplot as plt        
+            import vipy.metrics
+            from vipy.show import colorlist        
+            
             # Histogram of instances
             (categories, freq) = zip(*reversed(d['num_activities']))
             barcolors = ['blue' if c.startswith('person') else 'green' for c in categories]
@@ -682,8 +695,10 @@ class Dataset():
     
         return d
 
+    def totorch(self, f_video_to_tensor):
+        return TorchDataset(self.clone(), f_video_to_tensor)
 
-
+    
 class ActivityDataset(Dataset):
     """Dataset filename structure: /dataset/$DSTDIR/$ACTIVITY_CATEGORY/$VIDEOID_$ACTIVITYINDEX.mp4"""
     def __init__(self, indir, format='.json'):
