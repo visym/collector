@@ -106,7 +106,7 @@ class Datasets():
                                                                                                                          ('%s%s.%s' % (v.attributes['video_id'] if v.hasattribute('video_id') else filebase(v.filename()),
                                                                                                                                        ('_%s' % str(k)) if k is not None else '', 
                                                                                                                                        (fileext(v.filename(), withdot=False) if ext is None else str(ext))))
-                                                                                                                         if newfile is False else filetail(v.filename())))
+                                                                                                                         if newfile is True else (filetail(v.filename())+('.%s' % ext) if ext is not None else '')))
         
         assert os.path.isdir(self._indir), "invalid input directory"
 
@@ -183,10 +183,10 @@ class Datasets():
         f = lambda net,v,b=batchsize: net.gpu(list(range(torch.cuda.device_count())), batchsize=b*torch.cuda.device_count())(v, d_category_to_object[v.category()]) if v.category() in d_category_to_object else v
         return self.map(src, f, model=model, dst=dst)
 
-    def instance_mining(self, src, dstdir=None, dst=None, batchsize=1, conf=0.05, iou=0.5, maxhistory=5, smoothing=None, objects=None, mincover=0.8, maxconf=0.2):
+    def instance_mining(self, src, dstdir=None, dst=None, batchsize=1, conf=0.05, iou=0.6, maxhistory=5, smoothing=None, objects=None, mincover=0.6, maxconf=0.2):
         model = pycollector.detection.MultiscaleVideoTracker(batchsize=batchsize)
-        dstdir = dstdir if dstdir is not None else (dst if dst is not None else 'instance_mining')
-        f_process = lambda net,v,o=objects,f=self._schema,dst=dstdir: net.gpu(list(range(torch.cuda.device_count()))).track(v, objects=o, verbose=False, conf=conf, iou=iou, maxhistory=maxhistory, smoothing=smoothing, mincover=mincover, maxconf=maxconf).pkl(f(dst,v,category='tracks',ext='pkl')).print()
+        dstdir = dstdir if dstdir is not None else (dst if dst is not None else '%s_instancemining' % (self.load(src).id()))
+        f_process = lambda net,v,o=objects,f=self._schema,dst=dstdir: net.gpu(list(range(torch.cuda.device_count()))).track(v, objects=o, verbose=False, conf=conf, iou=iou, maxhistory=maxhistory, smoothing=smoothing, mincover=mincover, maxconf=maxconf).pkl(f(dst,v,category='tracks',ext='json',newfile=False)).print()
         return self.map(src, f_process, model=model, dst=dst)  
 
     def stabilize_refine_activityclip(self, src, dst, batchsize=1, dt=5, minlength=5, maxsize=512*3):
