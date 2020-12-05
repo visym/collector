@@ -7,7 +7,7 @@ import torch
 import torch.nn as nn
 from PIL import Image, ImageDraw
 
-from pycollector.model.yolov5.utils.datasets import letterbox
+#from pycollector.model.yolov5.utils.datasets import letterbox
 from pycollector.model.yolov5.utils.general import non_max_suppression, make_divisible, scale_coords, xyxy2xywh
 from pycollector.model.yolov5.utils.plots import color_list
 

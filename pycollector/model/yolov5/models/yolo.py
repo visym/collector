@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 import torch
 import torch.nn as nn
 
-from pycollector.model.yolov5.models.common import Conv, Bottleneck, SPP, DWConv, Focus, BottleneckCSP, Concat, NMS, autoShape
+from pycollector.model.yolov5.models.common import Conv, Bottleneck, SPP, DWConv, Focus, BottleneckCSP, Concat, NMS 
 from pycollector.model.yolov5.models.experimental import MixConv2d, CrossConv, C3
 from pycollector.model.yolov5.utils.autoanchor import check_anchor_order
 from pycollector.model.yolov5.utils.general import make_divisible, check_file, set_logging
@@ -186,11 +186,11 @@ class Model(nn.Module):
             self.model = self.model[:-1]  # remove
         return self
 
-    def autoshape(self):  # add autoShape module
-        print('Adding autoShape... ')
-        m = autoShape(self)  # wrap model
-        copy_attr(m, self, include=('yaml', 'nc', 'hyp', 'names', 'stride'), exclude=())  # copy attributes
-        return m
+    #def autoshape(self):  # add autoShape module
+    #    print('Adding autoShape... ')
+    #    m = autoShape(self)  # wrap model
+    #    copy_attr(m, self, include=('yaml', 'nc', 'hyp', 'names', 'stride'), exclude=())  # copy attributes
+    #    return m
 
     def info(self, verbose=False, img_size=640):  # print model information
         model_info(self, verbose, img_size)
