@@ -103,13 +103,14 @@ class Datasets():
         self._archive_ext = ['pkl', 'json']
         self._strict = strict
         self._datasets = {}
-        
+
+        # FIXME: this expression is broken and will not work in general
         self._schema = (lambda dstdir, v, k=None, indir=self._indir, ext=None, category=None, newfile=True: os.path.join(indir, dstdir, 
                                                                                                                          v.category() if category is None else category,
-                                                                                                                         ('%s%s.%s' % (v.attributes['video_id'] if v.hasattribute('video_id') else filebase(v.filename()),
+                                                                                                                         (('%s%s.%s' % (v.attributes['video_id'] if v.hasattribute('video_id') else filebase(v.filename()),
                                                                                                                                        ('_%s' % str(k)) if k is not None else '', 
                                                                                                                                        (fileext(v.filename(), withdot=False) if ext is None else str(ext))))
-                                                                                                                         if newfile is True else (filetail(v.filename())+('.%s' % ext) if ext is not None else '')))
+                                                                                                                         if newfile is True else filetail(v.filename()))))
         
         assert os.path.isdir(self._indir), "invalid input directory"
 
@@ -314,8 +315,10 @@ class Datasets():
         return self.new(V,dst).save(dst)
             
     def trackcrop(self, src, dst=None, dilate=1.0, maxsquare=True):
-        dst = dst if dst is not None else '%s_trackcrop' % src
-        f_saveas = lambda v, dst=dst, src=src, f=self._schema: f(dst, v, newfile=False)
+        dst = dst if dst is not None else '%s_trackcrop' % self.load(src).id()
+        
+        # FIXME: schema is broken
+        f_saveas = lambda v, dst=dst, indir=self._indir: os.path.join(indir, dst, v.category(), filetail(v.filename()))
         f_trackcrop = lambda v, d=dilate, f=f_saveas, b=maxsquare: v.clone().trackcrop(dilate=d, maxsquare=b).saveas(f(v), flush=True).pack().print(sleep=1) if v is not None and v.clone().trackfilter(lambda t: len(t)>0).hastracks() else None
         return self.map(src, f_trackcrop, ascompleted=False).id(dst)
 
@@ -500,8 +503,11 @@ class Dataset():
         print('[pycollector.dataset]: %s, MD5=%s' % (tarfile, vipy.downloader.generate_md5(tarfile)))
         return tarfile
         
-    def save(self, outfile, nourl=False, castas=None, relpath=False, noadmin=False, strict=True, significant_digits=2, noemail=True, flush=True):
-        objlist = self._objlist
+    def save(self, outfile, nourl=False, castas=None, relpath=False, noadmin=False, strict=True, significant_digits=2, noemail=True, flush=True):    
+        n = len([v for v in self._objlist if v is None])
+        if n > 0:
+            print('[pycollector.dataset]: removing %d invalid elements' % n)
+        objlist = [v for v in self._objlist if v is not None]  
         if relpath or nourl or noadmin or flush or noemail or (significant_digits is not None):
             assert self.isvipy(), "Invalid input"
         if relpath:
@@ -518,7 +524,7 @@ class Dataset():
             objlist = [castas.cast(v) for v in objlist]                     
         if significant_digits is not None:
             assert isinstance(significant_digits, int) and significant_digits >= 1, "Invalid input"
-            objlist = [o.trackmap(lambda t: t.significant_digits(significant_digits)) for o in objlist]
+            objlist = [o.trackmap(lambda t: t.significant_digits(significant_digits)) if o is not None else o for o in objlist]
         if noemail:
             for o in objlist:
                 for (k,v) in o.attributes.items():
