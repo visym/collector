@@ -10,7 +10,7 @@ import subprocess
 import time
 from pathlib import Path
 
-import cv2
+#import cv2
 import math
 import numpy as np
 import torch
@@ -22,9 +22,9 @@ from pycollector.model.yolov5.utils.metrics import fitness
 from pycollector.model.yolov5.utils.torch_utils import init_torch_seeds
 
 # Settings
-torch.set_printoptions(linewidth=320, precision=5, profile='long')
-np.set_printoptions(linewidth=320, formatter={'float_kind': '{:11.5g}'.format})  # format short g, %precision=5
-cv2.setNumThreads(0)  # prevent OpenCV from multithreading (incompatible with PyTorch DataLoader)
+#torch.set_printoptions(linewidth=320, precision=5, profile='long')
+#np.set_printoptions(linewidth=320, formatter={'float_kind': '{:11.5g}'.format})  # format short g, %precision=5
+#cv2.setNumThreads(0)  # prevent OpenCV from multithreading (incompatible with PyTorch DataLoader)
 
 
 def set_logging(rank=-1):
@@ -393,7 +393,9 @@ def print_mutation(hyp, results, yaml_file='hyp_evolved.yaml', bucket=''):
 
 
 def apply_classifier(x, model, img, im0):
-    # applies a second stage classifier to yolo outputs
+    import cv2
+
+    # applies a second stage classifier to yolo outputs    
     im0 = [im0] if isinstance(im0, np.ndarray) else im0
     for i, d in enumerate(x):  # per image
         if d is not None and len(d):
