@@ -9,7 +9,7 @@ from PIL import Image, ImageDraw
 
 #from pycollector.model.yolov5.utils.datasets import letterbox
 from pycollector.model.yolov5.utils.general import non_max_suppression, make_divisible, scale_coords, xyxy2xywh
-from pycollector.model.yolov5.utils.plots import color_list
+#from pycollector.model.yolov5.utils.plots import color_list
 
 
 def autopad(k, p=None):  # kernel, padding
@@ -134,8 +134,8 @@ class Detections:
         self.xywhn = [x / g for x, g in zip(self.xywh, gn)]  # xywh normalized
         self.n = len(self.pred)
 
+
     def display(self, pprint=False, show=False, save=False):
-        colors = color_list()
         for i, (img, pred) in enumerate(zip(self.imgs, self.pred)):
             str = f'Image {i + 1}/{len(self.pred)}: {img.shape[0]}x{img.shape[1]} '
             if pred is not None:
@@ -143,10 +143,7 @@ class Detections:
                     n = (pred[:, -1] == c).sum()  # detections per class
                     str += f'{n} {self.names[int(c)]}s, '  # add to string
                 if show or save:
-                    img = Image.fromarray(img.astype(np.uint8)) if isinstance(img, np.ndarray) else img  # from np
-                    for *box, conf, cls in pred:  # xyxy, confidence, class
-                        # str += '%s %.2f, ' % (names[int(cls)], conf)  # label
-                        ImageDraw.Draw(img).rectangle(box, width=4, outline=colors[int(cls) % 10])  # plot
+                    raise
             if save:
                 f = f'results{i}.jpg'
                 str += f"saved to '{f}'"
@@ -155,6 +152,7 @@ class Detections:
                 img.show(f'Image {i}')  # show
             if pprint:
                 print(str)
+
 
     def print(self):
         self.display(pprint=True)  # print results
