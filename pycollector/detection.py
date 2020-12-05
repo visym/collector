@@ -111,7 +111,7 @@ class Yolov5(TorchNet):
         self.gpu(gpu, batchsize)
         
     def __call__(self, imlist, conf=1E-3, iou=0.5, union=False, objects=None):
-        assert isinstance(imlist, vipy.image.Image) or (isinstance(imlist, list) and all([isinstance(i, vipy.image.Image) for i in imlist])), "Invalid input - must be vipy.image.Image object and not '%s'" % (str(type(im)))
+        assert isinstance(imlist, vipy.image.Image) or (isinstance(imlist, list) and all([isinstance(i, vipy.image.Image) for i in imlist])), "Invalid input - must be vipy.image.Image object and not '%s'" % (str(type(imlist)))
 
         imlist = tolist(imlist)
         imlistdets = []
