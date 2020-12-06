@@ -7,9 +7,9 @@ import torch
 import torch.nn as nn
 from PIL import Image, ImageDraw
 
-from pycollector.model.yolov5.utils.datasets import letterbox
+#from pycollector.model.yolov5.utils.datasets import letterbox
 from pycollector.model.yolov5.utils.general import non_max_suppression, make_divisible, scale_coords, xyxy2xywh
-from pycollector.model.yolov5.utils.plots import color_list
+#from pycollector.model.yolov5.utils.plots import color_list
 
 
 def autopad(k, p=None):  # kernel, padding
@@ -118,61 +118,6 @@ class NMS(nn.Module):
         return non_max_suppression(x[0], conf_thres=self.conf, iou_thres=self.iou, classes=self.classes)
 
 
-class autoShape(nn.Module):
-    # input-robust model wrapper for passing cv2/np/PIL/torch inputs. Includes preprocessing, inference and NMS
-    img_size = 640  # inference size (pixels)
-    conf = 0.25  # NMS confidence threshold
-    iou = 0.45  # NMS IoU threshold
-    classes = None  # (optional list) filter by class
-
-    def __init__(self, model):
-        super(autoShape, self).__init__()
-        self.model = model.eval()
-
-    def forward(self, imgs, size=640, augment=False, profile=False):
-        # supports inference from various sources. For height=720, width=1280, RGB images example inputs are:
-        #   opencv:     imgs = cv2.imread('image.jpg')[:,:,::-1]  # HWC BGR to RGB x(720,1280,3)
-        #   PIL:        imgs = Image.open('image.jpg')  # HWC x(720,1280,3)
-        #   numpy:      imgs = np.zeros((720,1280,3))  # HWC
-        #   torch:      imgs = torch.zeros(16,3,720,1280)  # BCHW
-        #   multiple:   imgs = [Image.open('image1.jpg'), Image.open('image2.jpg'), ...]  # list of images
-
-        p = next(self.model.parameters())  # for device and type
-        if isinstance(imgs, torch.Tensor):  # torch
-            return self.model(imgs.to(p.device).type_as(p), augment, profile)  # inference
-
-        # Pre-process
-        if not isinstance(imgs, list):
-            imgs = [imgs]
-        shape0, shape1 = [], []  # image and inference shapes
-        batch = range(len(imgs))  # batch size
-        for i in batch:
-            imgs[i] = np.array(imgs[i])  # to numpy
-            if imgs[i].shape[0] < 5:  # image in CHW
-                imgs[i] = imgs[i].transpose((1, 2, 0))  # reverse dataloader .transpose(2, 0, 1)
-            imgs[i] = imgs[i][:, :, :3] if imgs[i].ndim == 3 else np.tile(imgs[i][:, :, None], 3)  # enforce 3ch input
-            s = imgs[i].shape[:2]  # HWC
-            shape0.append(s)  # image shape
-            g = (size / max(s))  # gain
-            shape1.append([y * g for y in s])
-        shape1 = [make_divisible(x, int(self.stride.max())) for x in np.stack(shape1, 0).max(0)]  # inference shape
-        x = [letterbox(imgs[i], new_shape=shape1, auto=False)[0] for i in batch]  # pad
-        x = np.stack(x, 0) if batch[-1] else x[0][None]  # stack
-        x = np.ascontiguousarray(x.transpose((0, 3, 1, 2)))  # BHWC to BCHW
-        x = torch.from_numpy(x).to(p.device).type_as(p) / 255.  # uint8 to fp16/32
-
-        # Inference
-        with torch.no_grad():
-            y = self.model(x, augment, profile)[0]  # forward
-        y = non_max_suppression(y, conf_thres=self.conf, iou_thres=self.iou, classes=self.classes)  # NMS
-
-        # Post-process
-        for i in batch:
-            if y[i] is not None:
-                y[i][:, :4] = scale_coords(shape1, y[i][:, :4], shape0[i])
-
-        return Detections(imgs, y, self.names)
-
 
 class Detections:
     # detections class for YOLOv5 inference results
@@ -189,8 +134,8 @@ class Detections:
         self.xywhn = [x / g for x, g in zip(self.xywh, gn)]  # xywh normalized
         self.n = len(self.pred)
 
+
     def display(self, pprint=False, show=False, save=False):
-        colors = color_list()
         for i, (img, pred) in enumerate(zip(self.imgs, self.pred)):
             str = f'Image {i + 1}/{len(self.pred)}: {img.shape[0]}x{img.shape[1]} '
             if pred is not None:
@@ -198,10 +143,7 @@ class Detections:
                     n = (pred[:, -1] == c).sum()  # detections per class
                     str += f'{n} {self.names[int(c)]}s, '  # add to string
                 if show or save:
-                    img = Image.fromarray(img.astype(np.uint8)) if isinstance(img, np.ndarray) else img  # from np
-                    for *box, conf, cls in pred:  # xyxy, confidence, class
-                        # str += '%s %.2f, ' % (names[int(cls)], conf)  # label
-                        ImageDraw.Draw(img).rectangle(box, width=4, outline=colors[int(cls) % 10])  # plot
+                    raise
             if save:
                 f = f'results{i}.jpg'
                 str += f"saved to '{f}'"
@@ -210,6 +152,7 @@ class Detections:
                 img.show(f'Image {i}')  # show
             if pprint:
                 print(str)
+
 
     def print(self):
         self.display(pprint=True)  # print results

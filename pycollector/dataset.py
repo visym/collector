@@ -19,8 +19,6 @@ import hashlib
 import torch.utils.data
 from torch.utils.data import DataLoader, random_split
 
-
-
     
 def disjoint_activities(V, activitylist):    
     assert all([isinstance(v, vipy.video.Video) for v in V])
@@ -105,13 +103,14 @@ class Datasets():
         self._archive_ext = ['pkl', 'json']
         self._strict = strict
         self._datasets = {}
-        
+
+        # FIXME: this expression is broken and will not work in general
         self._schema = (lambda dstdir, v, k=None, indir=self._indir, ext=None, category=None, newfile=True: os.path.join(indir, dstdir, 
                                                                                                                          v.category() if category is None else category,
-                                                                                                                         ('%s%s.%s' % (v.attributes['video_id'] if v.hasattribute('video_id') else filebase(v.filename()),
+                                                                                                                         (('%s%s.%s' % (v.attributes['video_id'] if v.hasattribute('video_id') else filebase(v.filename()),
                                                                                                                                        ('_%s' % str(k)) if k is not None else '', 
                                                                                                                                        (fileext(v.filename(), withdot=False) if ext is None else str(ext))))
-                                                                                                                         if newfile is False else filetail(v.filename())))
+                                                                                                                         if newfile is True else filetail(v.filename()))))
         
         assert os.path.isdir(self._indir), "invalid input directory"
 
@@ -188,10 +187,11 @@ class Datasets():
         f = lambda net,v,b=batchsize: net.gpu(list(range(torch.cuda.device_count())), batchsize=b*torch.cuda.device_count())(v, d_category_to_object[v.category()]) if v.category() in d_category_to_object else v
         return self.map(src, f, model=model, dst=dst)
 
-    def instance_mining(self, src, dstdir=None, dst=None, batchsize=1, conf=0.05, iou=0.5, maxhistory=5, smoothing=None, objects=None, mincover=0.8, maxconf=0.2):
+    def instance_mining(self, src, dstdir=None, dst=None, batchsize=1, conf=0.05, iou=0.6, maxhistory=5, smoothing=None, objects=None, mincover=0.6, maxconf=0.2):
         model = pycollector.detection.MultiscaleVideoTracker(batchsize=batchsize)
-        dstdir = dstdir if dstdir is not None else (dst if dst is not None else 'instance_mining')
-        f_process = lambda net,v,o=objects,f=self._schema,dst=dstdir: net.gpu(list(range(torch.cuda.device_count()))).track(v, objects=o, verbose=False, conf=conf, iou=iou, maxhistory=maxhistory, smoothing=smoothing, mincover=mincover, maxconf=maxconf).pkl(f(dst,v,category='tracks',ext='pkl')).print()
+        dst = dst if dst is not None else '%s_instancemining' % (self.load(src).id())
+        dstdir = remkdir(os.path.join(self._indir, dst))
+        f_process = lambda net,v,o=objects,dstdir=dstdir: net.gpu(list(range(torch.cuda.device_count()))).track(v, objects=o, verbose=False, conf=conf, iou=iou, maxhistory=maxhistory, smoothing=smoothing, mincover=mincover, maxconf=maxconf).pkl(os.path.join(dstdir, '%s.pkl' % v.videoid())).print()
         return self.map(src, f_process, model=model, dst=dst)  
 
     def stabilize_refine_activityclip(self, src, dst, batchsize=1, dt=5, minlength=5, maxsize=512*3):
@@ -316,8 +316,10 @@ class Datasets():
         return self.new(V,dst).save(dst)
             
     def trackcrop(self, src, dst=None, dilate=1.0, maxsquare=True):
-        dst = dst if dst is not None else '%s_trackcrop' % src
-        f_saveas = lambda v, dst=dst, src=src, f=self._schema: f(dst, v, newfile=False)
+        dst = dst if dst is not None else '%s_trackcrop' % self.load(src).id()
+        
+        # FIXME: schema is broken
+        f_saveas = lambda v, dst=dst, indir=self._indir: os.path.join(indir, dst, v.category(), filetail(v.filename()))
         f_trackcrop = lambda v, d=dilate, f=f_saveas, b=maxsquare: v.clone().trackcrop(dilate=d, maxsquare=b).saveas(f(v), flush=True).pack().print(sleep=1) if v is not None and v.clone().trackfilter(lambda t: len(t)>0).hastracks() else None
         return self.map(src, f_trackcrop, ascompleted=False).id(dst)
 
@@ -502,8 +504,11 @@ class Dataset():
         print('[pycollector.dataset]: %s, MD5=%s' % (tarfile, vipy.downloader.generate_md5(tarfile)))
         return tarfile
         
-    def save(self, outfile, nourl=False, castas=None, relpath=False, noadmin=False, strict=True, significant_digits=2, noemail=True, flush=True):
-        objlist = self._objlist
+    def save(self, outfile, nourl=False, castas=None, relpath=False, noadmin=False, strict=True, significant_digits=2, noemail=True, flush=True):    
+        n = len([v for v in self._objlist if v is None])
+        if n > 0:
+            print('[pycollector.dataset]: removing %d invalid elements' % n)
+        objlist = [v for v in self._objlist if v is not None]  
         if relpath or nourl or noadmin or flush or noemail or (significant_digits is not None):
             assert self.isvipy(), "Invalid input"
         if relpath:
@@ -520,7 +525,7 @@ class Dataset():
             objlist = [castas.cast(v) for v in objlist]                     
         if significant_digits is not None:
             assert isinstance(significant_digits, int) and significant_digits >= 1, "Invalid input"
-            objlist = [o.trackmap(lambda t: t.significant_digits(significant_digits)) for o in objlist]
+            objlist = [o.trackmap(lambda t: t.significant_digits(significant_digits)) if o is not None else o for o in objlist]
         if noemail:
             for o in objlist:
                 for (k,v) in o.attributes.items():
@@ -543,7 +548,7 @@ class Dataset():
         return self.class_to_index()
 
     def powerset(self):
-        return list(sorted(set([tuple(sorted(list(a))) for v in self._objlist for a in v.activitylabel()])))        
+        return list(sorted(set([tuple(sorted(list(a))) for v in self._objlist for a in v.activitylabel() if len(a) > 0])))        
 
     def powerset_to_index(self):        
         assert self.isvipy(), "Invalid input"
@@ -612,6 +617,10 @@ class Dataset():
         self._objlist = [x for v in self._objlist for x in f(v)]
         return self
     
+    def count(self):
+        assert self.isvipy()
+        return vipy.util.countby(self.list(), lambda v: v.category())
+
     def stats(self, outdir=None, object_categories=['Person', 'Car'], plot=True):
         """Analyze the dataset to return helpful statistics and plots"""
         assert self.isvipy()

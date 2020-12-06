@@ -110,10 +110,10 @@ class Yolov5(TorchNet):
         self._gpulist = gpu
         self.gpu(gpu, batchsize)
         
-    def __call__(self, im, conf=1E-3, iou=0.5, union=False, objects=None):
-        assert isinstance(im, vipy.image.Image) or (isinstance(im, list) and all([isinstance(i, vipy.image.Image) for i in im])), "Invalid input - must be vipy.image.Image object and not '%s'" % (str(type(im)))
+    def __call__(self, imlist, conf=1E-3, iou=0.5, union=False, objects=None):
+        assert isinstance(imlist, vipy.image.Image) or (isinstance(imlist, list) and all([isinstance(i, vipy.image.Image) for i in imlist])), "Invalid input - must be vipy.image.Image object and not '%s'" % (str(type(imlist)))
 
-        imlist = tolist(im)
+        imlist = tolist(imlist)
         imlistdets = []
         t = torch.cat([im.clone().maxsquare().mindim(self._mindim).gain(1.0/255.0).torch() for im in imlist]).type(self._tensortype)  # triggers load
 
@@ -123,7 +123,7 @@ class Yolov5(TorchNet):
         fromdevice = [m(b)[0] for (m,b) in zip(self._models, todevice)]   # async?
         t_out = torch.cat([r.detach().cpu() for r in fromdevice], dim=0).numpy()
         
-        #t_out = super().__call__(t).numpy()   # parallel multi-GPU evaluation, using TorchNet()
+        #t_out = super().__call__(t).numpy()   # parallel multi-GPU evaluation, using TorchNet(), do not use because this network returns tuples
 
         for (im, dets) in zip(imlist, t_out):
             k_class = np.argmax(dets[:,5:], axis=1).flatten().tolist()
@@ -214,7 +214,7 @@ class ObjectDetector(Yolov5):
 
 
 class MultiscaleObjectDetector(ObjectDetector):  
-    """Run VideoDetector on every frame of video, tiling the frame to an overlapping  mosaic each of size (self._mindim, self._mindim), then recombining detections"""
+    """Given a list of images, break each one into a set of overlapping tiles, and ObjectDetector() on each, then recombining detections"""
     def __call__(self, imlist, conf=0.5, iou=0.5, maxarea=1.0, objects=None):
         (f, n) = (super().__call__, self._mindim)
         assert isinstance(imlist, vipy.image.Image) or isinstance(imlist, list) and all([isinstance(im, vipy.image.Image) for im in imlist]), "invalid input"
@@ -245,6 +245,7 @@ class MultiscaleObjectDetector(ObjectDetector):
 
     
 class VideoDetector(ObjectDetector):  
+    """Iterate ObjectDetector() over each frame of video, yielding the detected frame"""
     def __call__(self, v, conf=0.5, iou=0.5):
         assert isinstance(v, vipy.video.Video), "Invalid input"        
         for im in v.stream():
@@ -252,7 +253,6 @@ class VideoDetector(ObjectDetector):
 
             
 class MultiscaleVideoDetector(MultiscaleObjectDetector):
-    """Run VideoDetector on every frame of video, tiling the frame to a mosaic each of size (self._mindim, self._mindim)"""
     def __call__(self, v, conf=0.5, iou=0.5):
         assert isinstance(v, vipy.video.Video), "Invalid input"
         for imf in v.stream():
@@ -270,6 +270,7 @@ class VideoTracker(ObjectDetector):
                 yield vc.assign(k*self.batchsize()+j, im.clone().objectfilter(lambda o: o.category() in objects if objects is not None else True).objects(), miniou=iou, maxhistory=maxhistory, minconf=conf, maxconf=maxconf, mincover=mincover)  # in-place            
 
     def track(self, v, conf=0.05, iou=0.5, maxhistory=5, smoothing=None, objects=None, mincover=0.8, maxconf=0.2, verbose=False):
+        """Batch tracking"""
         for (k,vt) in enumerate(self.__call__(v.clone(), conf, iou, maxhistory, smoothing, objects, mincover, maxconf)):
             if verbose:
                 print('[pycollector.detection.VideoTracker][%d]: %s' % (k, str(vt)))  
@@ -277,7 +278,9 @@ class VideoTracker(ObjectDetector):
 
     
 class MultiscaleVideoTracker(MultiscaleObjectDetector):
+    """MultiscaleVideoTracker() class"""
     def __call__(self, v, conf=0.05, iou=0.6, maxarea=1.0, maxhistory=5, smoothing=None, objects=None, mincover=0.6, maxconf=0.2):
+        """Yield vipy.video.Scene(), an incremental tracked result for each frame"""
         (f, n) = (super().__call__, self._mindim)
         assert isinstance(v, vipy.video.Video), "Invalid input"
         assert objects is None or all([o in self.classlist() for o in objects]), "Invalid object list"
@@ -292,6 +295,28 @@ class MultiscaleVideoTracker(MultiscaleObjectDetector):
                 print('[pycollector.detection.MultiscaleVideoTracker][%d]: %s' % (k, str(vt)))  
         return vt
         
+
+class ClipTracker(ObjectDetector):
+    def __call__(self, v, conf=0.05, iou=0.6, maxarea=1.0, maxhistory=5, smoothing=None, objects=None, mincover=0.6, maxconf=0.2, cliplen=64):
+        assert isinstance(v, vipy.video.Video), "Invalid input"
+        assert objects is None or all([o in self.classlist() for o in objects]), "Invalid object list"
+
+        vc = v.clone().clear()  
+        (f, n) = (super().__call__, self._mindim)
+        for (k, vb) in enumerate(vc.stream().batch(cliplen)):
+            
+            # Detection in last frame
+            # union of detections in last frame and first frame
+            # foveate and cover detections with 640x640 crops and NMS
+            # extract these crops from all intermediate frames
+            # batch detection 
+            
+            # We assume that if we crop frame 0 centered at detection i_0, and crop detection i_n at frame n, then the detection will be linearly interpolated between these two detections.  we assume that a detection cannot move more than 640x640 pixels in cliplen time
+
+            for (j, im) in enumerate(f(vb.framelist(), conf, iou, maxarea, objects=objects)):
+                yield vc.assign(k*self.batchsize()+j, im.clone().objectfilter(lambda o: o.category() in objects if objects is not None else True).objects(), miniou=iou, maxhistory=maxhistory, minconf=conf, maxconf=maxconf, mincover=mincover)  # in-place            
+        
+
 
 class Proposal(ObjectDetector):
     def __call__(self, v, conf=1E-2, iou=0.8):
