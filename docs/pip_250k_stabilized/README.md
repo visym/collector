@@ -9,22 +9,20 @@
 The People in Public dataset is a consented large scale video dataset of people doing things in public places.  Our team has pioneered the use of a 
 custom designed mobile app that combines video collection, activity labeling and bounding box annotation into a single step.  Our goal is to 
 make collecting annotated video datasets as easily and cheaply as recording a video.  Currently, we are collecting a dataset of the MEVA 
-classes (http://mevadata.org).  This package provides a release of this dataset, containing 314,649 annotated activity instances collected by 
+classes (http://mevadata.org).  This package provides a release of this dataset, containing 312,639 annotated activity instances collected by 
 over 150 subjects in 44 countries around the world. 
 
-This dataset contains 314,649 stabilized video clips of 66 classes of activities performed by people in public places.  The activity labels are subsets of the 37 activities in the [Multiview Extended Video with Activities (MEVA)](https://mevadata.org) dataset and is consistent with the [Activities in Extended Video (ActEV)](https://actev.nist.gov/) challenge.  
+This dataset contains 312,639 stabilized video clips of 66 classes of activities performed by people in public places.  The activity labels are subsets of the 37 activities in the [Multiview Extended Video with Activities (MEVA)](https://mevadata.org) dataset and is consistent with the [Activities in Extended Video (ActEV)](https://actev.nist.gov/) challenge.  
 
 [Background stabilization](https://github.com/visym/vipy/blob/bc20f6f32492badd181faa0ccf7b0029f1f63fee/vipy/flow.py#L307-L328) was performed using an affine coarse to fine optical-flow method, followed by [actor bounding box stabilization](https://github.com/visym/collector/blob/adc5486c7f88291b77f9a707a78763c2b5958406/pycollector/detection.py#L177-L236).  Stabilization is designed to minimize distortion for small motions in the region near the center of the actor box.  Remaining stabilization artifacts are due to non-planar scene structure, rolling shutter distortion, and sub-pixel optical flow correspondence errors.  Stabilization artifacts manifest as a subtly shifting background relative to the actor which may affect optical flow based methods.  All stabilizations can be filtered using the provided stabilization residual which measures the quality of the stabilization.  
 
 ## Download
 
-<!--
-* [pip_250k_stabilized.tar.gz (46.8 GB)](https://dl.dropboxusercontent.com/s/n586unwwmehalmt/pip_250k_stabilized.tar.gz)&nbsp;&nbsp;MD5:2ce1dc937bc3f4807939e599cf2199c8&nbsp;&nbsp;&nbsp;&nbsp;
-    * An incremental release of 99,980 videos, to augment pip-175k-stabilized.
-* [pip_250k_full_stabilized.tar.gz (158.0 GB)](https://dl.dropboxusercontent.com/s/0k68bd3yx02mlz7/pip_250k_full_stabilized.tar.gz)&nbsp;&nbsp;MD5:60f6e2b563469f2d2e7e2fa62372940d&nbsp;&nbsp;&nbsp;
-    * The full release of 314,649 videos that includes pip-175k-stabilized.
--->
-* Download links temporarily removed
+* [pip_250k_stabilized.tar.gz (45.3 GB)](https://dl.dropboxusercontent.com/s/9wce7sq33t5u51j/pip_250k_stabilized.tar.gz)&nbsp;&nbsp;MD5:b5a1fe31a443b3dabca314f49f2a4fdc&nbsp;&nbsp;&nbsp;&nbsp;
+    * An incremental release of 99,082 videos, to augment pip-175k-stabilized.
+* [pip_250k_full_stabilized.tar.gz (154.7.0 GB)](https://dl.dropboxusercontent.com/s/31laau70rnxrgy8/pip_250k_full_stabilized.tar.gz)&nbsp;&nbsp;MD5:172eb1ea0a0ed46f2583812d381b7926&nbsp;&nbsp;&nbsp;
+    * The full release of 312,639 videos that includes pip-175k-stabilized.
+
 
 
 ## Quickstart
