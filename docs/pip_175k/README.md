@@ -16,11 +16,7 @@ over 150 subjects in 44 countries around the world.
 
 This dataset contains 184,379 video clips of 66 classes of activities performed by people in public places.  The activity labels are subsets of the 37 activities in the [Multiview Extended Video with Activities (MEVA)](https://mevadata.org) dataset and is consistent with the [Activities in Extended Video (ActEV)](https://actev.nist.gov/) challenge.  
 
-<!--
 * [pip_175k.tar.gz (55.3GB)](https://dl.dropboxusercontent.com/s/xwiacwo9y5uci9v/pip_175k.tar.gz)&nbsp;&nbsp;MD5:9e49f8608ba0170dfaa1ed558351f0df&nbsp;&nbsp;&nbsp;&nbsp;
-* Visualization of [Training set random sample (87MB)](https://rawcdn.githack.com/visym/collector/5b051c625ef458417a16ed48d5a0693ef59fd9ff/docs/pip_175k/trainset_small.html),&nbsp;[full validation set (1.1GB)](https://dl.dropboxusercontent.com/s/8fp77nvxeywrq7f/pip_175k_valset.html)
--->
-* pip_175k.tar.gz (55.3GB) (temporarily removed)
 * Visualization of [Training set random sample (87MB)](https://rawcdn.githack.com/visym/collector/5b051c625ef458417a16ed48d5a0693ef59fd9ff/docs/pip_175k/trainset_small.html),&nbsp;[full validation set (1.1GB)](https://dl.dropboxusercontent.com/s/8fp77nvxeywrq7f/pip_175k_valset.html)
 
 
@@ -40,14 +36,21 @@ This release was curated to export PIP-175k with additional context, to:
 
 ## Installation
 
-Follow the installation instructions for [vipy](https://github.com/visym/vipy)
+Follow the installation instructions for [vipy](https://github.com/visym/vipy). We recommend 
+
+```python
+pip install vipy[all]
+```
+
+to include a fast JSON parser (ujson) for loading large ground truth annotations.
 
 Unpack pip_175k.tar.gz in /path/to/, then:
 
 ```python
 import vipy
 cd /path/to/pip_175k
-pip = vipy.util.load('valset.pkl')
+pip = vipy.util.load('valset.pkl')  # or JSON
+pip = vipy.util.load('valset.json')  # or JSON, faster
 ```
 
 ## Visualize
