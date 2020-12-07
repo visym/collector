@@ -28,7 +28,7 @@ To extract the smallest square video crop containing the stabilized track for a 
 
 ```python
 import vipy
-v = vipy.util.load('/path/to/stabilized.pkl')[0]   # load videos and take one
+v = vipy.util.load('/path/to/stabilized.json')[0]   # load videos and take one
 vs = v.crop(v.trackbox(dilate=1.0).maxsquare()).resize(224,224).saveas('/path/to/out.mp4')
 vs.getattribute('stabilize')   # returns a stabilization residual (bigger is worse)
 ```

@@ -36,7 +36,13 @@ This release was curated to export PIP-175k with additional context, to:
 
 ## Installation
 
-Follow the installation instructions for [vipy](https://github.com/visym/vipy)
+Follow the installation instructions for [vipy](https://github.com/visym/vipy). We recommend 
+
+```python
+pip install vipy[all]
+```
+
+to include a fast JSON parser (ujson) for loading large ground truth annotations.
 
 Unpack pip_175k.tar.gz in /path/to/, then:
 
