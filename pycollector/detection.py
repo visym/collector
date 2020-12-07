@@ -260,18 +260,18 @@ class MultiscaleVideoDetector(MultiscaleObjectDetector):
 
 
 class VideoTracker(ObjectDetector):
-    def __call__(self, v, conf=0.05, iou=0.5, maxhistory=5, smoothing=None, objects=None, mincover=0.8, maxconf=0.2):
+    def __call__(self, v, minconf=0.001, miniou=0.6, maxhistory=5, smoothing=None, objects=None, trackconf=0.05):
         (f, n) = (super().__call__, self._mindim)
         assert isinstance(v, vipy.video.Video), "Invalid input"
         assert objects is None or all([o in self.classlist() for o in objects]), "Invalid object list"
         vc = v.clone().clear()  
         for (k, vb) in enumerate(vc.stream().batch(self.batchsize())):
-            for (j, im) in enumerate(f(vb.framelist(), conf, iou, union=False, objects=objects)):
-                yield vc.assign(k*self.batchsize()+j, im.clone().objectfilter(lambda o: o.category() in objects if objects is not None else True).objects(), miniou=iou, maxhistory=maxhistory, minconf=conf, maxconf=maxconf, mincover=mincover)  # in-place            
+            for (j, im) in enumerate(tolist(f(vb.framelist(), minconf, miniou, union=False, objects=objects))):
+                yield vc.assign(k*self.batchsize()+j, im.clone().objectfilter(lambda o: o.category() in objects if objects is not None else True).objects(), minconf=trackconf, maxhistory=maxhistory)  # in-place            
 
-    def track(self, v, conf=0.05, iou=0.5, maxhistory=5, smoothing=None, objects=None, mincover=0.8, maxconf=0.2, verbose=False):
+    def track(self, v, minconf=0.001, miniou=0.6, maxhistory=5, smoothing=None, objects=None, trackconf=0.05, verbose=False):
         """Batch tracking"""
-        for (k,vt) in enumerate(self.__call__(v.clone(), conf, iou, maxhistory, smoothing, objects, mincover, maxconf)):
+        for (k,vt) in enumerate(self.__call__(v.clone(), minconf=minconf, miniou=miniou, maxhistory=maxhistory, smoothing=smoothing, objects=objects, trackconf=trackconf)):
             if verbose:
                 print('[pycollector.detection.VideoTracker][%d]: %s' % (k, str(vt)))  
         return vt
@@ -279,21 +279,15 @@ class VideoTracker(ObjectDetector):
     
 class MultiscaleVideoTracker(MultiscaleObjectDetector):
     """MultiscaleVideoTracker() class"""
-    def __call__(self, v, conf=0.05, iou=0.6, maxarea=1.0, maxhistory=5, smoothing=None, objects=None, mincover=0.6, maxconf=0.2):
+    def __call__(self, v, minconf=0.001, miniou=0.6, maxarea=1.0, maxhistory=5, smoothing=None, objects=None, trackconf=0.05):
         """Yield vipy.video.Scene(), an incremental tracked result for each frame"""
         (f, n) = (super().__call__, self._mindim)
         assert isinstance(v, vipy.video.Video), "Invalid input"
         assert objects is None or all([o in self.classlist() for o in objects]), "Invalid object list"
         vc = v.clone().clear()  
         for (k, vb) in enumerate(vc.stream().batch(self.batchsize())):
-            for (j, im) in enumerate(f(vb.framelist(), conf, iou, maxarea, objects=objects)):
-                yield vc.assign(k*self.batchsize()+j, im.clone().objectfilter(lambda o: o.category() in objects if objects is not None else True).objects(), miniou=iou, maxhistory=maxhistory, minconf=conf, maxconf=maxconf, mincover=mincover)  # in-place            
-        
-    def track(self, v, conf=0.05, iou=0.6, maxhistory=5, smoothing=None, objects=None, mincover=0.6, maxconf=0.2, verbose=False):
-        for (k,vt) in enumerate(self.__call__(v.clone(), conf, iou, 1.0, maxhistory, smoothing, objects, mincover, maxconf)):
-            if verbose:
-                print('[pycollector.detection.MultiscaleVideoTracker][%d]: %s' % (k, str(vt)))  
-        return vt
+            for (j, im) in enumerate(tolist(f(vb.framelist(), minconf, miniou, maxarea, objects=objects))):
+                yield vc.assign(k*self.batchsize()+j, im.clone().objectfilter(lambda o: o.category() in objects if objects is not None else True).objects(), minconf=trackconf, maxhistory=maxhistory)  # in-place            
         
 
 class ClipTracker(ObjectDetector):
