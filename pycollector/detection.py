@@ -288,6 +288,13 @@ class MultiscaleVideoTracker(MultiscaleObjectDetector):
         for (k, vb) in enumerate(vc.stream().batch(self.batchsize())):
             for (j, im) in enumerate(tolist(f(vb.framelist(), minconf, miniou, maxarea, objects=objects))):
                 yield vc.assign(k*self.batchsize()+j, im.clone().objectfilter(lambda o: o.category() in objects if objects is not None else True).objects(), minconf=trackconf, maxhistory=maxhistory)  # in-place            
+
+    def track(self, v, minconf=0.001, miniou=0.6, maxhistory=5, smoothing=None, objects=None, trackconf=0.05, verbose=False):
+        """Batch tracking"""
+        for (k,vt) in enumerate(self.__call__(v.clone(), minconf=minconf, miniou=miniou, maxhistory=maxhistory, smoothing=smoothing, objects=objects, trackconf=trackconf)):
+            if verbose:
+                print('[pycollector.detection.VideoTracker][%d]: %s' % (k, str(vt)))  
+        return vt
         
 
 class ClipTracker(ObjectDetector):

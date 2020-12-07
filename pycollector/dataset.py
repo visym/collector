@@ -187,11 +187,11 @@ class Datasets():
         f = lambda net,v,b=batchsize: net.gpu(list(range(torch.cuda.device_count())), batchsize=b*torch.cuda.device_count())(v, d_category_to_object[v.category()]) if v.category() in d_category_to_object else v
         return self.map(src, f, model=model, dst=dst)
 
-    def instance_mining(self, src, dstdir=None, dst=None, batchsize=1, conf=0.05, iou=0.6, maxhistory=5, smoothing=None, objects=None, mincover=0.6, maxconf=0.2):
+    def instance_mining(self, src, dstdir=None, dst=None, batchsize=1, minconf=0.001, miniou=0.6, maxhistory=30, smoothing=None, objects=None, trackconf=0.2):
         model = pycollector.detection.MultiscaleVideoTracker(batchsize=batchsize)
         dst = dst if dst is not None else '%s_instancemining' % (self.load(src).id())
         dstdir = remkdir(os.path.join(self._indir, dst))
-        f_process = lambda net,v,o=objects,dstdir=dstdir: net.gpu(list(range(torch.cuda.device_count()))).track(v, objects=o, verbose=False, conf=conf, iou=iou, maxhistory=maxhistory, smoothing=smoothing, mincover=mincover, maxconf=maxconf).pkl(os.path.join(dstdir, '%s.pkl' % v.videoid())).print()
+        f_process = lambda net,v,o=objects,dstdir=dstdir: net.gpu(list(range(torch.cuda.device_count()))).track(v, objects=o, verbose=False, minconf=minconf, miniou=miniou, maxhistory=maxhistory, smoothing=smoothing, trackconf=trackconf).pkl(os.path.join(dstdir, '%s.pkl' % v.videoid())).print()
         return self.map(src, f_process, model=model, dst=dst)  
 
     def stabilize_refine_activityclip(self, src, dst, batchsize=1, dt=5, minlength=5, maxsize=512*3):
