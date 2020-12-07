@@ -26,10 +26,8 @@ Our goal is to make all datasets freely available to the computer vision researc
 
 <!-- Backup links:  https://htmlpreview.github.io/?https://github.com/visym/collector/blob/master/docs/pip_175k/trainset_small.html -->
 
-* **People in Public - 175k.**  This dataset contains 184,379 video clips of 66 classes of activities performed by people in public places.  The activity labels are subsets of the 37 activities in the [Multiview Extended Video with Activities (MEVA)](https://mevadata.org) dataset and is consistent with the [Activities in Extended Video (ActEV)](https://actev.nist.gov/) challenge.  
-    * pip_175k.tar.gz (55.3GB) &nbsp;&nbsp;[[README]](pip_175k/README.md)&nbsp;&nbsp;
+* **People in Public - 175k.**  This dataset contains 184,379 video clips of 66 classes of activities performed by people in public places.  The activity labels are subsets of the 37 activities in the [Multiview Extended Video with Activities (MEVA)](https://mevadata.org) dataset and is consistent with the [Activities in Extended Video (ActEV)](https://actev.nist.gov/) challenge.   &nbsp;&nbsp;[[README]](pip_175k/README.md)&nbsp;&nbsp;
     * Visualization of [Training set random sample (87MB)](https://rawcdn.githack.com/visym/collector/5b051c625ef458417a16ed48d5a0693ef59fd9ff/docs/pip_175k/trainset_small.html),&nbsp;[full validation set (1.1GB)](https://dl.dropboxusercontent.com/s/8fp77nvxeywrq7f/pip_175k_valset.html)
     * People in Public - 175k - stabilized.  Background stabilized videos for pip-175k.  [[README]](pip_175k_stabilized/README.md)&nbsp;&nbsp;
-* **People in Public - 250k - stabilized.**  This dataset contains 314,649 background stabilized videos clips of 66 classes of activities performed by people in public places. 
-    * pip_250k_full_stabilized.tar.gz (158.0 GB)&nbsp;&nbsp;[[README]](pip_250k_stabilized/README.md)&nbsp;&nbsp;
+* **People in Public - 250k - stabilized.**  This dataset contains 314,649 background stabilized videos clips of 66 classes of activities performed by people in public places.  &nbsp;&nbsp;[[README]](pip_250k_stabilized/README.md)&nbsp;&nbsp;
 
