@@ -18,9 +18,9 @@ This dataset contains 312,639 stabilized video clips of 66 classes of activities
 
 ## Download
 
-* [pip_250k_stabilized.tar.gz (45.3 GB)](https://dl.dropboxusercontent.com/s/9wce7sq33t5u51j/pip_250k_stabilized.tar.gz)&nbsp;&nbsp;MD5:b5a1fe31a443b3dabca314f49f2a4fdc&nbsp;&nbsp;&nbsp;&nbsp; Last Updated: 07Dec20
+* [pip_250k_stabilized.tar.gz (45.3 GB)](https://dl.dropboxusercontent.com/s/9wce7sq33t5u51j/pip_250k_stabilized.tar.gz)&nbsp;&nbsp;MD5:b5a1fe31a443b3dabca314f49f2a4fdc&nbsp;&nbsp;Updated:07Dec20
     * An incremental release of 99,082 videos, to augment pip-175k-stabilized.
-* [pip_250k_full_stabilized.tar.gz (154.7.0 GB)](https://dl.dropboxusercontent.com/s/31laau70rnxrgy8/pip_250k_full_stabilized.tar.gz)&nbsp;&nbsp;MD5:172eb1ea0a0ed46f2583812d381b7926&nbsp;&nbsp;&nbsp; Last Updated: 07Dec20
+* [pip_250k_full_stabilized.tar.gz (154.7.0 GB)](https://dl.dropboxusercontent.com/s/31laau70rnxrgy8/pip_250k_full_stabilized.tar.gz)&nbsp;&nbsp;MD5:172eb1ea0a0ed46f2583812d381b7926&nbsp;&nbsp;Updated:07Dec20
     * The full release of 312,639 videos that includes pip-175k-stabilized.
 
 
