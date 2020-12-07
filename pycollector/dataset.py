@@ -314,7 +314,12 @@ class Datasets():
         V = [v for v in V if (v is not None) and (not v.hasattribute('unrefined'))]  # remove videos that failed refinement
         V = [v.activityfilter(lambda a: any([a.hastrack(t) and len(t)>minlength and t.during(a.startframe(), a.endframe()) for t in v.tracklist()])) for v in V]  # get rid of activities without tracks greater than dt
         return self.new(V,dst).save(dst)
-            
+
+    def nondegenerate(self, src, dst=None):
+        dst = dst if dst is not None else '%s_nondegenerate' % self.load(src).id()
+        f = lambda v: v.clone() if ((v is not None) and (v.trackbox() is not None) and (not v.trackbox().intersection(v.clone().framebox(), strict=False).isdegenerate())) else None
+        return self.map(src, f, dst=dst, ascompleted=False)
+
     def trackcrop(self, src, dst=None, dilate=1.0, maxsquare=True):
         dst = dst if dst is not None else '%s_trackcrop' % self.load(src).id()
         
@@ -576,8 +581,9 @@ class Dataset():
         self._objlist = [v for v in self._objlist if f(v)]
         return self
 
-    def take(self, n):
-        return [self._objlist[k] for k in random.sample(range(0, len(self)), n)]
+    def take(self, n, category=None):
+        objlist = self._objlist if category is None else [v for v in self._objlist if v.category() == category]
+        return [objlist[k] for k in random.sample(range(0, len(objlist)), n)]
     
     def split(self, trainfraction=0.8, testfraction=0.1, valfraction=0.1, seed=42):
         """Split the dataset by category by fraction so that video IDs are never in the same set"""
@@ -603,7 +609,7 @@ class Dataset():
         return vipy.util.writecsv(csv, csvfile) if csvfile is not None else (csv[0], csv[1:])
 
     def map(self, f_transform, model=None, dst=None, checkpoint=False, strict=False, ascompleted=True):        
-        B = Batch(self.list(), strict=strict, as_completed=ascompleted, checkpoint=checkpoint, warnme=False)
+        B = Batch(self.list(), strict=strict, as_completed=ascompleted, checkpoint=checkpoint, warnme=False, minscatter=1000000)
         V = B.map(f_transform).result() if not model else B.scattermap(f_transform, model).result() 
         if any([v is None for v in V]):
             print('pycollector.datasets][%s->]: %d failed' % (str(self), len([v for v in V if v is None])))
