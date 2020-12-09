@@ -187,7 +187,7 @@ class Datasets():
         f = lambda net,v,b=batchsize: net.gpu(list(range(torch.cuda.device_count())), batchsize=b*torch.cuda.device_count())(v, d_category_to_object[v.category()]) if v.category() in d_category_to_object else v
         return self.map(src, f, model=model, dst=dst)
 
-    def instance_mining(self, src, dstdir=None, dst=None, batchsize=1, minconf=0.001, miniou=0.6, maxhistory=30, smoothing=None, objects=None, trackconf=0.2):
+    def instance_mining(self, src, dstdir=None, dst=None, batchsize=1, minconf=0.01, miniou=0.6, maxhistory=5, smoothing=None, objects=None, trackconf=0.05):
         model = pycollector.detection.MultiscaleVideoTracker(batchsize=batchsize)
         dst = dst if dst is not None else '%s_instancemining' % (self.load(src).id())
         dstdir = remkdir(os.path.join(self._indir, dst))

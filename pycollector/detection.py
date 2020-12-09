@@ -236,9 +236,11 @@ class MultiscaleObjectDetector(ObjectDetector):
         for (k, (iml, imb, nf, nc)) in enumerate(zip(imlist, imlist_multiscale, n_fine, n_coarse)):
             im_multiscale = imlistdet_multiscale_flat[0:nf+nc]; imlistdet_multiscale_flat = imlistdet_multiscale_flat[nf+nc:];
             imcoarsedet = iml.clone().untile([im.objectfilter(lambda o: o.clone().isinterior(im.width(), im.height(), border=1.0)) for im in im_multiscale[0:nc]]).mindim(iml.mindim()).nms(conf, iou)
-            imfinedet = iml.clone().untile( [im.objectfilter(lambda o: o.area()<=maxarea*im.area() and o.clone().isinterior(im.width(), im.height(), border=1.0))  # not too big or occluded by image boundary 
+            imfinedet = iml.clone().untile( [im.objectfilter(lambda o: (o.area()<=maxarea*im.area() and   # not too big relative to tile
+                                                                        (o.clone().isinterior(im.width(), im.height(), border=0.9) or  # not occluded by any tile boundary 
+                                                                         o.clone().dilatepx(0.05*im.width()+1).cover(im.attributes['tile']['crop']) == o.clone().dilatepx(0.05*im.width()+1).cover(imcoarsedet.imagebox()))))  # or only occluded by image boundary
                                              for im in im_multiscale[nc:]] )
-            imcoarsedet = imcoarsedet.union(imfinedet, iou) if imfinedet is not None else imcoarsedet            
+            imcoarsedet = imcoarsedet.union(imfinedet, iou) if imfinedet is not None else imcoarsedet
             imlistdet.append(imcoarsedet.nms(conf, iou))
 
         return imlistdet[0] if len(imlistdet) == 1 else imlistdet
