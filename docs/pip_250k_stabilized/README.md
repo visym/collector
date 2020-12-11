@@ -38,6 +38,9 @@ vs = v.crop(v.trackbox(dilate=1.0).maxsquare()).resize(224,224).saveas('/path/to
 vs.getattribute('stabilize')   # returns a stabilization residual (bigger is worse)
 ```
 
+We recommend using [a small sample of ten instances per class](pip_250k_full_stabilized_sampler.json.gz) for testing your pipeline, then loading the entire dataset into memory on your training cluster. 
+
+
 ## Best Practices
 
 [Notebook demo](https://htmlpreview.github.io/?https://github.com/visym/collector/blob/master/docs/pip_175k/best_practices.html)&nbsp;[[html]](https://htmlpreview.github.io/?https://github.com/visym/collector/blob/master/docs/pip_175k/best_practices.html)[[ipynb]](https://github.com/visym/collector/blob/master/docs/pip_175k/best_practices.ipynb) showing best practices for using the PIP-175k dataset for training.
