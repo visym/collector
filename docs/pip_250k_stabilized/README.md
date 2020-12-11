@@ -62,6 +62,7 @@ v.getattribute('blurred faces') > 0
 ```
 
 * A small number of videos exhibit bounding boxes which appear to lag a fast moving object by approximately 5 frames (e.g. F52B3767-7724-4117-9559-796320D689EB_0). 
+* A small number of videos exhibit stabilization that does not include enough padding, so that the tracked bounding box falls within the black border.  This typically occurs with videos with large motions, such as vehicle turning classes.
 
 # License
 
