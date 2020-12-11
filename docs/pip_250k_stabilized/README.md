@@ -52,7 +52,13 @@ vs.getattribute('stabilize')   # returns a stabilization residual (bigger is wor
 
 * The classes "person_leaves_scene_through_structure" and "person_exits_scene_through_structure" are synonymous and should be merged.  
 * The classes "person_comes_into_scene_through_structure" and "person_enters_scene_through_structure" are synonymous and should be merged.
+* A small number of videos exhibit a face detector false alarm which looks like a large pixelated circle which lasts a single frame.  This is the in-app face blurring incorrectly redacting the background.  You can filter these videos by removing videos v with 
 
+```python
+v.getattribute('blurred faces') > 0
+```
+
+* A small number of videos exhibit bounding boxes which appear to lag a fast moving object by approximately 5 frames (e.g. F52B3767-7724-4117-9559-796320D689EB_0). 
 
 # License
 
