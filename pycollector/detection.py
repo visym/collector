@@ -223,24 +223,31 @@ class MultiscaleObjectDetector(ObjectDetector):
         
         (imlist_multiscale, imlist_multiscale_flat, n_coarse, n_fine) = ([], [], [], [])
         for im in imlist:
-            imcoarse = im.clone().mindim(n).tile(n, n, overlaprows=n//2, overlapcols=n//2)
+            #imcoarse = im.clone().mindim(n).tile(n, n, overlaprows=n//2, overlapcols=n//2)
+            imcoarse = [im.clone()]
             imfine = im.clone().tile(n, n, overlaprows=n//2, overlapcols=n//2) if im.mindim() > (n+(n//2)) else []
             n_coarse.append(len(imcoarse))
             n_fine.append(len(imfine))
             imlist_multiscale.append(imcoarse+imfine)
-            imlist_multiscale_flat.extend(imcoarse+imfine)
+            #imlist_multiscale_flat.extend(imcoarse+imfine)
+            imlist_multiscale_flat.extend(imcoarse + [im.maxsquare().cornerpadcrop(n,n) for im in imfine])
 
-        imlist_multiscale_flat = [im.maxsquare().cornerpadcrop(n,n) for im in imlist_multiscale_flat]
         imlistdet_multiscale_flat = [im for iml in chunklistbysize(imlist_multiscale_flat, self.batchsize()) for im in tolist(f(iml, conf=conf, iou=iou, objects=objects))]
+
         imlistdet = []
         for (k, (iml, imb, nf, nc)) in enumerate(zip(imlist, imlist_multiscale, n_fine, n_coarse)):
             im_multiscale = imlistdet_multiscale_flat[0:nf+nc]; imlistdet_multiscale_flat = imlistdet_multiscale_flat[nf+nc:];
-            imcoarsedet = iml.clone().untile([im.objectfilter(lambda o: o.clone().isinterior(im.width(), im.height(), border=1.0)) for im in im_multiscale[0:nc]]).mindim(iml.mindim()).nms(conf, iou)
+            #imcoarsedet = iml.clone().untile([im.objectfilter(lambda o: (o.area()<=maxarea*im.area() and 
+            #                                                             (o.clone().isinterior(im.width(), im.height(), border=0.9) or 
+            #                                                             o.clone().dilatepx(0.05*im.width()+1).cover(im.attributes['tile']['crop']) == o.clone().dilatepx(0.05*im.width()+1).cover(iml.imagebox()))))  # or only occluded by image boundary
+            #                                 for im in im_multiscale[0:nc]]).mindim(iml.mindim()).nms(conf, iou)
+            assert nc == 1
+            imcoarsedet = im_multiscale[0].mindim(iml.mindim())
             imfinedet = iml.clone().untile( [im.objectfilter(lambda o: (o.area()<=maxarea*im.area() and   # not too big relative to tile
                                                                         (o.clone().isinterior(im.width(), im.height(), border=0.9) or  # not occluded by any tile boundary 
                                                                          o.clone().dilatepx(0.05*im.width()+1).cover(im.attributes['tile']['crop']) == o.clone().dilatepx(0.05*im.width()+1).cover(imcoarsedet.imagebox()))))  # or only occluded by image boundary
                                              for im in im_multiscale[nc:]] )
-            imcoarsedet = imcoarsedet.union(imfinedet, iou) if imfinedet is not None else imcoarsedet
+            imcoarsedet = imcoarsedet.union(imfinedet) if imfinedet is not None else imcoarsedet
             imlistdet.append(imcoarsedet.nms(conf, iou))
 
         return imlistdet[0] if len(imlistdet) == 1 else imlistdet

@@ -627,6 +627,83 @@ class Dataset():
         assert self.isvipy()
         return vipy.util.countby(self.list(), lambda v: v.category())
 
+    def collectors(self, outfile=None):
+        assert self.isvipy()
+        d = vipy.util.countby(self.list(), lambda v: v.attributes['collector_id'])
+        f = lambda x,n: len([k for (k,v) in d.items() if int(v) >= n])
+        print('[collector.dataset.collectors]: Collectors = %d ' % f(d,0))
+        print('[collector.dataset.collectors]: Collectors with >10 submissions = %d' % f(d,10))
+        print('[collector.dataset.collectors]: Collectors with >100 submissions = %d' % f(d,100))
+        print('[collector.dataset.collectors]: Collectors with >1000 submissions = %d' % f(d,1000))
+        print('[collector.dataset.collectors]: Collectors with >10000 submissions = %d' % f(d,10000))
+
+        if outfile is not None:
+            from vipy.metrics import histogram
+            histogram(d.values(), list(range(len(d.keys()))), outfile=outfile, ylabel='Submissions', xlabel='Collector ID', xrot='vertical', fontsize=3, xshow=False)            
+        return d
+
+    def os(self, outfile=None):
+        assert self.isvipy()
+        d = vipy.util.countby([v for v in self.list() if v.hasattribute('device_identifier')], lambda v: v.attributes['device_identifier'])
+        print('[collector.dataset.collectors]: Device OS = %d ' % len(d))
+        if outfile is not None:
+            from vipy.metrics import pie
+            pie(d.values(), d.keys(), explode=None, outfile=outfile,  shadow=False)
+        return d
+
+    def device(self, outfile=None, n=24, fontsize=7):
+        d_all = vipy.util.countby([v for v in self.list() if v.hasattribute('device_type') and v.attributes['device_type'] != 'unrecognized'], lambda v: v.attributes['device_type'])
+        
+        topk = [k for (k,v) in sorted(list(d_all.items()), key=lambda x: x[1])[-n:]] 
+        other = np.sum([v for (k,v) in d_all.items() if k not in set(topk)])
+
+        d = {k:v for (k,v) in d_all.items() if k in set(topk)}
+        d.update( {'Other':other} )
+        d = dict(sorted(list(d.items()), key=lambda x: x[1]))
+
+        print('[collector.dataset.collectors]: Device types = %d ' % len(d_all))
+        print('[collector.dataset.collectors]: Top-%d Device types = %s ' % (n, str(topk)))
+
+        if outfile is not None:
+            from vipy.metrics import pie
+            pie(d.values(), d.keys(), explode=None, outfile=outfile,  shadow=False, legend=False, fontsize=fontsize, rotatelabels=False)
+        return d
+        
+    def duration_in_frames(self, outfile=None):
+        assert self.isvipy()
+        d = {k:np.mean([v[1] for v in v]) for (k,v) in vipy.util.groupbyasdict([(a.category(), len(a)) for v in self.list() for a in v.activitylist()], lambda x: x[0]).items()}
+        if outfile is not None:
+            from vipy.metrics import histogram
+            histogram(d.values(), d.keys(), outfile=outfile, ylabel='Duration (frames)', fontsize=6)            
+        return d
+
+    def duration_in_seconds(self, outfile=None):
+        assert self.isvipy()
+        d = {k:np.mean([v[1] for v in v]) for (k,v) in vipy.util.groupbyasdict([(a.category(), len(a)/v.framerate()) for v in self.list() for a in v.activitylist()], lambda x: x[0]).items()}
+        if outfile is not None:
+            from vipy.metrics import histogram
+            histogram(d.values(), d.keys(), outfile=outfile, ylabel='Duration (seconds)', fontsize=6)            
+        return d
+
+    def framerate(self, outfile=None):
+        assert self.isvipy()
+        d = vipy.util.countby([int(round(v.framerate())) for v in self.list()], lambda x: x)
+        if outfile is not None:
+            from vipy.metrics import pie
+            pie(d.values(), ['%d fps' % k for k in d.keys()], explode=None, outfile=outfile,  shadow=False)
+        return d
+        
+        
+    def density(self, outfile=None):
+        assert self.isvipy()
+        d = [len(v) for (k,v) in vipy.util.groupbyasdict(self.list(), lambda v: v.videoid()).items()]
+        d = vipy.util.countby(d, lambda x: x)
+        if outfile is not None:
+            from vipy.metrics import histogram
+            histogram(d.values(), d.keys(), outfile=outfile, ylabel='Frequency', xlabel='Activities per video', fontsize=6, xrot=None)            
+        return d
+        
+
     def stats(self, outdir=None, object_categories=['Person', 'Car'], plot=True):
         """Analyze the dataset to return helpful statistics and plots"""
         assert self.isvipy()
