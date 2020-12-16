@@ -226,21 +226,22 @@ class PIP_250k(pl.LightningModule, ActivityRecognition):
 
     def training_step(self, batch, batch_nb):
         (x,Y) = batch  
-
         y_hat = self.forward(x)
+
+        (loss, n_valid) = (0, 0)
         C = torch.tensor([self._class_to_weight[k] for (k,v) in sorted(self._class_to_index.items(), key=lambda x: x[1])], device=y_hat.device)  # inverse class frequency        
-        loss = 0
-        
         for (yh, s) in zip(y_hat, Y):
-            if json.loads(s) is None:
+            labels = json.loads(s)
+            if labels is None:
                 continue  # skip me
-            lbllist = [l for lbl in json.loads(s) for l in lbl]  # list of multi-labels withing clip (unpack from JSON to use default collate_fn)
+            lbllist = [l for lbl in labels for l in lbl]  # list of multi-labels within clip (unpack from JSON to use default collate_fn)
             lbl_frequency = vipy.util.countby(lbllist, lambda x: x)  # frequency within clip
             lbl_weight = {k:v/float(len(lbllist)) for (k,v) in lbl_frequency.items()}  # multi-label likelihood within clip, sums to one
             for (y,w) in lbl_weight.items():
                 # Pick all labels normalized (https://papers.nips.cc/paper/2019/file/da647c549dde572c2c5edc4f5bef039c-Paper.pdf)
                 loss += float(w)*F.cross_entropy(torch.unsqueeze(yh, dim=0), torch.tensor([self._class_to_index[y]], device=y_hat.device), weight=C)
-        loss = loss / float(len(y_hat))  # batch reduction: mean
+            n_valid += 1
+        loss = loss / float(max(1, n_valid))  # batch reduction: mean
         return {'loss': loss}
         
     def validation_step(self, batch, batch_nb):
