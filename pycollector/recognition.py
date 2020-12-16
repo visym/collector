@@ -281,42 +281,47 @@ class PIP_250k(pl.LightningModule, ActivityRecognition):
         return self
 
     @staticmethod
-    def _totensor(v, training, validation, input_size, num_frames, mean, std, noflip=None):
+    def _totensor(v, training, validation, input_size, num_frames, mean, std, noflip=None, show=False):
         assert isinstance(v, vipy.video.Scene), "Invalid input"
 
         try:
+            v = v.download() if (not v.hasfilename() and v.hasurl()) else v  # fetch it, but do not do this during training!
             maxframes = v.duration_in_frames_of_videofile()
             (i,j) = (v.primary_activity().startframe(), v.primary_activity().endframe())
             startframe = max(0, np.random.randint(i-(num_frames//2), j-(num_frames//2)))
-            vc = v.clone().clip(startframe, min(maxframes-1, startframe+num_frames))  # may fail
+            vc = v.clone().clip(startframe, min(maxframes-1, startframe+num_frames))  # may fail                                 
             vc = vc.trackcrop(dilate=1.2, maxsquare=True)  # may be None
-            
+
             if training:
-                vc = vc.fliplr() if (np.random.rand() > 0.5 and (noflip is None or vc.category() not in noflip)) else vc
+                #vc = vc.fliplr() if (np.random.rand() > 0.5 and (noflip is None or vc.category() not in noflip)) else vc
                 vc = vc.resize(input_size, input_size)  
             elif validation:
                 vc = vc.resize(input_size, input_size)
             else:
                 vc = vc.resize(input_size, input_size)
 
+            if show:
+                vc.clone().mindim(512).show(timestamp=True)
+                b = vc.binarymask().frame(0).rgb().show(figure='binary mask: frame 0')
+                
             vc = vc.load().normalize(mean=mean, std=std, scale=1.0/255.0)  # [0,255] -> [0,1], triggers load()        
-            (t,lbl) = vc.torch(startframe=0, length=num_frames, boundary='cyclic', order='cdhw', withlabel=True)  # (c=3)x(d=num_frames)x(H=input_size)x(W=input_size) 
-
+            (t,lbl) = vc.torch(startframe=0, length=num_frames, boundary='cyclic', order='cdhw', withlabel=True)  # (c=3)x(d=num_frames)x(H=input_size)x(W=input_size)             
             b = vc.binarymask().bias(-0.5).torch(startframe=0, length=num_frames, boundary='cyclic', order='cdhw')  # (c=1)x(d=num_frames)x(H=input_size)x(W=input_size), in [-0.5, 0.5]
             t = torch.cat((t,b), dim=0)  # (c=4) x (d=num_frames) x (H=input_size) x (W=input_size)
         except:
             print('ERROR: %s' % (str(v)))
             t = torch.zeros(4, num_frames, input_size, input_size)  # skip me
             lbl = None
-
+            
         if training or validation:
             return (t, json.dumps(lbl))  # json to use default collate_fn
         else:
             return t
 
-    def totensor(self, v=None, training=False, validation=False):
+    def totensor(self, v=None, training=False, validation=False, show=False):
         """Return captured lambda function if v=None, else return tensor"""    
         assert v is None or isinstance(v, vipy.video.Scene), "Invalid input"
-        f = lambda v, num_frames=self._num_frames, input_size=self._input_size, mean=self._mean, std=self._std, training=training, validation=validation: PIP_250k._totensor(v, training, validation, input_size, num_frames, mean, std, noflip=['car_turns_left', 'car_turns_right'])
+        f = (lambda v, num_frames=self._num_frames, input_size=self._input_size, mean=self._mean, std=self._std, training=training, validation=validation, show=show:
+             PIP_250k._totensor(v, training, validation, input_size, num_frames, mean, std, noflip=['car_turns_left', 'car_turns_right'], show=show))
         return f(v) if v is not None else f
     
