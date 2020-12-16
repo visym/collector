@@ -103,13 +103,14 @@ class Datasets():
         self._archive_ext = ['pkl', 'json']
         self._strict = strict
         self._datasets = {}
-        
+
+        # FIXME: this expression is broken and will not work in general
         self._schema = (lambda dstdir, v, k=None, indir=self._indir, ext=None, category=None, newfile=True: os.path.join(indir, dstdir, 
                                                                                                                          v.category() if category is None else category,
-                                                                                                                         ('%s%s.%s' % (v.attributes['video_id'] if v.hasattribute('video_id') else filebase(v.filename()),
+                                                                                                                         (('%s%s.%s' % (v.attributes['video_id'] if v.hasattribute('video_id') else filebase(v.filename()),
                                                                                                                                        ('_%s' % str(k)) if k is not None else '', 
                                                                                                                                        (fileext(v.filename(), withdot=False) if ext is None else str(ext))))
-                                                                                                                         if newfile is True else (filetail(v.filename())+('.%s' % ext) if ext is not None else '')))
+                                                                                                                         if newfile is True else filetail(v.filename()))))
         
         assert os.path.isdir(self._indir), "invalid input directory"
 
@@ -186,10 +187,11 @@ class Datasets():
         f = lambda net,v,b=batchsize: net.gpu(list(range(torch.cuda.device_count())), batchsize=b*torch.cuda.device_count())(v, d_category_to_object[v.category()]) if v.category() in d_category_to_object else v
         return self.map(src, f, model=model, dst=dst)
 
-    def instance_mining(self, src, dstdir=None, dst=None, batchsize=1, conf=0.05, iou=0.6, maxhistory=5, smoothing=None, objects=None, mincover=0.6, maxconf=0.2):
+    def instance_mining(self, src, dstdir=None, dst=None, batchsize=1, minconf=0.01, miniou=0.6, maxhistory=5, smoothing=None, objects=None, trackconf=0.05):
         model = pycollector.detection.MultiscaleVideoTracker(batchsize=batchsize)
-        dstdir = dstdir if dstdir is not None else (dst if dst is not None else '%s_instancemining' % (self.load(src).id()))
-        f_process = lambda net,v,o=objects,f=self._schema,dst=dstdir: net.gpu(list(range(torch.cuda.device_count()))).track(v, objects=o, verbose=False, conf=conf, iou=iou, maxhistory=maxhistory, smoothing=smoothing, mincover=mincover, maxconf=maxconf).pkl(f(dst,v,category='tracks',ext='json',newfile=False)).print()
+        dst = dst if dst is not None else '%s_instancemining' % (self.load(src).id())
+        dstdir = remkdir(os.path.join(self._indir, dst))
+        f_process = lambda net,v,o=objects,dstdir=dstdir: net.gpu(list(range(torch.cuda.device_count()))).track(v, objects=o, verbose=False, minconf=minconf, miniou=miniou, maxhistory=maxhistory, smoothing=smoothing, trackconf=trackconf).pkl(os.path.join(dstdir, '%s.pkl' % v.videoid())).print()
         return self.map(src, f_process, model=model, dst=dst)  
 
     def stabilize_refine_activityclip(self, src, dst, batchsize=1, dt=5, minlength=5, maxsize=512*3):
@@ -312,10 +314,17 @@ class Datasets():
         V = [v for v in V if (v is not None) and (not v.hasattribute('unrefined'))]  # remove videos that failed refinement
         V = [v.activityfilter(lambda a: any([a.hastrack(t) and len(t)>minlength and t.during(a.startframe(), a.endframe()) for t in v.tracklist()])) for v in V]  # get rid of activities without tracks greater than dt
         return self.new(V,dst).save(dst)
-            
+
+    def nondegenerate(self, src, dst=None):
+        dst = dst if dst is not None else '%s_nondegenerate' % self.load(src).id()
+        f = lambda v: v.clone() if ((v is not None) and (v.trackbox() is not None) and (not v.trackbox().intersection(v.clone().framebox(), strict=False).isdegenerate())) else None
+        return self.map(src, f, dst=dst, ascompleted=False)
+
     def trackcrop(self, src, dst=None, dilate=1.0, maxsquare=True):
-        dst = dst if dst is not None else '%s_trackcrop' % src
-        f_saveas = lambda v, dst=dst, src=src, f=self._schema: f(dst, v, newfile=False)
+        dst = dst if dst is not None else '%s_trackcrop' % self.load(src).id()
+        
+        # FIXME: schema is broken
+        f_saveas = lambda v, dst=dst, indir=self._indir: os.path.join(indir, dst, v.category(), filetail(v.filename()))
         f_trackcrop = lambda v, d=dilate, f=f_saveas, b=maxsquare: v.clone().trackcrop(dilate=d, maxsquare=b).saveas(f(v), flush=True).pack().print(sleep=1) if v is not None and v.clone().trackfilter(lambda t: len(t)>0).hastracks() else None
         return self.map(src, f_trackcrop, ascompleted=False).id(dst)
 
@@ -500,8 +509,11 @@ class Dataset():
         print('[pycollector.dataset]: %s, MD5=%s' % (tarfile, vipy.downloader.generate_md5(tarfile)))
         return tarfile
         
-    def save(self, outfile, nourl=False, castas=None, relpath=False, noadmin=False, strict=True, significant_digits=2, noemail=True, flush=True):
-        objlist = self._objlist
+    def save(self, outfile, nourl=False, castas=None, relpath=False, noadmin=False, strict=True, significant_digits=2, noemail=True, flush=True):    
+        n = len([v for v in self._objlist if v is None])
+        if n > 0:
+            print('[pycollector.dataset]: removing %d invalid elements' % n)
+        objlist = [v for v in self._objlist if v is not None]  
         if relpath or nourl or noadmin or flush or noemail or (significant_digits is not None):
             assert self.isvipy(), "Invalid input"
         if relpath:
@@ -518,7 +530,7 @@ class Dataset():
             objlist = [castas.cast(v) for v in objlist]                     
         if significant_digits is not None:
             assert isinstance(significant_digits, int) and significant_digits >= 1, "Invalid input"
-            objlist = [o.trackmap(lambda t: t.significant_digits(significant_digits)) for o in objlist]
+            objlist = [o.trackmap(lambda t: t.significant_digits(significant_digits)) if o is not None else o for o in objlist]
         if noemail:
             for o in objlist:
                 for (k,v) in o.attributes.items():
@@ -569,8 +581,9 @@ class Dataset():
         self._objlist = [v for v in self._objlist if f(v)]
         return self
 
-    def take(self, n):
-        return [self._objlist[k] for k in random.sample(range(0, len(self)), n)]
+    def take(self, n, category=None):
+        objlist = self._objlist if category is None else [v for v in self._objlist if v.category() == category]
+        return [objlist[k] for k in random.sample(range(0, len(objlist)), n)]
     
     def split(self, trainfraction=0.8, testfraction=0.1, valfraction=0.1, seed=42):
         """Split the dataset by category by fraction so that video IDs are never in the same set"""
@@ -596,7 +609,7 @@ class Dataset():
         return vipy.util.writecsv(csv, csvfile) if csvfile is not None else (csv[0], csv[1:])
 
     def map(self, f_transform, model=None, dst=None, checkpoint=False, strict=False, ascompleted=True):        
-        B = Batch(self.list(), strict=strict, as_completed=ascompleted, checkpoint=checkpoint, warnme=False)
+        B = Batch(self.list(), strict=strict, as_completed=ascompleted, checkpoint=checkpoint, warnme=False, minscatter=1000000)
         V = B.map(f_transform).result() if not model else B.scattermap(f_transform, model).result() 
         if any([v is None for v in V]):
             print('pycollector.datasets][%s->]: %d failed' % (str(self), len([v for v in V if v is None])))
@@ -613,6 +626,83 @@ class Dataset():
     def count(self):
         assert self.isvipy()
         return vipy.util.countby(self.list(), lambda v: v.category())
+
+    def collectors(self, outfile=None):
+        assert self.isvipy()
+        d = vipy.util.countby(self.list(), lambda v: v.attributes['collector_id'])
+        f = lambda x,n: len([k for (k,v) in d.items() if int(v) >= n])
+        print('[collector.dataset.collectors]: Collectors = %d ' % f(d,0))
+        print('[collector.dataset.collectors]: Collectors with >10 submissions = %d' % f(d,10))
+        print('[collector.dataset.collectors]: Collectors with >100 submissions = %d' % f(d,100))
+        print('[collector.dataset.collectors]: Collectors with >1000 submissions = %d' % f(d,1000))
+        print('[collector.dataset.collectors]: Collectors with >10000 submissions = %d' % f(d,10000))
+
+        if outfile is not None:
+            from vipy.metrics import histogram
+            histogram(d.values(), list(range(len(d.keys()))), outfile=outfile, ylabel='Submissions', xlabel='Collector ID', xrot='vertical', fontsize=3, xshow=False)            
+        return d
+
+    def os(self, outfile=None):
+        assert self.isvipy()
+        d = vipy.util.countby([v for v in self.list() if v.hasattribute('device_identifier')], lambda v: v.attributes['device_identifier'])
+        print('[collector.dataset.collectors]: Device OS = %d ' % len(d))
+        if outfile is not None:
+            from vipy.metrics import pie
+            pie(d.values(), d.keys(), explode=None, outfile=outfile,  shadow=False)
+        return d
+
+    def device(self, outfile=None, n=24, fontsize=7):
+        d_all = vipy.util.countby([v for v in self.list() if v.hasattribute('device_type') and v.attributes['device_type'] != 'unrecognized'], lambda v: v.attributes['device_type'])
+        
+        topk = [k for (k,v) in sorted(list(d_all.items()), key=lambda x: x[1])[-n:]] 
+        other = np.sum([v for (k,v) in d_all.items() if k not in set(topk)])
+
+        d = {k:v for (k,v) in d_all.items() if k in set(topk)}
+        d.update( {'Other':other} )
+        d = dict(sorted(list(d.items()), key=lambda x: x[1]))
+
+        print('[collector.dataset.collectors]: Device types = %d ' % len(d_all))
+        print('[collector.dataset.collectors]: Top-%d Device types = %s ' % (n, str(topk)))
+
+        if outfile is not None:
+            from vipy.metrics import pie
+            pie(d.values(), d.keys(), explode=None, outfile=outfile,  shadow=False, legend=False, fontsize=fontsize, rotatelabels=False)
+        return d
+        
+    def duration_in_frames(self, outfile=None):
+        assert self.isvipy()
+        d = {k:np.mean([v[1] for v in v]) for (k,v) in vipy.util.groupbyasdict([(a.category(), len(a)) for v in self.list() for a in v.activitylist()], lambda x: x[0]).items()}
+        if outfile is not None:
+            from vipy.metrics import histogram
+            histogram(d.values(), d.keys(), outfile=outfile, ylabel='Duration (frames)', fontsize=6)            
+        return d
+
+    def duration_in_seconds(self, outfile=None):
+        assert self.isvipy()
+        d = {k:np.mean([v[1] for v in v]) for (k,v) in vipy.util.groupbyasdict([(a.category(), len(a)/v.framerate()) for v in self.list() for a in v.activitylist()], lambda x: x[0]).items()}
+        if outfile is not None:
+            from vipy.metrics import histogram
+            histogram(d.values(), d.keys(), outfile=outfile, ylabel='Duration (seconds)', fontsize=6)            
+        return d
+
+    def framerate(self, outfile=None):
+        assert self.isvipy()
+        d = vipy.util.countby([int(round(v.framerate())) for v in self.list()], lambda x: x)
+        if outfile is not None:
+            from vipy.metrics import pie
+            pie(d.values(), ['%d fps' % k for k in d.keys()], explode=None, outfile=outfile,  shadow=False)
+        return d
+        
+        
+    def density(self, outfile=None):
+        assert self.isvipy()
+        d = [len(v) for (k,v) in vipy.util.groupbyasdict(self.list(), lambda v: v.videoid()).items()]
+        d = vipy.util.countby(d, lambda x: x)
+        if outfile is not None:
+            from vipy.metrics import histogram
+            histogram(d.values(), d.keys(), outfile=outfile, ylabel='Frequency', xlabel='Activities per video', fontsize=6, xrot=None)            
+        return d
+        
 
     def stats(self, outdir=None, object_categories=['Person', 'Car'], plot=True):
         """Analyze the dataset to return helpful statistics and plots"""

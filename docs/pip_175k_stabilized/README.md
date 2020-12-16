@@ -9,24 +9,16 @@
 The People in Public dataset is a consented large scale video dataset of people doing things in public places.  Our team has pioneered the use of a 
 custom designed mobile app that combines video collection, activity labeling and bounding box annotation into a single step.  Our goal is to 
 make collecting annotated video datasets as easily and cheaply as recording a video.  Currently, we are collecting a dataset of the MEVA 
-classes (http://mevadata.org).  This package provides a release of this dataset, containing 184,379 annotated activity instances collected by 
+classes (http://mevadata.org).  This package provides a release of this dataset, containing 213,856 annotated activity instances collected by 
 over 150 subjects in 44 countries around the world. 
 
-This dataset contains 184,379 stabilized video clips of 66 classes of activities performed by people in public places.  The activity labels are subsets of the 37 activities in the [Multiview Extended Video with Activities (MEVA)](https://mevadata.org) dataset and is consistent with the [Activities in Extended Video (ActEV)](https://actev.nist.gov/) challenge.  
+This dataset contains 213,856 stabilized video clips of 66 classes of activities performed by people in public places.  The activity labels are subsets of the 37 activities in the [Multiview Extended Video with Activities (MEVA)](https://mevadata.org) dataset and is consistent with the [Activities in Extended Video (ActEV)](https://actev.nist.gov/) challenge.  
 
 [Background stabilization](https://github.com/visym/vipy/blob/bc20f6f32492badd181faa0ccf7b0029f1f63fee/vipy/flow.py#L307-L328) was performed using an affine coarse to fine optical-flow method, followed by [actor bounding box stabilization](https://github.com/visym/collector/blob/adc5486c7f88291b77f9a707a78763c2b5958406/pycollector/detection.py#L177-L236).  Stabilization is designed to minimize distortion for small motions in the region near the center of the actor box.  Remaining stabilization artifacts are due to non-planar scene structure, rolling shutter distortion, and sub-pixel optical flow correspondence errors.  Stabilization artifacts manifest as a subtly shifting background relative to the actor which may affect optical flow based methods.  All stabilizations can be filtered using the provided stabilization residual which measures the quality of the stabilization.  
 
 ## Download
 
-* [pip_175k_stabilized_0.tar.gz (11.5 GB)](https://dl.dropboxusercontent.com/s/h7j4391iyqfo85d/pip_175k_stabilized_0.tar.gz)&nbsp;&nbsp;MD5:99139862b128f9eff9deafd636225442&nbsp;&nbsp;&nbsp;&nbsp;
-* [pip_175k_stabilized_1.tar.gz (11.8 GB)](https://dl.dropboxusercontent.com/s/zwxzdirbp6kvq93/pip_175k_stabilized_1.tar.gz)&nbsp;&nbsp;MD5:95d337019a0dd2f24ee197bc7e371b97&nbsp;&nbsp;&nbsp;&nbsp;
-* [pip_175k_stabilized_2.tar.gz (11.9 GB)](https://dl.dropboxusercontent.com/s/rg9t5edfmyp6uq0/pip_175k_stabilized_2.tar.gz)&nbsp;&nbsp;MD5:388198296dae0dd7d27d1a3b983f84e9&nbsp;&nbsp;&nbsp;&nbsp;
-* [pip_175k_stabilized_3.tar.gz (11.8 GB)](https://dl.dropboxusercontent.com/s/n82mkbstgidnon7/pip_175k_stabilized_3.tar.gz)&nbsp;&nbsp;MD5:45d52bbd432a10f5cddd4bd1353a2282&nbsp;&nbsp;&nbsp;&nbsp;
-* [pip_175k_stabilized_4.tar.gz (11.8 GB)](https://dl.dropboxusercontent.com/s/gqrricwj3vyp4sc/pip_175k_stabilized_4.tar.gz)&nbsp;&nbsp;MD5:4fdf2aa880771c7bce6f5952017dd6e2&nbsp;&nbsp;&nbsp;&nbsp;
-* [pip_175k_stabilized_5.tar.gz (11.8 GB)](https://dl.dropboxusercontent.com/s/yfkma0kt30810h1/pip_175k_stabilized_5.tar.gz)&nbsp;&nbsp;MD5:30ae8634ec25a6d54d25e8ba94b75361&nbsp;&nbsp;&nbsp;&nbsp;
-<!--- * [pip_175k_stabilized_6-7.tar.gz (20.5 GB)](https://dl.dropboxusercontent.com/s/yoabjhep9g6ozs1/pip_175k_stabilized_6-7.tar.gz)&nbsp;&nbsp;MD5:b18e0ba7d0ea411a1b8ef4fe2e3d8b59&nbsp;&nbsp;&nbsp;&nbsp; --->
-* [pip_175k_stabilized_6-9.tar.gz (41.2 GB)](https://dl.dropboxusercontent.com/s/g2qzku5uw57q9d8/pip_175k_stabilized_6-9.tar.gz)&nbsp;&nbsp;MD5:68ef20fbeeba6b9b9872610bca72584b&nbsp;&nbsp;&nbsp;&nbsp;
-
+* [pip_175k_stabilized.tar.gz (109.5 GB)](https://dl.dropboxusercontent.com/s/sqp2bsj7sw31qge/pip_175k_stabilized.tar.gz)&nbsp;&nbsp;MD5:84ae88d9e6a59a58c568c533c947caf2&nbsp;&nbsp;Updated:07Dec20
 
 ## Quickstart
 
@@ -36,7 +28,7 @@ To extract the smallest square video crop containing the stabilized track for a 
 
 ```python
 import vipy
-v = vipy.util.load('/path/to/stabilized.pkl')[0]   # load videos and take one
+v = vipy.util.load('/path/to/stabilized.json')[0]   # load videos and take one
 vs = v.crop(v.trackbox(dilate=1.0).maxsquare()).resize(224,224).saveas('/path/to/out.mp4')
 vs.getattribute('stabilize')   # returns a stabilization residual (bigger is worse)
 ```
