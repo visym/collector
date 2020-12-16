@@ -38,6 +38,9 @@ vs = v.crop(v.trackbox(dilate=1.0).maxsquare()).resize(224,224).saveas('/path/to
 vs.getattribute('stabilize')   # returns a stabilization residual (bigger is worse)
 ```
 
+We recommend using [a small sample of ten instances per class](pip_250k_full_stabilized_sampler.json.gz) for testing your pipeline, then loading the entire dataset into memory on your training cluster. 
+
+
 ## Best Practices
 
 [Notebook demo](https://htmlpreview.github.io/?https://github.com/visym/collector/blob/master/docs/pip_175k/best_practices.html)&nbsp;[[html]](https://htmlpreview.github.io/?https://github.com/visym/collector/blob/master/docs/pip_175k/best_practices.html)[[ipynb]](https://github.com/visym/collector/blob/master/docs/pip_175k/best_practices.ipynb) showing best practices for using the PIP-175k dataset for training.
@@ -52,7 +55,14 @@ vs.getattribute('stabilize')   # returns a stabilization residual (bigger is wor
 
 * The classes "person_leaves_scene_through_structure" and "person_exits_scene_through_structure" are synonymous and should be merged.  
 * The classes "person_comes_into_scene_through_structure" and "person_enters_scene_through_structure" are synonymous and should be merged.
+* A small number of videos exhibit a face detector false alarm which looks like a large pixelated circle which lasts a single frame.  This is the in-app face blurring incorrectly redacting the background.  You can filter these videos by removing videos v with 
 
+```python
+v.getattribute('blurred faces') > 0
+```
+
+* A small number of videos exhibit bounding boxes which appear to lag a fast moving object by approximately 5 frames (e.g. F52B3767-7724-4117-9559-796320D689EB_0). 
+* A small number of videos exhibit stabilization that does not include enough padding, so that the tracked bounding box falls within the black border.  This typically occurs with videos with large motions, such as vehicle turning classes.
 
 # License
 
