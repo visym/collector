@@ -11,6 +11,7 @@ from pycollector.globals import print
 from pycollector.model.pyvideoresearch.bases.resnet50_3d import ResNet503D, ResNet3D, Bottleneck3D
 import pycollector.model.ResNets_3D_PyTorch.resnet
 import pycollector.label
+import pycollector.dataset
 
 import os
 import torch
@@ -21,7 +22,7 @@ import torch.utils.data
 from torch.utils.data import DataLoader, random_split, Dataset
 from torchvision import transforms
 import pytorch_lightning as pl
-
+import json
 
 
 
@@ -163,7 +164,7 @@ class MevaActivityRecognition(ActivityRecognition):
                                  'person_transfers_object_to_person': 50,
                                  'person_unloads_car': 51,
                                  'person_unloads_motorcycle': 52}
-        
+
         
         
     def __call__(self, video=None, tensor=None):
@@ -199,9 +200,10 @@ class PIP_250k(pl.LightningModule, ActivityRecognition):
         if deterministic:
             np.random.seed(42)
 
-        # Powerset
-        self._class_to_index = pycollector.label.pip_250k_powerset()
-        
+        self._class_to_weight = {'car_drops_off_person': 0.5415580813018052, 'car_picks_up_person': 0.5166285035486872, 'car_reverses': 0.4864531915292076, 'car_starts': 0.4373510029809646, 'car_stops': 0.2710265819171847, 'car_turns_left': 0.8712633574636675, 'car_turns_right': 0.3827979879057864, 'hand_interacts_with_person_highfive': 1.4962896036348539, 'person': 0.08372274235167537, 'person_abandons_object': 0.5294114478840813, 'person_carries_heavy_object': 0.3982262588212442, 'person_closes_car_door': 0.30026000397668684, 'person_closes_car_trunk': 0.6329073059937789, 'person_closes_facility_door': 0.3572828721142877, 'person_embraces_person': 0.321974093136734, 'person_enters_car': 0.30481062242606516, 'person_enters_scene_through_structure': 0.31850059486555565, 'person_exits_car': 0.4071776409464214, 'person_exits_scene_through_structure': 0.38887859050533025, 'person_holds_hand': 0.37311850556431675, 'person_interacts_with_laptop': 0.5288033409750182, 'person_loads_car': 1.217126295244549, 'person_opens_car_door': 0.24504116978076299, 'person_opens_car_trunk': 1.0934851888105013, 'person_opens_facility_door': 0.4955138087004537, 'person_picks_up_object_from_floor': 1.1865967553059953, 'person_picks_up_object_from_table': 3.9581702614257934, 'person_purchases_from_cashier': 3.795407604809639, 'person_purchases_from_machine': 3.013281383565209, 'person_puts_down_object_on_floor': 0.5693359450623614, 'person_puts_down_object_on_shelf': 8.586138553443124, 'person_puts_down_object_on_table': 2.2724770752049683, 'person_reads_document': 0.3950204136071002, 'person_rides_bicycle': 1.120112034972008, 'person_shakes_hand': 0.7939816984366945, 'person_sits_down': 0.475769278518198, 'person_stands_up': 0.9511469708058823, 'person_steals_object_from_person': 0.6749376770458883, 'person_talks_on_phone': 0.1437150138699926, 'person_talks_to_person': 0.12953931093794052, 'person_texts_on_phone': 0.34688865531083296, 'person_transfers_object_to_car': 2.2351615915353835, 'person_transfers_object_to_person': 0.6839705972370579, 'person_unloads_car': 0.6080991393803349, 'vehicle': 0.060641247145963084}
+
+        self._class_to_index = {'car_drops_off_person': 0, 'car_picks_up_person': 1, 'car_reverses': 2, 'car_starts': 3, 'car_stops': 4, 'car_turns_left': 5, 'car_turns_right': 6, 'hand_interacts_with_person_highfive': 7, 'person': 8, 'person_abandons_object': 9, 'person_carries_heavy_object': 10, 'person_closes_car_door': 11, 'person_closes_car_trunk': 12, 'person_closes_facility_door': 13, 'person_embraces_person': 14, 'person_enters_car': 15, 'person_enters_scene_through_structure': 16, 'person_exits_car': 17, 'person_exits_scene_through_structure': 18, 'person_holds_hand': 19, 'person_interacts_with_laptop': 20, 'person_loads_car': 21, 'person_opens_car_door': 22, 'person_opens_car_trunk': 23, 'person_opens_facility_door': 24, 'person_picks_up_object_from_floor': 25, 'person_picks_up_object_from_table': 26, 'person_purchases_from_cashier': 27, 'person_purchases_from_machine': 28, 'person_puts_down_object_on_floor': 29, 'person_puts_down_object_on_shelf': 30, 'person_puts_down_object_on_table': 31, 'person_reads_document': 32, 'person_rides_bicycle': 33, 'person_shakes_hand': 34, 'person_sits_down': 35, 'person_stands_up': 36, 'person_steals_object_from_person': 37, 'person_talks_on_phone': 38, 'person_talks_to_person': 39, 'person_texts_on_phone': 40, 'person_transfers_object_to_car': 41, 'person_transfers_object_to_person': 42, 'person_unloads_car': 43, 'vehicle': 44}
+    
         if pretrained:
             self._load_pretrained()
             self.net.fc = nn.Linear(self.net.fc.in_features, self.num_classes())
@@ -219,18 +221,30 @@ class PIP_250k(pl.LightningModule, ActivityRecognition):
         return self.net(x)  # lighting handles device
 
     def configure_optimizers(self):
-        optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
+        optimizer = torch.optim.AdamW(self.parameters(), lr=1e-3)
         return optimizer
 
     def training_step(self, batch, batch_nb):
-        (x,y) = batch
-        y_hat = self.forward(x)
-        return {'loss': F.cross_entropy(y_hat, y)}
+        (x,Y) = batch  
 
-    def validation_step(self, batch, batch_nb):
-        (x,y) = batch
         y_hat = self.forward(x)
-        return {'val_loss': F.cross_entropy(y_hat, y)}
+        C = torch.tensor([self._class_to_weight[k] for (k,v) in sorted(self._class_to_index.items(), key=lambda x: x[1])], device=y_hat.device)  # inverse class frequency        
+        loss = 0
+        
+        for (yh, s) in zip(y_hat, Y):
+            if json.loads(s) is None:
+                continue  # skip me
+            lbllist = [l for lbl in json.loads(s) for l in lbl]  # list of multi-labels withing clip (unpack from JSON to use default collate_fn)
+            lbl_frequency = vipy.util.countby(lbllist, lambda x: x)  # frequency within clip
+            lbl_weight = {k:v/float(len(lbllist)) for (k,v) in lbl_frequency.items()}  # multi-label likelihood within clip, sums to one
+            for (y,w) in lbl_weight.items():
+                # Pick all labels normalized (https://papers.nips.cc/paper/2019/file/da647c549dde572c2c5edc4f5bef039c-Paper.pdf)
+                loss += float(w)*F.cross_entropy(torch.unsqueeze(yh, dim=0), torch.tensor([self._class_to_index[y]], device=y_hat.device), weight=C)
+        loss = loss / float(len(y_hat))  # batch reduction: mean
+        return {'loss': loss}
+        
+    def validation_step(self, batch, batch_nb):
+        return {'val_loss': self.training_step(batch, batch_nb)['loss']}
 
     def validation_end(self, outputs):
         avg_loss = torch.stack([x['val_loss'] for x in outputs]).mean()
@@ -266,46 +280,42 @@ class PIP_250k(pl.LightningModule, ActivityRecognition):
         return self
 
     @staticmethod
-    def _totensor(v, training, validation, input_size, num_frames, mean, std, d_class_to_index=None):
-        #assert isinstance(v, vipy.video.Scene), "Invalid input"
+    def _totensor(v, training, validation, input_size, num_frames, mean, std, noflip=None):
+        assert isinstance(v, vipy.video.Scene), "Invalid input"
 
-        max_frames = v.duration_in_frames_of_videofile()
-        startframe = np.random.randint(max_frames-num_frames-1) if (max_frames-num_frames-1)>0 else 0
-        v = v.clip(startframe, startframe+num_frames)
-        v = v.crop(v.trackbox().maxsquare())
+        try:
+            maxframes = v.duration_in_frames_of_videofile()
+            (i,j) = (v.primary_activity().startframe(), v.primary_activity().endframe())
+            startframe = max(0, np.random.randint(i-(num_frames//2), j-(num_frames//2)))
+            vc = v.clone().clip(startframe, min(maxframes-1, startframe+num_frames))  # may fail
+            vc = vc.trackcrop(dilate=1.2, maxsquare=True)  # may be None
+            
+            if training:
+                vc = vc.fliplr() if (np.random.rand() > 0.5 and (noflip is None or vc.category() not in noflip)) else vc
+                vc = vc.resize(input_size, input_size)  
+            elif validation:
+                vc = vc.resize(input_size, input_size)
+            else:
+                vc = vc.resize(input_size, input_size)
 
-        if training:
-            v = v.fliplr() if np.random.rand() > 0.5 else v
-            v = v.resize(input_size, input_size)  
-        elif validation:
-            v = v.resize(input_size, input_size)
-        else:
-            v = v.resize(input_size, input_size)
+            vc = vc.load().normalize(mean=mean, std=std, scale=1.0/255.0)  # [0,255] -> [0,1], triggers load()        
+            (t,lbl) = vc.torch(startframe=0, length=num_frames, boundary='cyclic', order='cdhw', withlabel=True)  # (c=3)x(d=num_frames)x(H=input_size)x(W=input_size) 
 
-        v = v.load().normalize(mean=mean, std=std, scale=1.0/255.0)  # [0,255] -> [0,1], triggers load()        
-        (t,lbl) = v.torch(startframe=0, length=num_frames, boundary='cyclic', order='cdhw', withlabel=True)  # (c=3)x(d=num_frames)x(H=input_size)x(W=input_size) 
-        b = v.clone().binarymask().bias(-0.5).torch(startframe=0, length=num_frames, boundary='cyclic', order='cdhw')  # (c=1)x(d=num_frames)x(H=input_size)x(W=input_size), in [-0.5, 0.5]
-        t = torch.cat((t,b), dim=0)  # (c=4) x (d=num_frames) x (H=input_size) x (W=input_size)
+            b = vc.binarymask().bias(-0.5).torch(startframe=0, length=num_frames, boundary='cyclic', order='cdhw')  # (c=1)x(d=num_frames)x(H=input_size)x(W=input_size), in [-0.5, 0.5]
+            t = torch.cat((t,b), dim=0)  # (c=4) x (d=num_frames) x (H=input_size) x (W=input_size)
+        except:
+            print('ERROR: %s' % (str(v)))
+            t = torch.zeros(4, num_frames, input_size, input_size)  # skip me
+            lbl = None
 
         if training or validation:
-            assert d_class_to_index is not None, "Invalid input"
-            return (t, d_class_to_index[vipy.util.most_frequent(lbl)])
+            return (t, json.dumps(lbl))  # json to use default collate_fn
         else:
             return t
 
     def totensor(self, v=None, training=False, validation=False):
         """Return captured lambda function if v=None, else return tensor"""    
         assert v is None or isinstance(v, vipy.video.Scene), "Invalid input"
-        f = lambda v, num_frames=self._num_frames, input_size=self._input_size, mean=self._mean, std=self._std, training=training, validation=validation, d=self._class_to_index: PIP_250k._totensor(v, training, validation, input_size, num_frames, mean, std, d)
+        f = lambda v, num_frames=self._num_frames, input_size=self._input_size, mean=self._mean, std=self._std, training=training, validation=validation: PIP_250k._totensor(v, training, validation, input_size, num_frames, mean, std, noflip=['car_turns_left', 'car_turns_right'])
         return f(v) if v is not None else f
     
-    def train(self, trainset, valset=None, gpus=None, num_workers=1, batch_size=1, outdir='.'):
-        """Default training options"""
-        assert isinstance(trainset, pycollector.dataset.Dataset)
-        assert set(self.classlist()) == trainset.classlist()
-        assert valset is None or isinstance(valset, pycollector.dataset.Dataset)                
-        assert valset is None or set(valset.classlist()).issubset(set(self.classlist()))
-        
-        trainloader = DataLoader(trainset.totorch(self.totensor(training=True), num_workers=num_workers, batch_size=batch_size, pin_memory=True))
-        valloader = None if valset is None else DataLoader(valset.totorch(self.totensor(validation=True), num_workers=num_workers, batch_size=batch_size, pin_memory=True))
-        return pl.Trainer(gpus=gpus, accelerator='dp', default_root_dir=outdir).fit(self, trainloader, valloader)

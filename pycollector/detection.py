@@ -120,26 +120,31 @@ class Yolov5(TorchNet):
         assert len(t) <= self.batchsize(), "Invalid batch size"
         t = t.pin_memory() if self.isgpu() else t
         todevice = [b.to(d, non_blocking=True) for (b,d) in zip(t.split(self._batchsize) , self._devices)]  # async?
-        fromdevice = [m(b)[0] for (m,b) in zip(self._models, todevice)]   # async?
-        t_out = torch.cat([r.detach().cpu() for r in fromdevice], dim=0).numpy()
-        
-        #t_out = super().__call__(t).numpy()   # parallel multi-GPU evaluation, using TorchNet(), do not use because this network returns tuples
+        fromdevice = [m(b)[0] for (m,b) in zip(self._models, todevice)]     # detection!
+        t_out = [torch.squeeze(t, dim=0) for d in fromdevice for t in torch.split(d, 1, 0)]   # unpack batch to list of detections per image
+        t_out = [t[t[:,4]>conf].detach().cpu().numpy() for t in t_out]  # filter on device, then pull back to CPU 
 
         for (im, dets) in zip(imlist, t_out):
-            k_class = np.argmax(dets[:,5:], axis=1).flatten().tolist()
-            k_det = np.argwhere((dets[:,4] > conf).flatten() & np.array([((objects is None) or (self._index2cls[k] in set(objects))) for k in k_class])).flatten().tolist()
-            objectlist = [vipy.object.Detection(xcentroid=float(dets[k][0]),
-                                                ycentroid=float(dets[k][1]),
-                                                width=float(dets[k][2]),
-                                                height=float(dets[k][3]),
-                                                confidence=float(dets[k][4]),
-                                                category='%s' % self._index2cls[k_class[k]],
-                                                id=True)
-                          for k in k_det]
+            if len(dets) > 0:
+                k_class = np.argmax(dets[:,5:], axis=1).flatten().tolist()
+                k_det = np.argwhere((dets[:,4] > conf).flatten() & np.array([((objects is None) or (self._index2cls[k] in set(objects))) for k in k_class])).flatten().tolist()
+                objectlist = [vipy.object.Detection(xcentroid=float(dets[k][0]),
+                                                    ycentroid=float(dets[k][1]),
+                                                    width=float(dets[k][2]),
+                                                    height=float(dets[k][3]),
+                                                    confidence=float(dets[k][4]),
+                                                    category='%s' % self._index2cls[k_class[k]],
+                                                    id=True)
+                              for k in k_det]
+                
+                scale = max(im.shape()) / float(self._mindim)  # to undo
+                objectlist = [obj.rescale(scale) for obj in objectlist]
+            else:
+                objectlist = []
 
-            scale = max(im.shape()) / float(self._mindim)  # to undo
-            objectlist = [obj.rescale(scale) for obj in objectlist]
-            imd = im.clone().array(im.numpy()).objects(objectlist).nms(conf, iou)  # clone for shared attributese
+            imd = im.clone().array(im.numpy()).objects(objectlist) # clone for shared attributese
+            if iou > 0:
+                imd = imd.nms(conf, iou)  
             imlistdets.append(imd if not union else imd.union(im))
             
         return imlistdets if self._batchsize > 1 else imlistdets[0]
@@ -230,7 +235,7 @@ class MultiscaleObjectDetector(ObjectDetector):
             imlist_multiscale.append(imcoarse+imfine)
             imlist_multiscale_flat.extend(imcoarse + [im.maxsquare().cornerpadcrop(n,n) for im in imfine])
 
-        imlistdet_multiscale_flat = [im for iml in chunklistbysize(imlist_multiscale_flat, self.batchsize()) for im in tolist(f(iml, conf=conf, iou=iou, objects=objects))]
+        imlistdet_multiscale_flat = [im for iml in chunklistbysize(imlist_multiscale_flat, self.batchsize()) for im in tolist(f(iml, conf=conf, iou=0, objects=objects))]
 
         imlistdet = []
         for (k, (iml, imb, nf, nc)) in enumerate(zip(imlist, imlist_multiscale, n_fine, n_coarse)):

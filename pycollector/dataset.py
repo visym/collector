@@ -145,8 +145,11 @@ class Datasets():
         else:
             return self.reload(src, format)
 
-    def new(self, objlist, id):
-        return self.cache(Dataset(objlist, id=id))
+    def new(self, objlist, id=None):
+        """Create a new dataset, cache it and return Dataset()"""
+        d = Dataset(objlist, id=id)
+        self.cache(d)
+        return d
 
     def cached(self):
         return list(self._datasets.keys())
@@ -196,7 +199,7 @@ class Datasets():
 
     def stabilize_refine_activityclip(self, src, dst, batchsize=1, dt=5, minlength=5, maxsize=512*3):
         from vipy.flow import Flow
-        model = pycollector.detection.VideoProposalRefinement(batchsize=batchsize)  # =8 (0046) =20 (0053)
+        model = pycollector.detection.VideoProposalRefinement(batchsize=batchsize)  
         f_process = (lambda net,v,dt=dt,f=self._schema,dst=dst,maxsize=maxsize: 
                      [a.saveas(f(dst,a,k)).pkl().print() for (k,a) in enumerate(net(Flow(flowdim=256).stabilize(v, strict=False, residual=True, maxsize=maxsize).saveas(f(dst,v), flush=True).pkl().print(),
                                                                                     proposalconf=5E-2, 
@@ -214,14 +217,14 @@ class Datasets():
         V = self.map(src, dst, f_process, model=model, save=False).dataset(dst)
         V = [v for clips in V for v in clips if (v is not None) and not v.hasattribute('unrefined') and not v.hasattribute('unstabilized')]  # unpack clips, remove videos that failed
         V = [v.activityfilter(lambda a: any([a.hastrack(t) and len(t)>minlength and t.during(a.startframe(), a.endframe()) for t in v.tracklist()])) for v in V]  # get rid of activities without tracks greater than dt
-        return self.new(V, dst).save(dst)
+        return self.new(V, dst)
 
     def refine_activityclip_stabilize(self, src, dst, batchsize=1, dt=3, minlength=5, padwidthfrac=1.0, padheightfrac=0.2):
         """Refine the bounding box, split into clips then stabilzie the clips.  This is more memory efficient for stabilization"""
         assert self.has_dataset(src) and self.isloaded(src)
 
         from vipy.flow import Flow
-        model = pycollector.detection.VideoProposalRefinement(batchsize=batchsize)  # =8 (0046) =20 (0053)
+        model = pycollector.detection.VideoProposalRefinement(batchsize=batchsize)  
         f_process = (lambda net,v,dt=dt,f=self._schema,dst=dst,padwidthfrac=padwidthfrac,padheightfrac=padheightfrac: 
                      [Flow(flowdim=256).stabilize(a, strict=False, residual=True, padwidthfrac=padwidthfrac, padheightfrac=padheightfrac, maxsize=None).saveas(f(dst,a,k)).pkl().print()
                       for (k,a) in enumerate(net(v,
@@ -240,7 +243,7 @@ class Datasets():
         V = self.map(src, dst, f_process, model=model, save=False).dataset(dst)
         V = [v for clips in V for v in clips if (v is not None) and not v.hasattribute('unrefined') and not v.hasattribute('unstabilized')]  # unpack clips, remove videos that failed
         V = [v.activityfilter(lambda a: any([a.hastrack(t) and len(t)>minlength and t.during(a.startframe(), a.endframe()) for t in v.tracklist()])) if minlength is not None else v for v in V]  # get rid of activities without tracks greater than dt
-        return self.new(V, dst).save(dst)
+        return self.new(V, dst)
 
     def refine_stabilize(self, src, dst, batchsize=1, dt=3, minlength=5, padwidthfrac=1.0, padheightfrac=0.2):
         """Refine the bounding box, split into clips then stabilzie the clips.  This is more memory efficient for stabilization"""
@@ -256,7 +259,7 @@ class Datasets():
         assert self.has_dataset(src) and self.isloaded(src)
 
         from vipy.flow import Flow
-        model = pycollector.detection.VideoProposalRefinement(batchsize=batchsize)  # =8 (0046) =20 (0053)
+        model = pycollector.detection.VideoProposalRefinement(batchsize=batchsize) 
         f_process = (lambda net,v,dt=dt,f=self._schema,dst=dst,padwidthfrac=padwidthfrac,padheightfrac=padheightfrac: 
                      Flow(flowdim=256).stabilize(net(v,
                                                      proposalconf=5E-2, 
@@ -273,10 +276,10 @@ class Datasets():
 
         V = self.map(src, dst, f_process, model=model, save=False).dataset(dst)
         V = [v for v in V if (v is not None) and not v.hasattribute('unrefined') and not v.hasattribute('unstabilized')]  # remove videos that failed
-        return self.new(V, dst).save(dst)
+        return self.new(V, dst)
     
     def refine_activityclip(self, src, dst, batchsize=1, dt=5, minlength=5):
-        model = pycollector.detection.VideoProposalRefinement(batchsize=batchsize)  # =8 (0046) =20 (0053)
+        model = pycollector.detection.VideoProposalRefinement(batchsize=batchsize) 
         f_process = (lambda net,v,dt=dt,f=self._schema,dst=dst: 
                      [a.saveas(f(dst,a,k)).pkl().print() for (k,a) in enumerate(net(v,
                                                                                     proposalconf=5E-2, 
@@ -294,12 +297,12 @@ class Datasets():
         V = self.map(src, dst, f_process, model=model, save=False).dataset(dst)
         V = [v for clips in V for v in clips if (v is not None) and not v.hasattribute('unrefined')]  # unpack clips, remove videos that failed
         V = [v.activityfilter(lambda a: any([a.hastrack(t) and len(t)>minlength and t.during(a.startframe(), a.endframe()) for t in v.tracklist()])) for v in V]  # get rid of activities without tracks greater than dt
-        return self.new(V,dst).save(dst)
+        return self.new(V,dst)
 
     def pad_activityclip(self, src, dst, t=2):        
         f_tubelet = lambda v, t=t, f=self._schema, dst=dst: [a.saveas(f(dst,a,k)).print() for (k,a) in enumerate(v.activitymap(lambda x: x.padto(t)).activityclip())]
         V = [a for V in self.map(src, dst, f_tubelet, save=False).dataset(dst) for a in V if a is not None]  # unpack
-        return self.new(V, dst).save(dst)
+        return self.new(V, dst)
 
     def stabilize(self, src, dst):
         from vipy.flow import Flow
@@ -308,12 +311,12 @@ class Datasets():
         return self.map(src, dst, f_stabilize)
 
     def refine(self, src, dst, batchsize=1, dt=3, minlength=5):        
-        model = pycollector.detection.VideoProposalRefinement(batchsize=batchsize)  # =8 (0046) =20 (0053)
+        model = pycollector.detection.VideoProposalRefinement(batchsize=batchsize) 
         f = lambda net, v, dt=dt: net(v, proposalconf=5E-2, proposaliou=0.8, miniou=0.2, dt=dt, mincover=0.8, byclass=True, shapeiou=0.7, smoothing='spline', splinefactor=None, strict=True).print()
         V = self.map(src, dst, f, model=model, save=False).dataset(dst)
         V = [v for v in V if (v is not None) and (not v.hasattribute('unrefined'))]  # remove videos that failed refinement
         V = [v.activityfilter(lambda a: any([a.hastrack(t) and len(t)>minlength and t.during(a.startframe(), a.endframe()) for t in v.tracklist()])) for v in V]  # get rid of activities without tracks greater than dt
-        return self.new(V,dst).save(dst)
+        return self.new(V, dst)
 
     def nondegenerate(self, src, dst=None):
         dst = dst if dst is not None else '%s_nondegenerate' % self.load(src).id()
@@ -399,7 +402,7 @@ class Transformer(Datasets):
 
 
 class TorchDataset(torch.utils.data.Dataset):
-    def __init__(self, d, f_transformer):
+    def __init__(self, f_transformer, d):
         assert isinstance(d, Dataset), "Invalid input"
         self._dataset = d
         self._f_transformer = f_transformer
@@ -408,7 +411,20 @@ class TorchDataset(torch.utils.data.Dataset):
         return self._f_transformer(self._dataset[k])
 
     def __len__(self):
-        return len(self._videolist)
+        return len(self._dataset)
+
+
+class TorchDatadir(torch.utils.data.Dataset):
+    def __init__(self, f_transformer, jsondir):
+        assert os.path.isdir(jsondir)
+        self._jsonlist = vipy.util.listjson(jsondir)
+        self._f_transformer = f_transformer
+
+    def __getitem__(self, k):
+        return self._f_transformer(vipy.util.load(self._jsonlist[k]))
+
+    def __len__(self):
+        return len(self._jsonlist)
 
     
 class Dataset():
@@ -549,6 +565,10 @@ class Dataset():
 
     def class_to_index(self):
         return {v:k for (k,v) in enumerate(self.classlist())}
+
+    def index_to_class(self):
+        return {v:k for (k,v) in self.class_to_index().items()}
+
     def label_to_index(self):
         return self.class_to_index()
 
@@ -581,13 +601,31 @@ class Dataset():
         self._objlist = [v for v in self._objlist if f(v)]
         return self
 
-    def take(self, n, category=None):
+    def take_per_category(self, n):
+        C = vipy.util.groupbyasdict(self._objlist, lambda v: v.category())
+        return [C[k][j] for (k,v) in C.items() for j in np.random.permutation(list(range(len(v))))[0:n]]
+
+    def tojsondir(self, outdir):
+        print('[pycollector.dataset]: exporting %d json files to "%s"...' % (len(self), outdir))
+        Batch(vipy.util.chunklist([(k,v) for (k,v) in enumerate(self._objlist)], 64), as_completed=True, minscatter=1).map(lambda X: [vipy.util.save(x[1].clone(), os.path.join(outdir, '%s_%d.json' % (x[1].clone().videoid(), x[0]))) for x in X]).result()
+        return outdir
+
+    def takelist(self, n, category=None):
         objlist = self._objlist if category is None else [v for v in self._objlist if v.category() == category]
-        return [objlist[k] for k in random.sample(range(0, len(objlist)), n)]
+        assert n <= len(objlist), "Invalid length"
+        return [objlist[k] for k in random.sample(range(0, len(objlist)), n)]  # without replacement
+
+    def take(self, n, category=None):
+        return Dataset(self.takelist(n, category))
     
-    def split(self, trainfraction=0.8, testfraction=0.1, valfraction=0.1, seed=42):
+    def split(self, trainfraction=0.9, valfraction=0.1, testfraction=0, seed=42):
         """Split the dataset by category by fraction so that video IDs are never in the same set"""
         assert self.isvipy(), "Invalid input"
+        assert trainfraction >=0 and trainfraction <= 1
+        assert valfraction >=0 and valfraction <= 1
+        assert testfraction >=0 and testfraction <= 1
+        assert trainfraction + valfraction + testfraction == 1.0
+
         np.random.seed(seed)
         A = self.list()
         
@@ -595,14 +633,17 @@ class Dataset():
         videoid = list(set([a.videoid() for a in A]))
         np.random.shuffle(videoid)
         (testid, valid, trainid) = vipy.util.dividelist(videoid, (testfraction, valfraction, trainfraction))        
+        (testid, valid, trainid) = (set(testid), set(valid), set(trainid))
         d = vipy.util.groupbyasdict(A, lambda a: 'testset' if a.videoid() in testid else 'valset' if a.videoid() in valid else 'trainset')
-        (trainset, testset, valset) = (d['trainset'], d['testset'], d['valset'])        
+        (trainset, testset, valset) = (d['trainset'] if 'trainset' in d else [], 
+                                       d['testset'] if 'testset' in d else [], 
+                                       d['valset'] if 'valset' in d else [])
 
         print('[pycollector.dataset]: trainset=%d (%1.1f)' % (len(trainset), trainfraction))
         print('[pycollector.dataset]: valset=%d (%1.1f)' % (len(valset), valfraction))
         print('[pycollector.dataset]: testset=%d (%1.1f)' % (len(testset), testfraction))
         
-        return (Dataset(trainset, id='trainset'), Dataset(valset, id='valset'), Dataset(testset, id='testset'))
+        return (Dataset(trainset, id='trainset'), Dataset(valset, id='valset'), Dataset(testset, id='testset') if len(testset)>0 else None)
 
     def tocsv(self, csvfile=None):
         csv = [v.csv() for v in self.list]        
@@ -624,8 +665,35 @@ class Dataset():
         return self
     
     def count(self):
+        """Counts for each label"""
         assert self.isvipy()
         return vipy.util.countby(self.list(), lambda v: v.category())
+
+    def multilabel_count(self):
+        """Multi-label counts"""
+        assert self.isvipy()
+        return vipy.util.countby([a for v in self.list() for A in v.activitylabel() for a in A], lambda x: x)
+
+    def percentage(self):
+        """Fraction of dataset for each label"""
+        d = self.count()
+        n = sum(d.values())
+        return {k:v/float(n) for (k,v) in d.items()}
+
+    def multilabel_percentage(self):
+        d = self.multilabel_count()
+        n = sum(d.values())
+        return {k:v/float(n) for (k,v) in d.items()}
+
+    def multilabel_inverse_frequency_weight(self):
+        d = {k:1.0/max(v,1) for (k,v) in self.multilabel_count().items()}
+        n = sum(d.values())
+        return {k:len(d)*(v/float(n)) for (k,v) in d.items()}
+
+    def inverse_frequency_weight(self):
+        d = {k:1.0/max(v,1) for (k,v) in self.count().items()}
+        n = sum(d.values())
+        return {k:len(d)*(v/float(n)) for (k,v) in d.items()}
 
     def collectors(self, outfile=None):
         assert self.isvipy()
@@ -788,7 +856,10 @@ class Dataset():
         return d
 
     def totorch(self, f_video_to_tensor):
-        return TorchDataset(self.clone(), f_video_to_tensor)
+        return TorchDataset(self, f_video_to_tensor)
+
+    def totorchdir(self, f_video_to_tensor, outdir):
+        return TorchDatadir(f_video_to_tensor, self.tojsondir(outdir))
 
     
 class ActivityDataset(Dataset):
