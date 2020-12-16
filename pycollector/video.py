@@ -442,6 +442,7 @@ class Video(Scene):
             )
             if not os.path.exists(self._jsonfile):
                 print('[pycollector.video]:  Fetching "%s"' % self._jsonurl)
+                print(self._jsonfile)
                 try:
                     vipy.downloader.s3(self._jsonurl, self._jsonfile) 
 
