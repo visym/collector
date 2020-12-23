@@ -18,6 +18,9 @@ from vipy.batch import Batch
 import hashlib
 import torch.utils.data
 from torch.utils.data import DataLoader, random_split
+import bz2
+import pickle
+import time
 
     
 def disjoint_activities(V, activitylist):    
@@ -395,13 +398,9 @@ class Datasets():
         return self.new(self.load(src).list(), dst)
 
 
-class Transformer(Datasets):
-    def __repr__(self):
-        return str('<pycollector.dataset.Transformer: "%s">' % self._indir)
-
-
 
 class TorchDataset(torch.utils.data.Dataset):
+    """Converter from a pycollector dataset to a torch dataset"""
     def __init__(self, f_transformer, d):
         assert isinstance(d, Dataset), "Invalid input"
         self._dataset = d
@@ -415,6 +414,7 @@ class TorchDataset(torch.utils.data.Dataset):
 
 
 class TorchDatadir(torch.utils.data.Dataset):
+    """A torch dataset stored as a directory of .json files each containing a single object for training, and a transformer lambda function to conver this object to a tensor/label for data augmented training"""
     def __init__(self, f_transformer, jsondir):
         assert os.path.isdir(jsondir)
         self._jsonlist = vipy.util.listjson(jsondir)
@@ -425,6 +425,28 @@ class TorchDatadir(torch.utils.data.Dataset):
 
     def __len__(self):
         return len(self._jsonlist)
+
+
+class TorchTensordir(torch.utils.data.Dataset):
+    """A torch dataset stored as a directory of .pkl.bz2 files each containing a list of tensor/labels used for data augmented training"""
+    def __init__(self, tensordir):
+        assert os.path.isdir(tensordir)
+        self._dirlist = sorted([s for s in vipy.util.extlist(tensordir, '.pkl.bz2')], key=lambda d: int(vipy.util.filetail(d).rsplit('_', 1)[1].split('.pkl.bz2')[0]))
+
+    def __getitem__(self, k):
+        assert k >= 0 and k < len(self._dirlist)
+        for j in range(0,2):
+            try:
+                obj = vipy.util.bz2pkl(self._dirlist[k])
+                assert len(obj) > 0, "Invalid augmentation"
+                return obj[np.random.randint(0, len(obj))]  # choose one tensor at random
+            except:
+                time.sleep(1)  # try again after a bit if another process is augmenting this .pkl.bz2 in parallel
+        print('ERROR: %s corrupted' % self._dirlist[k])
+        return self.__getitem__(np.random.randint(0, len(self)))  # maximum retries reached, get another one
+
+    def __len__(self):
+        return len(self._dirlist)
 
     
 class Dataset():
@@ -607,6 +629,7 @@ class Dataset():
 
     def tojsondir(self, outdir):
         print('[pycollector.dataset]: exporting %d json files to "%s"...' % (len(self), outdir))
+        vipy.util.remkdir(outdir)  # to avoid race condition
         Batch(vipy.util.chunklist([(k,v) for (k,v) in enumerate(self._objlist)], 64), as_completed=True, minscatter=1).map(lambda X: [vipy.util.save(x[1].clone(), os.path.join(outdir, '%s_%d.json' % (x[1].clone().videoid(), x[0]))) for x in X]).result()
         return outdir
 
@@ -856,9 +879,9 @@ class Dataset():
         return d
 
     def totorch(self, f_video_to_tensor):
-        return TorchDataset(self, f_video_to_tensor)
+        return TorchDataset(f_video_to_tensor, self)
 
-    def totorchdir(self, f_video_to_tensor, outdir):
+    def totorch_datadir(self, f_video_to_tensor, outdir):
         return TorchDatadir(f_video_to_tensor, self.tojsondir(outdir))
 
     
