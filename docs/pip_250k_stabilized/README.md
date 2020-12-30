@@ -56,7 +56,7 @@ We recommend using [a small sample of ten instances per class](pip_250k_full_sta
 * The classes "person_leaves_scene_through_structure" and "person_exits_scene_through_structure" are synonymous and should be merged.  
 * The classes "person_comes_into_scene_through_structure" and "person_enters_scene_through_structure" are synonymous and should be merged.
 * The classes "hand_interacts_with_person_holdhands" and "person_holds_hand" are synonymous and should be merged.
-* The classes "hand_interacts_with_person_holdhands" and "person_shakes_hand" are synonymous and should be merged.
+* The classes "hand_interacts_with_person_shakehands" and "person_shakes_hand" are synonymous and should be merged.
 * A small number of videos exhibit a face detector false alarm which looks like a large pixelated circle which lasts a single frame.  This is the in-app face blurring incorrectly redacting the background.  You can filter these videos by removing videos v with 
 
 ```python
