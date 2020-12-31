@@ -345,25 +345,6 @@ class Datasets():
         f_tubelet = lambda v, m=mindim, f=f_saveas: v.mindim(m).saveas(f(v)).print()
         return self.map(src, f_tubelet).id('mindim_%d' % mindim)        
 
-    def tohtml(self, src, outfile, mindim=512, title='Visualization', fraction=1.0, display=False, clip=True, activities=True, category=True):
-        """Generate a standalone HTML file containing quicklooks for each annotated activity in dataset, along with some helpful provenance information for where the annotation came from"""
-    
-        assert ishtml(outfile), "Output file must be .html"
-        assert fraction > 0 and fraction <= 1.0, "Fraction must be between [0,1]"
-        
-        import vipy.util  # This should not be necessary, but we get "UnboundLocalError" without it, not sure why..
-        import vipy.batch  # requires pip install vipy[all]
-
-        dataset = self.dataset(src)
-        assert all([isinstance(v, vipy.video.Video) for v in dataset])
-        dataset = [dataset[k] for k in np.random.permutation(range(len(dataset)))[0:int(len(dataset)*fraction)]]
-        
-        quicklist = self._Batch(dataset).map(lambda v: (v.load().quicklook(), v.flush().print()) if v.canload() else (None, None)).result()
-        quicklooks = [imq for (imq, v) in quicklist if imq is not None]  # keep original video for HTML display purposes
-        provenance = [{'clip':str(v), 'activities':str(';'.join([str(a) for a in v.activitylist()])), 'category':v.category()} for (imq, v) in quicklist]
-        (quicklooks, provenance) = zip(*sorted([(q,p) for (q,p) in zip(quicklooks, provenance)], key=lambda x: x[1]['category']))  # sorted in category order
-        return vipy.visualize.tohtml(quicklooks, provenance, title='%s' % title, outfile=outfile, mindim=mindim, display=display)
-
     def activitymontage(self, src, outfile, gridrows=30, gridcols=50, mindim=64, bycategory=False):
         """30x50 activity montage, each 64x64 elements using the output of prepare_dataset"""
         vidlist = self.dataset(src)
@@ -623,9 +604,9 @@ class Dataset():
         self._objlist = [v for v in self._objlist if f(v)]
         return self
 
-    def take_per_category(self, n):
+    def take_per_category(self, n, id=None):
         C = vipy.util.groupbyasdict(self._objlist, lambda v: v.category())
-        return [C[k][j] for (k,v) in C.items() for j in np.random.permutation(list(range(len(v))))[0:n]]
+        return Dataset([C[k][j] for (k,v) in C.items() for j in np.random.permutation(list(range(len(v))))[0:n]], id=id)
 
     def tojsondir(self, outdir):
         print('[pycollector.dataset]: exporting %d json files to "%s"...' % (len(self), outdir))
@@ -692,26 +673,23 @@ class Dataset():
         assert self.isvipy()
         return vipy.util.countby(self.list(), lambda v: v.category())
 
-    def multilabel_count(self):
-        """Multi-label counts"""
-        assert self.isvipy()
-        return vipy.util.countby([a for v in self.list() for A in v.activitylabel() for a in A], lambda x: x)
-
     def percentage(self):
         """Fraction of dataset for each label"""
         d = self.count()
         n = sum(d.values())
         return {k:v/float(n) for (k,v) in d.items()}
 
-    def multilabel_percentage(self):
-        d = self.multilabel_count()
-        n = sum(d.values())
-        return {k:v/float(n) for (k,v) in d.items()}
-
     def multilabel_inverse_frequency_weight(self):
-        d = {k:1.0/max(v,1) for (k,v) in self.multilabel_count().items()}
-        n = sum(d.values())
-        return {k:len(d)*(v/float(n)) for (k,v) in d.items()}
+        fw = {k:0 for k in self.classlist()}
+        for v in self.list():
+            lbl_frequency = vipy.util.countby([a for A in v.activitylabel() for a in A], lambda x: x)  # frequency within clip
+            lbl_weight = {k:(f/float(max(1, sum(lbl_frequency.values())))) for (k,f) in lbl_frequency.items()}  # multi-label likelihood within clip, sums to one
+            for (k,w) in lbl_weight.items():
+                fw[k] += w
+
+        n = sum(fw.values())  
+        ifw = {k:1.0/((w/n)*len(fw)) for (k,w) in fw.items()}
+        return ifw
 
     def inverse_frequency_weight(self):
         d = {k:1.0/max(v,1) for (k,v) in self.count().items()}
@@ -883,6 +861,28 @@ class Dataset():
 
     def totorch_datadir(self, f_video_to_tensor, outdir):
         return TorchDatadir(f_video_to_tensor, self.tojsondir(outdir))
+
+    def tohtml(self, outfile, mindim=512, title='Visualization', fraction=1.0, display=False, clip=True, activities=True, category=True):
+        """Generate a standalone HTML file containing quicklooks for each annotated activity in dataset, along with some helpful provenance information for where the annotation came from"""
+    
+        assert ishtml(outfile), "Output file must be .html"
+        assert fraction > 0 and fraction <= 1.0, "Fraction must be between [0,1]"
+        
+        import vipy.util  # This should not be necessary, but we get "UnboundLocalError" without it, not sure why..
+        import vipy.batch  # requires pip install vipy[all]
+
+        dataset = self.list()
+        assert all([isinstance(v, vipy.video.Video) for v in dataset])
+        dataset = [dataset[k] for k in np.random.permutation(range(len(dataset)))[0:int(len(dataset)*fraction)]]
+        dataset = [v for v in dataset if all([len(a) < 15*v.framerate() for a in v.activitylist()])]  # remove extremely long videos
+
+        quicklist = vipy.batch.Batch(dataset, strict=False, as_completed=True, minscatter=1).map(lambda v: (v.load().quicklook(), v.flush().print())).result()
+        quicklist = [x for x in quicklist if x is not None]  # remove errors
+        quicklooks = [imq for (imq, v) in quicklist]  # keep original video for HTML display purposes
+        provenance = [{'clip':str(v), 'activities':str(';'.join([str(a) for a in v.activitylist()])), 'category':v.category()} for (imq, v) in quicklist]
+        (quicklooks, provenance) = zip(*sorted([(q,p) for (q,p) in zip(quicklooks, provenance)], key=lambda x: x[1]['category']))  # sorted in category order
+        return vipy.visualize.tohtml(quicklooks, provenance, title='%s' % title, outfile=outfile, mindim=mindim, display=display)
+
 
     
 class ActivityDataset(Dataset):

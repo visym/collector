@@ -90,10 +90,10 @@ class Yolov5(TorchNet):
         indir = os.path.join(filepath(os.path.abspath(__file__)), 'model', 'yolov5')
         cfgfile = os.path.join(indir, 'models', 'yolov5x.yaml')        
         weightfile = os.path.join(indir, 'yolov5x.weights') if weightfile is None else weightfile
-        if not os.path.exists(weightfile) or not vipy.downloader.verify_sha1(weightfile, 'bdf2f9e0ac7b4d1cee5671f794f289e636c8d7d4'):
+        if not os.path.exists(weightfile):
             print('[pycollector.detection]: Downloading weights ...')
             os.system('wget -c https://dl.dropboxusercontent.com/s/jcwvz9ncjwpoat0/yolov5x.weights -O %s' % weightfile)  # FIXME: replace with better solution
-        assert vipy.downloader.verify_sha1(weightfile, 'bdf2f9e0ac7b4d1cee5671f794f289e636c8d7d4'), "Object detector download failed"
+            assert vipy.downloader.verify_sha1(weightfile, 'bdf2f9e0ac7b4d1cee5671f794f289e636c8d7d4'), "Object detector download failed"
 
         # First import: load yolov5x.pt, disable fuse() in attempt_load(), save state_dict weights and load into newly pathed model
         self._model = pycollector.model.yolov5.models.yolo.Model(cfgfile, 3, 80)
@@ -253,7 +253,7 @@ class MultiscaleObjectDetector(ObjectDetector):
             im_multiscale = imlistdet_multiscale_flat[0:nf+nc]; imlistdet_multiscale_flat = imlistdet_multiscale_flat[nf+nc:];
             imcoarsedet = im_multiscale[0].mindim(iml.mindim())
             imfinedet = iml.clone().untile( [im.objectfilter(lambda o: (o.area()<=maxarea*im.area() and   # not too big relative to tile
-                                                                        (o.clone().isinterior(im.width(), im.height(), border=0.9) or  # not occluded by any tile boundary 
+                                                                        (o.isinterior(im.width(), im.height(), border=0.9) or  # not occluded by any tile boundary 
                                                                          o.clone().dilatepx(0.1*im.width()+1).cover(im.imagebox()) == o.clone().dilatepx(0.1*im.width()+1).set_origin(im.attributes['tile']['crop']).cover(imcoarsedet.imagebox()))))  # or only occluded by image boundary
                                              for im in im_multiscale[nc:]] )
             imcoarsedet = imcoarsedet.union(imfinedet) if imfinedet is not None else imcoarsedet
@@ -298,8 +298,8 @@ class VideoTracker(ObjectDetector):
 class MultiscaleVideoTracker(MultiscaleObjectDetector):
     """MultiscaleVideoTracker() class"""
 
-    def __init__(self, minconf=0.001, miniou=0.6, maxhistory=5, smoothing=None, objects=None, trackconf=0.05, verbose=False, gpu=None, batchsize=1):
-        super().__init__(gpu=gpu, batchsize=batchsize)
+    def __init__(self, minconf=0.001, miniou=0.6, maxhistory=5, smoothing=None, objects=None, trackconf=0.05, verbose=False, gpu=None, batchsize=1, weightfile=None):
+        super().__init__(gpu=gpu, batchsize=batchsize, weightfile=weightfile)
         self._minconf = minconf
         self._miniou = miniou
         self._maxhistory = maxhistory
@@ -316,7 +316,7 @@ class MultiscaleVideoTracker(MultiscaleObjectDetector):
         (f, n) = (super().__call__, self._mindim)
         for (k, vb) in enumerate(vi.stream().batch(self.batchsize())):
             for (j, im) in enumerate(tolist(f(vb.framelist(), self._minconf, self._miniou, self._maxarea, objects=self._objects))):
-                yield vi.assign(k*self.batchsize()+j, im.clone().objects(), minconf=self._trackconf, maxhistory=self._maxhistory)  # in-place     
+                yield vi.assign(k*self.batchsize()+j, im.objects(), minconf=self._trackconf, maxhistory=self._maxhistory)  # in-place     
 
     def stream(self, vi):
         return self.__call__(vi)
