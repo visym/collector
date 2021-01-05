@@ -289,7 +289,8 @@ class ActivityTracker(PIP_250k):
         #modelfile = '/disk1/diva/visym/epoch=12-step=14520.ckpt'   # mlfl
         #modelfile = '/disk1/diva/visym/mlfl_epoch=15-step=17871.ckpt' if modelfile is None else modelfile 
         #modelfile = '/disk1/diva/visym/epoch_23-step_26807_3.ckpt' if modelfile is None else modelfile
-        modelfile = '/disk1/diva/visym/mlfl_0060_epoch_12-step_14520.ckpt' if modelfile is None else modelfile  # 0065
+        #modelfile = '/disk1/diva/visym/mlfl_0060_epoch_12-step_14520.ckpt' if modelfile is None else modelfile  # 0065
+        assert modelfile is not None
 
         super().__init__(pretrained=False, modelfile=modelfile, mlbl=mlbl, mlfl=mlfl)
         self._stride = stride
@@ -365,10 +366,10 @@ class ActivityTracker(PIP_250k):
             v.activitymap(lambda a: a.confidence(0.05*a.confidence()) if (a.category() in ['person_steals_object', 'person_abandons_package']) else a)
 
             # Vehicle track:  High confidence vehicle turns must be a minimum angle
-            v.activitymap(lambda a: a.confidence(0.1*a.confidence()) if ((a.category() in ['vehicle_turns_left', 'vehicle_turns_right']) and (abs(v.track(a.actorid()).bearing_change(a.startframe(), a.endframe(), dt=v.framerate())) < (np.pi/8))) else a)
+            v.activitymap(lambda a: a.confidence(0.2*a.confidence()) if ((a.category() in ['vehicle_turns_left', 'vehicle_turns_right']) and (abs(v.track(a.actorid()).bearing_change(a.startframe(), a.endframe(), dt=2*v.framerate())) < (np.pi/8))) else a)
 
             # Vehicle track:  U-turn can only be distinguished from left/right turn at the end of a track by looking at the turn angle
-            v.activitymap(lambda a: a.category('vehicle_makes_u_turn').shortlabel('u turn') if ((a.category() in ['vehicle_turns_left', 'vehicle_turns_right']) and (abs(v.track(a.actorid()).bearing_change(a.startframe(), a.endframe(), dt=v.framerate())) > ((np.pi/2)+(np.pi/4)))) else a)
+            v.activitymap(lambda a: a.category('vehicle_makes_u_turn').shortlabel('u turn') if ((a.category() in ['vehicle_turns_left', 'vehicle_turns_right']) and (abs(v.track(a.actorid()).bearing_change(a.startframe(), a.endframe(), dt=2*v.framerate())) > ((np.pi/2)+(np.pi/3)))) else a)
 
             # Vehicle track: Starts and stops must be at most 5 seconds (yuck)
             v.activitymap(lambda a: a.truncate(a.startframe(), a.startframe()+v.framerate()*5) if a.category() in ['vehicle_starts', 'vehicle_reverses'] else a)
@@ -394,8 +395,8 @@ class ActivityTracker(PIP_250k):
             v.activitymap(lambda a: a.confidence(0.01*a.confidence()) if (a.category() == 'vehicle_picks_up_person' and not any([t.category() == 'person' and t.segment_maxiou(v.track(a.actorid()), t.endframe()-1, t.endframe()) > 0 for t in v.tracklist()])) else a)
             
             # Person track: enter/exit scene cannot be at the image boundary 
-            v.activitymap(lambda a: a.confidence(0.01*a.confidence()) if (a.category() == 'person_enters_scene_through_structure' and v.track(a.actorid()).startbox().cover(v.framebox().dilate(0.9)) < 1) else a)
-            v.activitymap(lambda a: a.confidence(0.01*a.confidence()) if (a.category() == 'person_exits_scene_through_structure' and v.track(a.actorid()).endbox().cover(v.framebox().dilate(0.9)) < 1) else a)
+            v.activitymap(lambda a: a.confidence(0.01*a.confidence()) if (a.category() == 'person_enters_scene_through_structure' and v.track(a.actorid())[max(a.startframe(), v.track(a.actorid()).startframe())].cover(v.framebox().dilate(0.9)) < 1) else a)
+            v.activitymap(lambda a: a.confidence(0.01*a.confidence()) if (a.category() == 'person_exits_scene_through_structure' and v.track(a.actorid())[min(a.endframe(), v.track(a.actorid()).endframe())].cover(v.framebox().dilate(0.9)) < 1) else a)
                         
             # Activity union:  Temporal gaps less than support should be merged into one activity detection for a single track
             merged = set([])
