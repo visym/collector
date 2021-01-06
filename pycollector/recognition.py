@@ -356,7 +356,7 @@ class ActivityTracker(PIP_250k):
 
         finally:
             # Bad tracks:  Remove low confidence or too short non-moving tracks
-            v.trackfilter(lambda t: len(t)>2*v.framerate() and (t.confidence() >= trackconf or t.startbox().iou(t.endbox()) == 0)).activityfilter(lambda a: a.actorid() in v.tracks())
+            v.trackfilter(lambda t: len(t)>=2*v.framerate() and (t.confidence() >= trackconf or t.startbox().iou(t.endbox()) == 0)).activityfilter(lambda a: a.actorid() in v.tracks())
 
             # Activity probability:  Track probability * activity probability
             v.activitymap(lambda a: a.confidence(float(1.0 / (1.0 + np.exp(-(a.confidence() + 1.0))))))   # activity confidence -> probability
