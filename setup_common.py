@@ -36,4 +36,5 @@ d_setup = {'author':'Visym Labs',
            'keywords':['computer vision machine learning ML CV privacy video image'],
            'classifiers':["Programming Language :: Python :: 3",
                           "Operating System :: OS Independent",
-                          "License :: OSI Approved :: GNU General Public License v3 (GPLv3)"]}
+                          "License :: OSI Approved :: GNU General Public License v3 (GPLv3)"],
+           'include_package_data':True}
