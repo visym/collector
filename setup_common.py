@@ -31,7 +31,7 @@ d_setup = {'author':'Visym Labs',
            'long_description_content_type':"text/markdown",
            'url':'https://github.com/visym/collector',
            'download_url':'https://github.com/visym/collector/archive/%s.tar.gz' % version,
-           'install_requires':["vipy","dask","distributed","boto3","xmltodict","pandas","torch","torchvision","pytorch_lightning"],
+           'install_requires':["vipy","dask","distributed","boto3","xmltodict","pandas","torch","torchvision","pytorch_lightning","ujson"],
            #'dependency_links':[]  # FIXME: there is an issue with windows installs of torch
            'keywords':['computer vision machine learning ML CV privacy video image'],
            'classifiers':["Programming Language :: Python :: 3",
