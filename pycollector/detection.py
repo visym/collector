@@ -245,7 +245,7 @@ class MultiscaleObjectDetector(ObjectDetector):
             n_coarse.append(len(imcoarse))
             n_fine.append(len(imfine))
             imlist_multiscale.append(imcoarse+imfine)
-            imlist_multiscale_flat.extend(imcoarse + [imf.maxsquare().cornerpadcrop(n,n) for imf in imfine])
+            imlist_multiscale_flat.extend(imcoarse + [imf.maxsquare(n) for imf in imfine])            
 
         imlistdet_multiscale_flat = [im for iml in chunklistbysize(imlist_multiscale_flat, self.batchsize()) for im in tolist(f(iml, conf=conf, iou=0, objects=objects))]
         
