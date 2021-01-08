@@ -324,7 +324,8 @@ class ActivityTracker(PIP_250k):
                 ondevice = [m(t) for (m,t) in zip(self._gpus, todevice)]   # async?
                 fromdevice = torch.cat([t.detach().cpu() for t in ondevice], dim=0)
                 x_forward = fromdevice if x_forward is None else torch.cat((x_forward, fromdevice), dim=0)
-                del ondevice, todevice  # force garbage collection of GPU memory
+                del ondevice, todevice, fromdevice, b  # force garbage collection of GPU memory
+            del x  # force garbage collection
             return x_forward
 
     def __call__(self, vi, topk=1, activityiou=0, mirror=False, minprob=0, trackconf=0.1):
@@ -350,6 +351,7 @@ class ActivityTracker(PIP_250k):
                                 (videotracks[j].actor().category() in self._verb_to_noun[category]) and   # noun matching with category renaming dictionary
                                 prob>minprob)]   # minimum probability for new activity detection
                     v.assign(k, dets, activityiou=activityiou)   # assign new activity detections by merging overlapping activities with weighted average of probability
+                    del tensors, dets, videotracks  # torch garabage collection
                 yield v
 
         except Exception as e:                

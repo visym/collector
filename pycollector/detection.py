@@ -386,6 +386,7 @@ class VideoProposal(Proposal):
 
         for i in range(0, len(tensor), self._batchsize):
             dets = self._model(tensor[i:i+self._batchsize].type(self._tensortype).to(self._device))  # copy here
+            dets = dets[0].detach().cpu().numpy() if len(dets)==2 else dets.detach().cpu().numpy()  # for yolov5, should really use super().__call__
             for (j, det) in enumerate(dets):
                 # Objects in transformed video
                 objs = [vipy.object.Detection(xcentroid=float(d[0]), 
@@ -489,7 +490,7 @@ class ActorAssociation(VideoProposalRefinement):
         #va = super().__call__(v.clone(), dt=dt)  # tight proposal for primary actor (same keys)
         va = v.clone()  # assume tight proposal for primary actor already (Proposals already generated)
         vi = va.clone(rekey=True).meanmask().savetmp() if target in v.objectlabels() else None
-        vp = super().__call__(vi if vi is not None else va.clone(rekey=True), dt=dt, miniou=0, mincover=0, byclass=True, refinedclass=target, dilate_height=4.0, dilate_width=16.0, pdist=True)  # close proposal for associated object (primary object blurred)
+        vp = super().__call__(vi if vi is not None else va.clone(rekey=True), dt=dt, miniou=0, mincover=0, byclass=True, refinedclass=target, dilate_height=4.0, dilate_width=16.0, pdist=True, smoothing=None)  # close proposal for associated object (primary object blurred)
         vc = va.clone()  # for idempotence (same keys as v)
         for t in vp.tracklist():
             vc.activitymap(lambda a: a.add(t) if a.during_interval(t.startframe(), t.endframe()) else a).add(t)
