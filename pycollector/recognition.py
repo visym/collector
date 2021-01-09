@@ -248,6 +248,7 @@ class PIP_250k(pl.LightningModule, ActivityRecognition):
                 vc = vc.fliplr() if (doflip or (np.random.rand() > 0.5)) and (noflip is None or vc.category() not in noflip) else vc
             else:
                 vc = v.trackcrop(dilate=1.2, maxsquare=True, zeropad=zeropad)  # may be None if clip contains no track
+                vc = vc if vc is not None else v.trackcrop(dilate=1.2, maxsquare=True, zeropad=True)  # fall back on zeropad if invalid
                 vc = vc.resize(input_size, input_size)  # if zeropad=False, boxes near edges will not be square and will be anisotropically distorted, but will be faster
                 vc = vc.fliplr() if doflip and (noflip is None or vc.category() not in noflip) else vc
                 
@@ -265,7 +266,9 @@ class PIP_250k(pl.LightningModule, ActivityRecognition):
                 t = torch.zeros(4, num_frames, input_size, input_size)  # skip me
                 lbl = None
             else:
+                print('WARNING: discarding tensor for video "%s"' % str(v))
                 raise
+                t = torch.zeros(4, num_frames, input_size, input_size)  # skip me (should never get here)
             
         if training or validation:
             return (t, json.dumps(lbl))  # json to use default collate_fn

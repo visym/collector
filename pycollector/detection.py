@@ -323,7 +323,7 @@ class MultiscaleVideoTracker(MultiscaleObjectDetector):
         assert isinstance(vi, vipy.video.Video), "Invalid input"
 
         (det, n) = (super().__call__, self._mindim)
-        for (k, vb) in enumerate(vi.stream().batch(self.batchsize())):
+        for (k, vb) in enumerate(vi.stream().batch(self.batchsize())): 
             framelist = vb.framelist()
             for (j, im) in zip(range(0, len(framelist), stride), tolist(det(framelist[::stride], self._minconf, self._miniou, self._maxarea, objects=self._objects, overlapfrac=self._overlapfrac))):
                 for i in range(j, j+stride):                    
