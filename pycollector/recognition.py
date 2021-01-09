@@ -244,11 +244,11 @@ class PIP_250k(pl.LightningModule, ActivityRecognition):
                 assert endframe - startframe <= num_frames
                 vc = v.clone().clip(startframe, endframe)    # may fail for some short clips
                 vc = vc.trackcrop(dilate=1.2, maxsquare=True, zeropad=zeropad)  # may be None if clip contains no track
-                vc = vc.resize(input_size, input_size)   # if zeropad=False, boxes near edges will not be square and will be anisotropically distorted, but will be MUCH faster
+                vc = vc.resize(input_size, input_size)   # if zeropad=False, boxes near edges will not be square and will be anisotropically distorted, but will be faster
                 vc = vc.fliplr() if (doflip or (np.random.rand() > 0.5)) and (noflip is None or vc.category() not in noflip) else vc
             else:
-                vc = v.trackcrop(dilate=1.2, maxsquare=True)  # may be None if clip contains no track
-                vc = vc.resize(input_size, input_size)
+                vc = v.trackcrop(dilate=1.2, maxsquare=True, zeropad=zeropad)  # may be None if clip contains no track
+                vc = vc.resize(input_size, input_size)  # if zeropad=False, boxes near edges will not be square and will be anisotropically distorted, but will be faster
                 vc = vc.fliplr() if doflip and (noflip is None or vc.category() not in noflip) else vc
                 
             if show:
