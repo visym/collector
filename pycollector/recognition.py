@@ -334,12 +334,12 @@ class ActivityTracker(PIP_250k):
     def __call__(self, vi, topk=1, activityiou=0, mirror=False, minprob=0, trackconf=0.1, maxdets=None):
         (n,m) = (self.temporal_support(), self.temporal_stride())
         aa = self._allowable_activities  # dictionary mapping of allowable classified activities to output names        
-        f_nomirror = self.totensor(training=False, validation=False, show=False, doflip=False, zeropad=False)  # test video -> tensor
-        f_mirror = self.totensor(training=False, validation=False, show=False, doflip=True, zeropad=False)  # test video -> tensor mirrored
+        f_nomirror = self.totensor(training=False, validation=False, show=False, doflip=False, zeropad=True)  # test video -> tensor
+        f_mirror = self.totensor(training=False, validation=False, show=False, doflip=True, zeropad=True)  # test video -> tensor mirrored
         f_totensor = lambda v: (torch.unsqueeze(f_nomirror(v), dim=0) if (not mirror or v.actor().category() != 'person') else torch.stack((f_nomirror(v.clone(sharedarray=True)), f_mirror(v)), dim=0))
         def f_reduce(T,V):
             j = sum([v.actor().category() == 'person' for v in V])  # person mirrored, vehicle not mirrored
-            (tm, t) = torch.split(T, (2*j, len(T)-2*j), dim=0)  # assumes sorted order, person first
+            (tm, t) = torch.split(T, (2*j, len(T)-2*j), dim=0)  # assumes sorted order, person first, only person/vehicle
             return torch.cat((torch.mean(tm.view(-1, 2, tm.shape[1]), dim=1), t), dim=0) if j>0 else T  # mean over mirror augmentation
             
         try:
