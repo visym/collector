@@ -230,7 +230,7 @@ class PIP_250k(pl.LightningModule, ActivityRecognition):
         return self
 
     @staticmethod
-    def _totensor(v, training, validation, input_size, num_frames, mean, std, noflip=None, show=False, doflip=False):
+    def _totensor(v, training, validation, input_size, num_frames, mean, std, noflip=None, show=False, doflip=False, zeropad=True):
         assert isinstance(v, vipy.video.Scene), "Invalid input"
 
         try:            
@@ -243,8 +243,8 @@ class PIP_250k(pl.LightningModule, ActivityRecognition):
                 (startframe, endframe) = (startframe, endframe) if (startframe < endframe) else (max(0, aj-num_frames), aj)  # fallback
                 assert endframe - startframe <= num_frames
                 vc = v.clone().clip(startframe, endframe)    # may fail for some short clips
-                vc = vc.trackcrop(dilate=1.2, maxsquare=True)  # may be None if clip contains no track
-                vc = vc.resize(input_size, input_size)  
+                vc = vc.trackcrop(dilate=1.2, maxsquare=True, zeropad=zeropad)  # may be None if clip contains no track
+                vc = vc.resize(input_size, input_size)   # if zeropad=False, boxes near edges will not be square and will be anisotropically distorted, but will be MUCH faster
                 vc = vc.fliplr() if (doflip or (np.random.rand() > 0.5)) and (noflip is None or vc.category() not in noflip) else vc
             else:
                 vc = v.trackcrop(dilate=1.2, maxsquare=True)  # may be None if clip contains no track
@@ -272,11 +272,11 @@ class PIP_250k(pl.LightningModule, ActivityRecognition):
         else:
             return t
 
-    def totensor(self, v=None, training=False, validation=False, show=False, doflip=False):
+    def totensor(self, v=None, training=False, validation=False, show=False, doflip=False, zeropad=True):
         """Return captured lambda function if v=None, else return tensor"""    
         assert v is None or isinstance(v, vipy.video.Scene), "Invalid input"
-        f = (lambda v, num_frames=self._num_frames, input_size=self._input_size, mean=self._mean, std=self._std, training=training, validation=validation, show=show:
-             PIP_250k._totensor(v, training, validation, input_size, num_frames, mean, std, noflip=['car_turns_left', 'car_turns_right'], show=show, doflip=doflip))
+        f = (lambda v, num_frames=self._num_frames, input_size=self._input_size, mean=self._mean, std=self._std, training=training, validation=validation, show=show, zeropad=zeropad:
+             PIP_250k._totensor(v, training, validation, input_size, num_frames, mean, std, noflip=['car_turns_left', 'car_turns_right'], show=show, doflip=doflip, zeropad=zeropad))
         return f(v) if v is not None else f
     
 
@@ -328,30 +328,35 @@ class ActivityTracker(PIP_250k):
             del x  # force garbage collection
             return x_forward
 
-    def __call__(self, vi, topk=1, activityiou=0, mirror=False, minprob=0, trackconf=0.1):
+    def __call__(self, vi, topk=1, activityiou=0, mirror=False, minprob=0, trackconf=0.1, maxdets=None):
         (n,m) = (self.temporal_support(), self.temporal_stride())
-        f_nomirror = self.totensor(training=False, validation=False, show=False, doflip=False)  # test video -> tensor
-        f_mirror = self.totensor(training=False, validation=False, show=False, doflip=True)  # test video -> tensor mirrored
-        f_totensor = ((lambda v: torch.unsqueeze(f_nomirror(v), dim=0)) if not mirror else 
-                      (lambda v: torch.stack((f_nomirror(v.clone(sharedarray=True)), f_mirror(v)), dim=0) if v.actor().category() == 'person' else torch.stack((f_nomirror(v.clone(sharedarray=True)), f_nomirror(v)), dim=0)))  # nomirror for vehicle tracks
-        f_reduce = (lambda x: torch.squeeze(torch.mean(x.view(-1,2,x.shape[1]), dim=1, keepdim=True), dim=1)) if mirror else (lambda x: x)  # mean over mirror augmentation
-        aa = self._allowable_activities  # dictionary mapping of allowable classified activities to output names
-
+        aa = self._allowable_activities  # dictionary mapping of allowable classified activities to output names        
+        f_nomirror = self.totensor(training=False, validation=False, show=False, doflip=False, zeropad=False)  # test video -> tensor
+        f_mirror = self.totensor(training=False, validation=False, show=False, doflip=True, zeropad=False)  # test video -> tensor mirrored
+        f_totensor = lambda v: (torch.unsqueeze(f_nomirror(v), dim=0) if (not mirror or v.actor().category() != 'person') else torch.stack((f_nomirror(v.clone(sharedarray=True)), f_mirror(v)), dim=0))
+        def f_reduce(T,V):
+            j = sum([v.actor().category() == 'person' for v in V])  # person mirrored, vehicle not mirrored
+            (tm, t) = torch.split(T, (2*j, len(T)-2*j), dim=0)  # assumes sorted order, person first
+            return torch.cat((torch.mean(tm.view(-1, 2, tm.shape[1]), dim=1), t), dim=0) if j>0 else T  # mean over mirror augmentation
+            
         try:
             vp = next(vi)  # peek in generator to create clip
             vi = itertools.chain([vp], vi)  # unpeek
             for (k, (vc,v)) in enumerate(zip(vp.stream().clip(n, m, continuous=True), vi)):
-                videotracks = [] if vc is None else [vt for vt in vc.tracksplit() if len(vt.actor())>0 and vt.actor().category() == 'person' or (vt.actor().category() == 'vehicle' and v.track(vt.actorid()).ismoving(k-8*n, k))]  # vehicle moved in last 8 clips (~30s)?
+                videotracks = [] if vc is None else [vt for vt in vc.tracksplit() if len(vt.actor())>0 and vt.actor().category() == 'person' or (vt.actor().category() == 'vehicle' and v.track(vt.actorid()).ismoving(k-3*n, k))]  # vehicle moved in last 3 clips (~10s)?
+                videotracks = sorted(videotracks, key=lambda v: v.actor().confidence(last=1))[-maxdets:] if maxdets is not None else videotracks  # sort by track confidence, and select only the most confident for detection
+                videotracks = sorted(videotracks, key=lambda v: v.actor().category())  # for grouping mirrored encoding: person<vehicle
                 if len(videotracks)>0 and (k > n):
-                    tensors = f_reduce(self.forward(torch.cat([f_totensor(vt) for vt in videotracks], dim=0))) # reduced logits in track index order
+                    logits = self.forward(torch.cat([f_totensor(vt) for vt in videotracks], dim=0))  # augmented logits in track index order
+                    logits = f_reduce(logits, videotracks) if mirror else logits  # reduced logits in track index order
                     dets = [vipy.activity.Activity(category=aa[category], shortlabel=self._class_to_shortlabel[category], startframe=k-n, endframe=k, confidence=conf, framerate=v.framerate(), actorid=videotracks[j].actorid(), attributes={'pip':category}) 
-                            for (j, categoryconfprob) in enumerate(super().topk_probability(tensors, topk))  # top-k activities
+                            for (j, categoryconfprob) in enumerate(super().topk_probability(logits, topk))  # top-k activities
                             for (category, conf, prob) in categoryconfprob   # top-k categories, confidence, probability for tensor
                             if ((category in aa) and   # requested activities only
                                 (videotracks[j].actor().category() in self._verb_to_noun[category]) and   # noun matching with category renaming dictionary
                                 prob>minprob)]   # minimum probability for new activity detection
                     v.assign(k, dets, activityiou=activityiou)   # assign new activity detections by merging overlapping activities with weighted average of probability
-                    del tensors, dets, videotracks  # torch garabage collection
+                    del logits, dets, videotracks  # torch garabage collection
                 yield v
 
         except Exception as e:                

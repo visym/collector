@@ -240,8 +240,11 @@ class MultiscaleObjectDetector(ObjectDetector):
         
         (imlist_multiscale, imlist_multiscale_flat, n_coarse, n_fine) = ([], [], [], [])
         for im in imlist:
-            imcoarse = [im]
-            imfine = im.tile(n, n, overlaprows=n//overlapfrac, overlapcols=n//overlapfrac) if im.mindim() >= (n+(n//overlapfrac)) else []
+            imcoarse = [im]            
+            imfine = (im.tile(n, n, overlaprows=im.height()-n, overlapcols=(3*n-im.width())//2) if (im.mindim()>n and im.mindim() == im.height()) else
+                      (im.tile(n, n, overlapcols=im.width()-n, overlaprows=(3*n-im.height())//2) if im.mindim()>n else []))  # 2x3 tile, assumes im.mindim() == (n+n/2)
+            if len(imfine) != 6:
+                print('WARNING: len(imtile) = %d' % len(imfine))  # Sanity check
             n_coarse.append(len(imcoarse))
             n_fine.append(len(imfine))
             imlist_multiscale.append(imcoarse+imfine)

@@ -188,9 +188,12 @@ class Datasets():
         f_track = lambda net,v,b=batchsize: net.gpu(list(range(torch.cuda.device_count())), batchsize=b*torch.cuda.device_count()).track(v, conf, iou, maxhistory, smoothing, objects, mincover, maxconf).print()
         return self.map(src, f_track, model=model, dst=dst)
 
-    def actor_association(self, src, d_category_to_object, batchsize, dst=None):
+    def actor_association(self, src, d_category_to_object, batchsize, dst=None, cpu=True, dt=10):
         model = pycollector.detection.ActorAssociation(batchsize=batchsize)
-        f = lambda net,v,b=batchsize: net.gpu(list(range(torch.cuda.device_count())), batchsize=b*torch.cuda.device_count())(v, d_category_to_object[v.category()]) if v.category() in d_category_to_object else v
+        if cpu:
+            f = lambda net,v,dt=dt,d_category_to_object=d_category_to_object: net(v, d_category_to_object[v.category()], dt=dt) if v.category() in d_category_to_object else v
+        else:
+            f = lambda net,v,b=batchsize: net.gpu(list(range(torch.cuda.device_count())), batchsize=b*torch.cuda.device_count())(v, d_category_to_object[v.category()]) if v.category() in d_category_to_object else v
         return self.map(src, f, model=model, dst=dst)
 
     def instance_mining(self, src, dstdir=None, dst=None, batchsize=1, minconf=0.01, miniou=0.6, maxhistory=5, smoothing=None, objects=None, trackconf=0.05):
