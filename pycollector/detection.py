@@ -240,11 +240,25 @@ class MultiscaleObjectDetector(ObjectDetector):
         
         (imlist_multiscale, imlist_multiscale_flat, n_coarse, n_fine) = ([], [], [], [])
         for im in imlist:
-            imcoarse = [im]            
-            imfine = (im.tile(n, n, overlaprows=im.height()-n, overlapcols=(3*n-im.width())//2) if (im.mindim()>n and im.mindim() == im.height()) else
-                      (im.tile(n, n, overlapcols=im.width()-n, overlaprows=(3*n-im.height())//2) if im.mindim()>n else []))  # 2x3 tile, assumes im.mindim() == (n+n/2)
-            if len(imfine) != 6:
-                print('WARNING: len(imtile) = %d' % len(imfine))  # Sanity check
+            imcoarse = [im]
+            if overlapfrac == 6:
+                imfine = (im.tile(n, n, overlaprows=im.height()-n, overlapcols=(3*n-im.width())//2) if (im.mindim()>=n and im.mindim() == im.height()) else
+                          (im.tile(n, n, overlapcols=im.width()-n, overlaprows=(3*n-im.height())//2) if im.mindim()>=n else []))  # 2x3 tile, assumes im.mindim() == (n+n/2)
+                if len(imfine) != 6:
+                    print('WARNING: len(imtile) = %d for overlapfrac = %d' % (len(imfine), overlapfrac))  # Sanity check                    
+                    
+            elif overlapfrac == 2:
+                imfine = (im.tile(n, n, overlaprows=0, overlapcols=(2*n-im.width())//2) if (im.mindim()>=n and im.mindim() == im.height()) else
+                          (im.tile(n, n, overlapcols=0, overlaprows=(2*n-im.height())//2) if im.mindim()>=n else []))  # 1x2 tile, assumes im.mindim() == (n)
+                if len(imfine) != 2:
+                    print('WARNING: len(imtile) = %d for overlapfrac = %d' % (len(imfine), overlapfrac))  # Sanity check
+                    
+            elif overlapfrac == 0:
+                imfine = []
+                
+            else:
+                raise
+            
             n_coarse.append(len(imcoarse))
             n_fine.append(len(imfine))
             imlist_multiscale.append(imcoarse+imfine)
@@ -306,7 +320,7 @@ class VideoTracker(ObjectDetector):
 class MultiscaleVideoTracker(MultiscaleObjectDetector):
     """MultiscaleVideoTracker() class"""
 
-    def __init__(self, minconf=0.001, miniou=0.6, maxhistory=5, smoothing=None, objects=None, trackconf=0.05, verbose=False, gpu=None, batchsize=1, weightfile=None, overlapfrac=2):
+    def __init__(self, minconf=0.001, miniou=0.6, maxhistory=5, smoothing=None, objects=None, trackconf=0.05, verbose=False, gpu=None, batchsize=1, weightfile=None, overlapfrac=2, detbatchsize=None):
         super().__init__(gpu=gpu, batchsize=batchsize, weightfile=weightfile)
         self._minconf = minconf
         self._miniou = miniou
@@ -317,18 +331,19 @@ class MultiscaleVideoTracker(MultiscaleObjectDetector):
         self._verbose = verbose
         self._maxarea = 1.0
         self._overlapfrac = overlapfrac
+        self._detbatchsize = detbatchsize if detbatchsize is not None else self.batchsize()
         
     def __call__(self, vi, stride=1):
         """Yield vipy.video.Scene(), an incremental tracked result for each frame"""
         assert isinstance(vi, vipy.video.Video), "Invalid input"
 
         (det, n) = (super().__call__, self._mindim)
-        for (k, vb) in enumerate(vi.stream().batch(self.batchsize())): 
+        for (k, vb) in enumerate(vi.stream().batch(self._detbatchsize)):
             framelist = vb.framelist()
             for (j, im) in zip(range(0, len(framelist), stride), tolist(det(framelist[::stride], self._minconf, self._miniou, self._maxarea, objects=self._objects, overlapfrac=self._overlapfrac))):
                 for i in range(j, j+stride):                    
                     if i < len(framelist):
-                        yield vi.assign(k*self.batchsize()+i, im.objects(), minconf=self._trackconf, maxhistory=self._maxhistory) if (i%stride == 0) else vi
+                        yield vi.assign(k*self._detbatchsize+i, im.objects(), minconf=self._trackconf, maxhistory=self._maxhistory) if (i%stride == 0) else vi
 
     def stream(self, vi):
         return self.__call__(vi)

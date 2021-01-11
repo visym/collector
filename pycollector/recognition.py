@@ -347,7 +347,7 @@ class ActivityTracker(PIP_250k):
             vi = itertools.chain([vp], vi)  # unpeek
             for (k, (vc,v)) in enumerate(zip(vp.stream().clip(n, m, continuous=True), vi)):
                 videotracks = [] if vc is None else [vt for vt in vc.tracksplit() if len(vt.actor())>0 and vt.actor().category() == 'person' or (vt.actor().category() == 'vehicle' and v.track(vt.actorid()).ismoving(k-3*n, k))]  # vehicle moved in last 3 clips (~10s)?
-                videotracks = sorted(videotracks, key=lambda v: v.actor().confidence(last=1))[-maxdets:] if maxdets is not None else videotracks  # sort by track confidence, and select only the most confident for detection
+                videotracks = sorted(videotracks, key=lambda v: v.actor().confidence(last=1))[-maxdets:] if (maxdets is not None and len(videotracks)>maxdets) else videotracks  # sort by track confidence, and select only the most confident for detection
                 videotracks = sorted(videotracks, key=lambda v: v.actor().category())  # for grouping mirrored encoding: person<vehicle
                 if len(videotracks)>0 and (k > n):
                     logits = self.forward(torch.cat([f_totensor(vt) for vt in videotracks], dim=0))  # augmented logits in track index order
@@ -377,10 +377,10 @@ class ActivityTracker(PIP_250k):
             v.activitymap(lambda a: a.confidence(0.05*a.confidence()) if (a.category() in ['person_steals_object', 'person_abandons_package']) else a)
 
             # Vehicle track:  High confidence vehicle turns must be a minimum angle
-            v.activitymap(lambda a: a.confidence(0.2*a.confidence()) if ((a.category() in ['vehicle_turns_left', 'vehicle_turns_right']) and (abs(v.track(a.actorid()).bearing_change(a.startframe(), a.endframe(), dt=2*v.framerate())) < (np.pi/8))) else a)
+            v.activitymap(lambda a: a.confidence(0.2*a.confidence()) if ((a.category() in ['vehicle_turns_left', 'vehicle_turns_right']) and (abs(v.track(a.actorid()).bearing_change(a.startframe(), a.endframe(), dt=2*v.framerate())) < (np.pi/4))) else a)
 
             # Vehicle track:  U-turn can only be distinguished from left/right turn at the end of a track by looking at the turn angle
-            v.activitymap(lambda a: a.category('vehicle_makes_u_turn').shortlabel('u turn') if ((a.category() in ['vehicle_turns_left', 'vehicle_turns_right']) and (abs(v.track(a.actorid()).bearing_change(a.startframe(), a.endframe(), dt=2*v.framerate())) > (np.pi-(np.pi/8)))) else a)
+            v.activitymap(lambda a: a.category('vehicle_makes_u_turn').shortlabel('u turn') if ((a.category() in ['vehicle_turns_left', 'vehicle_turns_right']) and (abs(v.track(a.actorid()).bearing_change(a.startframe(), a.endframe(), dt=2*v.framerate())) > (np.pi-(np.pi/4)))) else a)
 
             # Vehicle track: Starts and stops must be at most 5 seconds (yuck)
             v.activitymap(lambda a: a.truncate(a.startframe(), a.startframe()+v.framerate()*5) if a.category() in ['vehicle_starts', 'vehicle_reverses'] else a)
