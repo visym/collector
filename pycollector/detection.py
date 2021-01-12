@@ -232,7 +232,7 @@ class ObjectDetector(Yolov5):
 
 class MultiscaleObjectDetector(ObjectDetector):  
     """Given a list of images, break each one into a set of overlapping tiles, and ObjectDetector() on each, then recombining detections"""
-    def __call__(self, imlist, conf=0.5, iou=0.5, maxarea=1.0, objects=None, overlapfrac=6, filterborder=True):  
+    def __call__(self, imlist, conf=0.5, iou=0.5, maxarea=1.0, objects=None, overlapfrac=6, filterborder=True, cover=0.7):  
         (f, n) = (super().__call__, self._mindim)
         assert isinstance(imlist, vipy.image.Image) or isinstance(imlist, list) and all([isinstance(im, vipy.image.Image) for im in imlist]), "invalid input"
         imlist = tolist(imlist)
@@ -241,6 +241,8 @@ class MultiscaleObjectDetector(ObjectDetector):
         (imlist_multiscale, imlist_multiscale_flat, n_coarse, n_fine) = ([], [], [], [])
         for im in imlist:
             imcoarse = [im]
+
+            # FIXME: generalize this parameterization
             if overlapfrac == 6:
                 imfine = (im.tile(n, n, overlaprows=im.height()-n, overlapcols=(3*n-im.width())//2) if (im.mindim()>=n and im.mindim() == im.height()) else
                           (im.tile(n, n, overlapcols=im.width()-n, overlaprows=(3*n-im.height())//2) if im.mindim()>=n else []))  # 2x3 tile, assumes im.mindim() == (n+n/2)
@@ -258,6 +260,7 @@ class MultiscaleObjectDetector(ObjectDetector):
                 
             else:
                 raise
+            # /FIXME
             
             n_coarse.append(len(imcoarse))
             n_fine.append(len(imfine))
@@ -272,14 +275,14 @@ class MultiscaleObjectDetector(ObjectDetector):
             imcoarsedet = im_multiscale[0].mindim(iml.mindim())
             imcoarsedet_imagebox = imcoarsedet.imagebox()
             if filterborder:
-                imfinedet = iml.untile( [im.nms(conf, iou).objectfilter(lambda o: (o.area()<=maxarea*im.area() and   # not too big relative to tile
+                imfinedet = iml.untile( [im.nms(conf, iou, cover=cover).objectfilter(lambda o: (o.area()<=maxarea*im.area() and   # not too big relative to tile
                                                                                    (o.isinterior(im.width(), im.height(), border=0.9) or  # not occluded by any tile boundary 
                                                                                     o.clone().dilatepx(0.1*im.width()+1).cover(im.imagebox()) == o.clone().dilatepx(0.1*im.width()+1).set_origin(im.attributes['tile']['crop']).cover(imcoarsedet_imagebox))))  # or only occluded by image boundary
                                          for im in im_multiscale[nc:]] )
             else:
                 imfinedet = iml.untile( im_multiscale[nc:] )
             imcoarsedet = imcoarsedet.union(imfinedet) if imfinedet is not None else imcoarsedet
-            imlistdet.append(imcoarsedet.nms(conf, iou))
+            imlistdet.append(imcoarsedet.nms(conf, iou, cover=cover))
 
         return imlistdet[0] if len(imlistdet) == 1 else imlistdet
 
@@ -343,7 +346,7 @@ class MultiscaleVideoTracker(MultiscaleObjectDetector):
             for (j, im) in zip(range(0, len(framelist), stride), tolist(det(framelist[::stride], self._minconf, self._miniou, self._maxarea, objects=self._objects, overlapfrac=self._overlapfrac))):
                 for i in range(j, j+stride):                    
                     if i < len(framelist):
-                        yield vi.assign(k*self._detbatchsize+i, im.objects(), minconf=self._trackconf, maxhistory=self._maxhistory) if (i%stride == 0) else vi
+                        yield (vi.assign(k*self._detbatchsize+i, im.objects(), minconf=self._trackconf, maxhistory=self._maxhistory) if (i == j) else vi)
 
     def stream(self, vi):
         return self.__call__(vi)

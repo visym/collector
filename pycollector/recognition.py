@@ -109,8 +109,7 @@ class PIP_250k(pl.LightningModule, ActivityRecognition):
 
         self._class_to_index = {'car_drops_off_person': 0, 'car_picks_up_person': 1, 'car_reverses': 2, 'car_starts': 3, 'car_stops': 4, 'car_turns_left': 5, 'car_turns_right': 6, 'hand_interacts_with_person_highfive': 7, 'person': 8, 'person_abandons_object': 9, 'person_carries_heavy_object': 10, 'person_closes_car_door': 11, 'person_closes_car_trunk': 12, 'person_closes_facility_door': 13, 'person_embraces_person': 14, 'person_enters_car': 15, 'person_enters_scene_through_structure': 16, 'person_exits_car': 17, 'person_exits_scene_through_structure': 18, 'person_holds_hand': 19, 'person_interacts_with_laptop': 20, 'person_loads_car': 21, 'person_opens_car_door': 22, 'person_opens_car_trunk': 23, 'person_opens_facility_door': 24, 'person_picks_up_object_from_floor': 25, 'person_picks_up_object_from_table': 26, 'person_purchases_from_cashier': 27, 'person_purchases_from_machine': 28, 'person_puts_down_object_on_floor': 29, 'person_puts_down_object_on_shelf': 30, 'person_puts_down_object_on_table': 31, 'person_reads_document': 32, 'person_rides_bicycle': 33, 'person_shakes_hand': 34, 'person_sits_down': 35, 'person_stands_up': 36, 'person_steals_object_from_person': 37, 'person_talks_on_phone': 38, 'person_talks_to_person': 39, 'person_texts_on_phone': 40, 'person_transfers_object_to_car': 41, 'person_transfers_object_to_person': 42, 'person_unloads_car': 43, 'vehicle': 44}
 
-        self._verb_to_noun = {k:set(['car','vehicle','motorcycle','bus','truck']) if (k.startswith('car') or k.startswith('motorcycle') or k.startswith('vehicle')) else set(['person']) for k in self.classlist()}
-
+        self._verb_to_noun = {k:set(['car','vehicle','motorcycle','bus','truck']) if (k.startswith('car') or k.startswith('motorcycle') or k.startswith('vehicle')) else set(['person']) for k in self.classlist()}        
         self._class_to_shortlabel = pycollector.label.pip_to_shortlabel
 
         if pretrained:
@@ -255,19 +254,20 @@ class PIP_250k(pl.LightningModule, ActivityRecognition):
             if show:
                 vc.clone().resize(512,512).show(timestamp=True)
                 vc.clone().binarymask().frame(0).rgb().show(figure='binary mask: frame 0')
-
+                
             vc = vc.load(shape=(input_size, input_size, 3)).normalize(mean=mean, std=std, scale=1.0/255.0)  # [0,255] -> [0,1], triggers load() with known shape
             (t,lbl) = vc.torch(startframe=0, length=num_frames, boundary='cyclic', order='cdhw', withlabel=True)  # (c=3)x(d=num_frames)x(H=input_size)x(W=input_size), reuses vc._array -> t (requires t.clone())
             t = torch.cat((t.clone(), vc.channel(0).binarymask().float().bias(-0.5).torch(startframe=0, length=num_frames, boundary='cyclic', order='cdhw')), dim=0)  # (c=4) x (d=num_frames) x (H=input_size) x (W=input_size)
 
-        except:
+
+            
+        except Exception as e:
             if training or validation:
                 #print('ERROR: %s' % (str(v)))
                 t = torch.zeros(4, num_frames, input_size, input_size)  # skip me
                 lbl = None
             else:
-                print('WARNING: discarding tensor for video "%s"' % str(v))
-                raise
+                print('WARNING: discarding tensor for video "%s" with exception "%s"' % (str(v), str(e)))
                 t = torch.zeros(4, num_frames, input_size, input_size)  # skip me (should never get here)
             
         if training or validation:
@@ -345,8 +345,8 @@ class ActivityTracker(PIP_250k):
         try:
             vp = next(vi)  # peek in generator to create clip
             vi = itertools.chain([vp], vi)  # unpeek
-            for (k, (vc,v)) in enumerate(zip(vp.stream().clip(n, m, continuous=True), vi)):
-                videotracks = [] if vc is None else [vt for vt in vc.tracksplit() if len(vt.actor())>0 and vt.actor().category() == 'person' or (vt.actor().category() == 'vehicle' and v.track(vt.actorid()).ismoving(k-3*n, k))]  # vehicle moved in last 3 clips (~10s)?
+            for (k, (v,vc)) in enumerate(zip(vi,vp.stream().clip(n, m, continuous=True))):
+                videotracks = [] if vc is None else [vt for vt in vc.tracksplit() if len(vt.actor())>0 and vt.actor().category() == 'person' or (vt.actor().category() == 'vehicle' and v.track(vt.actorid()).ismoving(k-10*n, k))]  # vehicle moved recently?
                 videotracks = sorted(videotracks, key=lambda v: v.actor().confidence(last=1))[-maxdets:] if (maxdets is not None and len(videotracks)>maxdets) else videotracks  # sort by track confidence, and select only the most confident for detection
                 videotracks = sorted(videotracks, key=lambda v: v.actor().category())  # for grouping mirrored encoding: person<vehicle
                 if len(videotracks)>0 and (k > n):
@@ -366,15 +366,16 @@ class ActivityTracker(PIP_250k):
             raise
 
         finally:
-            # Bad tracks:  Remove low confidence or too short non-moving tracks
-            v.trackfilter(lambda t: len(t)>=2*v.framerate() and (t.confidence() >= trackconf or t.startbox().iou(t.endbox()) == 0)).activityfilter(lambda a: a.actorid() in v.tracks())
-
             # Activity probability:  Track probability * activity probability
             v.activitymap(lambda a: a.confidence(float(1.0 / (1.0 + np.exp(-(a.confidence() + 1.0))))))   # activity confidence -> probability
             v.activitymap(lambda a: a.confidence(v.track(a.actorid()).confidence(samples=8)*a.confidence()))  # "independent" probabilities
-
+        
+            # Bad tracks:  Remove low confidence or too short non-moving tracks
+            v.trackfilter(lambda t: len(t)>=v.framerate() and (t.confidence() >= trackconf or t.startbox().iou(t.endbox()) == 0)).activityfilter(lambda a: a.actorid() in v.tracks())  
+            #return # TESTING
+            
             # Poor classes:  Significantly reduce confidence of complex classes (yuck)
-            v.activitymap(lambda a: a.confidence(0.05*a.confidence()) if (a.category() in ['person_steals_object', 'person_abandons_package']) else a)
+            v.activitymap(lambda a: a.confidence(0.05*a.confidence()) if (a.category() in ['person_steals_object', 'person_abandons_package']) else a) 
 
             # Vehicle track:  High confidence vehicle turns must be a minimum angle
             v.activitymap(lambda a: a.confidence(0.2*a.confidence()) if ((a.category() in ['vehicle_turns_left', 'vehicle_turns_right']) and (abs(v.track(a.actorid()).bearing_change(a.startframe(), a.endframe(), dt=2*v.framerate())) < (np.pi/4))) else a)
@@ -419,7 +420,7 @@ class ActivityTracker(PIP_250k):
             v.activityfilter(lambda a: a.id() not in merged)
 
             # Activity union:  "Brief" breaks of these activities should be merged into one activity detection for a single track
-            tomerge = set(['person_reads_document', 'person_interacts_with_laptop', 'person_talks_to_person', 'person_purchases', 'person_steals_object', 'person_talks_on_phone', 'person_texts_on_phone', 'person_rides_bicycle', 'person_carries_heavy_object'])
+            tomerge = set(['person_reads_document', 'person_interacts_with_laptop', 'person_talks_to_person', 'person_purchases', 'person_steals_object', 'person_talks_on_phone', 'person_texts_on_phone', 'person_rides_bicycle', 'person_carries_heavy_object', 'person', 'vehicle'])
             merged = set([])
             for a in sorted(v.activitylist(), key=lambda a: a.startframe()):
                 if a.category() in tomerge:
