@@ -147,7 +147,7 @@ class Yolov5(TorchNet):
                                  
                 scale = max(im.shape()) / float(self._mindim)  # to undo
                 objectlist = [obj.rescale(scale) for obj in objectlist]
-                objectlist = [obj.category(objects[obj.category()]) if objects is not None else obj for obj in objectlist]
+                objectlist = [obj.category(objects[obj.category()]) if objects is not None else obj for obj in objectlist]  # convert to target class before NMS
             else:
                 objectlist = []
 
@@ -323,7 +323,7 @@ class VideoTracker(ObjectDetector):
 class MultiscaleVideoTracker(MultiscaleObjectDetector):
     """MultiscaleVideoTracker() class"""
 
-    def __init__(self, minconf=0.001, miniou=0.6, maxhistory=5, smoothing=None, objects=None, trackconf=0.05, verbose=False, gpu=None, batchsize=1, weightfile=None, overlapfrac=2, detbatchsize=None):
+    def __init__(self, minconf=0.001, miniou=0.6, maxhistory=5, smoothing=None, objects=None, trackconf=0.05, verbose=False, gpu=None, batchsize=1, weightfile=None, overlapfrac=2, detbatchsize=None, gate=0):
         super().__init__(gpu=gpu, batchsize=batchsize, weightfile=weightfile)
         self._minconf = minconf
         self._miniou = miniou
@@ -335,6 +335,7 @@ class MultiscaleVideoTracker(MultiscaleObjectDetector):
         self._maxarea = 1.0
         self._overlapfrac = overlapfrac
         self._detbatchsize = detbatchsize if detbatchsize is not None else self.batchsize()
+        self._gate = gate
         
     def __call__(self, vi, stride=1):
         """Yield vipy.video.Scene(), an incremental tracked result for each frame"""
@@ -346,7 +347,7 @@ class MultiscaleVideoTracker(MultiscaleObjectDetector):
             for (j, im) in zip(range(0, len(framelist), stride), tolist(det(framelist[::stride], self._minconf, self._miniou, self._maxarea, objects=self._objects, overlapfrac=self._overlapfrac))):
                 for i in range(j, j+stride):                    
                     if i < len(framelist):
-                        yield (vi.assign(k*self._detbatchsize+i, im.objects(), minconf=self._trackconf, maxhistory=self._maxhistory) if (i == j) else vi)
+                        yield (vi.assign(k*self._detbatchsize+i, im.objects(), minconf=self._trackconf, maxhistory=self._maxhistory, gate=self._gate) if (i == j) else vi)
 
     def stream(self, vi):
         return self.__call__(vi)

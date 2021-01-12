@@ -134,7 +134,8 @@ class PIP_250k(pl.LightningModule, ActivityRecognition):
     def topk_probability(self, x_logits, k):
         yh = x_logits.detach().cpu().numpy()
         yh_prob = F.softmax(x_logits, dim=1).detach().cpu().numpy()
-        topk = [[(self.index_to_class(j), c[j], p[j]) for j in i[-k:][::-1]] for (c,p,i) in zip(yh, yh_prob, np.argsort(yh, axis=1))]  
+        topk = [[(self.index_to_class(j), c[j], p[j]) for j in i[-k:][::-1]] for (c,p,i) in zip(yh, yh_prob, np.argsort(yh, axis=1))]
+        print(topk)  # TESTING
         return topk
         
     # ---- <LIGHTNING>
@@ -231,7 +232,7 @@ class PIP_250k(pl.LightningModule, ActivityRecognition):
     @staticmethod
     def _totensor(v, training, validation, input_size, num_frames, mean, std, noflip=None, show=False, doflip=False, zeropad=True):
         assert isinstance(v, vipy.video.Scene), "Invalid input"
-
+        
         try:            
             v = v.download() if (not v.hasfilename() and v.hasurl()) else v  # fetch it if necessary, but do not do this during training!        
             if training or validation:
@@ -331,12 +332,21 @@ class ActivityTracker(PIP_250k):
             del x  # force garbage collection
             return x_forward
 
-    def __call__(self, vi, topk=1, activityiou=0, mirror=False, minprob=0, trackconf=0.1, maxdets=None):
+    def lrt(self, x_logits, lrt_threshold):
+        """top-k with likelihood ratio test with background null hypothesis"""
+        yh = x_logits.detach().cpu().numpy()
+        p_null = np.maximum(yh[:, self._class_to_index['person']], yh[:, self._class_to_index['vehicle']]).reshape(yh.shape[0], 1)
+        lr = yh - p_null   # ~= log likelihood ratio
+        f_logistic = lambda x,b,s=1.0: float(1.0 / (1.0 + np.exp(-s*(x + b))))
+        return [sorted([(self.index_to_class(j), s[j], t[j], f_logistic(s[j], 1.0)*f_logistic(t[j], 0.0)) for j in range(len(s)) if t[j] >= lrt_threshold], key=lambda x: x[3], reverse=True) for (s,t) in zip(yh, lr)]
+
+        
+    def __call__(self, vi, topk=1, activityiou=0, mirror=False, minprob=0, trackconf=0.1, maxdets=None, lr_threshold=-2.0):
         (n,m) = (self.temporal_support(), self.temporal_stride())
         aa = self._allowable_activities  # dictionary mapping of allowable classified activities to output names        
         f_nomirror = self.totensor(training=False, validation=False, show=False, doflip=False, zeropad=True)  # test video -> tensor
         f_mirror = self.totensor(training=False, validation=False, show=False, doflip=True, zeropad=True)  # test video -> tensor mirrored
-        f_totensor = lambda v: (torch.unsqueeze(f_nomirror(v.clone(sharedarray=True)), dim=0) if (not mirror or v.actor().category() != 'person') else torch.stack((f_nomirror(v.clone(sharedarray=True)), f_mirror(v)), dim=0))
+        f_totensor = lambda v: (torch.unsqueeze(f_nomirror(v.clone(sharedarray=True)), dim=0) if (not mirror or v.actor().category() != 'person') else torch.stack((f_nomirror(v.clone(sharedarray=True)), f_mirror(v.clone(sharedarray=True))), dim=0))
         def f_reduce(T,V):
             j = sum([v.actor().category() == 'person' for v in V])  # person mirrored, vehicle not mirrored
             (tm, t) = torch.split(T, (2*j, len(T)-2*j), dim=0)  # assumes sorted order, person first, only person/vehicle
@@ -346,15 +356,16 @@ class ActivityTracker(PIP_250k):
             vp = next(vi)  # peek in generator to create clip
             vi = itertools.chain([vp], vi)  # unpeek
             for (k, (v,vc)) in enumerate(zip(vi,vp.stream().clip(n, m, continuous=True))):
-                videotracks = [] if vc is None else [vt for vt in vc.tracksplit() if len(vt.actor())>0 and vt.actor().category() == 'person' or (vt.actor().category() == 'vehicle' and v.track(vt.actorid()).ismoving(k-10*n, k))]  # vehicle moved recently?
+                videotracks = [] if vc is None else [vt for vt in vc.tracksplit() if len(vt.actor())>=4 and (vt.actor().category() == 'person' or (vt.actor().category() == 'vehicle' and v.track(vt.actorid()).ismoving(k-10*n, k)))]  # vehicle moved recently?
                 videotracks = sorted(videotracks, key=lambda v: v.actor().confidence(last=1))[-maxdets:] if (maxdets is not None and len(videotracks)>maxdets) else videotracks  # sort by track confidence, and select only the most confident for detection
                 videotracks = sorted(videotracks, key=lambda v: v.actor().category())  # for grouping mirrored encoding: person<vehicle
+                
                 if len(videotracks)>0 and (k > n):
                     logits = self.forward(torch.cat([f_totensor(vt) for vt in videotracks], dim=0))  # augmented logits in track index order
                     logits = f_reduce(logits, videotracks) if mirror else logits  # reduced logits in track index order
-                    dets = [vipy.activity.Activity(category=aa[category], shortlabel=self._class_to_shortlabel[category], startframe=k-n, endframe=k, confidence=conf, framerate=v.framerate(), actorid=videotracks[j].actorid(), attributes={'pip':category}) 
-                            for (j, categoryconfprob) in enumerate(super().topk_probability(logits, topk))  # top-k activities
-                            for (category, conf, prob) in categoryconfprob   # top-k categories, confidence, probability for tensor
+                    dets = [vipy.activity.Activity(category=aa[category], shortlabel=self._class_to_shortlabel[category], startframe=k-n, endframe=k, confidence=prob, framerate=v.framerate(), actorid=videotracks[j].actorid(), attributes={'pip':category}) 
+                            for (j, category_conf_lr_prob) in enumerate(self.lrt(logits, lr_threshold))  # likelihood ratio test
+                            for (category, conf, lr, prob) in category_conf_lr_prob   
                             if ((category in aa) and   # requested activities only
                                 (videotracks[j].actor().category() in self._verb_to_noun[category]) and   # noun matching with category renaming dictionary
                                 prob>minprob)]   # minimum probability for new activity detection
@@ -366,19 +377,32 @@ class ActivityTracker(PIP_250k):
             raise
 
         finally:
-            # Activity probability:  Track probability * activity probability
-            v.activitymap(lambda a: a.confidence(float(1.0 / (1.0 + np.exp(-(a.confidence() + 1.0))))))   # activity confidence -> probability
-            v.activitymap(lambda a: a.confidence(v.track(a.actorid()).confidence(samples=8)*a.confidence()))  # "independent" probabilities
+            # likelihood ratio test for null hypothesis (background) thresold on this statistic defines verb proposal
+            # instead of topk return all that pass the LRT
+            # Final likelihood is noun*proposal*verb
+            # introduce sample based gate into tracker
+            # introduce penalty for non-required objects that we cannot currently detect (stealing, carrying, cashier)
+            # INtroduce penalty for friend not found (both parties need to agree on classification, or that we multiply the probabilities togtether)
+            # If we have an interaction with an object, this also has a noun*proposal*verb likelihood, and we multiply these together
+            # single frame detections for bicycles
+            # minimum probability to avoid getting swamped with low confidence detections
+            
+            # Parameters that depend on trackstride: minimum track length in videotracks, velocity, 
+            
+            # Activity probability:  noun*verb_proposal*verb probability 
+            v.activitymap(lambda a: a.confidence(v.track(a.actorid()).confidence(samples=8)*a.confidence())) 
         
             # Bad tracks:  Remove low confidence or too short non-moving tracks
             v.trackfilter(lambda t: len(t)>=v.framerate() and (t.confidence() >= trackconf or t.startbox().iou(t.endbox()) == 0)).activityfilter(lambda a: a.actorid() in v.tracks())  
-            #return # TESTING
             
-            # Poor classes:  Significantly reduce confidence of complex classes (yuck)
-            v.activitymap(lambda a: a.confidence(0.05*a.confidence()) if (a.category() in ['person_steals_object', 'person_abandons_package']) else a) 
+            # Missing objects:  Significantly reduce confidence of complex classes (yuck)
+            v.activitymap(lambda a: a.confidence(0.01*a.confidence()) if (a.category() in ['person_steals_object', 'person_abandons_package', 'person_purchases']) else a) 
 
+            # Missing objects:  Reduce confidence of classes without an associated object detection
+            v.activitymap(lambda a: a.confidence(0.1*a.confidence()) if (a.category() in ['person_talks_on_phone', 'person_texts_on_phone', 'person_reads_document', 'person_interacts_with_laptop', 'person_carries_heavy_object']) else a) 
+            
             # Vehicle track:  High confidence vehicle turns must be a minimum angle
-            v.activitymap(lambda a: a.confidence(0.2*a.confidence()) if ((a.category() in ['vehicle_turns_left', 'vehicle_turns_right']) and (abs(v.track(a.actorid()).bearing_change(a.startframe(), a.endframe(), dt=2*v.framerate())) < (np.pi/4))) else a)
+            v.activitymap(lambda a: a.confidence(0.1*a.confidence()) if ((a.category() in ['vehicle_turns_left', 'vehicle_turns_right']) and (abs(v.track(a.actorid()).bearing_change(a.startframe(), a.endframe(), dt=2*v.framerate())) < (np.pi/4))) else a)
 
             # Vehicle track:  U-turn can only be distinguished from left/right turn at the end of a track by looking at the turn angle
             v.activitymap(lambda a: a.category('vehicle_makes_u_turn').shortlabel('u turn') if ((a.category() in ['vehicle_turns_left', 'vehicle_turns_right']) and (abs(v.track(a.actorid()).bearing_change(a.startframe(), a.endframe(), dt=2*v.framerate())) > (np.pi-(np.pi/4)))) else a)
@@ -387,28 +411,41 @@ class ActivityTracker(PIP_250k):
             v.activitymap(lambda a: a.truncate(a.startframe(), a.startframe()+v.framerate()*5) if a.category() in ['vehicle_starts', 'vehicle_reverses'] else a)
             v.activitymap(lambda a: a.truncate(a.endframe()-5*v.framerate(), a.endframe()) if a.category() == 'vehicle_stops' else a)
             v.activitymap(lambda a: a.truncate(a.middleframe()-2.5*v.framerate(), a.middleframe()+2.5*v.framerate()) if a.category() in ['vehicle_turns_left', 'vehicle_turns_right', 'vehicle_makes_u_turn'] else a)   
-                          
+
+            # Group activity: Must be accompanied by a friend with the same activity detection
+            for c in ['person_embraces_person', 'hand_interacts_with_person', 'person_talks_to_person', 'person_transfers_object']:
+                v.activitymap(lambda a: a.confidence(0.1*a.confidence()) if (a.category() == c and
+                                                                              not any([(af.category() == c and
+                                                                                        af.id() != a.id() and
+                                                                                        af.actorid() != a.actorid() and 
+                                                                                        af.during_interval(a.startframe(), a.endframe(), inclusive=True) and 
+                                                                                        v.track(a.actorid()).boundingbox(a.startframe(), a.endframe()).maxsquare().dilate(1.2).iou(v.track(af.actorid()).boundingbox(a.startframe(), a.endframe())) > 0)
+                                                                                       for af in v.activitylist()])) else a)
+            
             # Person/Bicycle track: riding must be accompanied by an associated moving bicycle track
-            v.activitymap(lambda a: a.confidence(0.01*a.confidence()) if ((a.category() == 'person_rides_bicycle') and not any([t.category() == 'bicycle' and
-                                                                                                                                t.segment_maxiou(v.track(a.actorid()), a.startframe(), a.endframe()) > 0 and
-                                                                                                                                t.ismoving(a.startframe(), a.endframe())
-                                                                                                                                for t in v.tracklist()])) else a)
+            v.activityfilter(lambda a: a.category() != 'person_rides_bicycle')
+            bikelist = [v.add(vipy.activity.Activity(startframe=t.startframe(), endframe=t.endframe(), category='person_rides_bicycle', shortlabel='rides', confidence=t.confidence(samples=8), framerate=v.framerate(), actorid=t.id()))
+                              for t in v.tracklist() if t.category() == 'bicycle' and t.ismoving()]
+            #v.activitymap(lambda a: a.confidence(0.1*a.confidence()) if ((a.category() == 'person_rides_bicycle') and not any([t.category() == 'bicycle' and
+            #                                                                                                                    t.segment_maxiou(v.track(a.actorid()), a.startframe(), a.endframe()) > 0 and
+            #                                                                                                                    t.ismoving(a.startframe(), a.endframe())
+            #                                                                                                                    for t in v.tracklist()])) else a)
 
             # Person/Vehicle track: person/vehicle interaction must be accompanied by an associated stopped vehicle track
-            v.activitymap(lambda a: a.confidence(0.01*a.confidence()) if ((a.category().startswith('person') and ('vehicle' in a.category() or 'trunk' in a.category())) and not any([t.category() == 'vehicle' and
+            v.activitymap(lambda a: a.confidence(0.1*a.confidence()) if ((a.category().startswith('person') and ('vehicle' in a.category() or 'trunk' in a.category())) and not any([t.category() == 'vehicle' and
                                                                                                                                                                                       t.segment_maxiou(v.track(a.actorid()), a.startframe(), a.endframe()) > 0 and
                                                                                                                                                                                       not t.ismoving(a.startframe(), a.endframe())
                                                                                                                                                                                       for t in v.tracklist()])) else a)
             # Vehicle/Person track: vehicle/person interaction must be accompanied by an associated person track
-            v.activitymap(lambda a: a.confidence(0.01*a.confidence()) if ((a.category().startswith('vehicle') and ('person' in a.category())) and not any([t.category() == 'person' and t.segment_maxiou(v.track(a.actorid()), a.startframe(), a.endframe()) > 0 for t in v.tracklist()])) else a)
+            v.activitymap(lambda a: a.confidence(0.1*a.confidence()) if ((a.category().startswith('vehicle') and ('person' in a.category())) and not any([t.category() == 'person' and t.segment_maxiou(v.track(a.actorid()), a.startframe(), a.endframe()) > 0 for t in v.tracklist()])) else a)
 
             # Vehicle/Person track: vehicle dropoff/pickup must be accompanied by an associated person track start/end
-            v.activitymap(lambda a: a.confidence(0.01*a.confidence()) if (a.category() == 'vehicle_drops_off_person' and not any([t.category() == 'person' and t.segment_maxiou(v.track(a.actorid()), t.startframe(), t.startframe()+1) > 0 for t in v.tracklist()])) else a)
-            v.activitymap(lambda a: a.confidence(0.01*a.confidence()) if (a.category() == 'vehicle_picks_up_person' and not any([t.category() == 'person' and t.segment_maxiou(v.track(a.actorid()), t.endframe()-1, t.endframe()) > 0 for t in v.tracklist()])) else a)
+            v.activitymap(lambda a: a.confidence(0.1*a.confidence()) if (a.category() == 'vehicle_drops_off_person' and not any([t.category() == 'person' and t.segment_maxiou(v.track(a.actorid()), t.startframe(), t.startframe()+1) > 0 for t in v.tracklist()])) else a)
+            v.activitymap(lambda a: a.confidence(0.1*a.confidence()) if (a.category() == 'vehicle_picks_up_person' and not any([t.category() == 'person' and t.segment_maxiou(v.track(a.actorid()), t.endframe()-1, t.endframe()) > 0 for t in v.tracklist()])) else a)
             
             # Person track: enter/exit scene cannot be at the image boundary 
-            v.activitymap(lambda a: a.confidence(0.01*a.confidence()) if (a.category() == 'person_enters_scene_through_structure' and v.track(a.actorid())[max(a.startframe(), v.track(a.actorid()).startframe())].cover(v.framebox().dilate(0.9)) < 1) else a)
-            v.activitymap(lambda a: a.confidence(0.01*a.confidence()) if (a.category() == 'person_exits_scene_through_structure' and v.track(a.actorid())[min(a.endframe(), v.track(a.actorid()).endframe())].cover(v.framebox().dilate(0.9)) < 1) else a)
+            v.activitymap(lambda a: a.confidence(0.1*a.confidence()) if (a.category() == 'person_enters_scene_through_structure' and v.track(a.actorid())[max(a.startframe(), v.track(a.actorid()).startframe())].cover(v.framebox().dilate(0.9)) < 1) else a)
+            v.activitymap(lambda a: a.confidence(0.1*a.confidence()) if (a.category() == 'person_exits_scene_through_structure' and v.track(a.actorid())[min(a.endframe(), v.track(a.actorid()).endframe())].cover(v.framebox().dilate(0.9)) < 1) else a)
                         
             # Activity union:  Temporal gaps less than support should be merged into one activity detection for a single track
             merged = set([])
