@@ -230,7 +230,7 @@ class PIP_250k(pl.LightningModule, ActivityRecognition):
         return self
 
     @staticmethod
-    def _totensor(v, training, validation, input_size, num_frames, mean, std, noflip=None, show=False, doflip=False, zeropad=True):
+    def _totensor(v, training, validation, input_size, num_frames, mean, std, noflip=None, show=False, doflip=False):
         assert isinstance(v, vipy.video.Scene), "Invalid input"
         
         try:            
@@ -243,13 +243,12 @@ class PIP_250k(pl.LightningModule, ActivityRecognition):
                 (startframe, endframe) = (startframe, endframe) if (startframe < endframe) else (max(0, aj-num_frames), aj)  # fallback
                 assert endframe - startframe <= num_frames
                 vc = v.clone().clip(startframe, endframe)    # may fail for some short clips
-                vc = vc.trackcrop(dilate=1.2, maxsquare=True, zeropad=zeropad)  # may be None if clip contains no track
-                vc = vc.resize(input_size, input_size)   # if zeropad=False, boxes near edges will not be square and will be anisotropically distorted, but will be faster
+                vc = vc.trackcrop(dilate=1.2, maxsquare=True)  # may be None if clip contains no track
+                vc = vc.resize(input_size, input_size)   
                 vc = vc.fliplr() if (doflip or (np.random.rand() > 0.5)) and (noflip is None or vc.category() not in noflip) else vc
             else:
-                vc = v.trackcrop(dilate=1.2, maxsquare=True, zeropad=zeropad)  # may be None if clip contains no track
-                vc = vc if vc is not None else v.trackcrop(dilate=1.2, maxsquare=True, zeropad=True)  # fall back on zeropad if invalid
-                vc = vc.resize(input_size, input_size)  # if zeropad=False, boxes near edges will not be square and will be anisotropically distorted, but will be faster
+                vc = v.trackcrop(dilate=1.2, maxsquare=True)  # may be None if clip contains no track
+                vc = vc.resize(input_size, input_size)  
                 vc = vc.fliplr() if doflip and (noflip is None or vc.category() not in noflip) else vc
                 
             if show:
@@ -276,11 +275,11 @@ class PIP_250k(pl.LightningModule, ActivityRecognition):
         else:
             return t
 
-    def totensor(self, v=None, training=False, validation=False, show=False, doflip=False, zeropad=True):
+    def totensor(self, v=None, training=False, validation=False, show=False, doflip=False):
         """Return captured lambda function if v=None, else return tensor"""    
         assert v is None or isinstance(v, vipy.video.Scene), "Invalid input"
-        f = (lambda v, num_frames=self._num_frames, input_size=self._input_size, mean=self._mean, std=self._std, training=training, validation=validation, show=show, zeropad=zeropad:
-             PIP_250k._totensor(v, training, validation, input_size, num_frames, mean, std, noflip=['car_turns_left', 'car_turns_right'], show=show, doflip=doflip, zeropad=zeropad))
+        f = (lambda v, num_frames=self._num_frames, input_size=self._input_size, mean=self._mean, std=self._std, training=training, validation=validation, show=show:
+             PIP_250k._totensor(v, training, validation, input_size, num_frames, mean, std, noflip=['car_turns_left', 'car_turns_right'], show=show, doflip=doflip))
         return f(v) if v is not None else f
     
 
@@ -344,8 +343,8 @@ class ActivityTracker(PIP_250k):
     def __call__(self, vi, topk=1, activityiou=0, mirror=False, minprob=0, trackconf=0.1, maxdets=None, lr_threshold=-2.0):
         (n,m) = (self.temporal_support(), self.temporal_stride())
         aa = self._allowable_activities  # dictionary mapping of allowable classified activities to output names        
-        f_nomirror = self.totensor(training=False, validation=False, show=False, doflip=False, zeropad=True)  # test video -> tensor
-        f_mirror = self.totensor(training=False, validation=False, show=False, doflip=True, zeropad=True)  # test video -> tensor mirrored
+        f_nomirror = self.totensor(training=False, validation=False, show=False, doflip=False)  # test video -> tensor
+        f_mirror = self.totensor(training=False, validation=False, show=False, doflip=True)  # test video -> tensor mirrored
         f_totensor = lambda v: (torch.unsqueeze(f_nomirror(v.clone(sharedarray=True)), dim=0) if (not mirror or v.actor().category() != 'person') else torch.stack((f_nomirror(v.clone(sharedarray=True)), f_mirror(v.clone(sharedarray=True))), dim=0))
         def f_reduce(T,V):
             j = sum([v.actor().category() == 'person' for v in V])  # person mirrored, vehicle not mirrored
