@@ -355,9 +355,10 @@ class ActivityTracker(PIP_250k):
             vp = next(vi)  # peek in generator to create clip
             vi = itertools.chain([vp], vi)  # unpeek
             for (k, (v,vc)) in enumerate(zip(vi,vp.stream().clip(n, m, continuous=True))):
-                videotracks = [] if vc is None else [vt for vt in vc.tracksplit() if len(vt.actor())>=4 and (vt.actor().category() == 'person' or (vt.actor().category() == 'vehicle' and v.track(vt.actorid()).ismoving(k-10*n, k)))]  # vehicle moved recently?
-                videotracks = sorted(videotracks, key=lambda v: v.actor().confidence(last=1))[-maxdets:] if (maxdets is not None and len(videotracks)>maxdets) else videotracks  # sort by track confidence, and select only the most confident for detection
-                videotracks = sorted(videotracks, key=lambda v: v.actor().category())  # for grouping mirrored encoding: person<vehicle
+                videotracks = [] if vc is None else [vt for vt in vc.trackfilter(lambda t: len(t)>=4 and (t.category() == 'person' or (t.category() == 'vehicle' and v.track(t.id()).ismoving(k-10*n, k)))).tracksplit()]  # vehicle moved recently?
+                videotracks.sort(key=lambda v: v.actor().confidence(last=1))  # in-place
+                videotracks = videotracks[-maxdets:] if (maxdets is not None and len(videotracks)>maxdets) else videotracks   # select only the most confident for detection
+                videotracks.sort(key=lambda v: v.actor().category())  # in-place, for grouping mirrored encoding: person<vehicle
                 
                 if len(videotracks)>0 and (k > n):
                     logits = self.forward(torch.cat([f_totensor(vt) for vt in videotracks], dim=0))  # augmented logits in track index order
