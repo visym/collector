@@ -275,9 +275,9 @@ class MultiscaleObjectDetector(ObjectDetector):
             imcoarsedet = im_multiscale[0].mindim(iml.mindim())
             imcoarsedet_imagebox = imcoarsedet.imagebox()
             if filterborder:
-                imfinedet = iml.untile( [im.nms(conf, iou, cover=cover).objectfilter(lambda o: (o.area()<=maxarea*im.area() and   # not too big relative to tile
-                                                                                   (o.isinterior(im.width(), im.height(), border=0.9) or  # not occluded by any tile boundary 
-                                                                                    o.clone().dilatepx(0.1*im.width()+1).cover(im.imagebox()) == o.clone().dilatepx(0.1*im.width()+1).set_origin(im.attributes['tile']['crop']).cover(imcoarsedet_imagebox))))  # or only occluded by image boundary
+                imfinedet = iml.untile( [im.nms(conf, iou, cover=cover).objectfilter(lambda o: ((maxarea==1 or (o.area()<=maxarea*im.area())) and   # not too big relative to tile
+                                                                                                ((o.isinterior(im.width(), im.height(), border=0.9) or  # not occluded by any tile boundary 
+                                                                                                  o.clone().dilatepx(0.1*im.width()+1).cover(im.imagebox()) == o.clone().dilatepx(0.1*im.width()+1).set_origin(im.attributes['tile']['crop']).cover(imcoarsedet_imagebox)))))  # or only occluded by image boundary
                                          for im in im_multiscale[nc:]] )
             else:
                 imfinedet = iml.untile( im_multiscale[nc:] )

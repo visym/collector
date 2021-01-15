@@ -258,8 +258,6 @@ class PIP_250k(pl.LightningModule, ActivityRecognition):
             vc = vc.load(shape=(input_size, input_size, 3)).normalize(mean=mean, std=std, scale=1.0/255.0)  # [0,255] -> [0,1], triggers load() with known shape
             (t,lbl) = vc.torch(startframe=0, length=num_frames, boundary='cyclic', order='cdhw', withlabel=True)  # (c=3)x(d=num_frames)x(H=input_size)x(W=input_size), reuses vc._array -> t (requires t.clone())
             t = torch.cat((t.clone(), vc.channel(0).binarymask().float().bias(-0.5).torch(startframe=0, length=num_frames, boundary='cyclic', order='cdhw')), dim=0)  # (c=4) x (d=num_frames) x (H=input_size) x (W=input_size)
-
-
             
         except Exception as e:
             if training or validation:
@@ -285,14 +283,6 @@ class PIP_250k(pl.LightningModule, ActivityRecognition):
 
 class ActivityTracker(PIP_250k):
     def __init__(self, stride=1, activities=None, gpus=None, batchsize=None, mlbl=False, mlfl=False, modelfile=None):
-        #modelfile = '/disk1/diva/visym/epoch=18-step=10620.ckpt'
-        #modelfile = '/disk1/diva/visym/epoch=19-step=11179.ckpt'
-        #modelfile = '/disk1/diva/visym/epoch=30-step=17328.ckpt'
-        #modelfile = '/disk1/diva/visym/mlfl_epoch=9-step=11169.ckpt'
-        #modelfile = '/disk1/diva/visym/epoch=12-step=14520.ckpt'   # mlfl
-        #modelfile = '/disk1/diva/visym/mlfl_epoch=15-step=17871.ckpt' if modelfile is None else modelfile 
-        #modelfile = '/disk1/diva/visym/epoch_23-step_26807_3.ckpt' if modelfile is None else modelfile
-        #modelfile = '/disk1/diva/visym/mlfl_0060_epoch_12-step_14520.ckpt' if modelfile is None else modelfile  # 0065
         assert modelfile is not None
 
         super().__init__(pretrained=False, modelfile=modelfile, mlbl=mlbl, mlfl=mlfl)
@@ -376,18 +366,6 @@ class ActivityTracker(PIP_250k):
             raise
 
         finally:
-            # likelihood ratio test for null hypothesis (background) thresold on this statistic defines verb proposal
-            # instead of topk return all that pass the LRT
-            # Final likelihood is noun*proposal*verb
-            # introduce sample based gate into tracker
-            # introduce penalty for non-required objects that we cannot currently detect (stealing, carrying, cashier)
-            # INtroduce penalty for friend not found (both parties need to agree on classification, or that we multiply the probabilities togtether)
-            # If we have an interaction with an object, this also has a noun*proposal*verb likelihood, and we multiply these together
-            # single frame detections for bicycles
-            # minimum probability to avoid getting swamped with low confidence detections
-            
-            # Parameters that depend on trackstride: minimum track length in videotracks, velocity, 
-            
             # Activity probability:  noun*verb_proposal*verb probability 
             v.activitymap(lambda a: a.confidence(v.track(a.actorid()).confidence(samples=8)*a.confidence())) 
         
@@ -401,10 +379,10 @@ class ActivityTracker(PIP_250k):
             v.activitymap(lambda a: a.confidence(0.1*a.confidence()) if (a.category() in ['person_talks_on_phone', 'person_texts_on_phone', 'person_reads_document', 'person_interacts_with_laptop', 'person_carries_heavy_object']) else a) 
             
             # Vehicle track:  High confidence vehicle turns must be a minimum angle
-            v.activitymap(lambda a: a.confidence(0.1*a.confidence()) if ((a.category() in ['vehicle_turns_left', 'vehicle_turns_right']) and (abs(v.track(a.actorid()).bearing_change(a.startframe(), a.endframe(), dt=2*v.framerate())) < (np.pi/4))) else a)
+            v.activitymap(lambda a: a.confidence(0.1*a.confidence()) if ((a.category() in ['vehicle_turns_left', 'vehicle_turns_right']) and (abs(v.track(a.actorid()).bearing_change(a.startframe(), a.endframe(), dt=v.framerate())) < (np.pi/4))) else a)
 
             # Vehicle track:  U-turn can only be distinguished from left/right turn at the end of a track by looking at the turn angle
-            v.activitymap(lambda a: a.category('vehicle_makes_u_turn').shortlabel('u turn') if ((a.category() in ['vehicle_turns_left', 'vehicle_turns_right']) and (abs(v.track(a.actorid()).bearing_change(a.startframe(), a.endframe(), dt=2*v.framerate())) > (np.pi-(np.pi/4)))) else a)
+            v.activitymap(lambda a: a.category('vehicle_makes_u_turn').shortlabel('u turn') if ((a.category() in ['vehicle_turns_left', 'vehicle_turns_right']) and (abs(v.track(a.actorid()).bearing_change(a.startframe(), a.endframe(), dt=v.framerate())) > (np.pi-(np.pi/4)))) else a)
 
             # Vehicle track: Starts and stops must be at most 5 seconds (yuck)
             v.activitymap(lambda a: a.truncate(a.startframe(), a.startframe()+v.framerate()*5) if a.category() in ['vehicle_starts', 'vehicle_reverses'] else a)
@@ -419,7 +397,7 @@ class ActivityTracker(PIP_250k):
                                                                                         af.actorid() != a.actorid() and 
                                                                                         af.during_interval(a.startframe(), a.endframe(), inclusive=True) and 
                                                                                         v.track(a.actorid()).boundingbox(a.startframe(), a.endframe()).maxsquare().dilate(1.2).iou(v.track(af.actorid()).boundingbox(a.startframe(), a.endframe())) > 0)
-                                                                                       for af in v.activitylist()])) else a)
+                                                                                       for af in v.activities().values()])) else a)
             
             # Person/Bicycle track: riding must be accompanied by an associated moving bicycle track
             v.activityfilter(lambda a: a.category() != 'person_rides_bicycle')
@@ -452,7 +430,7 @@ class ActivityTracker(PIP_250k):
             for a in sorted(v.activities().values(), key=lambda a: a.startframe()):
                 for o in other:
                     if (o.startframe() >= a.startframe()) and (a.id() != o.id()) and (o.actorid() == a.actorid()) and (o.category() == a.category()) and (o.id() not in merged) and (a.id() not in merged) and (a.temporal_distance(o) <= self.temporal_support()): 
-                        a.union(o)  # in-place update
+                        a.union(o, maxconf=True)  # in-place update
                         merged.add(o.id())
             v.activityfilter(lambda a: a.id() not in merged)
 
@@ -464,7 +442,7 @@ class ActivityTracker(PIP_250k):
                 if a.category() in tomerge:
                     for o in other:
                         if (o.startframe() >= a.startframe()) and (o.id() != a.id()) and (o.actorid() == a.actorid()) and (o.category() == a.category()) and (o.id() not in merged) and (a.id() not in merged) and (a.temporal_distance(o) < 10*v.framerate()):  # "brief" == "<10s"
-                            a.union(o)  # in-place update
+                            a.union(o, maxconf=True)  # in-place update
                             merged.add(o.id())
             v.activityfilter(lambda a: a.id() not in merged)            
 
