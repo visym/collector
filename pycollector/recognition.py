@@ -330,7 +330,7 @@ class ActivityTracker(PIP_250k):
         return [sorted([(self.index_to_class(j), s[j], t[j], f_logistic(s[j], 1.0)*f_logistic(t[j], 0.0)) for j in range(len(s)) if t[j] >= lrt_threshold], key=lambda x: x[3], reverse=True) for (s,t) in zip(yh, lr)]
 
         
-    def __call__(self, vi, topk=1, activityiou=0, mirror=False, minprob=0, trackconf=0.1, maxdets=None, lr_threshold=-2.0):
+    def __call__(self, vi, topk=1, activityiou=0, mirror=False, minprob=0, trackconf=0.1, maxdets=None, lr_threshold=-2.0, avgdets=None):
         (n,m) = (self.temporal_support(), self.temporal_stride())
         aa = self._allowable_activities  # dictionary mapping of allowable classified activities to output names        
         f_nomirror = self.totensor(training=False, validation=False, show=False, doflip=False)  # test video -> tensor
@@ -344,10 +344,12 @@ class ActivityTracker(PIP_250k):
         try:
             vp = next(vi)  # peek in generator to create clip
             vi = itertools.chain([vp], vi)  # unpeek
+            sw = vipy.util.Stopwatch()  # real-time framerate estimate
             for (k, (v,vc)) in enumerate(zip(vi,vp.stream().clip(n, m, continuous=True))):
                 videotracks = [] if vc is None else [vt for vt in vc.trackfilter(lambda t: len(t)>=4 and (t.category() == 'person' or (t.category() == 'vehicle' and v.track(t.id()).ismoving(k-10*n, k)))).tracksplit()]  # vehicle moved recently?
                 videotracks.sort(key=lambda v: v.actor().confidence(last=1))  # in-place
-                videotracks = videotracks[-maxdets:] if (maxdets is not None and len(videotracks)>maxdets) else videotracks   # select only the most confident for detection
+                numdets = maxdets if ((avgdets is None) or (sw.duration()<=60) or ((sw.duration()>60) and ((k/sw.duration())/(vp.framerate()))>0.8)) else avgdets   # real-time throttle schedule
+                videotracks = videotracks[-numdets:] if (numdets is not None and len(videotracks)>numdets) else videotracks   # select only the most confident for detection
                 videotracks.sort(key=lambda v: v.actor().category())  # in-place, for grouping mirrored encoding: person<vehicle
                 
                 if len(videotracks)>0 and (k > n):
