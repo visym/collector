@@ -348,8 +348,8 @@ class ActivityTracker(PIP_250k):
             for (k, (v,vc)) in enumerate(zip(vi,vp.stream().clip(n, m, continuous=True))):
                 videotracks = [] if vc is None else [vt for vt in vc.trackfilter(lambda t: len(t)>=4 and (t.category() == 'person' or (t.category() == 'vehicle' and v.track(t.id()).ismoving(k-10*n, k)))).tracksplit()]  # vehicle moved recently?
                 videotracks.sort(key=lambda v: v.actor().confidence(last=1))  # in-place
-                numdets = (maxdets if ((avgdets is None) or (sw.duration()<=60) or ((sw.duration()>60) and ((k/sw.duration())/vp.framerate())>0.8)) else
-                           (avgdets if ((k/sw.duration())/vp.framerate())>0.5 else int(avgdets//2)))   # real-time throttle schedule
+                numdets = (maxdets if ((avgdets is None) or (sw.duration()<=60) or ((sw.duration()>60) and ((k/sw.duration())/vp.framerate())>0.67)) else
+                           (avgdets if ((k/sw.duration())/vp.framerate())>0.4 else int(avgdets//2)))   # real-time throttle schedule
                 videotracks = videotracks[-numdets:] if (numdets is not None and len(videotracks)>numdets) else videotracks   # select only the most confident for detection
                 videotracks.sort(key=lambda v: v.actor().category())  # in-place, for grouping mirrored encoding: person<vehicle
                 
