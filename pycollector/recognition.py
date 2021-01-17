@@ -256,8 +256,8 @@ class PIP_250k(pl.LightningModule, ActivityRecognition):
                 vc.clone().binarymask().frame(0).rgb().show(figure='binary mask: frame 0')
                 
             vc = vc.load(shape=(input_size, input_size, 3)).normalize(mean=mean, std=std, scale=1.0/255.0)  # [0,255] -> [0,1], triggers load() with known shape
-            (t,lbl) = vc.torch(startframe=0, length=num_frames, boundary='cyclic', order='cdhw', withlabel=True)  # (c=3)x(d=num_frames)x(H=input_size)x(W=input_size), reuses vc._array -> t (requires t.clone())
-            t = torch.cat((t.clone(), vc.channel(0).binarymask().float().bias(-0.5).torch(startframe=0, length=num_frames, boundary='cyclic', order='cdhw')), dim=0)  # (c=4) x (d=num_frames) x (H=input_size) x (W=input_size)
+            (t,lbl) = vc.torch(startframe=0, length=num_frames, boundary='cyclic', order='cdhw', withlabel=True)  # (c=3)x(d=num_frames)x(H=input_size)x(W=input_size), reuses vc._array 
+            t = torch.cat((t, vc.asfloatmask(fg=0.5, bg=-0.5).torch(startframe=0, length=num_frames, boundary='cyclic', order='cdhw')), dim=0)  # (c=4) x (d=num_frames) x (H=input_size) x (W=input_size)                        
             
         except Exception as e:
             if training or validation:
@@ -348,7 +348,8 @@ class ActivityTracker(PIP_250k):
             for (k, (v,vc)) in enumerate(zip(vi,vp.stream().clip(n, m, continuous=True))):
                 videotracks = [] if vc is None else [vt for vt in vc.trackfilter(lambda t: len(t)>=4 and (t.category() == 'person' or (t.category() == 'vehicle' and v.track(t.id()).ismoving(k-10*n, k)))).tracksplit()]  # vehicle moved recently?
                 videotracks.sort(key=lambda v: v.actor().confidence(last=1))  # in-place
-                numdets = maxdets if ((avgdets is None) or (sw.duration()<=60) or ((sw.duration()>60) and ((k/sw.duration())/(vp.framerate()))>0.8)) else avgdets   # real-time throttle schedule
+                numdets = (maxdets if ((avgdets is None) or (sw.duration()<=60) or ((sw.duration()>60) and ((k/sw.duration())/vp.framerate())>1)) else
+                           (avgdets if ((k/sw.duration())/vp.framerate())>0.6 else int(avgdets//2)))   # real-time throttle schedule
                 videotracks = videotracks[-numdets:] if (numdets is not None and len(videotracks)>numdets) else videotracks   # select only the most confident for detection
                 videotracks.sort(key=lambda v: v.actor().category())  # in-place, for grouping mirrored encoding: person<vehicle
                 
@@ -433,7 +434,7 @@ class ActivityTracker(PIP_250k):
             for a in sorted(v.activities().values(), key=lambda a: a.startframe()):
                 for o in other:
                     if (o.startframe() >= a.startframe()) and (a.id() != o.id()) and (o.actorid() == a.actorid()) and (o.category() == a.category()) and (o.id() not in merged) and (a.id() not in merged) and (a.temporal_distance(o) <= self.temporal_support()): 
-                        a.union(o, maxconf=True)  # in-place update
+                        a.union(o)  # in-place update
                         merged.add(o.id())
             v.activityfilter(lambda a: a.id() not in merged)
 
@@ -445,7 +446,7 @@ class ActivityTracker(PIP_250k):
                 if a.category() in tomerge:
                     for o in other:
                         if (o.startframe() >= a.startframe()) and (o.id() != a.id()) and (o.actorid() == a.actorid()) and (o.category() == a.category()) and (o.id() not in merged) and (a.id() not in merged) and (a.temporal_distance(o) < 10*v.framerate()):  # "brief" == "<10s"
-                            a.union(o, maxconf=True)  # in-place update
+                            a.union(o)  # in-place update
                             merged.add(o.id())
             v.activityfilter(lambda a: a.id() not in merged)            
 
