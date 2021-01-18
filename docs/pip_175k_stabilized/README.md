@@ -37,6 +37,13 @@ vs.getattribute('stabilize')   # returns a stabilization residual (bigger is wor
 
 [Notebook demo](https://htmlpreview.github.io/?https://github.com/visym/collector/blob/master/docs/pip_175k/best_practices.html)&nbsp;[[html]](https://htmlpreview.github.io/?https://github.com/visym/collector/blob/master/docs/pip_175k/best_practices.html)[[ipynb]](https://github.com/visym/collector/blob/master/docs/pip_175k/best_practices.ipynb) showing best practices for using the PIP-175k dataset for training.
 
+## Errata
+
+* The classes hand_interacts_with_person_shakehands and person_shakes_hand are duplicated and should be merged
+* The classes hand_interacts_with_person_holdhands and person_holds_hand are duplicated and should be merged
+* The classes person_abandons_bag and person_abandons_package are near duplicates and should be merged
+* The classes person_steals_object and person_steals_object_from_person are duplicated and should be merged
+
 # License
 
 Creative Commons Attribution 4.0 International [(CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/)

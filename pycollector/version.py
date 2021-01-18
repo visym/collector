@@ -1,6 +1,6 @@
 MAJOR = 0
 MINOR = 0
-RELEASE = 30
+RELEASE = 57
 VERSION = '%d.%d.%d' % (MAJOR, MINOR, RELEASE)
 
 
@@ -19,3 +19,5 @@ def is_at_least(versionstring):
     return num(VERSION) >= num(versionstring)    
 
 
+def is_exactly(versionstring):
+    return versionstring == VERSION

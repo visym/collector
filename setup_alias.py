@@ -31,7 +31,8 @@ setup(
     download_url=d_setup['download_url'],
     install_requires=d_setup['install_requires'],
     keywords=d_setup['keywords'],
-    classifiers=d_setup['classifiers']
+    classifiers=d_setup['classifiers'],
+    include_package_data=True
 )
 
 
