@@ -31,7 +31,7 @@ class TorchNet(object):
             for m in self._models:
                 m.eval()
             self._gpulist = idlist
-
+        torch.set_grad_enabled(False)            
         return self
 
     def iscpu(self):
@@ -109,6 +109,7 @@ class Yolov5(TorchNet):
         self._device = None
         self._gpulist = gpu
         self.gpu(gpu, batchsize)
+        torch.set_grad_enabled(False)
         
     def __call__(self, imlist, conf=1E-3, iou=0.5, union=False, objects=None):
         """Run detection on an image list at specific mininum confidence and iou NMS
@@ -122,15 +123,15 @@ class Yolov5(TorchNet):
 
         imlist = tolist(imlist)
         imlistdets = []
-        t = torch.cat([im.clone(shallow=True).maxsquare().mindim(self._mindim).gain(1.0/255.0).torch() for im in imlist]).type(self._tensortype)  # triggers load
+        t = torch.cat([im.clone(shallow=True).maxsquare().mindim(self._mindim).gain(1.0/255.0).torch() for im in imlist])  # triggers load
 
         assert len(t) <= self.batchsize(), "Invalid batch size"
-        t = t.pin_memory() if self.isgpu() else t
+        t = t.pin_memory() if self.isgpu() else t 
         todevice = [b.to(d, non_blocking=True) for (b,d) in zip(t.split(self._batchsize) , self._devices)]  # async?
         fromdevice = [m(b)[0] for (m,b) in zip(self._models, todevice)]     # detection!
         t_out = [torch.squeeze(t, dim=0) for d in fromdevice for t in torch.split(d, 1, 0)]   # unpack batch to list of detections per imag
         t_out = [torch.cat((t[:,0:5], torch.argmax(t[:,5:], dim=1, keepdim=True)), dim=1) for t in t_out]  # filter argmax on device 
-        t_out = [t[t[:,4]>conf].detach().cpu().numpy() for t in t_out]  # filter conf on device (this must be last)
+        t_out = [t[t[:,4]>conf].cpu().numpy() for t in t_out]  # filter conf on device (this must be last)
 
         k_valid_objects = set([self._cls2index[k] for k in objects.keys()]) if objects is not None else self._cls2index.values()        
         for (im, dets) in zip(imlist, t_out):
@@ -275,13 +276,15 @@ class MultiscaleObjectDetector(ObjectDetector):
             imcoarsedet = im_multiscale[0].mindim(iml.mindim())
             imcoarsedet_imagebox = imcoarsedet.imagebox()
             if filterborder:
-                imfinedet = iml.untile( [im.nms(conf, iou, cover=cover).objectfilter(lambda o: ((maxarea==1 or (o.area()<=maxarea*im.area())) and   # not too big relative to tile
-                                                                                                ((o.isinterior(im.width(), im.height(), border=0.9) or  # not occluded by any tile boundary 
-                                                                                                  o.clone().dilatepx(0.1*im.width()+1).cover(im.imagebox()) == o.clone().dilatepx(0.1*im.width()+1).set_origin(im.attributes['tile']['crop']).cover(imcoarsedet_imagebox)))))  # or only occluded by image boundary
-                                         for im in im_multiscale[nc:]] )
+                imfinedet = [im.nms(conf, iou, cover=cover).objectfilter(lambda o: ((maxarea==1 or (o.area()<=maxarea*im.area())) and   # not too big relative to tile
+                                                                                    ((o.isinterior(im.width(), im.height(), border=0.9) or  # not occluded by any tile boundary 
+                                                                                      o.clone().dilatepx(0.1*im.width()+1).cover(im.imagebox()) == o.clone().dilatepx(0.1*im.width()+1).set_origin(im.attributes['tile']['crop']).cover(imcoarsedet_imagebox)))))  # or only occluded by image boundary
+                             for im in im_multiscale[nc:]]
+                imfinedet = [im.objectmap(lambda o: o.set_origin(im.attributes['tile']['crop'])) for im in imfinedet]  # shift objects only, equivalent to untile() but faster
+                imcoarsedet = imcoarsedet.objects( imcoarsedet.objects() + [o for im in imfinedet for o in im.objects()])  # union
             else:
                 imfinedet = iml.untile( im_multiscale[nc:] )
-            imcoarsedet = imcoarsedet.union(imfinedet) if imfinedet is not None else imcoarsedet
+                imcoarsedet = imcoarsedet.union(imfinedet) if imfinedet is not None else imcoarsedet
             imlistdet.append(imcoarsedet.nms(conf, iou, cover=cover))
 
         return imlistdet[0] if len(imlistdet) == 1 else imlistdet

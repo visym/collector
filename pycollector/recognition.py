@@ -298,6 +298,7 @@ class ActivityTracker(PIP_250k):
             self._gpus = [copy.deepcopy(self.net).to(d, non_blocking=False) for d in self._devices]  
             for m in self._gpus:
                 m.eval()
+        torch.set_grad_enabled(False)
 
     def temporal_stride(self, s=None):
         if s is not None:
@@ -315,7 +316,7 @@ class ActivityTracker(PIP_250k):
             for b in x.split(self._batchsize_per_gpu*len(self._gpus)):
                 todevice = [t.pin_memory().to(d, non_blocking=True) for (t,d) in zip(b.split(self._batchsize_per_gpu), self._devices)]  # async?
                 ondevice = [m(t) for (m,t) in zip(self._gpus, todevice)]   # async?
-                fromdevice = torch.cat([t.detach().cpu() for t in ondevice], dim=0)
+                fromdevice = torch.cat([t.cpu() for t in ondevice], dim=0)
                 x_forward = fromdevice if x_forward is None else torch.cat((x_forward, fromdevice), dim=0)
                 del ondevice, todevice, fromdevice, b  # force garbage collection of GPU memory
             del x  # force garbage collection
@@ -348,8 +349,8 @@ class ActivityTracker(PIP_250k):
             for (k, (v,vc)) in enumerate(zip(vi,vp.stream().clip(n, m, continuous=True))):
                 videotracks = [] if vc is None else [vt for vt in vc.trackfilter(lambda t: len(t)>=4 and (t.category() == 'person' or (t.category() == 'vehicle' and v.track(t.id()).ismoving(k-10*n, k)))).tracksplit()]  # vehicle moved recently?
                 videotracks.sort(key=lambda v: v.actor().confidence(last=1))  # in-place
-                numdets = (maxdets if ((avgdets is None) or (sw.duration()<=60) or ((sw.duration()>60) and ((k/sw.duration())/vp.framerate())>0.67)) else
-                           (avgdets if ((k/sw.duration())/vp.framerate())>0.4 else int(avgdets//2)))   # real-time throttle schedule
+                numdets = (maxdets if ((avgdets is None) or (sw.duration()<=60) or ((sw.duration()>60) and ((k/sw.duration())/vp.framerate())>0.8)) else
+                           (avgdets if ((k/sw.duration())/vp.framerate())>0.67 else int(avgdets//2)))   # real-time throttle schedule
                 videotracks = videotracks[-numdets:] if (numdets is not None and len(videotracks)>numdets) else videotracks   # select only the most confident for detection
                 videotracks.sort(key=lambda v: v.actor().category())  # in-place, for grouping mirrored encoding: person<vehicle
                 
@@ -370,9 +371,6 @@ class ActivityTracker(PIP_250k):
             raise
 
         finally:
-            # Activity probability:  noun*verb_proposal*verb probability 
-            v.activitymap(lambda a: a.confidence(v.track(a.actorid()).confidence(samples=8)*a.confidence())) 
-        
             # Bad tracks:  Remove low confidence or too short non-moving tracks
             v.trackfilter(lambda t: len(t)>=v.framerate() and (t.confidence() >= trackconf or t.startbox().iou(t.endbox()) == 0)).activityfilter(lambda a: a.actorid() in v.tracks())  
             
@@ -414,9 +412,9 @@ class ActivityTracker(PIP_250k):
 
             # Person/Vehicle track: person/vehicle interaction must be accompanied by an associated stopped vehicle track
             v.activitymap(lambda a: a.confidence(0.1*a.confidence()) if ((a.category().startswith('person') and ('vehicle' in a.category() or 'trunk' in a.category())) and not any([t.category() == 'vehicle' and
-                                                                                                                                                                                      t.segment_maxiou(v.track(a.actorid()), a.startframe(), a.endframe()) > 0 and
-                                                                                                                                                                                      not t.ismoving(a.startframe(), a.endframe())
-                                                                                                                                                                                      for t in v.tracks().values()])) else a)
+                                                                                                                                                                                     t.segment_maxiou(v.track(a.actorid()), a.startframe(), a.endframe()) > 0 and
+                                                                                                                                                                                     not t.ismoving(a.startframe(), a.endframe())
+                                                                                                                                                                                     for t in v.tracks().values()])) else a)
             # Vehicle/Person track: vehicle/person interaction must be accompanied by an associated person track
             v.activitymap(lambda a: a.confidence(0.1*a.confidence()) if ((a.category().startswith('vehicle') and ('person' in a.category())) and not any([t.category() == 'person' and t.segment_maxiou(v.track(a.actorid()), a.startframe(), a.endframe()) > 0 for t in v.tracks().values()])) else a)
 
