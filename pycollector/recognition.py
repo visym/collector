@@ -335,7 +335,7 @@ class ActivityTracker(PIP_250k):
         (n,m) = (self.temporal_support(), self.temporal_stride())
         aa = self._allowable_activities  # dictionary mapping of allowable classified activities to output names        
         f_encode = self.totensor(training=False, validation=False, show=False, doflip=False)  # test video -> tensor
-        f_mirror = lambda t: torch.stack((t, torch.flip(t, dims=[2])), dim=0) 
+        f_mirror = lambda t: torch.stack((t, torch.flip(t, dims=[3])), dim=0)  # CxNxHxW -> CxNxHx(-W)
         f_totensor = lambda v: (torch.unsqueeze(f_encode(v.clone(sharedarray=True)), dim=0) if (not mirror or v.actor().category() != 'person') else f_mirror(f_encode(v.clone(sharedarray=True))))
         def f_reduce(T,V):
             j = sum([v.actor().category() == 'person' for v in V])  # person mirrored, vehicle not mirrored
