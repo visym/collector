@@ -312,9 +312,10 @@ class ActivityTracker(PIP_250k):
         if self._gpus is None:
             return super().forward(x)  # cpu
         else:
-            x_forward = None
-            for b in x.split(self._batchsize_per_gpu*len(self._gpus)):
-                todevice = [t.pin_memory().to(d, non_blocking=True) for (t,d) in zip(b.split(self._batchsize_per_gpu), self._devices)]  # async?
+            x_forward = None            
+            for b in x.pin_memory().split(self._batchsize_per_gpu*len(self._gpus)):
+                n_todevice = np.sum(np.array([1 if k<len(b) else 0 for k in range(int(len(self._devices)*np.ceil(len(b)/len(self._devices))))]).reshape(-1, len(self._devices)), axis=0).tolist()
+                todevice = [t.to(d, non_blocking=True) for (t,d) in zip(b.split(int(np.ceil(len(b)/len(self._devices)))), self._devices)] 
                 ondevice = [m(t) for (m,t) in zip(self._gpus, todevice)]   # async?
                 fromdevice = torch.cat([t.cpu() for t in ondevice], dim=0)
                 x_forward = fromdevice if x_forward is None else torch.cat((x_forward, fromdevice), dim=0)
@@ -329,14 +330,13 @@ class ActivityTracker(PIP_250k):
         lr = yh - p_null   # ~= log likelihood ratio
         f_logistic = lambda x,b,s=1.0: float(1.0 / (1.0 + np.exp(-s*(x + b))))
         return [sorted([(self.index_to_class(j), s[j], t[j], f_logistic(s[j], 1.0)*f_logistic(t[j], 0.0)) for j in range(len(s)) if t[j] >= lrt_threshold], key=lambda x: x[3], reverse=True) for (s,t) in zip(yh, lr)]
-
         
     def __call__(self, vi, topk=1, activityiou=0, mirror=False, minprob=0, trackconf=0.1, maxdets=None, lr_threshold=-2.0, avgdets=None):
         (n,m) = (self.temporal_support(), self.temporal_stride())
         aa = self._allowable_activities  # dictionary mapping of allowable classified activities to output names        
-        f_nomirror = self.totensor(training=False, validation=False, show=False, doflip=False)  # test video -> tensor
-        f_mirror = self.totensor(training=False, validation=False, show=False, doflip=True)  # test video -> tensor mirrored
-        f_totensor = lambda v: (torch.unsqueeze(f_nomirror(v.clone(sharedarray=True)), dim=0) if (not mirror or v.actor().category() != 'person') else torch.stack((f_nomirror(v.clone(sharedarray=True)), f_mirror(v.clone(sharedarray=True))), dim=0))
+        f_encode = self.totensor(training=False, validation=False, show=False, doflip=False)  # test video -> tensor
+        f_mirror = lambda t: torch.stack((t, torch.flip(t, dims=[2])), dim=0) 
+        f_totensor = lambda v: (torch.unsqueeze(f_encode(v.clone(sharedarray=True)), dim=0) if (not mirror or v.actor().category() != 'person') else f_mirror(f_encode(v.clone(sharedarray=True))))
         def f_reduce(T,V):
             j = sum([v.actor().category() == 'person' for v in V])  # person mirrored, vehicle not mirrored
             (tm, t) = torch.split(T, (2*j, len(T)-2*j), dim=0)  # assumes sorted order, person first, only person/vehicle
@@ -347,7 +347,7 @@ class ActivityTracker(PIP_250k):
             vi = itertools.chain([vp], vi)  # unpeek
             sw = vipy.util.Stopwatch()  # real-time framerate estimate
             for (k, (v,vc)) in enumerate(zip(vi,vp.stream().clip(n, m, continuous=True))):
-                videotracks = [] if vc is None else [vt for vt in vc.trackfilter(lambda t: len(t)>=4 and (t.category() == 'person' or (t.category() == 'vehicle' and v.track(t.id()).ismoving(k-10*n, k)))).tracksplit()]  # vehicle moved recently?
+                videotracks = [] if vc is None else [vt for vt in vc.trackfilter(lambda t: len(t)>=4 and (t.category() == 'person' or (t.category() == 'vehicle' and v.track(t.id()).ismoving(k-10*n, k)))).tracksplit()]  # vehicle moved recently? 
                 videotracks.sort(key=lambda v: v.actor().confidence(last=1))  # in-place
                 numdets = (maxdets if ((avgdets is None) or (sw.duration()<=60) or ((sw.duration()>60) and ((k/sw.duration())/vp.framerate())>0.8)) else
                            (avgdets if ((k/sw.duration())/vp.framerate())>0.67 else int(avgdets//2)))   # real-time throttle schedule
