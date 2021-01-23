@@ -249,8 +249,8 @@ class PIP_250k(pl.LightningModule, ActivityRecognition):
                 vc.clone().binarymask().frame(0).rgb().show(figure='binary mask: frame 0')
                 
             vc = vc.load(shape=(input_size, input_size, 3)).normalize(mean=mean, std=std, scale=1.0/255.0)  # [0,255] -> [0,1], triggers load() with known shape
-            (t,lbl) = vc.torch(startframe=0, length=num_frames, boundary='cyclic', order='cdhw', withlabel=True)  # (c=3)x(d=num_frames)x(H=input_size)x(W=input_size), reuses vc._array 
-            t = torch.cat((t, vc.asfloatmask(fg=0.5, bg=-0.5).torch(startframe=0, length=num_frames, boundary='cyclic', order='cdhw')), dim=0)  # (c=4) x (d=num_frames) x (H=input_size) x (W=input_size)                        
+            (t,lbl) = vc.torch(startframe=0, length=num_frames, boundary='cyclic', order='cdhw', withlabel=training or validation, nonelabel=True)  # (c=3)x(d=num_frames)x(H=input_size)x(W=input_size), reuses vc._array
+            t = torch.cat((t, vc.asfloatmask(fg=0.5, bg=-0.5).torch(startframe=0, length=num_frames, boundary='cyclic', order='cdhw')), dim=0)  # (c=4) x (d=num_frames) x (H=input_size) x (W=input_size), copy
             
         except Exception as e:
             if training or validation:
@@ -306,10 +306,10 @@ class ActivityTracker(PIP_250k):
             return super().forward(x)  # cpu
         else:
             x_forward = None            
-            for b in x.pin_memory().split(self._batchsize_per_gpu*len(self._gpus)):
+            for b in x.pin_memory().split(self._batchsize_per_gpu*len(self._gpus)):  # pinned copy
                 n_todevice = np.sum(np.array([1 if k<len(b) else 0 for k in range(int(len(self._devices)*np.ceil(len(b)/len(self._devices))))]).reshape(-1, len(self._devices)), axis=0).tolist()
-                todevice = [t.to(d, non_blocking=True) for (t,d) in zip(b.split(int(np.ceil(len(b)/len(self._devices)))), self._devices)] 
-                ondevice = [m(t) for (m,t) in zip(self._gpus, todevice)]   # async?
+                todevice = [t.to(d, non_blocking=True) for (t,d) in zip(b.split(n_todevice), self._devices) if len(t)>0]   # async device copy
+                ondevice = [m(t) for (m,t) in zip(self._gpus, todevice)]   # async
                 fromdevice = torch.cat([t.cpu() for t in ondevice], dim=0)
                 x_forward = fromdevice if x_forward is None else torch.cat((x_forward, fromdevice), dim=0)
                 del ondevice, todevice, fromdevice, b  # force garbage collection of GPU memory
@@ -327,9 +327,10 @@ class ActivityTracker(PIP_250k):
     def __call__(self, vi, topk=1, activityiou=0, mirror=False, minprob=0, trackconf=0.1, maxdets=None, lr_threshold=-2.0, avgdets=None):
         (n,m) = (self.temporal_support(), self.temporal_stride())
         aa = self._allowable_activities  # dictionary mapping of allowable classified activities to output names        
-        f_encode = self.totensor(training=False, validation=False, show=False, doflip=False)  # test video -> tensor
-        f_mirror = lambda t: torch.stack((t, torch.flip(t, dims=[3])), dim=0)  # CxNxHxW -> CxNxHx(-W)
-        f_totensor = lambda v: (torch.unsqueeze(f_encode(v.clone(sharedarray=True)), dim=0) if (not mirror or v.actor().category() != 'person') else f_mirror(f_encode(v.clone(sharedarray=True))))
+        f_encode = self.totensor(training=False, validation=False, show=False, doflip=False)  # video -> tensor CxNxHxW
+        f_mirror = lambda t: (t, torch.flip(t, dims=[3]))  # CxNxHxW -> CxNxHx(-W), flip copy is faster than encode mirror=True
+        f_totensor = lambda v: (f_encode(v.clone(sharedarray=True)),) if (not mirror or v.actor().category() != 'person') else f_mirror(f_encode(v.clone(sharedarray=True)))
+        f_totensorlist = lambda V: [t for v in V for t in f_totensor(v)]        
         def f_reduce(T,V):
             j = sum([v.actor().category() == 'person' for v in V])  # person mirrored, vehicle not mirrored
             (tm, t) = torch.split(T, (2*j, len(T)-2*j), dim=0)  # assumes sorted order, person first, only person/vehicle
@@ -348,7 +349,7 @@ class ActivityTracker(PIP_250k):
                 videotracks.sort(key=lambda v: v.actor().category())  # in-place, for grouping mirrored encoding: person<vehicle
                 
                 if len(videotracks)>0 and (k > n):
-                    logits = self.forward(torch.cat(tuple(map(f_totensor, videotracks)), dim=0)) # augmented logits in track index order
+                    logits = self.forward(torch.stack(f_totensorlist(videotracks))) # augmented logits in track index order, copy
                     logits = f_reduce(logits, videotracks) if mirror else logits  # reduced logits in track index order
                     dets = [vipy.activity.Activity(category=aa[category], shortlabel=self._class_to_shortlabel[category], startframe=k-n, endframe=k, confidence=prob, framerate=v.framerate(), actorid=videotracks[j].actorid(), attributes={'pip':category}) 
                             for (j, category_conf_lr_prob) in enumerate(self.lrt(logits, lr_threshold))  # likelihood ratio test
