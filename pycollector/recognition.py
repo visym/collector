@@ -328,7 +328,7 @@ class ActivityTracker(PIP_250k):
         (n,m) = (self.temporal_support(), self.temporal_stride())
         aa = self._allowable_activities  # dictionary mapping of allowable classified activities to output names        
         f_encode = self.totensor(training=False, validation=False, show=False, doflip=False)  # video -> tensor CxNxHxW
-        f_mirror = lambda t: (t, torch.flip(t, dims=[3]))  # CxNxHxW -> CxNxHx(-W), flip copy is faster than encode mirror=True
+        f_mirror = lambda t: (t, torch.from_numpy(np.copy(np.flip(np.asarray(t), axis=3))))  # CxNxHxW -> CxNxHx(-W), np.flip is much faster than torch.flip, faster than encode mirror=True
         f_totensor = lambda v: (f_encode(v.clone(sharedarray=True)),) if (not mirror or v.actor().category() != 'person') else f_mirror(f_encode(v.clone(sharedarray=True)))
         f_totensorlist = lambda V: [t for v in V for t in f_totensor(v)]        
         def f_reduce(T,V):
