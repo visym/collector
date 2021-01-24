@@ -46,8 +46,7 @@ class TorchNet(object):
            * Note: Do not use DataParallel, this replicates the multi-gpu batch on device 0 and results in out of memory
         """
         assert len(t) <= self.batchsize(), "Invalid batch size"
-        t = t.pin_memory() if self.isgpu() else t
-        todevice = [b.to(d, non_blocking=True) for (b,d) in zip(t.split(self._batchsize) , self._devices)]  # async?
+        todevice = [b.pin_memory().to(d, non_blocking=True) for (b,d) in zip(t.split(self._batchsize) , self._devices)]  # async?
         fromdevice = [m(b) for (m,b) in zip(self._models, todevice)]   # async?
         return torch.cat([r.detach().cpu() for r in fromdevice], dim=0)
         
@@ -126,8 +125,7 @@ class Yolov5(TorchNet):
         t = torch.cat([im.clone(shallow=True).maxsquare().mindim(self._mindim).gain(1.0/255.0).torch() for im in imlist])  # triggers load
 
         assert len(t) <= self.batchsize(), "Invalid batch size"
-        t = t.pin_memory() if self.isgpu() else t 
-        todevice = [b.to(d, non_blocking=True) for (b,d) in zip(t.split(self._batchsize) , self._devices)]  # async?
+        todevice = [b.pin_memory().to(d, non_blocking=True) for (b,d) in zip(t.split(self._batchsize) , self._devices)]  # async?
         fromdevice = [m(b)[0] for (m,b) in zip(self._models, todevice)]     # detection!
         t_out = [torch.squeeze(t, dim=0) for d in fromdevice for t in torch.split(d, 1, 0)]   # unpack batch to list of detections per imag
         t_out = [torch.cat((t[:,0:5], torch.argmax(t[:,5:], dim=1, keepdim=True)), dim=1) for t in t_out]  # filter argmax on device 

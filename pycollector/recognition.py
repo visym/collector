@@ -306,9 +306,9 @@ class ActivityTracker(PIP_250k):
             return super().forward(x)  # cpu
         else:
             x_forward = None            
-            for b in x.pin_memory().split(self._batchsize_per_gpu*len(self._gpus)):  # pinned copy
+            for b in x.split(self._batchsize_per_gpu*len(self._gpus)):  # pinned copy
                 n_todevice = np.sum(np.array([1 if k<len(b) else 0 for k in range(int(len(self._devices)*np.ceil(len(b)/len(self._devices))))]).reshape(-1, len(self._devices)), axis=0).tolist()
-                todevice = [t.to(d, non_blocking=True) for (t,d) in zip(b.split(n_todevice), self._devices) if len(t)>0]   # async device copy
+                todevice = [t.pin_memory().to(d, non_blocking=True) for (t,d) in zip(b.split(n_todevice), self._devices) if len(t)>0]   # async device copy
                 ondevice = [m(t) for (m,t) in zip(self._gpus, todevice)]   # async
                 fromdevice = torch.cat([t.cpu() for t in ondevice], dim=0)
                 x_forward = fromdevice if x_forward is None else torch.cat((x_forward, fromdevice), dim=0)
