@@ -319,10 +319,11 @@ class ActivityTracker(PIP_250k):
     def lrt(self, x_logits, lrt_threshold):
         """top-k with likelihood ratio test with background null hypothesis"""
         yh = x_logits.detach().cpu().numpy()
+        yh_softmax = F.softmax(x_logits.detach().cpu(), dim=1)        
         p_null = np.maximum(yh[:, self._class_to_index['person']], yh[:, self._class_to_index['vehicle']]).reshape(yh.shape[0], 1)
         lr = yh - p_null   # ~= log likelihood ratio
         f_logistic = lambda x,b,s=1.0: float(1.0 / (1.0 + np.exp(-s*(x + b))))
-        return [sorted([(self.index_to_class(j), s[j], t[j], f_logistic(s[j], 1.0)*f_logistic(t[j], 0.0)) for j in range(len(s)) if t[j] >= lrt_threshold], key=lambda x: x[3], reverse=True) for (s,t) in zip(yh, lr)]
+        return [sorted([(self.index_to_class(j), s[j], t[j], f_logistic(s[j], 1.0)*f_logistic(t[j], 0.0), sm[j]) for j in range(len(s)) if t[j] >= lrt_threshold], key=lambda x: x[3], reverse=True) for (s,t,sm) in zip(yh, lr, yh_softmax)]
         
     def __call__(self, vi, topk=1, activityiou=0, mirror=False, minprob=0, trackconf=0.1, maxdets=None, lr_threshold=-2.0, lr_merge_threshold=-2.0, avgdets=None):
         (n,m) = (self.temporal_support(), self.temporal_stride())
@@ -351,14 +352,14 @@ class ActivityTracker(PIP_250k):
                 if len(videotracks)>0 and (k > n):
                     logits = self.forward(torch.stack(f_totensorlist(videotracks))) # augmented logits in track index order, copy
                     logits = f_reduce(logits, videotracks) if mirror else logits  # reduced logits in track index order
-                    dets = [vipy.activity.Activity(category=aa[category], shortlabel=self._class_to_shortlabel[category], startframe=k-n, endframe=k, confidence=prob, framerate=v.framerate(), actorid=videotracks[j].actorid(), attributes={'pip':category, 'lr':lr}) 
-                            for (j, category_conf_lr_prob) in enumerate(self.lrt(logits, lr_threshold))  # likelihood ratio test
-                            for (category, conf, lr, prob) in category_conf_lr_prob   
+                    dets = [vipy.activity.Activity(category=aa[category], shortlabel=self._class_to_shortlabel[category], startframe=k-n, endframe=k, confidence=sm, framerate=v.framerate(), actorid=videotracks[j].actorid(), attributes={'pip':category, 'lr':lr}) 
+                            for (j, category_conf_lr_prob_sm) in enumerate(self.lrt(logits, lr_threshold))  # likelihood ratio test
+                            for (category, conf, lr, prob, sm) in category_conf_lr_prob_sm   
                             if ((category in aa) and   # requested activities only
                                 (videotracks[j].actor().category() in self._verb_to_noun[category]) and   # noun matching with category renaming dictionary
                                 prob>minprob)]   # minimum probability for new activity detection
-                    v.assign(k, [d for d in dets if d.attributes['lr'] >= lr_threshold], activityiou=activityiou, activitymerge=True)   # assign new activity detections by merging overlapping activities with weighted average of probability
-                    v.assign(k, [d for d in dets if d.attributes['lr'] < lr_threshold], activityiou=activityiou, activitymerge=False)   # create new activity detections for extremely low confidence detections 
+                    v.assign(k, [d for d in dets if d.attributes['lr'] >= lr_merge_threshold], activityiou=activityiou, activitymerge=True)   # assign new activity detections by merging overlapping activities with weighted average of probability
+                    v.assign(k, [d for d in dets if d.attributes['lr'] < lr_merge_threshold], activityiou=activityiou, activitymerge=False)   # create new activity detections for extremely low confidence detections 
                     del logits, dets, videotracks  # torch garabage collection
                 yield v
 
@@ -366,6 +367,9 @@ class ActivityTracker(PIP_250k):
             raise
 
         finally:
+            # Activity probability:  noun*verb_proposal*verb probability
+            v.activitymap(lambda a: a.confidence(v.track(a.actorid()).confidence(samples=8)*a.confidence()))
+            
             # Bad tracks:  Remove low confidence or too short non-moving tracks
             v.trackfilter(lambda t: len(t)>=v.framerate() and (t.confidence() >= trackconf or t.startbox().iou(t.endbox()) == 0)).activityfilter(lambda a: a.actorid() in v.tracks())  
             
@@ -398,7 +402,7 @@ class ActivityTracker(PIP_250k):
             
             # Person/Bicycle track: riding must be accompanied by an associated moving bicycle track
             v.activityfilter(lambda a: a.category() != 'person_rides_bicycle')
-            bikelist = [v.add(vipy.activity.Activity(startframe=t.startframe(), endframe=t.endframe(), category='person_rides_bicycle', shortlabel='rides', confidence=t.confidence(samples=8), framerate=v.framerate(), actorid=t.id()))
+            bikelist = [v.add(vipy.activity.Activity(startframe=t.startframe(), endframe=t.endframe(), category='person_rides_bicycle', shortlabel='rides', confidence=t.confidence(samples=8), framerate=v.framerate(), actorid=t.id(), attributes={'pip':'person_rides_bicycle', 'lr':lr_merge_threshold}))
                         for (tk,t) in v.tracks().items() if t.category() == 'bicycle' and t.ismoving()]
 
             # Person/Vehicle track: person/vehicle interaction must be accompanied by an associated stopped vehicle track
@@ -419,7 +423,7 @@ class ActivityTracker(PIP_250k):
                         
             # Activity union:  Temporal gaps less than support should be merged into one activity detection for a single track
             merged = set([])
-            mergeable_dets = [a for a in v.activities().values() if a.attributes['lr'] >= lr_threshold]  # only mergeable detections
+            mergeable_dets = [a for a in v.activities().values() if a.attributes['lr'] >= lr_merge_threshold]  # only mergeable detections
             other = sorted(mergeable_dets, key=lambda a: a.startframe())  # other, sort once
             for a in sorted(mergeable_dets, key=lambda a: a.startframe()):
                 for o in other:
