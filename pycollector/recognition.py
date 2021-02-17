@@ -368,7 +368,8 @@ class ActivityTracker(PIP_250k):
 
         finally:
             # Activity probability:  noun*verb_proposal*verb probability
-            v.activitymap(lambda a: a.confidence(v.track(a.actorid()).confidence(samples=8)*a.confidence()))
+            nounconf = {k:t.confidence(samples=8) for (k,t) in v.tracks().items()}
+            v.activitymap(lambda a: a.confidence(nounconf[a.actorid()]*a.confidence()))
             
             # Bad tracks:  Remove low confidence or too short non-moving tracks
             v.trackfilter(lambda t: len(t)>=v.framerate() and (t.confidence() >= trackconf or t.startbox().iou(t.endbox()) == 0)).activityfilter(lambda a: a.actorid() in v.tracks())  
@@ -392,12 +393,14 @@ class ActivityTracker(PIP_250k):
 
             # Group activity: Must be accompanied by a friend with the same activity detection
             for c in ['person_embraces_person', 'hand_interacts_with_person', 'person_talks_to_person', 'person_transfers_object']:
+                dstbox = {k:v.track(a.actorid()).boundingbox(a.startframe(), a.endframe()) for (k,a) in v.activities().items()}  # precompute
+                srcbox = {k:bb.clone().maxsquare().dilate(1.2) for (k,bb) in dstbox.items()}                
                 v.activitymap(lambda a: a.confidence(0.1*a.confidence()) if (a.category() == c and
                                                                               not any([(af.category() == c and
                                                                                         af.id() != a.id() and
                                                                                         af.actorid() != a.actorid() and 
                                                                                         af.during_interval(a.startframe(), a.endframe(), inclusive=True) and 
-                                                                                        v.track(a.actorid()).boundingbox(a.startframe(), a.endframe()).maxsquare().dilate(1.2).iou(v.track(af.actorid()).boundingbox(a.startframe(), a.endframe())) > 0)
+                                                                                        srcbox[a.id()].iou(dstbox[af.id()]) > 0)
                                                                                        for af in v.activities().values()])) else a)
             
             # Person/Bicycle track: riding must be accompanied by an associated moving bicycle track
@@ -417,9 +420,10 @@ class ActivityTracker(PIP_250k):
             v.activitymap(lambda a: a.confidence(0.1*a.confidence()) if (a.category() == 'vehicle_drops_off_person' and not any([t.category() == 'person' and t.segment_maxiou(v.track(a.actorid()), t.startframe(), t.startframe()+1) > 0 for t in v.tracks().values()])) else a)
             v.activitymap(lambda a: a.confidence(0.1*a.confidence()) if (a.category() == 'vehicle_picks_up_person' and not any([t.category() == 'person' and t.segment_maxiou(v.track(a.actorid()), t.endframe()-1, t.endframe()) > 0 for t in v.tracks().values()])) else a)
             
-            # Person track: enter/exit scene cannot be at the image boundary 
-            v.activitymap(lambda a: a.confidence(0.1*a.confidence()) if (a.category() == 'person_enters_scene_through_structure' and v.track(a.actorid())[max(a.startframe(), v.track(a.actorid()).startframe())].cover(v.framebox().dilate(0.9)) < 1) else a)
-            v.activitymap(lambda a: a.confidence(0.1*a.confidence()) if (a.category() == 'person_exits_scene_through_structure' and v.track(a.actorid())[min(a.endframe(), v.track(a.actorid()).endframe())].cover(v.framebox().dilate(0.9)) < 1) else a)
+            # Person track: enter/exit scene cannot be at the image boundary
+            boundary = v.framebox().dilate(0.9)
+            v.activitymap(lambda a: a.confidence(0.1*a.confidence()) if (a.category() == 'person_enters_scene_through_structure' and v.track(a.actorid())[max(a.startframe(), v.track(a.actorid()).startframe())].cover(boundary) < 1) else a)
+            v.activitymap(lambda a: a.confidence(0.1*a.confidence()) if (a.category() == 'person_exits_scene_through_structure' and v.track(a.actorid())[min(a.endframe(), v.track(a.actorid()).endframe())].cover(boundary) < 1) else a)
                         
             # Activity union:  Temporal gaps less than support should be merged into one activity detection for a single track
             merged = set([])
