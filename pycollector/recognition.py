@@ -341,6 +341,7 @@ class ActivityTracker(PIP_250k):
             vp = next(vi)  # peek in generator to create clip
             vi = itertools.chain([vp], vi)  # unpeek
             sw = vipy.util.Stopwatch()  # real-time framerate estimate
+            framerate = vp.framerate()
             for (k, (v,vc)) in enumerate(zip(vi, vp.stream().clip(n, m, continuous=True, activities=False))):
                 videotracks = [] if vc is None else [vt for vt in vc.trackfilter(lambda t: len(t)>=4 and (t.category() == 'person' or (t.category() == 'vehicle' and v.track(t.id()).ismoving(k-10*n, k)))).tracksplit()]  # vehicle moved recently?
                 videotracks.sort(key=lambda v: v.actor().confidence(last=1))  # in-place
@@ -352,11 +353,12 @@ class ActivityTracker(PIP_250k):
                 if len(videotracks)>0 and (k > n):
                     logits = self.forward(torch.stack(f_totensorlist(videotracks))) # augmented logits in track index order, copy
                     logits = f_reduce(logits, videotracks) if mirror else logits  # reduced logits in track index order
-                    dets = [vipy.activity.Activity(category=aa[category], shortlabel=self._class_to_shortlabel[category], startframe=k-n, endframe=k, confidence=sm, framerate=v.framerate(), actorid=videotracks[j].actorid(), attributes={'pip':category, 'lr':lr}) 
+                    (actorid, actorcategory) = ([t.actorid() for t in videotracks], [t.actor().category() for t in videotracks])
+                    dets = [vipy.activity.Activity(category=aa[category], shortlabel=self._class_to_shortlabel[category], startframe=k-n, endframe=k, confidence=sm, framerate=framerate, actorid=actorid[j], attributes={'pip':category, 'lr':lr}) 
                             for (j, category_conf_lr_prob_sm) in enumerate(self.lrt(logits, lr_threshold))  # likelihood ratio test
                             for (category, conf, lr, prob, sm) in category_conf_lr_prob_sm   
                             if ((category in aa) and   # requested activities only
-                                (videotracks[j].actor().category() in self._verb_to_noun[category]) and   # noun matching with category renaming dictionary
+                                (actorcategory[j] in self._verb_to_noun[category]) and   # noun matching with category renaming dictionary
                                 prob>minprob)]   # minimum probability for new activity detection
                     v.assign(k, [d for d in dets if d.attributes['lr'] >= lr_merge_threshold], activityiou=activityiou, activitymerge=True)   # assign new activity detections by merging overlapping activities with weighted average of probability
                     v.assign(k, [d for d in dets if d.attributes['lr'] < lr_merge_threshold], activityiou=activityiou, activitymerge=False)   # create new activity detections for extremely low confidence detections 
@@ -392,9 +394,9 @@ class ActivityTracker(PIP_250k):
             v.activitymap(lambda a: a.truncate(a.middleframe()-2.5*v.framerate(), a.middleframe()+2.5*v.framerate()) if a.category() in ['vehicle_turns_left', 'vehicle_turns_right', 'vehicle_makes_u_turn'] else a)   
 
             # Group activity: Must be accompanied by a friend with the same activity detection
+            dstbox = {k:v.track(a.actorid()).boundingbox(a.startframe(), a.endframe()) for (k,a) in v.activities().items()}  # precompute
+            srcbox = {k:bb.clone().maxsquare().dilate(1.2) for (k,bb) in dstbox.items()}                            
             for c in ['person_embraces_person', 'hand_interacts_with_person', 'person_talks_to_person', 'person_transfers_object']:
-                dstbox = {k:v.track(a.actorid()).boundingbox(a.startframe(), a.endframe()) for (k,a) in v.activities().items()}  # precompute
-                srcbox = {k:bb.clone().maxsquare().dilate(1.2) for (k,bb) in dstbox.items()}                
                 v.activitymap(lambda a: a.confidence(0.1*a.confidence()) if (a.category() == c and
                                                                               not any([(af.category() == c and
                                                                                         af.id() != a.id() and
