@@ -341,7 +341,7 @@ class ActivityTracker(PIP_250k):
             vp = next(vi)  # peek in generator to create clip
             vi = itertools.chain([vp], vi)  # unpeek
             sw = vipy.util.Stopwatch()  # real-time framerate estimate
-            for (k, (v,vc)) in enumerate(zip(vi,vp.stream().clip(n, m, continuous=True))):
+            for (k, (v,vc)) in enumerate(zip(vi, vp.stream().clip(n, m, continuous=True, activities=False))):
                 videotracks = [] if vc is None else [vt for vt in vc.trackfilter(lambda t: len(t)>=4 and (t.category() == 'person' or (t.category() == 'vehicle' and v.track(t.id()).ismoving(k-10*n, k)))).tracksplit()]  # vehicle moved recently?
                 videotracks.sort(key=lambda v: v.actor().confidence(last=1))  # in-place
                 numdets = (maxdets if ((avgdets is None) or (sw.duration()<=60) or ((sw.duration()>60) and ((k/sw.duration())/vp.framerate())>0.8)) else
