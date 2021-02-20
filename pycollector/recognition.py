@@ -396,13 +396,13 @@ class ActivityTracker(PIP_250k):
             # Group activity: Must be accompanied by a friend with the same activity detection
             dstbox = {k:v.track(a.actorid()).boundingbox(a.startframe(), a.endframe()) for (k,a) in v.activities().items()}  # precompute
             srcbox = {k:bb.clone().maxsquare().dilate(1.2) for (k,bb) in dstbox.items()}                            
-            categories = ['person_embraces_person', 'hand_interacts_with_person', 'person_talks_to_person', 'person_transfers_object']:
+            categories = ['person_embraces_person', 'hand_interacts_with_person', 'person_talks_to_person', 'person_transfers_object']
             v.activitymap(lambda a: a.confidence(0.1*a.confidence()) if (a.category() in categories and
                                                                          not any([(af.category() == a.category() and
                                                                                    af.id() != a.id() and
                                                                                    af.actorid() != a.actorid() and 
                                                                                    srcbox[a.id()].iou(dstbox[af.id()]) > 0)
-                                                                                  for af in v.activities().values() if af.during_interval(a._startframe, a._endframe, inclusive=True)))) else a)
+                                                                                  for af in v.activities().values() if af.during_interval(a._startframe, a._endframe, inclusive=True)])) else a)
             
             # Person/Bicycle track: riding must be accompanied by an associated moving bicycle track
             v.activityfilter(lambda a: a.category() != 'person_rides_bicycle')
