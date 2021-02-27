@@ -28,6 +28,7 @@ import pytorch_lightning as pl
 import json
 import math
 
+
 class ActivityRecognition(object):
     def __init__(self, pretrained=True):
         self.net =  None
@@ -361,7 +362,7 @@ class ActivityTracker(PIP_250k):
                                 (actorcategory[j] in self._verb_to_noun[category]) and   # noun matching with category renaming dictionary
                                 prob>minprob)]   # minimum probability for new activity detection
                     v.assign(k, [d for d in dets if d.attributes['lr'] >= lr_merge_threshold], activityiou=activityiou, activitymerge=True)   # assign new activity detections by merging overlapping activities with weighted average of probability
-                    added = [v.add(d) for d in dets if d.attributes['lr'] < lr_merge_threshold]   # create new activity detections for extremely low confidence detections, no clone
+                    added = [v.add(d, rangecheck=False) for d in dets if d.attributes['lr'] < lr_merge_threshold]   # create new activity detections for extremely low confidence detections, no clone
                     del logits, dets, videotracks  # torch garabage collection
                 yield v
 
