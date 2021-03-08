@@ -18,7 +18,7 @@ This dataset contains 314,332 stabilized video clips of 66 classes of activities
 
 ## Download
 
-* [pip_250k_stabilized.tar.gz (165.41 GB)](https://dl.dropboxusercontent.com/s/XXX/pip_250k_stabilized.tar.gz)&nbsp;&nbsp;MD5:7b0fe316c8e6239753a6e29b801284f2&nbsp;&nbsp;Updated:08Mar21
+* [pip_250k_stabilized.tar.gz (165.41 GB)](TEMPORARILY REMOVED)&nbsp;&nbsp;MD5:7b0fe316c8e6239753a6e29b801284f2&nbsp;&nbsp;Updated:08Mar21
     * Full release, includes all of pip-175k-stabilized.
 * [pip_250k_stabilized_annotations.tar.gz (0.94 GB)](https://dl.dropboxusercontent.com/s/boegvyts3kvgw8i/pip_250k_stabilized_annotations.tar.gz)&nbsp;&nbsp;MD5:d4ec1bde157f90689ee3ac9910bef25e&nbsp;&nbsp;Updated:08Mar21
     * Release of video annotations only
@@ -26,8 +26,6 @@ This dataset contains 314,332 stabilized video clips of 66 classes of activities
     * Release of video annotations only, without applying the temporal padding specified in the [MEVA annotation definition](https://gitlab.kitware.com/meva/meva-data-repo/blob/master/documents/MEVA-Annotation-Definitions.pdf).
 
 
-
-https://www.dropbox.com/?dl=0
 
 
 ## Quickstart
@@ -68,7 +66,6 @@ We recommend using [a small sample of ten instances per class](pip_250k_full_sta
 v.getattribute('blurred faces') > 0
 ```
 
-* A small number of videos exhibit bounding boxes which appear to lag a fast moving object by approximately 5 frames (e.g. F52B3767-7724-4117-9559-796320D689EB_0). 
 * A small number of videos exhibit stabilization that does not include enough padding, so that the tracked bounding box falls within the black border.  This typically occurs with videos with large motions, such as vehicle turning classes.
 
 # License
