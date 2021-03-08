@@ -41,8 +41,6 @@ vs = v.crop(v.trackbox(dilate=1.0).maxsquare()).resize(224,224).saveas('/path/to
 vs.getattribute('stabilize')   # returns a stabilization residual (bigger is worse)
 ```
 
-We recommend using [a small sample of ten instances per class](pip_250k_full_stabilized_sampler.json.gz) for testing your pipeline, then loading the entire dataset into memory on your training cluster. 
-
 
 ## Best Practices
 
