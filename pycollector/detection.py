@@ -377,7 +377,7 @@ class VideoProposal(Proposal):
 
     def isallowable(self, v):
         assert isinstance(v, vipy.video.Video), "Invalid input - must be vipy.video.Video not '%s'" % (str(type(v)))
-        return len(set(v.objectlabels())) == 1 and all([c.lower() in self.allowable_objects() for c in v.objectlabels()]) # for now
+        return all([c.lower() in self.allowable_objects() for c in v.objectlabels()]) # for now
 
     def __call__(self, v, conf=1E-2, iou=0.8, dt=1, target=None, activitybox=False, dilate=4.0, dilate_height=None, dilate_width=None):
         assert isinstance(v, vipy.video.Video), "Invalid input - must be vipy.video.Video not '%s'" % (str(type(v)))
@@ -440,7 +440,7 @@ class VideoProposalRefinement(VideoProposal):
         assert not (byclass is False and refinedclass is not None), "Invalid input"
         
         if not self.isallowable(v):
-            warnings.warn("Invalid object labels '%s' for proposal, must be in '%s' - returning original video" % (str(v.objectlabels()), str(self.allowable_objects())))
+            warnings.warn("Invalid object labels '%s' for proposal, must be only one target object label and must be in '%s' - returning original video" % (str(v.objectlabels()), str(self.allowable_objects())))
             return v.clone().setattribute('unrefined')
         target = None if not byclass else [c.lower() for c in v.objectlabels()] if refinedclass is None else [refinedclass.lower()]  # classes for proposals
         vp = super().__call__(v, proposalconf, proposaliou, dt=dt, activitybox=True, dilate_height=dilate_height, dilate_width=dilate_width, target=target)  # subsampled proposals

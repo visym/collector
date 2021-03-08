@@ -205,8 +205,9 @@ class Video(Scene):
                 try:
                     d['metadata']['collection_name'] = d["metadata"]["collection_id"]
                     applabel = ['%s_%s_%s' % (d["metadata"]["project_id"], d["metadata"]["collection_id"], a['label']) for a in d['activity']]
-                    applabel = [a if a in applabel_to_piplabel() else '%s_%s_%s' % (d["metadata"]["project_id"], d["metadata"]["collection_id"], shortname_synonyms()[a.split('_')[2]]) for a in applabel]
-                    d['metadata']['category'] = ','.join([applabel_to_piplabel()[a] for a in applabel])
+                    synonyms = shortname_synonyms()
+                    applabel = [a if (a in applabel_to_piplabel() or a in applabel_to_longlabel()) else '%s_%s_%s' % (d["metadata"]["project_id"], d["metadata"]["collection_id"], synonyms[a.split('_')[2]]) for a in applabel]
+                    d['metadata']['category'] = ','.join([applabel_to_piplabel()[a] if a in applabel_to_piplabel() else applabel_to_longlabel()[a] for a in applabel])
                     d['metadata']['shortname'] = ','.join([a.split('_')[2] for a in applabel])
                 except Exception as e:
                     print('[pycollector.video]: legacy json import failed for v1 JSON "%s" with error "%s"' % (str(d['metadata']), str(e)))
@@ -216,7 +217,7 @@ class Video(Scene):
             elif isapi('v1') or isapi('v2'):
                 version = 'v1' if isapi('v1') else 'v2'
                 if version == 'v1':
-                    backend('prod', 'v2')  # temporary switch
+                    backend(org='str', env='prod', version='v2')  # temporary switch
 
                 if not backend().collections().iscollectionid(d["metadata"]["collection_id"]):
                     print('[pycollector.video]: invalid collection ID "%s"' % d["metadata"]["collection_id"])
@@ -242,7 +243,7 @@ class Video(Scene):
                         d = None
 
                 if version == 'v1':
-                    backend('prod', 'v1')  # switch back
+                    backend(org='str', env='prod', version='v1')  # switch back
             else:
                 print('[pycollector.video]: Legacy JSON import failed for JSON with metadata - "%s"' % str(d["metadata"]))
                 d = None
@@ -381,7 +382,9 @@ class Video(Scene):
                 if "frame_width" in self.metadata() and "frame_height" in self.metadata():  # older JSON bug
                     s = float(min(int(self.metadata()["frame_width"]), int(self.metadata()["frame_height"])))
                     if s > 256:
-                        self.rescale(self._mindim / float(s))  # does not require load
+                        newrows = int(np.round(self.metadata()["frame_height"])*(self._mindim / float(s)))
+                        newcols = int(np.round(self.metadata()["frame_width"])*(self._mindim / float(s)))
+                        self.resize(rows=newrows, cols=newcols)  # does not require load
                     else:
                         print('[pycollector.video]: Filtering Invalid JSON (height, width)')
                         self._is_json_loaded = False
