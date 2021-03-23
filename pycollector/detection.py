@@ -26,7 +26,7 @@ class TorchNet(object):
         #self._tensortype = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor       
         self._tensortype = torch.FloatTensor       
         
-        if not hasattr(self, '_gpulist') or not hasattr(self, '_models') or idlist != self._gpulist:
+        if not hasattr(self, '_gpulist') or not hasattr(self, '_models') or idlist != self._gpulist  or not hasattr(self, '_models'):
             self._models = [copy.deepcopy(self._model).to(d, non_blocking=False) for d in self._devices]
             for m in self._models:
                 m.eval()
@@ -69,7 +69,6 @@ class FaceDetector(TorchNet):
         assert vipy.downloader.verify_sha1(weightfile, 'a759030540a4a5284baa93d3ef5e47ed40cae6d6'), "Face detector download failed with SHA1='%s'" % (vipy.downloader.generate_sha1(weightfile))
         self._model = FaceRCNN(model_path=weightfile)
         #self._model.eval()  # Set in evaluation mode
-        #self.gpu(vipy.globals.gpuindex())
 
     def __call__(self, im):
         assert isinstance(im, vipy.image.Image)
@@ -107,7 +106,8 @@ class Yolov5(TorchNet):
 
         self._device = None
         self._gpulist = gpu
-        self.gpu(gpu, batchsize)
+        if gpu is not None:
+            self.gpu(gpu, batchsize)
         torch.set_grad_enabled(False)
         
     def __call__(self, imlist, conf=1E-3, iou=0.5, union=False, objects=None):
@@ -126,7 +126,7 @@ class Yolov5(TorchNet):
 
         assert len(t) <= self.batchsize(), "Invalid batch size"
         todevice = [b.to(d, non_blocking=True) for (b,d) in zip(t.split(self._batchsize) , self._devices)]  # async?
-        fromdevice = [m(b)[0] for (m,b) in zip(self._models, todevice)]     # detection!
+        fromdevice = [m(b)[0] for (m,b) in zip(self._models, todevice)]     # detection
         t_out = [torch.squeeze(t, dim=0) for d in fromdevice for t in torch.split(d, 1, 0)]   # unpack batch to list of detections per imag
         t_out = [torch.cat((t[:,0:5], torch.argmax(t[:,5:], dim=1, keepdim=True)), dim=1) for t in t_out]  # filter argmax on device 
         t_out = [t[t[:,4]>conf].cpu().numpy() for t in t_out]  # filter conf on device (this must be last)
@@ -381,7 +381,6 @@ class VideoProposal(Proposal):
 
     def __call__(self, v, conf=1E-2, iou=0.8, dt=1, target=None, activitybox=False, dilate=4.0, dilate_height=None, dilate_width=None):
         assert isinstance(v, vipy.video.Video), "Invalid input - must be vipy.video.Video not '%s'" % (str(type(v)))
-        self.gpu(vipy.globals.gpuindex())  # cpu if gpuindex == None
 
         # Optional target class
         d_target_to_index = {'person':[self._cls2index['person']],
@@ -407,9 +406,12 @@ class VideoProposal(Proposal):
         img = vc.numpy()[::dt]  # source video, triggers load
         tensor = vc.flush().crop(bb, zeropad=False).maxsquare().mindim(self._mindim).torch()[::dt]  # transformed video, NxCxHxW, re-triggers load due to crop()
 
-        for i in range(0, len(tensor), self._batchsize):
-            dets = self._model(tensor[i:i+self._batchsize].type(self._tensortype).to(self._device))  # copy here
-            dets = dets[0].detach().cpu().numpy() if len(dets)==2 else dets.detach().cpu().numpy()  # for yolov5, should really use super().__call__
+        for i in range(0, len(tensor), self.batchsize()):
+            t = tensor[i:i+self.batchsize()]
+            todevice = [b.to(d, non_blocking=True) for (b,d) in zip(t.split(self._batchsize) , self._devices)]  # async?
+            fromdevice = [m(b)[0] for (m,b) in zip(self._models, todevice)]     # detection!
+            dets = [torch.squeeze(t, dim=0).cpu().numpy() for d in fromdevice for t in torch.split(d, 1, 0)]   # unpack batch to list of detections per imag
+
             for (j, det) in enumerate(dets):
                 # Objects in transformed video
                 objs = [vipy.object.Detection(xcentroid=float(d[0]), 
@@ -420,11 +422,10 @@ class VideoProposal(Proposal):
                                               category=('%1.2f' % float(d[4])) if target is None else f_max_target_category(d))
                         for d in det
                         if (float(d[4]) > conf) and (f_max_target_confidence(d) > conf)]
-
+        
                 # Objects in source video
                 objs = [obj.rescale(scale).translate(bb.xmin(), bb.ymin()) for obj in objs]
-                ims.append( vipy.image.Scene(array=img[i+j], objects=objs).nms(conf, iou) )
-                
+                ims.append( vipy.image.Scene(array=img[i+j], objects=objs).nms(conf, iou) )        
         return ims
 
     

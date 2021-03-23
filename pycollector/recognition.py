@@ -242,7 +242,7 @@ class PIP_250k(pl.LightningModule, ActivityRecognition):
                 vc = vc.fliplr() if (doflip or (np.random.rand() > 0.5)) and (noflip is None or vc.category() not in noflip) else vc
             else:
                 vc = v.trackcrop(dilate=1.2, maxsquare=True)  # may be None if clip contains no track
-                vc = vc.resize(input_size, input_size)  
+                vc = vc.resize(input_size, input_size)  # TESTING: this may introduce a preview()
                 vc = vc.fliplr() if doflip and (noflip is None or vc.category() not in noflip) else vc
                 
             if show:

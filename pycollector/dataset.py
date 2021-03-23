@@ -912,8 +912,9 @@ class Dataset():
 
 
     def boundingbox_refinement(self, dst='boundingbox_refinement', batchsize=1, dt=3, minlength=5, f_savepkl=None):        
+        """Must be connected to dask scheduler such that each machine has GPU resources"""
         model = pycollector.detection.VideoProposalRefinement(batchsize=batchsize) 
-        f = lambda net, v, dt=dt, f_savepkl=f_savepkl: net(v, proposalconf=5E-2, proposaliou=0.8, miniou=0.2, dt=dt, mincover=0.8, byclass=True, shapeiou=0.7, smoothing=None, strict=True).pklif(f_savepkl is not None, f_savepkl(v)).print()
+        f = lambda net, v, dt=dt, f_savepkl=f_savepkl, b=batchsize: net.gpu(list(range(torch.cuda.device_count())), batchsize=b)(v, proposalconf=5E-2, proposaliou=0.8, miniou=0.2, dt=dt, mincover=0.8, byclass=True, shapeiou=0.7, smoothing=None, strict=True).pklif(f_savepkl is not None, f_savepkl(v)).print()
         D = self.map(f, dst=dst, model=model)
         D.filter(lambda v: (v is not None) and (not v.hasattribute('unrefined')))  # remove videos that failed refinement
         D.localmap(lambda v: v.activityfilter(lambda a: any([a.hastrack(t) and len(t)>minlength and t.during(a.startframe(), a.endframe()) for t in v.tracklist()])))  # get rid of activities without tracks greater than dt
@@ -922,7 +923,7 @@ class Dataset():
     def stabilize(self, f_saveas, dst='stabilize', padwidthfrac=1.0, padheightfrac=0.2):
         from vipy.flow import Flow
         f_stabilize = (lambda v, f_saveas=f_saveas, padwidthfrac=padwidthfrac, padheightfrac=padheightfrac: 
-                       Flow(flowdim=256).stabilize(v, strict=False, residual=True, padwidthfrac=padwidthfrac, padheightfrac=padheightfrac, maxsize=None).saveas(f_saveas(v), flush=True).pkl().print() if v.canload() else None)
+                       Flow(flowdim=256).stabilize(v, strict=False, residual=True, padwidthfrac=padwidthfrac, padheightfrac=padheightfrac, outfile=f_saveas(v)).pkl().print() if v.canload() else None)
         D = self.map(f_stabilize, dst=dst)
         D.filter(lambda v: (v is not None) and (not v.hasattribute('unstabilized')))  # remove videos that failed
         return D
