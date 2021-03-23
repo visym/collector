@@ -261,7 +261,7 @@ class Video(Scene):
             self.category(collection_name)
             self.attributes = {} if self.attributes is None else self.attributes
             self.attributes.update(d['metadata'])
-            self.framerate(int(round(float(d["metadata"]["frame_rate"]))))
+            self.framerate(float(d["metadata"]["frame_rate"]))
 
             # FIXME: this videoID '20200421_1500081666724286' has low framerate.  Parsing is correct, but load() and show() is too fast
             # This requires explicitly setting output framerate in vipy.video
