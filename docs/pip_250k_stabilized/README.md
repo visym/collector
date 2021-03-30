@@ -63,13 +63,13 @@ vs.getattribute('stabilize')   # returns a stabilization residual (bigger is wor
 * A small number of videos exhibit a face detector false alarm which looks like a large pixelated circle which lasts a single frame.  This is the in-app face blurring incorrectly redacting the background.  You can filter these videos by removing videos v with 
 
 ```python
-v.getattribute('blurred faces') > 0
+videolist = [v for v in videolist if not v.getattribute('blurred faces') > 0]
 ```
 
 * A small number of videos exhibit stabilization that does not include enough padding, so that the tracked bounding box falls within the black border or falls outside the image rectangle completely.  This typically occurs with videos with large motions, such as vehicle turning classes.  These videos can be filtered to remove degenerate tracks or tracks without any bounding boxes that intersects the image rectangle using the following.  (Note that this may take a while since the encodings must be first unpacked from an internal JSON representation used to simplify reference cycle garbage collection, and each video must be touched to extract the frame dimensions)
 
 ```python
-goodvideos = [v for v in videolist if v.canload() and not v.trackbox().isdegenerate() and v.framebox().hasintersection(v.trackbox())
+videolist = [v for v in videolist if v.canload() and not v.trackbox().isdegenerate() and v.framebox().hasintersection(v.trackbox())
 ```
 
 
