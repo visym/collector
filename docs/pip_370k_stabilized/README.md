@@ -53,9 +53,9 @@ videolist = [v for v in videolist if not v.getattribute('blurred faces') > 0]
 ```
 # Frequently Asked Questions
 
-* Are there repeated instances in this release?  For this release, we asked collectors to perform the same activity multiple times in a row per collection, but to perform the activity slightly differently each time.  You may identify these collections with a filename structure "VIDEOID_INSTANCEID.mp4" where the video ID identifies the collected video, and each instance ID is an integer that identifies the instance of the collected activity in the collected video.  This is a form of collector aided dataset augmentation by performing an activity in different ways. 
-* Are there missing activities?  This release contains only 34 activity classes, and this release should be combined with pip-250k for a complete release.
-* What is "person_walks"?  This is a background activity class.  We asked collectors to walk around and act like they were waiting for a bus or the subway, to provide a background class.  See the collection name in the video metadata.  
+* Are there repeated instances in this release?  For this release, we asked collectors to perform the same activity multiple times in a row per collection, but to perform the activity slightly differently each time.  This introduces a form of on-demand dataset augmentation performed by the collector.  You may identify these collections with a filename structure "VIDEOID_INSTANCEID.mp4" where the video ID identifies the collected video, and each instance ID is an integer that identifies the order of the collected activity in the collected video.  
+* Are there missing activities?  This is an incremental release, and should be combined with pip-250k for a complete release.
+* What is "person_walks"?  This is a background activity class.  We asked collectors to walk around and act like they were waiting for a bus or the subway, to provide a background class.  The collection names in the video metadata for these activities are "Slowly walk around in an area like you are waiting for a bus" and "Walk back and forth".    
 
 
 # License
