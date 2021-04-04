@@ -38,12 +38,6 @@ vs.getattribute('stabilize')   # returns a stabilization residual (bigger is wor
 ## Best Practices
 
 [Notebook demo](https://htmlpreview.github.io/?https://github.com/visym/collector/blob/master/docs/pip_175k/best_practices.html)&nbsp;[[html]](https://htmlpreview.github.io/?https://github.com/visym/collector/blob/master/docs/pip_175k/best_practices.html)[[ipynb]](https://github.com/visym/collector/blob/master/docs/pip_175k/best_practices.ipynb) showing best practices for using the PIP-175k dataset for training.
-
-# Class Distribution
-
-![](num_activities_histogram.png)
-
-* The category mapping from [PIP to MEVA](pip_to_meva.txt) is available for training.
  
 # Errata
 
