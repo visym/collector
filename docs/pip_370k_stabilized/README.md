@@ -9,16 +9,16 @@
 The People in Public dataset is a consented large scale video dataset of people doing things in public places.  Our team has pioneered the use of a 
 custom designed mobile app that combines video collection, activity labeling and bounding box annotation into a single step.  Our goal is to 
 make collecting annotated video datasets as easily and cheaply as recording a video.  Currently, we are collecting a dataset of the MEVA 
-classes (http://mevadata.org).  This package provides a release of this dataset, containing XXX annotated activity instances collected by 
+classes (http://mevadata.org).  This package provides a release of this dataset, containing 95990 annotated activity instances collected by 
 over 150 subjects in 44 countries around the world. 
 
-This dataset contains XXX stabilized video clips of 66 classes of activities performed by people in public places.  The activity labels are subsets of the 37 activities in the [Multiview Extended Video with Activities (MEVA)](https://mevadata.org) dataset and is consistent with the [Activities in Extended Video (ActEV)](https://actev.nist.gov/) challenge.  
+This dataset contains 95990 stabilized video clips of 34 classes of activities performed by people in public places.  The activity labels are subsets of the 37 activities in the [Multiview Extended Video with Activities (MEVA)](https://mevadata.org) dataset and is consistent with the [Activities in Extended Video (ActEV)](https://actev.nist.gov/) challenge.  
 
 [Background stabilization](https://github.com/visym/vipy/blob/bc20f6f32492badd181faa0ccf7b0029f1f63fee/vipy/flow.py#L307-L328) was performed using an affine coarse to fine optical-flow method, followed by [actor bounding box stabilization](https://github.com/visym/collector/blob/adc5486c7f88291b77f9a707a78763c2b5958406/pycollector/detection.py#L177-L236).  Stabilization is designed to minimize distortion for small motions in the region near the center of the actor box.  Remaining stabilization artifacts are due to non-planar scene structure, rolling shutter distortion, and sub-pixel optical flow correspondence errors.  Stabilization artifacts manifest as a subtly shifting background relative to the actor which may affect optical flow based methods.  All stabilizations can be filtered using the provided stabilization residual which measures the quality of the stabilization.  
 
 ## Download
 
-* [pip_d370k_stabilized.tar.gz (XX GB)](https://dl.dropboxusercontent.com/s/XXX/pip_d370k_stabilized.tar.gz)&nbsp;&nbsp;MD5:XXXX&nbsp;&nbsp;Updated:01Apr21
+* [pip_d370k_stabilized.tar.bz2 (59.7 GB)](https://dl.dropboxusercontent.com/s/vxjik8a01lp6uif/pip_d370k_stabilized.tar.bz2)&nbsp;&nbsp;MD5:7f705d6291dfa333000e40779b595d4f&nbsp;&nbsp;Updated:04Apr21
 
 
 ## Quickstart
@@ -55,7 +55,13 @@ vs.getattribute('stabilize')   # returns a stabilization residual (bigger is wor
 
 ```python
 videolist = [v for v in videolist if not v.getattribute('blurred faces') > 0]
+
 ```
+# Frequently Asked Questions
+
+* Are there repeated instances in this release?  For this release, we asked collectors to perform the same activity multiple times in a row per collection, but to perform the activity slightly differently each time.  You may identify these collections with a filename structure "VIDEOID_INSTANCEID.mp4" where the video ID identifies the collected video, and each instance ID is an integer that identifies the instance of the collected activity in the collected video.  This is a form of collector aided dataset augmentation by performing an activity in different ways. 
+* Are there missing activities?  This release contains only 34 activity classes, and this release should be combined with pip-250k for a complete release.
+* What is "person_walks"?  This is a background activity class.  We asked collectors to walk around and act like they were waiting for a bus or the subway, to provide a background class.  See the collection name in the video metadata.  
 
 
 # License
