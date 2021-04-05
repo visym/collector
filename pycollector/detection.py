@@ -521,19 +521,23 @@ class ActorAssociation(MultiscaleVideoTracker):
         allowable_objects = ['person', 'vehicle', 'car', 'motorcycle', 'object', 'bicycle']        
         assert actor_class.lower() in allowable_objects, "Actor Association must be to an allowable target class '%s'" % str(allowable_objects)
         assert association_class.lower() in allowable_objects, "Actor Association must be to an allowable target class '%s'" % str(allowable_objects)        
-        assert len(v.objectlabels()) == 1 and actor_class in v.objectlabels(), "Actor Association can only be performed with scenes containing a single actor in allowable object class '%s'" % str(allowable_objects)
+        assert len(v.objectlabels()) == 1 and actor_class.lower() in v.objectlabels(lower=True), "Actor Association can only be performed with scenes containing a single actor in allowable object class '%s'" % str(allowable_objects)
         
         # Track objects
-        vt = self.track(v.clone(), verbose=False)
-
-        # Actor assignment: for every frame, find track with best target object assignment to actor
+        vt = self.track(v.clone(), verbose=True)
+        
+        # Actor assignment: for every activity, find track with best target object assignment to actor
         assigned = set([])
-        for k in range(v.actor().startframe(), v.actor().endframe()):
-            a = v.actor()[k]  # interpolated actor track at frame k
-            candidates = [t[k] for t in vt.tracks().values() if (t.category() in association_class) and (association_class != actor_class or t[k].iou(a) < 0.8) and a.clone().dilate(3.0).hasoverlap(t[k])]   # candidate assignment (cannot be actor, or too far from actor)
+        for a in v.activities().values():
+            candidates = [t for t in vt.tracks().values() if (t.category().lower() == association_class.lower() and
+                                                              t.during_interval(a.startframe(), a.endframe()) and
+                                                              t.confidence() > 0.4 and  # must have minimum confidence
+                                                              (association_class.lower() != actor_class.lower() or t.segmentiou(v.actor()) < 0.8) and
+                                                              v.actor().boundingbox().dilate(2.0).hasintersection(t.boundingbox()))] # candidate assignment (cannot be actor, or too far from actor)
+
             if len(candidates) > 0:
-                (best, conf) = max([(d, d.pdist(a) * d.confidence()) for d in candidates], key=lambda x: x[1])  # best assignment is closest to actor with maximum confidence
-                assigned.add(best.attributes['trackid'])
+                (best, conf) = max([(t, v.actor().boundingbox().dilate(2.0).iou(t.boundingbox()) * t.confidence()) for t in candidates], key=lambda x: x[1])  # best assignment is track closest to actor with maximum confidence
+                assigned.add(best.id())
 
         # Update video with new tracks 
         vc = v.clone()
