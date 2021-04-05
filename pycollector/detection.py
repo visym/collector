@@ -34,6 +34,9 @@ class TorchNet(object):
         torch.set_grad_enabled(False)            
         return self
 
+    def cpu(self, batchsize=None):
+        return self.gpu(idlist=['cpu'], batchsize=batchsize)
+    
     def iscpu(self):
         return any(['cpu' in d for d in self._devices])
 
@@ -94,11 +97,14 @@ class Yolov5(TorchNet):
             assert vipy.downloader.verify_sha1(weightfile, 'bdf2f9e0ac7b4d1cee5671f794f289e636c8d7d4'), "Object detector download failed"
 
         # First import: load yolov5x.pt, disable fuse() in attempt_load(), save state_dict weights and load into newly pathed model
-        self._model = pycollector.model.yolov5.models.yolo.Model(cfgfile, 3, 80)
-        self._model.load_state_dict(torch.load(weightfile))
-        self._model.fuse()
-        self._model.eval()
+        with torch.no_grad():
+            self._model = pycollector.model.yolov5.models.yolo.Model(cfgfile, 3, 80)
+            self._model.load_state_dict(torch.load(weightfile))
+            self._model.fuse()
+            self._model.eval()
 
+        self._models = [self._model]
+        
         self._batchsize = batchsize        
         assert isinstance(self._batchsize, int), "Batchsize must be integer"
         self._cls2index = {c:k for (k,c) in enumerate(readlist(os.path.join(indir, 'coco.names')))}
@@ -108,6 +114,8 @@ class Yolov5(TorchNet):
         self._gpulist = gpu
         if gpu is not None:
             self.gpu(gpu, batchsize)
+        else:
+            self.cpu()
         torch.set_grad_enabled(False)
         
     def __call__(self, imlist, conf=1E-3, iou=0.5, union=False, objects=None):
@@ -122,7 +130,9 @@ class Yolov5(TorchNet):
 
         imlist = tolist(imlist)
         imlistdets = []
-        t = torch.cat([im.clone(shallow=True).maxsquare().mindim(self._mindim).gain(1.0/255.0).torch() for im in imlist]).pin_memory()  # triggers load
+        t = torch.cat([im.clone(shallow=True).maxsquare().mindim(self._mindim).gain(1.0/255.0).torch() for im in imlist])  # triggers load
+        if torch.cuda.is_available():
+            t = t.pin_memory()
 
         assert len(t) <= self.batchsize(), "Invalid batch size"
         todevice = [b.to(d, non_blocking=True) for (b,d) in zip(t.split(self._batchsize) , self._devices)]  # async?
@@ -337,8 +347,8 @@ class MultiscaleVideoTracker(MultiscaleObjectDetector):
         self._overlapfrac = overlapfrac
         self._detbatchsize = detbatchsize if detbatchsize is not None else self.batchsize()
         self._gate = gate
-        
-    def __call__(self, vi, stride=1):
+
+    def _track(self, vi, stride=1):
         """Yield vipy.video.Scene(), an incremental tracked result for each frame"""
         assert isinstance(vi, vipy.video.Video), "Invalid input"
 
@@ -350,8 +360,11 @@ class MultiscaleVideoTracker(MultiscaleObjectDetector):
                     if i < len(framelist):
                         yield (vi.assign(k*self._detbatchsize+i, im.objects(), minconf=self._trackconf, maxhistory=self._maxhistory, gate=self._gate) if (i == j) else vi)
 
+    def __call__(self, vi, stride=1):
+        return self._track(vi, stride)
+    
     def stream(self, vi):
-        return self.__call__(vi)
+        return self._track(vi)
 
     def track(self, vi, verbose=False):
         """Batch tracking"""
@@ -497,29 +510,35 @@ class VideoProposalRefinement(VideoProposal):
             raise ValueError('Unknown smoothing "%s"' % str(smoothing))
 
 
-class ActorProposalRefinement(VideoProposalRefinement):
-    """Only refine the primary actor and nothing else"""
-    pass
-
-class ActorAssociation(VideoProposalRefinement):
+class ActorAssociation(MultiscaleVideoTracker):
     """pycollector.detection.VideoAssociation() class
        
-       Select the best object proposal track of the target class associated with the primary actor class by gated spatial IOU and cover.
+       Select the best object track of the target class associated with the primary actor class by gated spatial IOU and distance.
        Add the best object track to the scene and associate with all activities performed by the primary actor.
     """
-    def __call__(self, v, target, dt=3):
-        assert target.lower() in self.allowable_objects(), "Actor Association must be to an allowable target class '%s'" % str(self.allowable_objects())
-        assert len(v.objectlabels()) == 1, "Actor Association can only be performed with scenes containing a single actor"
+    
+    def __call__(self, v, actor_class, association_class):
+        allowable_objects = ['person', 'vehicle', 'car', 'motorcycle', 'object', 'bicycle']        
+        assert actor_class.lower() in allowable_objects, "Actor Association must be to an allowable target class '%s'" % str(allowable_objects)
+        assert association_class.lower() in allowable_objects, "Actor Association must be to an allowable target class '%s'" % str(allowable_objects)        
+        assert len(v.objectlabels()) == 1 and actor_class in v.objectlabels(), "Actor Association can only be performed with scenes containing a single actor in allowable object class '%s'" % str(allowable_objects)
         
-        #va = super().__call__(v.clone(), dt=dt)  # tight proposal for primary actor (same keys)
-        va = v.clone()  # assume tight proposal for primary actor already (Proposals already generated)
-        vi = va.clone(rekey=True).meanmask().savetmp() if target in v.objectlabels() else None
-        vp = super().__call__(vi if vi is not None else va.clone(rekey=True), dt=dt, miniou=0, mincover=0, byclass=True, refinedclass=target, dilate_height=4.0, dilate_width=16.0, pdist=True, smoothing=None)  # close proposal for associated object (primary object blurred)
-        vc = va.clone()  # for idempotence (same keys as v)
-        for t in vp.tracklist():
-            vc.activitymap(lambda a: a.add(t) if a.during_interval(t.startframe(), t.endframe()) else a).add(t)
-        if vi is not None:
-            os.remove(vi.filename())  # cleanup temporary masked video
+        # Track objects
+        vt = self.track(v.clone(), verbose=False)
+
+        # Actor assignment: for every frame, find track with best target object assignment to actor
+        assigned = set([])
+        for k in range(v.actor().startframe(), v.actor().endframe()):
+            a = v.actor()[k]  # interpolated actor track at frame k
+            candidates = [t[k] for t in vt.tracks().values() if (t.category() in association_class) and (association_class != actor_class or t[k].iou(a) < 0.8) and a.clone().dilate(3.0).hasoverlap(t[k])]   # candidate assignment (cannot be actor, or too far from actor)
+            if len(candidates) > 0:
+                (best, conf) = max([(d, d.pdist(a) * d.confidence()) for d in candidates], key=lambda x: x[1])  # best assignment is closest to actor with maximum confidence
+                assigned.add(best.attributes['trackid'])
+
+        # Update video with new tracks 
+        vc = v.clone()
+        for (ti, t) in vt.trackfilter(lambda t: t.id() in assigned).tracks().items():
+            vc.activitymap(lambda a: a.add(t) if a.during_interval(t.startframe(), t.endframe()) else a).add(t)  
         return vc
 
     
