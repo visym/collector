@@ -132,6 +132,7 @@ class Datasets():
     def list(self):
         return sorted(list(set([filebase(f) for e in self._archive_ext for f in listext(self._indir, '.%s' % e)])))
 
+
     def isdataset(self, src):
         return (src in self.list()) or isinstance(src, Dataset) or src in self._datasets
         
@@ -477,6 +478,10 @@ class Dataset():
     def list(self):
         return self._objlist
 
+    def flatten(self):
+        self._objlist = [o for objlist in self._objlist for o in vipy.util.tolist(objlist)]
+        return self
+
     def istype(self, validtype):
         return all([any([isinstance(v,t) for t in tolist(validtype)]) for v in self._objlist]), "invalid type - must be %s" % str(validtype)            
             
@@ -528,8 +533,8 @@ class Dataset():
         # Copy extras (symlinked) to staging directory
         if extrafiles is not None:
             for (e, a) in tolist(extrafiles):
-                assert os.path.exists(e), "Invalid extras file '%s'" % e
-                os.symlink(e, os.path.join(stagedir, filetail(e) if a is None else a))
+                assert os.path.exists(os.path.abspath(e)), "Invalid extras file '%s'" % e
+                os.symlink(os.path.abspath(e), os.path.join(stagedir, filetail(e) if a is None else a))
 
         # System command to run tar
         cmd = ('tar %scvf %s -C %s --dereference %s %s' % ('j' if vipy.util.isbz2(tarfile) else 'z', 
@@ -583,6 +588,9 @@ class Dataset():
         assert self.isvipy(), "Invalid input"
         return sorted(list(set([v.category() for v in self._objlist])))
 
+    def classes(self):
+        return self.classlist()
+
     def class_to_index(self):
         return {v:k for (k,v) in enumerate(self.classlist())}
 
@@ -630,6 +638,9 @@ class Dataset():
     def filter(self, f):
         self._objlist = [v for v in self._objlist if f(v)]
         return self
+
+    def valid(self):
+        return self.filter(lambda v: v is not None)
 
     def take_per_category(self, n, id=None):
         C = vipy.util.groupbyasdict(self._objlist, lambda v: v.category())
@@ -889,6 +900,11 @@ class Dataset():
     def totorch_datadir(self, f_video_to_tensor, outdir):
         return TorchDatadir(f_video_to_tensor, self.tojsondir(outdir))
 
+    def annotate(self, outdir, mindim=512):
+        assert self.isvipy()
+        f = lambda v, outdir=outdir, mindim=mindim: v.mindim(mindim).annotate().saveas(os.path.join(outdir, '%s.mp4' % v.videoid())).print()
+        return self.map(f, dst='annotate')
+
     def tohtml(self, outfile, mindim=512, title='Visualization', fraction=1.0, display=False, clip=True, activities=True, category=True):
         """Generate a standalone HTML file containing quicklooks for each annotated activity in dataset, along with some helpful provenance information for where the annotation came from"""
     
@@ -901,7 +917,7 @@ class Dataset():
         dataset = self.list()
         assert all([isinstance(v, vipy.video.Video) for v in dataset])
         dataset = [dataset[k] for k in np.random.permutation(range(len(dataset)))[0:int(len(dataset)*fraction)]]
-        dataset = [v for v in dataset if all([len(a) < 15*v.framerate() for a in v.activitylist()])]  # remove extremely long videos
+        #dataset = [v for v in dataset if all([len(a) < 15*v.framerate() for a in v.activitylist()])]  # remove extremely long videos
 
         quicklist = vipy.batch.Batch(dataset, strict=False, as_completed=True, minscatter=1).map(lambda v: (v.load().quicklook(), v.flush().print())).result()
         quicklist = [x for x in quicklist if x is not None]  # remove errors

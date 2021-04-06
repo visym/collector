@@ -22,7 +22,7 @@ class TorchNet(object):
         self._batchsize = batchsize if batchsize is not None else (self._batchsize if hasattr(self, '_batchsize') else 1)
 
         idlist = tolist(idlist)
-        self._devices = ['cuda:%d' % k if k is not None and torch.cuda.is_available() else 'cpu' for k in idlist]
+        self._devices = ['cuda:%d' % k if k is not None and torch.cuda.is_available() and k != 'cpu' else 'cpu' for k in idlist]
         #self._tensortype = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor       
         self._tensortype = torch.FloatTensor       
         
@@ -517,14 +517,21 @@ class ActorAssociation(MultiscaleVideoTracker):
        Add the best object track to the scene and associate with all activities performed by the primary actor.
     """
     
-    def __call__(self, v, actor_class, association_class):
+    def __call__(self, v, actor_class, association_class, fps=None):
         allowable_objects = ['person', 'vehicle', 'car', 'motorcycle', 'object', 'bicycle']        
         assert actor_class.lower() in allowable_objects, "Actor Association must be to an allowable target class '%s'" % str(allowable_objects)
         assert association_class.lower() in allowable_objects, "Actor Association must be to an allowable target class '%s'" % str(allowable_objects)        
         assert len(v.objectlabels()) == 1 and actor_class.lower() in v.objectlabels(lower=True), "Actor Association can only be performed with scenes containing a single actor in allowable object class '%s'" % str(allowable_objects)
         
         # Track objects
-        vt = self.track(v.clone(), verbose=True)
+        vc = v.clone()
+        if fps is not None:
+            for t in vc.tracks().values():
+                t._framerate = v.framerate()  # HACK
+            for a in vc.activities().values():
+                a._framerate = v.framerate()  # HACK
+
+        vt = self.track(vc.framerate(fps)).framerate(v.framerate()) if fps is not None else self.track(vc)
         
         # Actor assignment: for every activity, find track with best target object assignment to actor
         assigned = set([])
