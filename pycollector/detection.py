@@ -19,16 +19,16 @@ class TorchNet(object):
     def gpu(self, idlist, batchsize=None):
         assert batchsize is None or (isinstance(batchsize, int) and batchsize > 0), "Batchsize must be integer"
         assert idlist is None or isinstance(idlist, int) or (isinstance(idlist, list) and len(idlist)>0), "Input must be a non-empty list of integer GPU ids"
-        self._batchsize = batchsize if batchsize is not None else (self._batchsize if hasattr(self, '_batchsize') else 1)
+        self._batchsize = int(batchsize if batchsize is not None else (self._batchsize if hasattr(self, '_batchsize') else 1))
 
         idlist = tolist(idlist)
-        self._devices = ['cuda:%d' % k if k is not None and torch.cuda.is_available() else 'cpu' for k in idlist]
+        self._devices = ['cuda:%d' % k if k is not None and torch.cuda.is_available() and k != 'cpu' else 'cpu' for k in idlist]
         #self._tensortype = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor       
         self._tensortype = torch.FloatTensor       
         
         if not hasattr(self, '_gpulist') or not hasattr(self, '_models') or idlist != self._gpulist  or not hasattr(self, '_models'):
             self._models = [copy.deepcopy(self._model).to(d, non_blocking=False) for d in self._devices]
-            for m in self._models:
+            for (d,m) in zip(self._devices, self._models):
                 m.eval()
             self._gpulist = idlist
         torch.set_grad_enabled(False)            
@@ -54,7 +54,7 @@ class TorchNet(object):
         return torch.cat([r.detach().cpu() for r in fromdevice], dim=0)
         
     def batchsize(self):
-        return len(self._models)*self._batchsize
+        return int(len(self._models)*self._batchsize)
         
 
 class FaceDetector(TorchNet):
@@ -131,12 +131,13 @@ class Yolov5(TorchNet):
         imlist = tolist(imlist)
         imlistdets = []
         t = torch.cat([im.clone(shallow=True).maxsquare().mindim(self._mindim).gain(1.0/255.0).torch() for im in imlist])  # triggers load
-        if torch.cuda.is_available():
+        if torch.cuda.is_available() and not self.iscpu():
             t = t.pin_memory()
 
         assert len(t) <= self.batchsize(), "Invalid batch size"
-        todevice = [b.to(d, non_blocking=True) for (b,d) in zip(t.split(self._batchsize) , self._devices)]  # async?
+        todevice = [b.to(d, memory_format=torch.contiguous_format, non_blocking=True) for (b,d) in zip(t.split(self._batchsize), self._devices)]  # contiguous_format required for torch-1.8.1
         fromdevice = [m(b)[0] for (m,b) in zip(self._models, todevice)]     # detection
+        
         t_out = [torch.squeeze(t, dim=0) for d in fromdevice for t in torch.split(d, 1, 0)]   # unpack batch to list of detections per imag
         t_out = [torch.cat((t[:,0:5], torch.argmax(t[:,5:], dim=1, keepdim=True)), dim=1) for t in t_out]  # filter argmax on device 
         t_out = [t[t[:,4]>conf].cpu().numpy() for t in t_out]  # filter conf on device (this must be last)
@@ -524,7 +525,14 @@ class ActorAssociation(MultiscaleVideoTracker):
         assert len(v.objectlabels()) == 1 and actor_class.lower() in v.objectlabels(lower=True), "Actor Association can only be performed with scenes containing a single actor in allowable object class '%s'" % str(allowable_objects)
         
         # Track objects
-        vt = self.track(v.clone().framerate(fps)).framerate(v.framerate()) if fps is not None else self.track(v.clone())
+        vc = v.clone()
+        if fps is not None:
+            for t in vc.tracks().values():
+                t._framerate = v.framerate()  # HACK
+            for a in vc.activities().values():
+                a._framerate = v.framerate()  # HACK
+
+        vt = self.track(vc.framerate(fps)).framerate(v.framerate()) if fps is not None else self.track(vc)
         
         # Actor assignment: for every activity, find track with best target object assignment to actor
         assigned = set([])
