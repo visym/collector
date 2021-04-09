@@ -517,14 +517,14 @@ class ActorAssociation(MultiscaleVideoTracker):
        Add the best object track to the scene and associate with all activities performed by the primary actor.
     """
     
-    def __call__(self, v, actor_class, association_class):
+    def __call__(self, v, actor_class, association_class, fps=None):
         allowable_objects = ['person', 'vehicle', 'car', 'motorcycle', 'object', 'bicycle']        
         assert actor_class.lower() in allowable_objects, "Actor Association must be to an allowable target class '%s'" % str(allowable_objects)
         assert association_class.lower() in allowable_objects, "Actor Association must be to an allowable target class '%s'" % str(allowable_objects)        
         assert len(v.objectlabels()) == 1 and actor_class.lower() in v.objectlabels(lower=True), "Actor Association can only be performed with scenes containing a single actor in allowable object class '%s'" % str(allowable_objects)
         
         # Track objects
-        vt = self.track(v.clone(), verbose=True)
+        vt = self.track(v.clone().framerate(fps)).framerate(v.framerate()) if fps is not None else self.track(v.clone())
         
         # Actor assignment: for every activity, find track with best target object assignment to actor
         assigned = set([])
