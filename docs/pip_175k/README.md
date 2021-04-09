@@ -49,7 +49,6 @@ Unpack pip_175k.tar.gz in /path/to/, then:
 ```python
 import vipy
 cd /path/to/pip_175k
-pip = vipy.util.load('valset.pkl')  # or JSON
 pip = vipy.util.load('valset.json')  # or JSON, faster
 ```
 
@@ -58,8 +57,7 @@ pip = vipy.util.load('valset.json')  # or JSON, faster
 ```python
 v = pip[0]  # first video 
 v.play()   # display unannotated video
-v.show()   # generate video annotations and play when complete
-v.fastshow()   # generate streaming video annotations
+v.show()   # generate video annotations and show video
 v.quicklook().show()   # display video summary image
 v[0].savefig().saveas('out.png')  # save annotated first frame of first video, and save to a PNG
 v.tracks()  # tracks ID and tracks in this video
