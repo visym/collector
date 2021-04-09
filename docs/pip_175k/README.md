@@ -49,13 +49,13 @@ Unpack pip_175k.tar.gz in /path/to/, then:
 ```python
 import vipy
 cd /path/to/pip_175k
-pip = vipy.util.load('valset.json')  # or JSON, faster
+pip = vipy.util.load('pip_175k.json')  
 ```
 
 ## Visualize
 
 ```python
-v = pip[0]  # first video 
+v = pip[0]  # first video in the list
 v.play()   # display unannotated video
 v.show()   # generate video annotations and show video
 v.quicklook().show()   # display video summary image
