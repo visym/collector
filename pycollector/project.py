@@ -106,7 +106,7 @@ class Project(User):
 def search():
     return Project(since='2020-09-01')
 
-def last(n=1):
+def last(n=1, ):
     return Project(since='2020-09-01', last=n).last(n)    
 
             

@@ -16,7 +16,7 @@ def test_get_project():
     """
 
     # Set to target ENV
-    #pycollector.globals.backend('test')
+    pycollector.globals.backend(env='test', org='str')
 
     # testing variiables
     username = os.environ['VISYM_COLLECTOR_PYTEST_EMAIL']  # github secrets
