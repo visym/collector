@@ -19,21 +19,24 @@ class TorchNet(object):
     def gpu(self, idlist, batchsize=None):
         assert batchsize is None or (isinstance(batchsize, int) and batchsize > 0), "Batchsize must be integer"
         assert idlist is None or isinstance(idlist, int) or (isinstance(idlist, list) and len(idlist)>0), "Input must be a non-empty list of integer GPU ids"
-        self._batchsize = batchsize if batchsize is not None else (self._batchsize if hasattr(self, '_batchsize') else 1)
+        self._batchsize = int(batchsize if batchsize is not None else (self._batchsize if hasattr(self, '_batchsize') else 1))
 
         idlist = tolist(idlist)
-        self._devices = ['cuda:%d' % k if k is not None and torch.cuda.is_available() else 'cpu' for k in idlist]
+        self._devices = ['cuda:%d' % k if k is not None and torch.cuda.is_available() and k != 'cpu' else 'cpu' for k in idlist]
         #self._tensortype = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor       
         self._tensortype = torch.FloatTensor       
         
-        if not hasattr(self, '_gpulist') or not hasattr(self, '_models') or idlist != self._gpulist:
+        if not hasattr(self, '_gpulist') or not hasattr(self, '_models') or idlist != self._gpulist  or not hasattr(self, '_models'):
             self._models = [copy.deepcopy(self._model).to(d, non_blocking=False) for d in self._devices]
-            for m in self._models:
+            for (d,m) in zip(self._devices, self._models):
                 m.eval()
             self._gpulist = idlist
-
+        torch.set_grad_enabled(False)            
         return self
 
+    def cpu(self, batchsize=None):
+        return self.gpu(idlist=['cpu'], batchsize=batchsize)
+    
     def iscpu(self):
         return any(['cpu' in d for d in self._devices])
 
@@ -46,13 +49,12 @@ class TorchNet(object):
            * Note: Do not use DataParallel, this replicates the multi-gpu batch on device 0 and results in out of memory
         """
         assert len(t) <= self.batchsize(), "Invalid batch size"
-        t = t.pin_memory() if self.isgpu() else t
-        todevice = [b.to(d, non_blocking=True) for (b,d) in zip(t.split(self._batchsize) , self._devices)]  # async?
+        todevice = [b.pin_memory().to(d, non_blocking=True) for (b,d) in zip(t.split(self._batchsize) , self._devices)]  # async?
         fromdevice = [m(b) for (m,b) in zip(self._models, todevice)]   # async?
         return torch.cat([r.detach().cpu() for r in fromdevice], dim=0)
         
     def batchsize(self):
-        return len(self._models)*self._batchsize
+        return int(len(self._models)*self._batchsize)
         
 
 class FaceDetector(TorchNet):
@@ -70,7 +72,6 @@ class FaceDetector(TorchNet):
         assert vipy.downloader.verify_sha1(weightfile, 'a759030540a4a5284baa93d3ef5e47ed40cae6d6'), "Face detector download failed with SHA1='%s'" % (vipy.downloader.generate_sha1(weightfile))
         self._model = FaceRCNN(model_path=weightfile)
         #self._model.eval()  # Set in evaluation mode
-        #self.gpu(vipy.globals.gpuindex())
 
     def __call__(self, im):
         assert isinstance(im, vipy.image.Image)
@@ -96,11 +97,14 @@ class Yolov5(TorchNet):
             assert vipy.downloader.verify_sha1(weightfile, 'bdf2f9e0ac7b4d1cee5671f794f289e636c8d7d4'), "Object detector download failed"
 
         # First import: load yolov5x.pt, disable fuse() in attempt_load(), save state_dict weights and load into newly pathed model
-        self._model = pycollector.model.yolov5.models.yolo.Model(cfgfile, 3, 80)
-        self._model.load_state_dict(torch.load(weightfile))
-        self._model.fuse()
-        self._model.eval()
+        with torch.no_grad():
+            self._model = pycollector.model.yolov5.models.yolo.Model(cfgfile, 3, 80)
+            self._model.load_state_dict(torch.load(weightfile))
+            self._model.fuse()
+            self._model.eval()
 
+        self._models = [self._model]
+        
         self._batchsize = batchsize        
         assert isinstance(self._batchsize, int), "Batchsize must be integer"
         self._cls2index = {c:k for (k,c) in enumerate(readlist(os.path.join(indir, 'coco.names')))}
@@ -108,7 +112,11 @@ class Yolov5(TorchNet):
 
         self._device = None
         self._gpulist = gpu
-        self.gpu(gpu, batchsize)
+        if gpu is not None:
+            self.gpu(gpu, batchsize)
+        else:
+            self.cpu()
+        torch.set_grad_enabled(False)
         
     def __call__(self, imlist, conf=1E-3, iou=0.5, union=False, objects=None):
         """Run detection on an image list at specific mininum confidence and iou NMS
@@ -122,15 +130,17 @@ class Yolov5(TorchNet):
 
         imlist = tolist(imlist)
         imlistdets = []
-        t = torch.cat([im.clone(shallow=True).maxsquare().mindim(self._mindim).gain(1.0/255.0).torch() for im in imlist]).type(self._tensortype)  # triggers load
+        t = torch.cat([im.clone(shallow=True).maxsquare().mindim(self._mindim).gain(1.0/255.0).torch() for im in imlist])  # triggers load
+        if torch.cuda.is_available() and not self.iscpu():
+            t = t.pin_memory()
 
         assert len(t) <= self.batchsize(), "Invalid batch size"
-        t = t.pin_memory() if self.isgpu() else t
-        todevice = [b.to(d, non_blocking=True) for (b,d) in zip(t.split(self._batchsize) , self._devices)]  # async?
-        fromdevice = [m(b)[0] for (m,b) in zip(self._models, todevice)]     # detection!
+        todevice = [b.to(d, memory_format=torch.contiguous_format, non_blocking=True) for (b,d) in zip(t.split(self._batchsize), self._devices)]  # contiguous_format required for torch-1.8.1
+        fromdevice = [m(b)[0] for (m,b) in zip(self._models, todevice)]     # detection
+        
         t_out = [torch.squeeze(t, dim=0) for d in fromdevice for t in torch.split(d, 1, 0)]   # unpack batch to list of detections per imag
         t_out = [torch.cat((t[:,0:5], torch.argmax(t[:,5:], dim=1, keepdim=True)), dim=1) for t in t_out]  # filter argmax on device 
-        t_out = [t[t[:,4]>conf].detach().cpu().numpy() for t in t_out]  # filter conf on device (this must be last)
+        t_out = [t[t[:,4]>conf].cpu().numpy() for t in t_out]  # filter conf on device (this must be last)
 
         k_valid_objects = set([self._cls2index[k] for k in objects.keys()]) if objects is not None else self._cls2index.values()        
         for (im, dets) in zip(imlist, t_out):
@@ -275,13 +285,15 @@ class MultiscaleObjectDetector(ObjectDetector):
             imcoarsedet = im_multiscale[0].mindim(iml.mindim())
             imcoarsedet_imagebox = imcoarsedet.imagebox()
             if filterborder:
-                imfinedet = iml.untile( [im.nms(conf, iou, cover=cover).objectfilter(lambda o: ((maxarea==1 or (o.area()<=maxarea*im.area())) and   # not too big relative to tile
-                                                                                                ((o.isinterior(im.width(), im.height(), border=0.9) or  # not occluded by any tile boundary 
-                                                                                                  o.clone().dilatepx(0.1*im.width()+1).cover(im.imagebox()) == o.clone().dilatepx(0.1*im.width()+1).set_origin(im.attributes['tile']['crop']).cover(imcoarsedet_imagebox)))))  # or only occluded by image boundary
-                                         for im in im_multiscale[nc:]] )
+                imfinedet = [im.nms(conf, iou, cover=cover).objectfilter(lambda o: ((maxarea==1 or (o.area()<=maxarea*im.area())) and   # not too big relative to tile
+                                                                                    ((o.isinterior(im.width(), im.height(), border=0.9) or  # not occluded by any tile boundary 
+                                                                                      o.clone().dilatepx(0.1*im.width()+1).cover(im.imagebox()) == o.clone().dilatepx(0.1*im.width()+1).set_origin(im.attributes['tile']['crop']).cover(imcoarsedet_imagebox)))))  # or only occluded by image boundary
+                             for im in im_multiscale[nc:]]
+                imfinedet = [im.objectmap(lambda o: o.set_origin(im.attributes['tile']['crop'])) for im in imfinedet]  # shift objects only, equivalent to untile() but faster
+                imcoarsedet = imcoarsedet.objects( imcoarsedet.objects() + [o for im in imfinedet for o in im.objects()])  # union
             else:
                 imfinedet = iml.untile( im_multiscale[nc:] )
-            imcoarsedet = imcoarsedet.union(imfinedet) if imfinedet is not None else imcoarsedet
+                imcoarsedet = imcoarsedet.union(imfinedet) if imfinedet is not None else imcoarsedet
             imlistdet.append(imcoarsedet.nms(conf, iou, cover=cover))
 
         return imlistdet[0] if len(imlistdet) == 1 else imlistdet
@@ -336,8 +348,8 @@ class MultiscaleVideoTracker(MultiscaleObjectDetector):
         self._overlapfrac = overlapfrac
         self._detbatchsize = detbatchsize if detbatchsize is not None else self.batchsize()
         self._gate = gate
-        
-    def __call__(self, vi, stride=1):
+
+    def _track(self, vi, stride=1):
         """Yield vipy.video.Scene(), an incremental tracked result for each frame"""
         assert isinstance(vi, vipy.video.Video), "Invalid input"
 
@@ -349,8 +361,11 @@ class MultiscaleVideoTracker(MultiscaleObjectDetector):
                     if i < len(framelist):
                         yield (vi.assign(k*self._detbatchsize+i, im.objects(), minconf=self._trackconf, maxhistory=self._maxhistory, gate=self._gate) if (i == j) else vi)
 
+    def __call__(self, vi, stride=1):
+        return self._track(vi, stride)
+    
     def stream(self, vi):
-        return self.__call__(vi)
+        return self._track(vi)
 
     def track(self, vi, verbose=False):
         """Batch tracking"""
@@ -376,11 +391,10 @@ class VideoProposal(Proposal):
 
     def isallowable(self, v):
         assert isinstance(v, vipy.video.Video), "Invalid input - must be vipy.video.Video not '%s'" % (str(type(v)))
-        return len(set(v.objectlabels())) == 1 and all([c.lower() in self.allowable_objects() for c in v.objectlabels()]) # for now
+        return all([c.lower() in self.allowable_objects() for c in v.objectlabels()]) # for now
 
     def __call__(self, v, conf=1E-2, iou=0.8, dt=1, target=None, activitybox=False, dilate=4.0, dilate_height=None, dilate_width=None):
         assert isinstance(v, vipy.video.Video), "Invalid input - must be vipy.video.Video not '%s'" % (str(type(v)))
-        self.gpu(vipy.globals.gpuindex())  # cpu if gpuindex == None
 
         # Optional target class
         d_target_to_index = {'person':[self._cls2index['person']],
@@ -406,9 +420,12 @@ class VideoProposal(Proposal):
         img = vc.numpy()[::dt]  # source video, triggers load
         tensor = vc.flush().crop(bb, zeropad=False).maxsquare().mindim(self._mindim).torch()[::dt]  # transformed video, NxCxHxW, re-triggers load due to crop()
 
-        for i in range(0, len(tensor), self._batchsize):
-            dets = self._model(tensor[i:i+self._batchsize].type(self._tensortype).to(self._device))  # copy here
-            dets = dets[0].detach().cpu().numpy() if len(dets)==2 else dets.detach().cpu().numpy()  # for yolov5, should really use super().__call__
+        for i in range(0, len(tensor), self.batchsize()):
+            t = tensor[i:i+self.batchsize()]
+            todevice = [b.to(d, non_blocking=True) for (b,d) in zip(t.split(self._batchsize) , self._devices)]  # async?
+            fromdevice = [m(b)[0] for (m,b) in zip(self._models, todevice)]     # detection!
+            dets = [torch.squeeze(t, dim=0).cpu().numpy() for d in fromdevice for t in torch.split(d, 1, 0)]   # unpack batch to list of detections per imag
+
             for (j, det) in enumerate(dets):
                 # Objects in transformed video
                 objs = [vipy.object.Detection(xcentroid=float(d[0]), 
@@ -419,11 +436,10 @@ class VideoProposal(Proposal):
                                               category=('%1.2f' % float(d[4])) if target is None else f_max_target_category(d))
                         for d in det
                         if (float(d[4]) > conf) and (f_max_target_confidence(d) > conf)]
-
+        
                 # Objects in source video
                 objs = [obj.rescale(scale).translate(bb.xmin(), bb.ymin()) for obj in objs]
-                ims.append( vipy.image.Scene(array=img[i+j], objects=objs).nms(conf, iou) )
-                
+                ims.append( vipy.image.Scene(array=img[i+j], objects=objs).nms(conf, iou) )        
         return ims
 
     
@@ -439,7 +455,7 @@ class VideoProposalRefinement(VideoProposal):
         assert not (byclass is False and refinedclass is not None), "Invalid input"
         
         if not self.isallowable(v):
-            warnings.warn("Invalid object labels '%s' for proposal, must be in '%s' - returning original video" % (str(v.objectlabels()), str(self.allowable_objects())))
+            warnings.warn("Invalid object labels '%s' for proposal, must be only one target object label and must be in '%s' - returning original video" % (str(v.objectlabels()), str(self.allowable_objects())))
             return v.clone().setattribute('unrefined')
         target = None if not byclass else [c.lower() for c in v.objectlabels()] if refinedclass is None else [refinedclass.lower()]  # classes for proposals
         vp = super().__call__(v, proposalconf, proposaliou, dt=dt, activitybox=True, dilate_height=dilate_height, dilate_width=dilate_width, target=target)  # subsampled proposals
@@ -495,29 +511,46 @@ class VideoProposalRefinement(VideoProposal):
             raise ValueError('Unknown smoothing "%s"' % str(smoothing))
 
 
-class ActorProposalRefinement(VideoProposalRefinement):
-    """Only refine the primary actor and nothing else"""
-    pass
-
-class ActorAssociation(VideoProposalRefinement):
+class ActorAssociation(MultiscaleVideoTracker):
     """pycollector.detection.VideoAssociation() class
        
-       Select the best object proposal track of the target class associated with the primary actor class by gated spatial IOU and cover.
+       Select the best object track of the target class associated with the primary actor class by gated spatial IOU and distance.
        Add the best object track to the scene and associate with all activities performed by the primary actor.
     """
-    def __call__(self, v, target, dt=3):
-        assert target.lower() in self.allowable_objects(), "Actor Association must be to an allowable target class '%s'" % str(self.allowable_objects())
-        assert len(v.objectlabels()) == 1, "Actor Association can only be performed with scenes containing a single actor"
+    
+    def __call__(self, v, actor_class, association_class, fps=None):
+        allowable_objects = ['person', 'vehicle', 'car', 'motorcycle', 'object', 'bicycle']        
+        assert actor_class.lower() in allowable_objects, "Actor Association must be to an allowable target class '%s'" % str(allowable_objects)
+        assert association_class.lower() in allowable_objects, "Actor Association must be to an allowable target class '%s'" % str(allowable_objects)        
+        assert len(v.objectlabels()) == 1 and actor_class.lower() in v.objectlabels(lower=True), "Actor Association can only be performed with scenes containing a single actor in allowable object class '%s'" % str(allowable_objects)
         
-        #va = super().__call__(v.clone(), dt=dt)  # tight proposal for primary actor (same keys)
-        va = v.clone()  # assume tight proposal for primary actor already (Proposals already generated)
-        vi = va.clone(rekey=True).meanmask().savetmp() if target in v.objectlabels() else None
-        vp = super().__call__(vi if vi is not None else va.clone(rekey=True), dt=dt, miniou=0, mincover=0, byclass=True, refinedclass=target, dilate_height=4.0, dilate_width=16.0, pdist=True, smoothing=None)  # close proposal for associated object (primary object blurred)
-        vc = va.clone()  # for idempotence (same keys as v)
-        for t in vp.tracklist():
-            vc.activitymap(lambda a: a.add(t) if a.during_interval(t.startframe(), t.endframe()) else a).add(t)
-        if vi is not None:
-            os.remove(vi.filename())  # cleanup temporary masked video
+        # Track objects
+        vc = v.clone()
+        if fps is not None:
+            for t in vc.tracks().values():
+                t._framerate = v.framerate()  # HACK
+            for a in vc.activities().values():
+                a._framerate = v.framerate()  # HACK
+
+        vt = self.track(vc.framerate(fps)).framerate(v.framerate()) if fps is not None else self.track(vc)
+        
+        # Actor assignment: for every activity, find track with best target object assignment to actor
+        assigned = set([])
+        for a in v.activities().values():
+            candidates = [t for t in vt.tracks().values() if (t.category().lower() == association_class.lower() and
+                                                              t.during_interval(a.startframe(), a.endframe()) and
+                                                              t.confidence() > 0.4 and  # must have minimum confidence
+                                                              (association_class.lower() != actor_class.lower() or t.segmentiou(v.actor()) < 0.8) and
+                                                              v.actor().boundingbox().dilate(2.0).hasintersection(t.boundingbox()))] # candidate assignment (cannot be actor, or too far from actor)
+
+            if len(candidates) > 0:
+                (best, conf) = max([(t, v.actor().boundingbox().dilate(2.0).iou(t.boundingbox()) * t.confidence()) for t in candidates], key=lambda x: x[1])  # best assignment is track closest to actor with maximum confidence
+                assigned.add(best.id())
+
+        # Update video with new tracks 
+        vc = v.clone()
+        for (ti, t) in vt.trackfilter(lambda t: t.id() in assigned).tracks().items():
+            vc.activitymap(lambda a: a.add(t) if a.during_interval(t.startframe(), t.endframe()) else a).add(t)  
         return vc
 
     

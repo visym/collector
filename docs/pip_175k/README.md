@@ -16,7 +16,7 @@ over 150 subjects in 44 countries around the world.
 
 This dataset contains 184,379 video clips of 66 classes of activities performed by people in public places.  The activity labels are subsets of the 37 activities in the [Multiview Extended Video with Activities (MEVA)](https://mevadata.org) dataset and is consistent with the [Activities in Extended Video (ActEV)](https://actev.nist.gov/) challenge.  
 
-* [pip_175k.tar.gz (55.3GB)](https://dl.dropboxusercontent.com/s/xwiacwo9y5uci9v/pip_175k.tar.gz)&nbsp;&nbsp;MD5:9e49f8608ba0170dfaa1ed558351f0df&nbsp;&nbsp;&nbsp;&nbsp;
+* [pip_175k.tar.gz (54.02GB)](https://dl.dropboxusercontent.com/s/aqafx0t3k7691gc/pip_175k.tar.gz)&nbsp;&nbsp;MD5:2d8dce694e8a6056023c5232975297d9&nbsp;&nbsp;&nbsp;&nbsp;Updated:08Mar21
 * Visualization of [Training set random sample (87MB)](https://rawcdn.githack.com/visym/collector/5b051c625ef458417a16ed48d5a0693ef59fd9ff/docs/pip_175k/trainset_small.html),&nbsp;[full validation set (1.1GB)](https://dl.dropboxusercontent.com/s/8fp77nvxeywrq7f/pip_175k_valset.html)
 
 
@@ -49,17 +49,15 @@ Unpack pip_175k.tar.gz in /path/to/, then:
 ```python
 import vipy
 cd /path/to/pip_175k
-pip = vipy.util.load('valset.pkl')  # or JSON
-pip = vipy.util.load('valset.json')  # or JSON, faster
+pip = vipy.util.load('pip_175k.json')  
 ```
 
 ## Visualize
 
 ```python
-v = pip[0]  # first video 
+v = pip[0]  # first video in the list
 v.play()   # display unannotated video
-v.show()   # generate video annotations and play when complete
-v.fastshow()   # generate streaming video annotations
+v.show()   # generate video annotations and show video
 v.quicklook().show()   # display video summary image
 v[0].savefig().saveas('out.png')  # save annotated first frame of first video, and save to a PNG
 v.tracks()  # tracks ID and tracks in this video

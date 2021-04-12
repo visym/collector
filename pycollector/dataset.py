@@ -99,6 +99,9 @@ class Datasets():
     """pycollector.dataset.Datasets() class
     
        This class is designed to transform datasets with intermediate datasets saved in indir
+        
+       WARNING - This class has been deprecated in favor of Dataset().
+
     """
 
     def __init__(self, indir, strict=False):
@@ -128,6 +131,7 @@ class Datasets():
 
     def list(self):
         return sorted(list(set([filebase(f) for e in self._archive_ext for f in listext(self._indir, '.%s' % e)])))
+
 
     def isdataset(self, src):
         return (src in self.list()) or isinstance(src, Dataset) or src in self._datasets
@@ -440,6 +444,7 @@ class Dataset():
     """
 
     def __init__(self, objlist, id=None):
+        objlist = vipy.util.load(objlist) if (vipy.util.isjsonfile(objlist) or vipy.util.ispklfile(objlist)) else objlist
         assert isinstance(objlist, list), "Invalid input"
         self._saveas_ext = ['pkl', 'json']
         self._id = uuid.uuid4().hex if id is None else id
@@ -447,7 +452,10 @@ class Dataset():
         assert len(self._objlist) > 0, "Invalid object list"
 
     def __repr__(self):
-        return str('<pycollector.dataset: id="%s", len=%d, type=%s>' % (self.id(), len(self), str(type(self._objlist[0]))))
+        if len(self) > 0:
+            return str('<pycollector.dataset: id="%s", len=%d, type=%s>' % (self.id(), len(self), str(type(self._objlist[0]))))
+        else:
+            return str('<pycollector.dataset: id="%s", len=0>' % (self.id()))
 
     def __iter__(self):
         for k in range(len(self)):
@@ -470,6 +478,10 @@ class Dataset():
     def list(self):
         return self._objlist
 
+    def flatten(self):
+        self._objlist = [o for objlist in self._objlist for o in vipy.util.tolist(objlist)]
+        return self
+
     def istype(self, validtype):
         return all([any([isinstance(v,t) for t in tolist(validtype)]) for v in self._objlist]), "invalid type - must be %s" % str(validtype)            
             
@@ -479,23 +491,30 @@ class Dataset():
     def clone(self):
         return copy.deepcopy(self)
 
-    def archive(self, tarfile, delprefix, mediadir='', format='json', castas=vipy.video.Scene, verbose=False, extrafiles=None):
+    def archive(self, tarfile, delprefix, mediadir='', format='json', castas=vipy.video.Scene, verbose=False, extrafiles=None, novideos=False):
         """Create a archive file for this dataset.  This will be archived as:
 
-           tarfilename.{tar.gz|.tgz|.bz2}
+           /path/to/tarfile.{tar.gz|.tgz|.bz2}
               tarfilename
                  tarfilename.{json|pkl}
                  mediadir/
-                     $SUBDIR/
-                         video.mp4
+                     video.mp4
                  extras1.ext
                  extras2.ext
         
             Inputs:
               - tarfile: /path/to/tarfilename.tar.gz
-              - delprefix:  the absolute file path contained in the media filenames to be removed.  If a video has a delprefix='/a/b' then videos with path /a/b/c/d.mp4' -> 'c/d.mp4'
+              - delprefix:  the absolute file path contained in the media filenames to be removed.  If a video has a delprefix='/a/b' then videos with path /a/b/c/d.mp4' -> 'c/d.mp4', and {JSON|PKL} will be saved with relative paths to mediadir
               - mediadir:  the subdirectory name of the media to be contained in the archive.  Usually "videos".             
               - extrafiles: list of tuples [(abspath, filename_in_archive),...]
+
+            Example:  
+
+              - Input files contain /path/to/oldvideos/category/video.mp4
+              - Output will contain relative paths videos/category/video.mp4
+
+              >>> d.archive('out.tar.gz', delprefix='/path/to/oldvideos', mediadir='videos')
+        
         """
         assert self.isvipy(), "Source dataset must contain vipy objects for staging"
         assert all([os.path.isabs(v.filename()) for v in self]), "Input dataset must have only absolute media paths"
@@ -507,15 +526,15 @@ class Dataset():
         D = self.clone()
         stagedir = remkdir(os.path.join(tempdir(), filefull(filetail(tarfile))))
         print('[pycollector.dataset]: creating staging directory "%s"' % stagedir)        
-        D._objlist = [v.filename(v.filename().replace(os.path.normpath(delprefix), os.path.normpath(os.path.join(stagedir, mediadir))), symlink=True) for v in D.list()]
+        D._objlist = [v.filename(v.filename().replace(os.path.normpath(delprefix), os.path.normpath(os.path.join(stagedir, mediadir))), symlink=not novideos) for v in D.list()]
         pklfile = os.path.join(stagedir, '%s.%s' % (filetail(filefull(tarfile)), format))
         D.save(pklfile, relpath=True, nourl=True, noadmin=True, castas=castas, significant_digits=2, noemail=True, flush=True)
     
         # Copy extras (symlinked) to staging directory
         if extrafiles is not None:
             for (e, a) in tolist(extrafiles):
-                assert os.path.exists(e), "Invalid extras file '%s'" % e
-                os.symlink(e, os.path.join(stagedir, filetail(e) if a is None else a))
+                assert os.path.exists(os.path.abspath(e)), "Invalid extras file '%s'" % e
+                os.symlink(os.path.abspath(e), os.path.join(stagedir, filetail(e) if a is None else a))
 
         # System command to run tar
         cmd = ('tar %scvf %s -C %s --dereference %s %s' % ('j' if vipy.util.isbz2(tarfile) else 'z', 
@@ -569,6 +588,9 @@ class Dataset():
         assert self.isvipy(), "Invalid input"
         return sorted(list(set([v.category() for v in self._objlist])))
 
+    def classes(self):
+        return self.classlist()
+
     def class_to_index(self):
         return {v:k for (k,v) in enumerate(self.classlist())}
 
@@ -603,9 +625,22 @@ class Dataset():
         self._objlist = [v for v in self._objlist if key(v) in idset]
         return self
         
+    def merge(self, other, outdir, selfdir, otherdir):
+        assert isinstance(other, Dataset), "invalid input"
+        (selfdir, otherdir, outdir) = (os.path.normpath(selfdir), os.path.normpath(otherdir), vipy.util.remkdir(os.path.normpath(outdir)))
+        assert all([selfdir in v.filename() for v in self._objlist])
+        assert all([otherdir in v.filename() for v in other._objlist])
+
+        D1 = self.clone().localmap(lambda v: v.filename(v.filename().replace(selfdir, outdir), copy=False, symlink=True))
+        D2 = other.clone().localmap(lambda v: v.filename(v.filename().replace(otherdir, outdir), copy=False, symlink=True))
+        return D1.union(D2)
+
     def filter(self, f):
         self._objlist = [v for v in self._objlist if f(v)]
         return self
+
+    def valid(self):
+        return self.filter(lambda v: v is not None)
 
     def take_per_category(self, n, id=None):
         C = vipy.util.groupbyasdict(self._objlist, lambda v: v.category())
@@ -865,6 +900,11 @@ class Dataset():
     def totorch_datadir(self, f_video_to_tensor, outdir):
         return TorchDatadir(f_video_to_tensor, self.tojsondir(outdir))
 
+    def annotate(self, outdir, mindim=512):
+        assert self.isvipy()
+        f = lambda v, outdir=outdir, mindim=mindim: v.mindim(mindim).annotate().saveas(os.path.join(outdir, '%s.mp4' % v.videoid())).print()
+        return self.map(f, dst='annotate')
+
     def tohtml(self, outfile, mindim=512, title='Visualization', fraction=1.0, display=False, clip=True, activities=True, category=True):
         """Generate a standalone HTML file containing quicklooks for each annotated activity in dataset, along with some helpful provenance information for where the annotation came from"""
     
@@ -877,7 +917,7 @@ class Dataset():
         dataset = self.list()
         assert all([isinstance(v, vipy.video.Video) for v in dataset])
         dataset = [dataset[k] for k in np.random.permutation(range(len(dataset)))[0:int(len(dataset)*fraction)]]
-        dataset = [v for v in dataset if all([len(a) < 15*v.framerate() for a in v.activitylist()])]  # remove extremely long videos
+        #dataset = [v for v in dataset if all([len(a) < 15*v.framerate() for a in v.activitylist()])]  # remove extremely long videos
 
         quicklist = vipy.batch.Batch(dataset, strict=False, as_completed=True, minscatter=1).map(lambda v: (v.load().quicklook(), v.flush().print())).result()
         quicklist = [x for x in quicklist if x is not None]  # remove errors
@@ -887,28 +927,20 @@ class Dataset():
         return vipy.visualize.tohtml(quicklooks, provenance, title='%s' % title, outfile=outfile, mindim=mindim, display=display)
 
 
-    
-class ActivityDataset(Dataset):
-    """Dataset filename structure: /dataset/$DSTDIR/$ACTIVITY_CATEGORY/$VIDEOID_$ACTIVITYINDEX.mp4"""
-    def __init__(self, indir, format='.json'):
-        super().__init__(indir, format)
+    def boundingbox_refinement(self, dst='boundingbox_refinement', batchsize=1, dt=3, minlength=5, f_savepkl=None):        
+        """Must be connected to dask scheduler such that each machine has GPU resources"""
+        model = pycollector.detection.VideoProposalRefinement(batchsize=batchsize) 
+        f = lambda net, v, dt=dt, f_savepkl=f_savepkl, b=batchsize: net.gpu(list(range(torch.cuda.device_count())), batchsize=b)(v, proposalconf=5E-2, proposaliou=0.8, miniou=0.2, dt=dt, mincover=0.8, byclass=True, shapeiou=0.7, smoothing=None, strict=True).pklif(f_savepkl is not None, f_savepkl(v)).print()
+        D = self.map(f, dst=dst, model=model)
+        D.filter(lambda v: (v is not None) and (not v.hasattribute('unrefined')))  # remove videos that failed refinement
+        D.localmap(lambda v: v.activityfilter(lambda a: any([a.hastrack(t) and len(t)>minlength and t.during(a.startframe(), a.endframe()) for t in v.tracklist()])))  # get rid of activities without tracks greater than dt
+        return D
 
-class FaceDataset(Dataset):
-    """Dataset filename structure: /outdir/$SUBDIR/$SUBJECT_ID/$VIDEOID.mp4""" 
-    def __init__(self, indir, format='.json'):
-        super().__init__(indir, format)
-        self._schema = lambda dstdir, v, indir=self._indir, schema=self._schema: os.path.join(indir, dstdir, v.subjectid(), filetail(v.filename()))    
-        raise
-
-    def load(self, transform):
-        V = super().load(transform)
-        assert all([isinstance(v, pycollector.video.Video) for v in V]), "Face dataset requires subject ID"
-        return V
-    
-class ObjectDataset(Dataset):
-    """Dataset filename structure: /outdir/$SUBDIR/$OBJECT_CATEGORY/$VIDEOID.mp4"""     
-    def __init__(self, indir, format='.json'):
-        super().__init__(indir, format)
-        self._schema = lambda dstdir, v, indir=self._indir, schema=self._schema: os.path.join(indir, dstdir, v.category(), filetail(v.filename()))    
-        raise
+    def stabilize(self, f_saveas, dst='stabilize', padwidthfrac=1.0, padheightfrac=0.2):
+        from vipy.flow import Flow
+        f_stabilize = (lambda v, f_saveas=f_saveas, padwidthfrac=padwidthfrac, padheightfrac=padheightfrac: 
+                       Flow(flowdim=256).stabilize(v, strict=False, residual=True, padwidthfrac=padwidthfrac, padheightfrac=padheightfrac, outfile=f_saveas(v)).pkl().print() if v.canload() else None)
+        D = self.map(f_stabilize, dst=dst)
+        D.filter(lambda v: (v is not None) and (not v.hasattribute('unstabilized')))  # remove videos that failed
+        return D
 

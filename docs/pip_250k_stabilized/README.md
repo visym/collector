@@ -9,20 +9,25 @@
 The People in Public dataset is a consented large scale video dataset of people doing things in public places.  Our team has pioneered the use of a 
 custom designed mobile app that combines video collection, activity labeling and bounding box annotation into a single step.  Our goal is to 
 make collecting annotated video datasets as easily and cheaply as recording a video.  Currently, we are collecting a dataset of the MEVA 
-classes (http://mevadata.org).  This package provides a release of this dataset, containing 312,639 annotated activity instances collected by 
+classes (http://mevadata.org).  This package provides a release of this dataset, containing 314,6332 annotated activity instances collected by 
 over 150 subjects in 44 countries around the world. 
 
-This dataset contains 312,639 stabilized video clips of 66 classes of activities performed by people in public places.  The activity labels are subsets of the 37 activities in the [Multiview Extended Video with Activities (MEVA)](https://mevadata.org) dataset and is consistent with the [Activities in Extended Video (ActEV)](https://actev.nist.gov/) challenge.  
+This dataset contains 314,332 stabilized video clips of 66 classes of activities performed by people in public places.  The activity labels are subsets of the 37 activities in the [Multiview Extended Video with Activities (MEVA)](https://mevadata.org) dataset and is consistent with the [Activities in Extended Video (ActEV)](https://actev.nist.gov/) challenge.  
 
 [Background stabilization](https://github.com/visym/vipy/blob/bc20f6f32492badd181faa0ccf7b0029f1f63fee/vipy/flow.py#L307-L328) was performed using an affine coarse to fine optical-flow method, followed by [actor bounding box stabilization](https://github.com/visym/collector/blob/adc5486c7f88291b77f9a707a78763c2b5958406/pycollector/detection.py#L177-L236).  Stabilization is designed to minimize distortion for small motions in the region near the center of the actor box.  Remaining stabilization artifacts are due to non-planar scene structure, rolling shutter distortion, and sub-pixel optical flow correspondence errors.  Stabilization artifacts manifest as a subtly shifting background relative to the actor which may affect optical flow based methods.  All stabilizations can be filtered using the provided stabilization residual which measures the quality of the stabilization.  
 
 ## Download
 
-* [pip_250k_stabilized.tar.gz (45.3 GB)](https://dl.dropboxusercontent.com/s/9wce7sq33t5u51j/pip_250k_stabilized.tar.gz)&nbsp;&nbsp;MD5:b5a1fe31a443b3dabca314f49f2a4fdc&nbsp;&nbsp;Updated:07Dec20
-    * An incremental release of 99,082 videos, to augment pip-175k-stabilized.
-* [pip_250k_full_stabilized.tar.gz (154.7.0 GB)](https://dl.dropboxusercontent.com/s/31laau70rnxrgy8/pip_250k_full_stabilized.tar.gz)&nbsp;&nbsp;MD5:172eb1ea0a0ed46f2583812d381b7926&nbsp;&nbsp;Updated:07Dec20
-    * The full release of 312,639 videos that includes pip-175k-stabilized.
+* [pip_250k_stabilized.tar.gz (165.41 GB)](https://dl.dropboxusercontent.com/s/4j46tp640106dg9/pip_250k_stabilized.tar.gz?dl=0)&nbsp;&nbsp;MD5:7b0fe316c8e6239753a6e29b801284f2&nbsp;&nbsp;Updated:08Mar21
+    * Full release, includes all of pip-175k-stabilized.
+* [pip_250k_stabilized_annotations.tar.gz (0.94 GB)](https://dl.dropboxusercontent.com/s/boegvyts3kvgw8i/pip_250k_stabilized_annotations.tar.gz)&nbsp;&nbsp;MD5:d4ec1bde157f90689ee3ac9910bef25e&nbsp;&nbsp;Updated:08Mar21
+    * Release of video annotations only
+    * [Visualization of one instance per class](https://htmlpreview.github.io/?https://dl.dropboxusercontent.com/s/5dtd2rpk3sxhc9y/pip_250k_stabilized_annotations_sampler.html) shown as a quicklook montage of nine annotated frames from the clip, organized row-wise.
+* [pip_250k_stabilized_nomevapad_annotations.tar.gz (0.94 GB)](https://dl.dropboxusercontent.com/s/2n3nhtcpn1542ir/pip_250k_stabilized_nomevapad_annotations.tar.gz)&nbsp;&nbsp;MD5:c2a7cd41c9f051980643bac558b8d3c0&nbsp;&nbsp;Updated:08Mar21
+    * Release of video annotations only, without applying the temporal padding specified in the [MEVA annotation definition](https://gitlab.kitware.com/meva/meva-data-repo/blob/master/documents/MEVA-Annotation-Definitions.pdf).
+    * [Visualization of one instance per class](https://htmlpreview.github.io/?https://dl.dropboxusercontent.com/s/otyen3t96sj8b13/pip_250k_stabilized_nomevapad_annotations_sampler.html) shown as a quicklook montage of nine annotated frames from the clip, organized row-wise.
 
+pip_250k_stabilized_annotations_sampler.html
 
 
 ## Quickstart
@@ -37,8 +42,6 @@ v = vipy.util.load('/path/to/stabilized.json')[0]   # load videos and take one
 vs = v.crop(v.trackbox(dilate=1.0).maxsquare()).resize(224,224).saveas('/path/to/out.mp4')
 vs.getattribute('stabilize')   # returns a stabilization residual (bigger is worse)
 ```
-
-We recommend using [a small sample of ten instances per class](pip_250k_full_stabilized_sampler.json.gz) for testing your pipeline, then loading the entire dataset into memory on your training cluster. 
 
 
 ## Best Practices
@@ -60,11 +63,16 @@ We recommend using [a small sample of ten instances per class](pip_250k_full_sta
 * A small number of videos exhibit a face detector false alarm which looks like a large pixelated circle which lasts a single frame.  This is the in-app face blurring incorrectly redacting the background.  You can filter these videos by removing videos v with 
 
 ```python
-v.getattribute('blurred faces') > 0
+videolist = [v for v in videolist if not v.getattribute('blurred faces') > 0]
 ```
 
-* A small number of videos exhibit bounding boxes which appear to lag a fast moving object by approximately 5 frames (e.g. F52B3767-7724-4117-9559-796320D689EB_0). 
-* A small number of videos exhibit stabilization that does not include enough padding, so that the tracked bounding box falls within the black border.  This typically occurs with videos with large motions, such as vehicle turning classes.
+* A small number of videos exhibit stabilization that does not include enough padding, so that the tracked bounding box falls within the black border or falls outside the image rectangle completely.  This typically occurs with videos with large motions, such as vehicle turning classes.  These videos can be filtered to remove degenerate tracks or tracks without any bounding boxes that intersects the image rectangle using the following.  (Note that this may take a while since the encodings must be first unpacked from an internal JSON representation used to simplify reference cycle garbage collection, and each video must be touched to extract the frame dimensions)
+
+```python
+videolist = [v for v in videolist if v.canload() and not v.trackbox().isdegenerate() and v.framebox().hasintersection(v.trackbox())
+```
+
+
 
 # License
 
