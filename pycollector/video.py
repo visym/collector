@@ -460,7 +460,9 @@ class Video(Scene):
             if not os.path.exists(self._jsonfile):
                 print('[pycollector.video]:  Fetching "%s"' % self._jsonurl)
                 try:
-                    vipy.downloader.s3(self._jsonurl, self._jsonfile)
+                    vipy.downloader.s3(
+                        self._jsonurl, self._jsonfile
+                    )  # TODO - this is a problem to assume vipy user also has access to S3. We should decouple this dependency of using vipy
 
                 except KeyboardInterrupt:
                     raise

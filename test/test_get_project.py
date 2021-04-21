@@ -57,5 +57,12 @@ def test_get_project_visym():
     videos = new_project_client.videos()
     assert len(videos) >= 1
 
-    # # quickshow video
+    # quickshow video
     videos[0].quickshow()
+
+    # Not working
+
+    # import pycollector.video
+    # import pycollector.project
+
+    # v = pycollector.video.last().show()
