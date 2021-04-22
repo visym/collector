@@ -13,35 +13,8 @@ import pycollector
 from pycollector.admin.globals import backend, org
 
 
-# def test_get_project_str():
-#     """test get project by user"""
-
-#     # Set to target ENV
-#     # pycollector.globals.backend(env='test', org='str')
-
-#     # Set to target ENV
-#     pycollector.admin.globals.backend(env="test", org="str")
-
-#     # testing variiables
-#     username = os.environ["VISYM_COLLECTOR_PYTEST_EMAIL"]  # github secrets
-#     password = os.environ["VISYM_COLLECTOR_PYTEST_PASSWORD"]  # github secrets
-
-#     # testing objects and functions
-#     new_project_client = Project(program_id="MEVA", alltime=True, username=username, password=password)
-
-#     # Fetching Videos
-#     videos = new_project_client.videos()
-#     assert len(videos) >= 1
-
-#     # # quickshow video
-#     videos[0].quickshow()
-
-
 def test_get_project_visym():
     """test get project by user"""
-
-    # Set to target ENV
-    # pycollector.globals.backend(env='test', org='str')
 
     # Set to target ENV
     pycollector.admin.globals.backend(env="prod", org="visym")
@@ -59,10 +32,3 @@ def test_get_project_visym():
 
     # quickshow video
     videos[0].quickshow()
-
-    # Not working
-
-    # import pycollector.video
-    # import pycollector.project
-
-    # v = pycollector.video.last().show()

@@ -57,7 +57,8 @@ class Project(User):
             "pycollector_id": self.cognito_username,
             "last": last,
         }
-        FunctionName = GLOBALS["LAMBDA"]["get_project"]
+        FunctionName = self.get_ssm_param(GLOBALS["LAMBDA"]["get_project"])
+        print("FunctionName: ", FunctionName)
 
         for k in range(0, retry):
             try:
@@ -68,6 +69,7 @@ class Project(User):
                     # Payload=json.dumps(request),
                     Payload=bytes(json.dumps(request), encoding="utf8"),
                 )
+
                 # Get the serialized dataframe
                 dict_str = response["Payload"].read().decode("UTF-8")
                 if dict_str == "null":
