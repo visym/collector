@@ -57,8 +57,8 @@ class Project(User):
             "pycollector_id": self.cognito_username,
             "last": last,
         }
+
         FunctionName = self.get_ssm_param(GLOBALS["LAMBDA"]["get_project"])
-        print("FunctionName: ", FunctionName)
 
         for k in range(0, retry):
             try:
