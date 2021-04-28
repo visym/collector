@@ -443,8 +443,8 @@ class Dataset():
        This class is designed to be used with vipy.batch.Batch() for massively parallel operations 
     """
 
-    def __init__(self, objlist, id=None):
-        objlist = vipy.util.load(objlist) if (vipy.util.isjsonfile(objlist) or vipy.util.ispklfile(objlist)) else objlist
+    def __init__(self, objlist, id=None, abspath=True):
+        objlist = vipy.util.load(objlist, abspath=abspath) if (vipy.util.isjsonfile(objlist) or vipy.util.ispklfile(objlist)) else objlist
         assert isinstance(objlist, list), "Invalid input"
         self._saveas_ext = ['pkl', 'json']
         self._id = uuid.uuid4().hex if id is None else id
@@ -625,6 +625,16 @@ class Dataset():
         self._objlist = [v for v in self._objlist if key(v) in idset]
         return self
         
+    def has(self, val, key):
+        return any([key(obj) == val for obj in self._objlist])
+
+    def replace(self, other, key):
+        """Replace elements in self with other with equality detemrined by the key lambda function"""
+        assert isinstance(other, Dataset), "invalid input"
+        d = {key(v):v for v in other}
+        self._objlist = [v if key(v) not in d else d[key(v)] for v in self._objlist]
+        return self
+
     def merge(self, other, outdir, selfdir, otherdir):
         assert isinstance(other, Dataset), "invalid input"
         (selfdir, otherdir, outdir) = (os.path.normpath(selfdir), os.path.normpath(otherdir), vipy.util.remkdir(os.path.normpath(outdir)))
