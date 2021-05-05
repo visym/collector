@@ -34,10 +34,10 @@ pip install pycollector
 Quickstart
 -------------------
 
-<a href="https://visym.com/collector"><img alt="iOS" src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg" height="50"/></a>  <a href="https://visym.com/collector"><img alt="Android" src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" height="50"/></a>
+<a href="https://apps.apple.com/app/id1498077968"><img alt="iOS" src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg" height="50"/></a>  <a href="https://play.google.com/store/apps/details?id=com.visym.collector"><img alt="Android" src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" height="50"/></a>
 
 
-* **Install.** Get the Visym Collector app (contact us to join the private beta!) and sign-up as a new user.
+* **Install.** Get the Visym Collector app and sign-up as a new user.
 
 * **Collect.**  Collect a labeled video using the mobile app, then retrieve and visualize it using the python tools:
 
@@ -52,7 +52,7 @@ v = pycollector.video.last().show()
 t = v.clip(0,64).activitytube(maxdim=224).torch()
 ```
 
-* **Repeat.**  Collect more videos like those your network got wrong, or let our collection team collect for you!
+* **Repeat.**  Collect more videos like those your network got wrong, or let our collection team help you!
 
 
 
