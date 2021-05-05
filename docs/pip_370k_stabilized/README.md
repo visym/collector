@@ -18,8 +18,9 @@ This dataset contains 95990 stabilized video clips of 34 classes of activities p
 
 ## Download
 
-* [pip_d370k_stabilized.tar.bz2 (59.7 GB)](https://dl.dropboxusercontent.com/s/vxjik8a01lp6uif/pip_d370k_stabilized.tar.bz2)&nbsp;&nbsp;MD5:7f705d6291dfa333000e40779b595d4f&nbsp;&nbsp;Updated:04Apr21
-* [pip_250k_stabilized.tar.gz (165.41 GB)](https://dl.dropboxusercontent.com/s/4j46tp640106dg9/pip_250k_stabilized.tar.gz?dl=0)&nbsp;&nbsp;MD5:7b0fe316c8e6239753a6e29b801284f2&nbsp;&nbsp;Updated:08Mar21
+* [pip_d370k_stabilized.tar.bz2 (59.7 GB)](https://dl.dropboxusercontent.com/s/vxjik8a01lp6uif/pip_d370k_stabilized.tar.bz2)&nbsp;&nbsp;MD5:7f705d6291dfa333000e40779b595d4f&nbsp;&nbsp;Last Updated: 04Apr21
+    * An incremental release which augments pip_250k
+* [pip_250k_stabilized.tar.gz (165.41 GB)](https://github.com/visym/collector/tree/master/docs/pip_250k_stabilized)&nbsp;&nbsp;&nbsp;&nbsp;Last Updated: 08Mar21
 
 
 ## Quickstart
