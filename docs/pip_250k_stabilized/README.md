@@ -27,7 +27,10 @@ This dataset contains 314,332 stabilized video clips of 66 classes of activities
     * Release of video annotations only, without applying the temporal padding specified in the [MEVA annotation definition](https://gitlab.kitware.com/meva/meva-data-repo/blob/master/documents/MEVA-Annotation-Definitions.pdf).
     * [Visualization of one instance per class](https://htmlpreview.github.io/?https://dl.dropboxusercontent.com/s/otyen3t96sj8b13/pip_250k_stabilized_nomevapad_annotations_sampler.html) shown as a quicklook montage of nine annotated frames from the clip, organized row-wise.
 * [pip_250k_stabilized_objects.tar.gz (1.03 GB)](https://dl.dropboxusercontent.com/s/u6mtrh5ozo7zau4/pip_250k_stabilized_objects.tar.gz)&nbsp;&nbsp;MD5:a6c7dab37ef22290ae1c2f1939f21f2e&nbsp;&nbsp;Last Updated: 06May21
-    * Release of associated secondary people and vehicle object track annotations.
+    * Release of associated secondary people and vehicle object track annotations with MEVA annotation style.
+    * 94747 labeled instances with secondary objects, 55417 instaces of people with vehicles, 37161 instances of people with people, 2169 instances of people with bicycles
+
+
 
 ## Quickstart
 
