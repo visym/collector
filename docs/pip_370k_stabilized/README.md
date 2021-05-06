@@ -22,9 +22,7 @@ This dataset contains 95990 stabilized video clips of 34 classes of activities p
     * An incremental release which augments [pip_250k](https://github.com/visym/collector/tree/master/docs/pip_250k_stabilized)
 * [pip_d370k_stabilized_objects.tar.gz (709 MB)](https://dl.dropboxusercontent.com/s/ip3w9fmt8d26h94/pip_d370k_stabilized_objects.tar.gz)&nbsp;&nbsp;MD5:5e13f783ceec1378800d0e5de81f3257&nbsp;&nbsp;&nbsp;&nbsp;Last Updated: 06May21
     * An incremental release which augments [pip_250k](https://github.com/visym/collector/tree/master/docs/pip_250k_stabilized) that includes secondary vehicle and people track annotations for 40856 of 95990 instances in pip_d370k that contain secondary objects.
-    * Contains 38546 instances with both vehicle and person tracks for classes car_drops_off_person, car_picks_up_person, person_closes_car_door, person_closes_car_trunk,  person_enters_car, person_exits_car, person_loads_car, person_opens_car_door, person_opens_car_trunk and person_unloads_car
-    * Contains 1245 instances with bicycle and person tracks for person_rides_bicycle
-    * Contains 1065 instances with person and friend tracks for classes person_embraces_person, person_talks_to_person and person_transfers_object_to_person
+    * Contains 38546 instances with both vehicle and person tracks, 1245 instances with bicycle and person tracks, 1065 instances with person and friend
 
 
 ## Quickstart
