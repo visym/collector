@@ -74,7 +74,7 @@ videolist = [v for v in videolist if not v.getattribute('blurred faces') > 0]
 videolist = [v for v in videolist if v.canload() and not v.trackbox().isdegenerate() and v.framebox().hasintersection(v.trackbox())
 ```
 
-
+* A small number of person tracks for the classes "car_picks_up_person" and "car_drops_off_person" are incorrectly assigned to a person not entering/exiting the car. (e.g. instance ID 20200531_1641305091814021929762943_1)
 
 # License
 
