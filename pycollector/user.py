@@ -52,6 +52,7 @@ class User(object):
         if password is not None:
             self.login(password)
 
+        self.region_name = 'us-east-1'
         self.refresh()
 
     def refresh(self):
@@ -76,7 +77,7 @@ class User(object):
 
         # Set user properties
         self._username = username
-
+        
         try:
             # Set up API gateway request for login
             request_body = {"username": username, "password": password}
@@ -115,6 +116,7 @@ class User(object):
 
     def get_ssm_param(self, param_name: str = None, WithDecryption: bool = False) -> str:
         """[summary]"""
+        self._set_parameter_store()
         return self._ssm_client.get_parameter(Name=param_name, WithDecryption=WithDecryption).get("Parameter").get("Value")
 
     def _set_S3_clients(self):
@@ -125,7 +127,7 @@ class User(object):
             aws_access_key_id=os.environ["VIPY_AWS_ACCESS_KEY_ID"],
             aws_secret_access_key=os.environ["VIPY_AWS_SECRET_ACCESS_KEY"],
             aws_session_token=os.environ["VIPY_AWS_SESSION_TOKEN"],
-            region_name=self.region_name,
+            region_name=self.region_name
         )
         self._s3_resource = boto3.resource(
             "s3",
