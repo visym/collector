@@ -25,8 +25,8 @@ def _test_get_project_visym(org='visym', env='prod'):
     username = os.environ["VISYM_COLLECTOR_PYTEST_EMAIL"]  # github secrets
     password = os.environ["VISYM_COLLECTOR_PYTEST_PASSWORD"]  # github secrets
 
-    username = "heng2j@gmail.com"  # "zhongheng.li@stresearch.com"
-    password = None  # sanitized
+    #username = "heng2j@gmail.com"  # "zhongheng.li@stresearch.com"
+    #password = None  # sanitized
 
     # testing objects and functions
     new_project_client = Project(program_id="Practice", alltime=True, username=username, password=password)
