@@ -11,7 +11,12 @@ GLOBALS = {
     "LOGGING": False,  # If True, use python logging (handler provided by end-user) intead of print
     "LOGGER": None,  # The global logger used by pycollector.globals.print() and pycollector.globals.warn() if LOGGING=True
     "API_GATEWAY_HTTP": {"pycollector_login": "https://7ezps88yk3.execute-api.us-east-1.amazonaws.com/pycollector_login"},
-    "LAMBDA": {"get_project": "pycollector_lambda_get_project"},
+    "LAMBDA": {
+        "get_project": "pycollector_lambda_get_project",
+        "list_collections": "pycollector_list_collections",
+        "create_collection": "pycollector_create_new_collection",
+        "delete_collection": "pycollector_delete_collection",
+    },
 }
 
 

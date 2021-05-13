@@ -48,7 +48,9 @@ class User(object):
         # Login
         if username is None and "VISYM_COLLECTOR_EMAIL" in os.environ:
             username = os.environ["VISYM_COLLECTOR_EMAIL"]
+        # Set user properties
         self._username = username
+        self._password = password
         if password is not None:
             self.login(password)
 
@@ -75,9 +77,6 @@ class User(object):
         assert is_email_address(username), 'Invalid collector email address "%s"' % username
         password = password if password is not None else getpass.getpass()
 
-        # Set user properties
-        self._username = username
-        
         try:
             # Set up API gateway request for login
             request_body = {"username": username, "password": password}
@@ -111,7 +110,7 @@ class User(object):
             aws_access_key_id=os.environ["VIPY_AWS_ACCESS_KEY_ID"],
             aws_secret_access_key=os.environ["VIPY_AWS_SECRET_ACCESS_KEY"],
             aws_session_token=os.environ["VIPY_AWS_SESSION_TOKEN"],
-            region_name=self.region_name,
+            region_name=os.environ["VIPY_AWS_REGION"],
         )
 
     def get_ssm_param(self, param_name: str = None, WithDecryption: bool = False) -> str:
@@ -127,14 +126,14 @@ class User(object):
             aws_access_key_id=os.environ["VIPY_AWS_ACCESS_KEY_ID"],
             aws_secret_access_key=os.environ["VIPY_AWS_SECRET_ACCESS_KEY"],
             aws_session_token=os.environ["VIPY_AWS_SESSION_TOKEN"],
-            region_name=self.region_name
+            region_name=os.environ["VIPY_AWS_REGION"],
         )
         self._s3_resource = boto3.resource(
             "s3",
             aws_access_key_id=os.environ["VIPY_AWS_ACCESS_KEY_ID"],
             aws_secret_access_key=os.environ["VIPY_AWS_SECRET_ACCESS_KEY"],
             aws_session_token=os.environ["VIPY_AWS_SESSION_TOKEN"],
-            region_name=self.region_name,
+            region_name=os.environ["VIPY_AWS_REGION"],
         )
 
     def _set_lambda_clients(self):
@@ -145,7 +144,7 @@ class User(object):
             aws_access_key_id=os.environ["VIPY_AWS_ACCESS_KEY_ID"],
             aws_secret_access_key=os.environ["VIPY_AWS_SECRET_ACCESS_KEY"],
             aws_session_token=os.environ["VIPY_AWS_SESSION_TOKEN"],
-            region_name=self.region_name,
+            region_name=os.environ["VIPY_AWS_REGION"],
         )
 
     def _set_os_environ(self):
@@ -154,6 +153,7 @@ class User(object):
         os.environ["VIPY_AWS_SECRET_ACCESS_KEY"] = self._aws_credentials["secret_key"]
         os.environ["VIPY_AWS_SESSION_TOKEN"] = self._aws_credentials["session_token"]
         os.environ["VIPY_AWS_COGNITO_USERNAME"] = self._cognito_username
+        os.environ["VIPY_AWS_REGION"] = self._aws_credentials["region_name"]
 
     def is_token_expired(self):
         """[summary]
