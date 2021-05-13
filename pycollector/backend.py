@@ -111,7 +111,7 @@ class API(User):
             # data_dict = ast.literal_eval(dict_str)
 
             # print("data_dict", data_dict)
-            return "Collection {} added successfully".format(name)
+            print("Collection '{}' added successfully".format(name))
 
         except Exception as e:
             custom_error = "\nException : failed to invoke lambda function to create collection.\n"
@@ -169,7 +169,7 @@ class API(User):
                 raise ValueError("Invalid lambda function response")
             data_dict = ast.literal_eval(dict_str)
 
-            return data_dict["body"]["message"]
+            print(data_dict["body"]["message"])
 
         except Exception as e:
             custom_error = "\nException : failed to invoke lambda function to delete collection.\n"
