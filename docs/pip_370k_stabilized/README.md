@@ -18,7 +18,11 @@ This dataset contains 95990 stabilized video clips of 34 classes of activities p
 
 ## Download
 
-* [pip_d370k_stabilized.tar.bz2 (59.7 GB)](https://dl.dropboxusercontent.com/s/vxjik8a01lp6uif/pip_d370k_stabilized.tar.bz2)&nbsp;&nbsp;MD5:7f705d6291dfa333000e40779b595d4f&nbsp;&nbsp;Updated:04Apr21
+* [pip_d370k_stabilized.tar.bz2 (59.7 GB)](https://dl.dropboxusercontent.com/s/vxjik8a01lp6uif/pip_d370k_stabilized.tar.bz2)&nbsp;&nbsp;MD5:7f705d6291dfa333000e40779b595d4f&nbsp;&nbsp;Last Updated: 04Apr21
+    * An incremental release which augments [pip_250k](https://github.com/visym/collector/tree/master/docs/pip_250k_stabilized)
+* [pip_d370k_stabilized_objects.tar.gz (709 MB)](https://dl.dropboxusercontent.com/s/ip3w9fmt8d26h94/pip_d370k_stabilized_objects.tar.gz)&nbsp;&nbsp;MD5:5e13f783ceec1378800d0e5de81f3257&nbsp;&nbsp;&nbsp;&nbsp;Last Updated: 06May21
+    * An incremental release which augments [pip_250k](https://github.com/visym/collector/tree/master/docs/pip_250k_stabilized) that includes secondary vehicle and people track annotations for 40856 of 95990 instances in pip_d370k that contain secondary objects.
+    * Contains 38546 instances with both vehicle and person tracks, 1245 instances with bicycle and person tracks, 1065 instances with person and friend
 
 
 ## Quickstart
@@ -56,7 +60,11 @@ videolist = [v for v in videolist if not v.getattribute('blurred faces') > 0]
 * Are there repeated instances in this release?  For this release, we asked collectors to perform the same activity multiple times in a row per collection, but to perform the activity slightly differently each time.  This introduces a form of on-demand dataset augmentation performed by the collector.  You may identify these collections with a filename structure "VIDEOID_INSTANCEID.mp4" where the video ID identifies the collected video, and each instance ID is an integer that identifies the order of the collected activity in the collected video.  
 * Are there missing activities?  This is an incremental release, and should be combined with pip-250k for a complete release.
 * What is "person_walks"?  This is a background activity class.  We asked collectors to walk around and act like they were waiting for a bus or the subway, to provide a background class.  The collection names in the video metadata for these activities are "Slowly walk around in an area like you are waiting for a bus" and "Walk back and forth".    
+* Do these videos include the MEVA padding?  No, these videos are collected using the temporal annotations from the collectors directly.  This is due to the fact that many of the activities are collected back to back in a single collection, which may violate the two second padding requirement for MEVA annotations.  If the MEVA annotations are needed, they can be applied as follows to a list of video objects (videolist):
 
+```python
+padded_videolist = pycollector.dataset.asmeva(videolist)
+```
 
 # License
 

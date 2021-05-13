@@ -54,6 +54,7 @@ class User(object):
         if password is not None:
             self.login(password)
 
+        self.region_name = 'us-east-1'
         self.refresh()
 
     def refresh(self):
@@ -114,6 +115,7 @@ class User(object):
 
     def get_ssm_param(self, param_name: str = None, WithDecryption: bool = False) -> str:
         """[summary]"""
+        self._set_parameter_store()
         return self._ssm_client.get_parameter(Name=param_name, WithDecryption=WithDecryption).get("Parameter").get("Value")
 
     def _set_S3_clients(self):
