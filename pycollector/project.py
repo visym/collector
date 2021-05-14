@@ -19,8 +19,7 @@ class Project(User):
 
     def __init__(
         self,
-        program_id="MEVA",
-        project_id=None,
+        project=None,
         weeksago=None,
         monthsago=None,
         daysago=None,
@@ -38,14 +37,14 @@ class Project(User):
             self.login()
 
         self._projects = None
-        self._programid = program_id
+        self._programid = self.cognito_username
         self.df = pd.DataFrame()
 
         # Get data from backend lambda function
         # Invoke Lambda function
         request = {
-            "program_id": program_id,
-            "project_id": project_id,
+            "program": self._programid,
+            "project": project,
             "weeksago": weeksago,
             "monthsago": monthsago,
             "daysago": daysago,
@@ -76,17 +75,23 @@ class Project(User):
                     raise ValueError("Invalid lambda function response")
                 data_dict = ast.literal_eval(dict_str)
 
-                serialized_videos_data_dict = data_dict["body"]["videos"]
-                data_df = pd.read_json(serialized_videos_data_dict)
-                self.df = data_df
+                if 'body' in data_dict:
+                    serialized_videos_data_dict = data_dict["body"]["videos"]
+                    if len(serialized_videos_data_dict) > 0:
+                        data_df = pd.read_json(serialized_videos_data_dict)
+                        self.df = data_df
+                    else:
+                        self.df = []
+                else:
+                    raise ValueError('Invalid request - Error "%s"' % (str(data_dict)))
 
             except Exception as e:
                 if "expired" in str(e):
                     self.login()  # try one more time
                 else:
-                    raise Exception("Lambda function error - {0}".format(e))
+                    raise
 
-        print("[pycollector.project]:  Returned %d videos" % len(self.df))
+        #print("[pycollector.project]:  Returned %d videos" % len(self.df))
 
     def __repr__(self):
         return str("<pycollector.project: program=%s, videos=%d>" % (self._programid, len(self)))
@@ -110,19 +115,4 @@ class Project(User):
         V = self.videos()[-n:]
         return V if n > 1 else V[0]
 
-    def quicklookurls(self, outfile=None, display=True):
-        """Generate a standalong HTML file containing the quicklook URLs for the current filtered project"""
-        assert vipy.version.is_at_least("0.8.2")
-        urls = [url for v in self for url in v.fetchjson().quicklookurls()]  # FIXME
-        vipy.visualize.urls(urls, outfile=outfile, display=display)
-        return urls
 
-
-def search():
-    return Project(since="2020-09-01")
-
-
-def last(
-    n=1,
-):
-    return Project(since="2020-09-01", last=n).last(n)
