@@ -39,7 +39,7 @@ Quickstart
 
 * **Install.** Get the Visym Collector app and sign-up as a new user.
 
-* **Collect.**  Collect a labeled video using the mobile app, then retrieve and visualize it using the python tools:
+* **Collect.**  Collect a labeled video using your own collections in the mobile app, then retrieve and visualize it using the python tools:
 
 ```python
 import pycollector.video

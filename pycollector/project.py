@@ -18,18 +18,19 @@ class Project(User):
     """
 
     def __init__(
-        self,
-        project=None,
-        weeksago=None,
-        monthsago=None,
-        daysago=None,
-        since=None,
-        before=None,
-        alltime=False,
-        last=None,
-        retry=2,
-        username=None,
-        password=None,
+            self,
+            project=None,
+            program=None,
+            weeksago=None,
+            monthsago=None,
+            daysago=None,
+            since=None,
+            before=None,
+            alltime=False,
+            last=None,
+            retry=2,
+            username=None,
+            password=None,
     ):
         super().__init__(username=username, password=password)
 
@@ -37,7 +38,7 @@ class Project(User):
             self.login()
 
         self._projects = None
-        self._programid = self.cognito_username
+        self._programid = self.cognito_username if program is None else program
         self.df = pd.DataFrame()
 
         # Get data from backend lambda function

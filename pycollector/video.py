@@ -588,8 +588,4 @@ def search():
 
 def last(n=1, program=None):
     import pycollector.project
-
-    if program:
-        return pycollector.project.Project(program_id=program, since="2020-09-01", last=n).last(n)
-    else:
-        return pycollector.project.Project(since="2020-09-01", last=n).last(n)
+    return pycollector.project.Project(program=program, since="2020-09-01", last=n).last(n)
