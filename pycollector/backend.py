@@ -104,7 +104,7 @@ class API(User):
             "collection_description": collection_description,
             "activity_short_names": activity_short_names_csv,  # comma separated string, no spaces
             "creator_cognito_username": self.cognito_username,
-            "consent_overlay_text": consent_overlay_text,
+            "consent_overlay_text": consent_overlay_text,  # currently disabled
         }
 
         # Invoke Lambda function
@@ -128,33 +128,28 @@ class API(User):
         request = {"collectorid": self.cognito_username}
 
         # Invoke Lambda function
-        try:
-            FunctionName = self.get_ssm_param(GLOBALS["LAMBDA"]["list_collections"])
-            response = self._lambda_client.invoke(
-                FunctionName=FunctionName,
-                InvocationType="RequestResponse",
-                LogType="Tail",
-                Payload=json.dumps(request),
-            )
+        FunctionName = self.get_ssm_param(GLOBALS["LAMBDA"]["list_collections"])
+        response = self._lambda_client.invoke(
+            FunctionName=FunctionName,
+            InvocationType="RequestResponse",
+            LogType="Tail",
+            Payload=json.dumps(request),
+        )
+        
+        # Get the serialized dataframe
+        dict_str = response["Payload"].read().decode("UTF-8")
+        if dict_str == "null":
+            raise ValueError("Invalid lambda function response")
+        data_dict = ast.literal_eval(dict_str)
+        
+        serialized_collections_data_dict = data_dict["body"]["collections"]
 
-            # Get the serialized dataframe
-            dict_str = response["Payload"].read().decode("UTF-8")
-            if dict_str == "null":
-                raise ValueError("Invalid lambda function response")
-            data_dict = ast.literal_eval(dict_str)
+        # Return list of dictionaries
+        h = ['created_date', 'name', 'collection_id', 'project_name']
+        d = {k:v for (k,v) in json.loads(serialized_collections_data_dict).items() if k in h}
+        n = len(d['name']) if 'name' in d else 0
+        return [{k:v[str(j)] for (k,v) in d.items()} for j in range(0,n)]
 
-            serialized_collections_data_dict = data_dict["body"]["collections"]
-
-            # Return list of dictionaries
-            h = ['created_date', 'name', 'collection_id', 'project_name']
-            d = {k:v for (k,v) in json.loads(serialized_collections_data_dict).items() if k in h}
-            n = len(d['name']) if 'name' in d else 0
-            return [{k:v[str(j)] for (k,v) in d.items()} for j in range(0,n)]
-            
-        except Exception as e:
-            custom_error = "\nException : failed to invoke lambda function to list collections.\n"
-            custom_error += "Error : " + str(e) + "\n"
-            raise Exception(custom_error)
 
     def delete_collection(self, collectionid):
 
@@ -164,24 +159,18 @@ class API(User):
         request = {"collectorid": self.cognito_username, "collectionid": collectionid}
 
         # Invoke Lambda function
-        try:
-            FunctionName = self.get_ssm_param(GLOBALS["LAMBDA"]["delete_collection"])
-            response = self._lambda_client.invoke(
-                FunctionName=FunctionName,
-                InvocationType="RequestResponse",
-                LogType="Tail",
-                Payload=json.dumps(request),
-            )
-
-            # Get the serialized message
-            dict_str = response["Payload"].read().decode("UTF-8")
-            if dict_str == "null":
-                raise ValueError("Invalid lambda function response")
-            data_dict = ast.literal_eval(dict_str)
-
-            print(data_dict["body"]["message"])
-
-        except Exception as e:
-            custom_error = "\nException : failed to invoke lambda function to delete collection.\n"
-            custom_error += "Error : " + str(e) + "\n"
-            raise Exception(custom_error)
+        FunctionName = self.get_ssm_param(GLOBALS["LAMBDA"]["delete_collection"])
+        response = self._lambda_client.invoke(
+            FunctionName=FunctionName,
+            InvocationType="RequestResponse",
+            LogType="Tail",
+            Payload=json.dumps(request),
+        )
+        
+        # Get the serialized message
+        d = json.loads(response['Payload'].read().decode('UTF-8'))
+        if 'statusCode' not in d or d['statusCode'] != 200:
+            raise ValueError(str(d))
+        else:
+            return d
+            
