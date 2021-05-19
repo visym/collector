@@ -116,6 +116,8 @@ class User(object):
     def get_ssm_param(self, param_name: str = None, WithDecryption: bool = False) -> str:
         """[summary]"""
         self._set_parameter_store()
+        if self.is_token_expired():
+            self.login()
         return self._ssm_client.get_parameter(Name=param_name, WithDecryption=WithDecryption).get("Parameter").get("Value")
 
     def _set_S3_clients(self):
@@ -135,7 +137,7 @@ class User(object):
             aws_session_token=os.environ["VIPY_AWS_SESSION_TOKEN"],
             region_name=os.environ["VIPY_AWS_REGION"],
         )
-
+        
     def _set_lambda_clients(self):
         """[summary]"""
         assert "VIPY_AWS_SESSION_TOKEN" in os.environ
@@ -152,16 +154,18 @@ class User(object):
         os.environ["VIPY_AWS_ACCESS_KEY_ID"] = self._aws_credentials["access_key_id"]
         os.environ["VIPY_AWS_SECRET_ACCESS_KEY"] = self._aws_credentials["secret_key"]
         os.environ["VIPY_AWS_SESSION_TOKEN"] = self._aws_credentials["session_token"]
+        os.environ["VIPY_AWS_SESSION_TOKEN_EXPIRATION"] = datetime.now() + timedelta(0, self._aws_credentials["token_expires_in_secs"])        
         os.environ["VIPY_AWS_COGNITO_USERNAME"] = self._cognito_username
         os.environ["VIPY_AWS_REGION"] = self._aws_credentials["region_name"]
 
+        
     def is_token_expired(self):
         """[summary]
 
         Returns:
             [type]: [description]
         """
-        return self._token_expiration_time is None or datetime.now() > self._token_expiration_time
+        return "VIPY_AWS_SESSION_TOKEN_EXPIRATION" in os.environ and datetime.now() > os.environ["VIPY_AWS_SESSION_TOKEN_EXPIRATION"] 
 
     def token_expired_by(self):
         return self._token_expiration_time
