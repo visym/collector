@@ -98,6 +98,7 @@ class User(object):
             self._is_login = True
 
         except Exception as e:
+            raise
             custom_error = "Failed to sign in due to exception: {0}".format(e)
             raise Exception(custom_error)
 
@@ -154,7 +155,7 @@ class User(object):
         os.environ["VIPY_AWS_ACCESS_KEY_ID"] = self._aws_credentials["access_key_id"]
         os.environ["VIPY_AWS_SECRET_ACCESS_KEY"] = self._aws_credentials["secret_key"]
         os.environ["VIPY_AWS_SESSION_TOKEN"] = self._aws_credentials["session_token"]
-        os.environ["VIPY_AWS_SESSION_TOKEN_EXPIRATION"] = datetime.now() + timedelta(0, self._aws_credentials["token_expires_in_secs"])        
+        os.environ["VIPY_AWS_SESSION_TOKEN_EXPIRATION"] = str((datetime.now() + timedelta(0, self._aws_credentials["token_expires_in_secs"])).strftime("%Y-%m-%dT%H:%M:%S"))
         os.environ["VIPY_AWS_COGNITO_USERNAME"] = self._cognito_username
         os.environ["VIPY_AWS_REGION"] = self._aws_credentials["region_name"]
 
@@ -165,7 +166,7 @@ class User(object):
         Returns:
             [type]: [description]
         """
-        return "VIPY_AWS_SESSION_TOKEN_EXPIRATION" in os.environ and datetime.now() > os.environ["VIPY_AWS_SESSION_TOKEN_EXPIRATION"] 
+        return "VIPY_AWS_SESSION_TOKEN_EXPIRATION" in os.environ and datetime.now() > pycollector.util.fromclockstamp(os.environ["VIPY_AWS_SESSION_TOKEN_EXPIRATION"])
 
     def token_expired_by(self):
         return self._token_expiration_time
