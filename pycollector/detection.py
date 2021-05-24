@@ -387,7 +387,7 @@ class VideoProposal(Proposal):
        Track-based object proposals in video.
     """
     def allowable_objects(self):
-        return ['person', 'vehicle', 'car', 'motorcycle', 'object', 'bicycle', 'motorbike']
+        return ['person', 'vehicle', 'car', 'motorcycle', 'object', 'bicycle', 'motorbike', 'truck']
 
     def isallowable(self, v):
         assert isinstance(v, vipy.video.Video), "Invalid input - must be vipy.video.Video not '%s'" % (str(type(v)))
@@ -520,16 +520,17 @@ class ActorAssociation(MultiscaleVideoTracker):
 
     @staticmethod
     def isallowable(v, actor_class, association_class, fps=None):
-        allowable_objects = ['person', 'vehicle', 'car', 'motorcycle', 'object', 'bicycle', 'motorbike']        
+        allowable_objects = ['person', 'vehicle', 'car', 'motorcycle', 'object', 'bicycle', 'motorbike', 'truck']        
         return (actor_class.lower() in allowable_objects and
-                association_class.lower() in allowable_objects and
+                all([a.lower() in allowable_objects for a in vipy.util.tolist(association_class)]) and
                 actor_class.lower() in v.objectlabels(lower=True))
         
 
-    def __call__(self, v, actor_class, association_class, fps=None, dilate=2.0, activity_class=None, maxcover=0.8, max_associations=1):
-        allowable_objects = ['person', 'vehicle', 'car', 'motorcycle', 'object', 'bicycle', 'motorbike']        
+    def __call__(self, v, actor_class, association_class, fps=None, dilate=2.0, activity_class=None, maxcover=0.8, max_associations=1, min_confidence=0.4):
+        allowable_objects = ['person', 'vehicle', 'car', 'motorcycle', 'object', 'bicycle', 'motorbike', 'truck']        
+        association_class = [a.lower() for a in vipy.util.tolist(association_class)]
         assert actor_class.lower() in allowable_objects, "Primary Actor '%s' not in allowable target class '%s'" % (actor_class.lower(), str(allowable_objects))
-        assert association_class.lower() in allowable_objects, "Actor Association '%s' not in allowable target class '%s'" % (association_class.lower(), str(allowable_objects))
+        assert all([a in allowable_objects for a in allowable_objects]), "Actor Association '%s' not in allowable target class '%s'" % (str(association_class), str(allowable_objects))
         assert actor_class.lower() in v.objectlabels(lower=True), "Actor Association can only be performed with scenes containing an allowable actor not '%s'" % str(v.objectlabels())
         
         # Track objects
@@ -539,15 +540,15 @@ class ActorAssociation(MultiscaleVideoTracker):
                 t._framerate = v.framerate()  # HACK: backwards compatibility
             for a in vc.activities().values():
                 a._framerate = v.framerate()  # HACK: backwards compatibility
-
-        vt = self.track(vc.framerate(fps).clone()).framerate(v.framerate()) if fps is not None else self.track(vc.clone())
+        vc = vc.framerate(fps) if fps is not None else vc   # downsample
+        vt = self.track(vc.clone())  # track at downsampled framerate
 
         # Actor assignment: for every activity, find track with best target object assignment to actor (first track in video)
         for a in vc.activities().values():
-            candidates = [t for t in vt.tracks().values() if (t.category().lower() == association_class.lower() and
+            candidates = [t for t in vt.tracks().values() if (t.category().lower() in association_class and
                                                               t.during_interval(a.startframe(), a.endframe()) and
-                                                              t.confidence() > 0.4 and  # must have minimum confidence
-                                                              (association_class.lower() != actor_class.lower() or t.segmentcover(vc.actor()) < maxcover) and
+                                                              t.confidence() > min_confidence and  # must have minimum confidence
+                                                              (actor_class.lower() not in association_class or t.segmentcover(vc.actor()) < maxcover) and
                                                               vc.actor().boundingbox().dilate(dilate).hasintersection(t.boundingbox()))] # candidate assignment (cannot be actor, or too far from actor)
             if len(candidates) > 0:
                 # best assignment is track closest to actor with maximum confidence and minimum dilated overlap
@@ -556,7 +557,8 @@ class ActorAssociation(MultiscaleVideoTracker):
                     if a.during_interval(t.startframe(), t.endframe()) and activity_class is None or a.category() == activity_class:
                         a.add(t)
                         vc.add(t)
-        return vc
+
+        return vc.framerate(v.framerate()) if vc.framerate() != v.framerate() else vc   # upsample
 
     
 def _collectorproposal_vs_objectproposal(v, dt=1, miniou=0.2, smoothing='spline'):
