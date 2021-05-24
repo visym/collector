@@ -426,8 +426,19 @@ class Video(Scene):
         )  # edited JSON has the structure $VIDEOID_TIMESTAMP.json
 
     def editedat(self):
-        return filebase(self._jsonfile).split("_")[1] if self.isedited() else None
+        """Android appends an '_<int>'  timestamp as milliseconds since epoch (POSIX timestamp), iOS will replace the first '_datetimestr' with a new datetimest"""
+        return filebase(self._jsonfile).split("_")[-1] if self.isedited() else None
 
+    def edited(self):
+        """Return the datetime representation of the editedat() string"""
+        try:
+            # iOS uses a UTC formatted datetime string
+            return datetime.strptime(self.editedat(), "%Y-%m-%dT%H:%M:%S%z").astimezone(tz=None)  # iOS
+        except:
+            # Android appends milliseconds since epoch 
+            # https://github.com/visym/collector-app/blob/5dd0b649efde6166b65d4d270b3077e764cfa421/Android/strvideocapture/app/src/main/java/com/visym/collector/utils/FileUtil.java#L117
+            return datetime.fromtimestamp(int(self.editedat())//1000)
+ 
     def variant(self):
         """Category variant"""
         return self.attributes["variant"] if "variant" in self.attributes else None

@@ -100,7 +100,10 @@ def istimestamp(t):
 def fromtimestamp(ts):
     if ":" == ts[-3:-2]:
         ts = ts[:-3]+ts[-2:]  # '2021-03-12T12:26:57-05:00  -> '2021-03-12T12:26:57-0500'
-    return datetime.strptime(ts, "%Y-%m-%dT%H:%M:%S.%f%z")
+    try:
+        return datetime.strptime(ts, "%Y-%m-%dT%H:%M:%S.%f%z")
+    except:
+        return datetime.strptime(ts, "%Y-%m-%d %H:%M:%S%z")    
 
     
 def clockstamp():
