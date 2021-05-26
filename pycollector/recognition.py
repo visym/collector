@@ -275,6 +275,121 @@ class PIP_250k(pl.LightningModule, ActivityRecognition):
         return f(v) if v is not None else f
     
 
+
+class PIP_370k(PIP_250k):
+
+    def __init__(self, pretrained=True, deterministic=False, modelfile=None, mlbl=False, mlfl=False):
+        super().__init__(pretrained, deterministic, modelfile, mlbl, mlfl)
+
+        # Generated using pycollector.dataset.Dataset(...).inverse_frequency_weight()
+        self._class_to_weight = {}
+        self._class_to_weight['person_puts_down_object_on_shelf'] = 1.0   # run 5
+
+        # Generated using pycollector.dataset.Dataset(...).class_to_index()
+        self._class_to_index = {'car': 0,
+                                'car_drops_off_person': 1,
+                                'car_picks_up_person': 2,
+                                'car_reverses': 3,
+                                'car_starts': 4,
+                                'car_stops': 5,
+                                'car_turns_left': 6,
+                                'car_turns_right': 7,
+                                'person': 8,
+                                'person_abandons_package': 9,
+                                'person_carries_heavy_object': 10,
+                                'person_closes_car_door': 11,
+                                'person_closes_car_trunk': 12,
+                                'person_closes_facility_door': 13,
+                                'person_embraces_person': 14,
+                                'person_enters_car': 15,
+                                'person_enters_scene_through_structure': 16,
+                                'person_exits_car': 17,
+                                'person_exits_scene_through_structure': 18,
+                                'person_holds_hand': 19,
+                                'person_interacts_with_laptop': 20,
+                                'person_loads_car': 21,
+                                'person_opens_car_door': 22,
+                                'person_opens_car_trunk': 23,
+                                'person_opens_facility_door': 24,
+                                'person_picks_up_object': 25,
+                                'person_purchases_from_cashier': 26,
+                                'person_puts_down_object': 27,
+                                'person_puts_down_object_on_floor': 28,
+                                'person_reads_document': 29,
+                                'person_rides_bicycle': 30,
+                                'person_shakes_hand': 31,
+                                'person_sits_down': 32,
+                                'person_stands_up': 33,
+                                'person_steals_object_from_person': 34,
+                                'person_talks_on_phone': 35,
+                                'person_talks_to_person': 36,
+                                'person_texts_on_phone': 37,
+                                'person_transfers_object_to_person': 38,
+                                'person_unloads_car': 39}
+
+        self._verb_to_noun = {k:set(['car','vehicle','motorcycle','bus','truck']) if (k.startswith('car') or k.startswith('motorcycle') or k.startswith('vehicle')) else set(['person']) for k in self.classlist()}        
+        self._class_to_shortlabel = pycollector.label.pip_to_shortlabel
+
+        if pretrained:
+            self._load_pretrained()
+            self.net.fc = nn.Linear(self.net.fc.in_features, self.num_classes())
+        elif modelfile is not None:
+            self._load_trained(modelfile)
+        
+
+    @staticmethod
+    def _totensor(v, training, validation, input_size, num_frames, mean, std, noflip=None, show=False, doflip=False):
+        assert isinstance(v, vipy.video.Scene), "Invalid input"
+        
+        try:
+            v = v.download() if (not v.hasfilename() and v.hasurl()) else v  # fetch it if necessary, but do not do this during training!        
+            if training or validation:
+                a = v.primary_activity().clone().padto(num_frames/float(v.framerate()))
+                (ai,aj) = (a.startframe(), a.endframe())  # activity (start,end)
+                #(ti,tj) = (v.actor().startframe(), v.actor().endframe())  # track (start,end) 
+                startframe = np.random.randint(ai, aj-num_frames) if aj-num_frames > 0 else ai
+                endframe = min((startframe+num_frames), aj)  # endframe truncated to be end of activity
+                (startframe, endframe) = (startframe, endframe) if (startframe < endframe) else (max(0, aj-num_frames), aj)  # fallback
+                assert endframe - startframe <= num_frames
+                vc = v.clone().clip(startframe, endframe)    # may fail for some short clips
+                vc = vc.trackcrop(dilate=1.2, maxsquare=True)  # may be None if clip contains no track
+                vc = vc.resize(input_size, input_size)   
+                vc = vc.fliplr() if (doflip or (np.random.rand() > 0.5)) and (noflip is None or vc.category() not in noflip) else vc
+            else:
+                vc = v.trackcrop(dilate=1.2, maxsquare=True)  # may be None if clip contains no track
+                vc = vc.resize(input_size, input_size)  # TESTING: this may introduce a preview()
+                vc = vc.fliplr() if doflip and (noflip is None or vc.category() not in noflip) else vc
+                
+            if show:
+                vc.clone().resize(512,512).show(timestamp=True)
+                vc.clone().binarymask().frame(0).rgb().show(figure='binary mask: frame 0')
+                
+            vc = vc.load(shape=(input_size, input_size, 3)).normalize(mean=mean, std=std, scale=1.0/255.0)  # [0,255] -> [0,1], triggers load() with known shape
+            (t,lbl) = vc.torch(startframe=0, length=num_frames, boundary='cyclic', order='cdhw', withlabel=training or validation, nonelabel=True)  # (c=3)x(d=num_frames)x(H=input_size)x(W=input_size), reuses vc._array
+            t = torch.cat((t, vc.asfloatmask(fg=0.5, bg=-0.5).torch(startframe=0, length=num_frames, boundary='cyclic', order='cdhw')), dim=0)  # (c=4) x (d=num_frames) x (H=input_size) x (W=input_size), copy
+            
+        except Exception as e:
+            if training or validation:
+                #print('ERROR: %s' % (str(v)))
+                t = torch.zeros(4, num_frames, input_size, input_size)  # skip me
+                lbl = None
+            else:
+                print('WARNING: discarding tensor for video "%s" with exception "%s"' % (str(v), str(e)))
+                t = torch.zeros(4, num_frames, input_size, input_size)  # skip me (should never get here)
+            
+        if training or validation:
+            return (t, json.dumps(lbl))  # json to use default collate_fn
+        else:
+            return t
+
+    def totensor(self, v=None, training=False, validation=False, show=False, doflip=False):
+        """Return captured lambda function if v=None, else return tensor"""    
+        assert v is None or isinstance(v, vipy.video.Scene), "Invalid input"
+        f = (lambda v, num_frames=self._num_frames, input_size=self._input_size, mean=self._mean, std=self._std, training=training, validation=validation, show=show:
+             PIP_370k._totensor(v, training, validation, input_size, num_frames, mean, std, noflip=['car_turns_left', 'car_turns_right'], show=show, doflip=doflip))
+        return f(v) if v is not None else f
+
+
 class ActivityTracker(PIP_250k):
     def __init__(self, stride=1, activities=None, gpus=None, batchsize=None, mlbl=False, mlfl=False, modelfile=None):
         assert modelfile is not None

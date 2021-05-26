@@ -95,298 +95,6 @@ def asmeva(V):
 
 
 
-class Datasets():
-    """pycollector.dataset.Datasets() class
-    
-       This class is designed to transform datasets with intermediate datasets saved in indir
-        
-       WARNING - This class has been deprecated in favor of Dataset().
-
-    """
-
-    def __init__(self, indir, strict=False):
-        self._indir = remkdir(os.path.abspath(os.path.expanduser(indir)))
-        self._archive_ext = ['pkl', 'json']
-        self._strict = strict
-        self._datasets = {}
-
-        # FIXME: this expression is broken and will not work in general
-        self._schema = (lambda dstdir, v, k=None, indir=self._indir, ext=None, category=None, newfile=True: os.path.join(indir, dstdir, 
-                                                                                                                         v.category() if category is None else category,
-                                                                                                                         (('%s%s.%s' % (v.attributes['video_id'] if v.hasattribute('video_id') else filebase(v.filename()),
-                                                                                                                                       ('_%s' % str(k)) if k is not None else '', 
-                                                                                                                                       (fileext(v.filename(), withdot=False) if ext is None else str(ext))))
-                                                                                                                         if newfile is True else filetail(v.filename()))))
-        
-        assert os.path.isdir(self._indir), "invalid input directory"
-
-    def __getitem__(self, k):
-        return self.load(k)
-
-    def __setitem__(self, k, v):
-        self.cache(k, v)
-
-    def __repr__(self):
-        return str('<pycollector.datasets: "%s">' % self._indir)
-
-    def list(self):
-        return sorted(list(set([filebase(f) for e in self._archive_ext for f in listext(self._indir, '.%s' % e)])))
-
-
-    def isdataset(self, src):
-        return (src in self.list()) or isinstance(src, Dataset) or src in self._datasets
-        
-    def reload(self, src, format='json'):
-        assert self.isdataset(src), "Invalid dataset '%s'" % (str(src))
-        loadfile = os.path.join(self._indir, '%s.%s' % (src, format))
-        print('[pycollector.datasets]: Loading "%s" ...' % loadfile)
-        D = Dataset(vipy.util.load(loadfile, abspath=True), id=src)
-        self._datasets[src] = D
-        return D
-        
-    def load(self, src, format='json'):
-        if isinstance(src, Dataset):
-            return src
-        elif src in self._datasets:
-            return self._datasets[src]
-        else:
-            return self.reload(src, format)
-
-    def new(self, objlist, id=None):
-        """Create a new dataset, cache it and return Dataset()"""
-        d = Dataset(objlist, id=id)
-        self.cache(d)
-        return d
-
-    def cached(self):
-        return list(self._datasets.keys())
-
-    def cache(self, dst):
-        D = self.load(dst)
-        self._datasets[D.id()] = D
-        return self
-
-    def flush(self, dst):
-        self._datasets.pop(dst, None)
-        return self
-
-    def save(self, dst, format='json', nourl=False, castas=None, relpath=False, noadmin=False, strict=True, significant_digits=2, noemail=True, flush=True):
-        self.load(dst).save(os.path.join(self._indir, '%s.%s' % (self.load(dst).id(), format)), nourl=nourl, castas=castas, relpath=relpath, noadmin=noadmin, strict=strict, significant_digits=significant_digits, noemail=noemail, flush=flush)
-        return self
-    
-    def map(self, src, f_transform, model=None, dst=None, ascompleted=True):        
-        D = self.load(src)
-        assert isinstance(D, Dataset), "Source dataset '%s' does not exist" % src                
-        return D.map(f_transform, model=model, dst=dst, checkpoint=False, strict=self._strict, ascompleted=ascompleted)
-
-    def fetch(self, src):
-        D = self.load(src)
-        assert D.isvipy() and all([v.hasattribute('video_id') and v.category() is not None for v in self.list()]), "Invalid dataset"
-
-        f_saveas = lambda v, outdir=os.path.join(self._indir, src): os.path.join(outdir, v.category(), '%s.%s' % (v.attributes['video_id'], fileext(v.filename(), withdot=False)))
-        f_fetch = lambda v, f=f_saveas: v.filename(f(v)).download().print()
-        return self.map(src, f_fetch, dst=None)
-        
-    def track(self, src, dst=None, batchsize=16, conf=0.05, iou=0.5, maxhistory=5, smoothing=None, objects=None, mincover=0.8, maxconf=0.2):
-        model = pycollector.detection.VideoTracker(batchsize=batchsize)
-        f_track = lambda net,v,b=batchsize: net.gpu(list(range(torch.cuda.device_count())), batchsize=b*torch.cuda.device_count()).track(v, conf, iou, maxhistory, smoothing, objects, mincover, maxconf).print()
-        return self.map(src, f_track, model=model, dst=dst)
-
-    def actor_association(self, src, d_category_to_object, batchsize, dst=None, cpu=True, dt=10):
-        model = pycollector.detection.ActorAssociation(batchsize=batchsize)
-        if cpu:
-            f = lambda net,v,dt=dt,d_category_to_object=d_category_to_object: net(v, d_category_to_object[v.category()], dt=dt) if v.category() in d_category_to_object else v
-        else:
-            f = lambda net,v,b=batchsize: net.gpu(list(range(torch.cuda.device_count())), batchsize=b*torch.cuda.device_count())(v, d_category_to_object[v.category()]) if v.category() in d_category_to_object else v
-        return self.map(src, f, model=model, dst=dst)
-
-    def instance_mining(self, src, dstdir=None, dst=None, batchsize=1, minconf=0.01, miniou=0.6, maxhistory=5, smoothing=None, objects=None, trackconf=0.05):
-        model = pycollector.detection.MultiscaleVideoTracker(batchsize=batchsize)
-        dst = dst if dst is not None else '%s_instancemining' % (self.load(src).id())
-        dstdir = remkdir(os.path.join(self._indir, dst))
-        f_process = lambda net,v,o=objects,dstdir=dstdir: net.gpu(list(range(torch.cuda.device_count()))).track(v, objects=o, verbose=False, minconf=minconf, miniou=miniou, maxhistory=maxhistory, smoothing=smoothing, trackconf=trackconf).pkl(os.path.join(dstdir, '%s.pkl' % v.videoid())).print()
-        return self.map(src, f_process, model=model, dst=dst)  
-
-    def stabilize_refine_activityclip(self, src, dst, batchsize=1, dt=5, minlength=5, maxsize=512*3):
-        from vipy.flow import Flow
-        model = pycollector.detection.VideoProposalRefinement(batchsize=batchsize)  
-        f_process = (lambda net,v,dt=dt,f=self._schema,dst=dst,maxsize=maxsize: 
-                     [a.saveas(f(dst,a,k)).pkl().print() for (k,a) in enumerate(net(Flow(flowdim=256).stabilize(v, strict=False, residual=True, maxsize=maxsize).saveas(f(dst,v), flush=True).pkl().print(),
-                                                                                    proposalconf=5E-2, 
-                                                                                    proposaliou=0.8, 
-                                                                                    miniou=0.2, 
-                                                                                    dt=dt, 
-                                                                                    mincover=0.8, 
-                                                                                    byclass=True, 
-                                                                                    shapeiou=0.7, 
-                                                                                    smoothing='spline', 
-                                                                                    splinefactor=None, 
-                                                                                    strict=True).print().pkl(f(dst,v,'refined',ext='pkl')).activityclip())
-                      if not a.hasattribute('unstabilized') and not a.hasattribute('unrefined')])
-
-        V = self.map(src, dst, f_process, model=model, save=False).dataset(dst)
-        V = [v for clips in V for v in clips if (v is not None) and not v.hasattribute('unrefined') and not v.hasattribute('unstabilized')]  # unpack clips, remove videos that failed
-        V = [v.activityfilter(lambda a: any([a.hastrack(t) and len(t)>minlength and t.during(a.startframe(), a.endframe()) for t in v.tracklist()])) for v in V]  # get rid of activities without tracks greater than dt
-        return self.new(V, dst)
-
-    def refine_activityclip_stabilize(self, src, dst, batchsize=1, dt=3, minlength=5, padwidthfrac=1.0, padheightfrac=0.2):
-        """Refine the bounding box, split into clips then stabilzie the clips.  This is more memory efficient for stabilization"""
-        assert self.has_dataset(src) and self.isloaded(src)
-
-        from vipy.flow import Flow
-        model = pycollector.detection.VideoProposalRefinement(batchsize=batchsize)  
-        f_process = (lambda net,v,dt=dt,f=self._schema,dst=dst,padwidthfrac=padwidthfrac,padheightfrac=padheightfrac: 
-                     [Flow(flowdim=256).stabilize(a, strict=False, residual=True, padwidthfrac=padwidthfrac, padheightfrac=padheightfrac, maxsize=None).saveas(f(dst,a,k)).pkl().print()
-                      for (k,a) in enumerate(net(v,
-                                                 proposalconf=5E-2, 
-                                                 proposaliou=0.8, 
-                                                 miniou=0.2, 
-                                                 dt=dt, 
-                                                 mincover=0.8, 
-                                                 byclass=True, 
-                                                 shapeiou=0.7, 
-                                                 smoothing='spline', 
-                                                 splinefactor=None, 
-                                                 strict=True).print().pkl(f(dst,v,'refined',ext='pkl')).activityclip())
-                      if a.hastracks() and not a.hasattribute('unrefined')])
-
-        V = self.map(src, dst, f_process, model=model, save=False).dataset(dst)
-        V = [v for clips in V for v in clips if (v is not None) and not v.hasattribute('unrefined') and not v.hasattribute('unstabilized')]  # unpack clips, remove videos that failed
-        V = [v.activityfilter(lambda a: any([a.hastrack(t) and len(t)>minlength and t.during(a.startframe(), a.endframe()) for t in v.tracklist()])) if minlength is not None else v for v in V]  # get rid of activities without tracks greater than dt
-        return self.new(V, dst)
-
-    def refine_stabilize(self, src, dst, batchsize=1, dt=3, minlength=5, padwidthfrac=1.0, padheightfrac=0.2):
-        """Refine the bounding box, split into clips then stabilzie the clips.  This is more memory efficient for stabilization"""
-
-
-        self._schema = (lambda dstdir, v, k=None, indir=self._indir, ext=None, category=None: os.path.join(indir, dstdir, 
-                                                                                                           v.category() if category is None else category,
-                                                                                                           ('%s%s.%s' % (v.attributes['video_id'] if v.hasattribute('video_id') else filebase(v.filename()),
-                                                                                                                         ('_%s' % str(k)) if k is not None else '', 
-                                                                                                                         (fileext(v.filename(), withdot=False) if ext is None else str(ext))))))
-
-
-        assert self.has_dataset(src) and self.isloaded(src)
-
-        from vipy.flow import Flow
-        model = pycollector.detection.VideoProposalRefinement(batchsize=batchsize) 
-        f_process = (lambda net,v,dt=dt,f=self._schema,dst=dst,padwidthfrac=padwidthfrac,padheightfrac=padheightfrac: 
-                     Flow(flowdim=256).stabilize(net(v,
-                                                     proposalconf=5E-2, 
-                                                     proposaliou=0.8, 
-                                                     miniou=0.2, 
-                                                     dt=dt, 
-                                                     mincover=0.8, 
-                                                     byclass=True, 
-                                                     shapeiou=0.7, 
-                                                     smoothing='spline', 
-                                                     splinefactor=None, 
-                                                     strict=True).print().pkl(f(dst,v,'refined',ext='pkl')),
-                                                 strict=False, residual=True, padwidthfrac=padwidthfrac, padheightfrac=padheightfrac, maxsize=None).saveas(f(dst,v,'stabilized')).pkl().print())
-
-        V = self.map(src, dst, f_process, model=model, save=False).dataset(dst)
-        V = [v for v in V if (v is not None) and not v.hasattribute('unrefined') and not v.hasattribute('unstabilized')]  # remove videos that failed
-        return self.new(V, dst)
-    
-    def refine_activityclip(self, src, dst, batchsize=1, dt=5, minlength=5):
-        model = pycollector.detection.VideoProposalRefinement(batchsize=batchsize) 
-        f_process = (lambda net,v,dt=dt,f=self._schema,dst=dst: 
-                     [a.saveas(f(dst,a,k)).pkl().print() for (k,a) in enumerate(net(v,
-                                                                                    proposalconf=5E-2, 
-                                                                                    proposaliou=0.8, 
-                                                                                    miniou=0.2, 
-                                                                                    dt=dt, 
-                                                                                    mincover=0.8, 
-                                                                                    byclass=True, 
-                                                                                    shapeiou=0.7, 
-                                                                                    smoothing='spline', 
-                                                                                    splinefactor=None, 
-                                                                                    strict=True).print().pkl(f(dst,v,'refined',ext='pkl')).activityclip())
-                      if not a.hasattribute('unrefined')])
-
-        V = self.map(src, dst, f_process, model=model, save=False).dataset(dst)
-        V = [v for clips in V for v in clips if (v is not None) and not v.hasattribute('unrefined')]  # unpack clips, remove videos that failed
-        V = [v.activityfilter(lambda a: any([a.hastrack(t) and len(t)>minlength and t.during(a.startframe(), a.endframe()) for t in v.tracklist()])) for v in V]  # get rid of activities without tracks greater than dt
-        return self.new(V,dst)
-
-    def pad_activityclip(self, src, dst, t=2):        
-        f_tubelet = lambda v, t=t, f=self._schema, dst=dst: [a.saveas(f(dst,a,k)).print() for (k,a) in enumerate(v.activitymap(lambda x: x.padto(t)).activityclip())]
-        V = [a for V in self.map(src, dst, f_tubelet, save=False).dataset(dst) for a in V if a is not None]  # unpack
-        return self.new(V, dst)
-
-    def stabilize(self, src, dst):
-        from vipy.flow import Flow
-        f_saveas = lambda v, dstdir=dst, f=self._schema: f(dstdir, v)
-        f_stabilize = (lambda v, f=f_saveas: Flow(flowdim=256).stabilize(v, strict=False, residual=True).saveas(f(v), flush=True).print() if v.canload() else None)
-        return self.map(src, dst, f_stabilize)
-
-    def refine(self, src, dst, batchsize=1, dt=3, minlength=5):        
-        model = pycollector.detection.VideoProposalRefinement(batchsize=batchsize) 
-        f = lambda net, v, dt=dt: net(v, proposalconf=5E-2, proposaliou=0.8, miniou=0.2, dt=dt, mincover=0.8, byclass=True, shapeiou=0.7, smoothing='spline', splinefactor=None, strict=True).print()
-        V = self.map(src, dst, f, model=model, save=False).dataset(dst)
-        V = [v for v in V if (v is not None) and (not v.hasattribute('unrefined'))]  # remove videos that failed refinement
-        V = [v.activityfilter(lambda a: any([a.hastrack(t) and len(t)>minlength and t.during(a.startframe(), a.endframe()) for t in v.tracklist()])) for v in V]  # get rid of activities without tracks greater than dt
-        return self.new(V, dst)
-
-    def nondegenerate(self, src, dst=None):
-        dst = dst if dst is not None else '%s_nondegenerate' % self.load(src).id()
-        f = lambda v: v.clone() if ((v is not None) and (v.trackbox() is not None) and (not v.trackbox().intersection(v.clone().framebox(), strict=False).isdegenerate())) else None
-        return self.map(src, f, dst=dst, ascompleted=False)
-
-    def trackcrop(self, src, dst=None, dilate=1.0, maxsquare=True):
-        dst = dst if dst is not None else '%s_trackcrop' % self.load(src).id()
-        
-        # FIXME: schema is broken
-        f_saveas = lambda v, dst=dst, indir=self._indir: os.path.join(indir, dst, v.category(), filetail(v.filename()))
-        f_trackcrop = lambda v, d=dilate, f=f_saveas, b=maxsquare: v.clone().trackcrop(dilate=d, maxsquare=b).saveas(f(v), flush=True).pack().print(sleep=1) if v is not None and v.clone().trackfilter(lambda t: len(t)>0).hastracks() else None
-        return self.map(src, f_trackcrop, ascompleted=False).id(dst)
-
-    def tubelet(self, src, dst, dilate=1.0, maxdim=512):
-        f_saveas = lambda v, dstdir=dst, f=self._schema: f(dstdir, v)
-        f_tubelet = lambda v, d=dilate, m=maxdim, f=f_saveas: v.activitytube(dilate=d, maxdim=512).saveas(f(v)).print() if v.hastracks() else None
-        return self.map(src, dst, f_tubelet)        
-
-    def mindim(self, src, mindim, dstdir=None):
-        dstdir = dstdir if dstdir is not None else 'mindim_%d' % mindim
-        f_saveas = lambda v, dstdir=dstdir, f=self._schema: f(dstdir, v)
-        f_tubelet = lambda v, m=mindim, f=f_saveas: v.mindim(m).saveas(f(v)).print()
-        return self.map(src, f_tubelet).id('mindim_%d' % mindim)        
-
-    def activitymontage(self, src, outfile, gridrows=30, gridcols=50, mindim=64, bycategory=False):
-        """30x50 activity montage, each 64x64 elements using the output of prepare_dataset"""
-        vidlist = self.dataset(src)
-        actlist = [v.mindim(mindim) for v in vidlist]
-        np.random.seed(42); random.shuffle(actlist)
-        actlist = actlist[0:gridrows*gridcols]
-        return vipy.visualize.videomontage(actlist, mindim, mindim, gridrows=gridrows, gridcols=gridcols).saveas(outfile).filename()
-
-    def stabilizemontage(self, src, outfile, gridrows=6, gridcols=10):
-         return vipy.visualize.videomontage([a.flush().crop(a.trackbox(dilate=1.2).maxsquare()).mindim(256).annotate() for a in self.take(src, gridrows*gridcols)], 128, 128, gridrows, gridcols).saveas(outfile)
-         
-    def activitymontage_bycategory(self, src, outfile, gridcols=49, mindim=64):
-        """num_categoryes x gridcols activity montage, each row is a category"""
-        np.random.seed(42)
-        vidlist = self.dataset(src)
-        categories = list(set([v.category() for v in vidlist]))
-
-        actlist = []
-        for k in sorted(categories):
-            actlist_k = [v for v in vidlist if v.category() == k]
-            random.shuffle(actlist_k)
-            assert len(actlist_k) >= gridcols
-            actlist.extend(actlist_k[0:gridcols])
-            outfile = os.path.join(filepath(outfile), '%s_%s.mp4' % (filebase(outfile), k))
-            print(vipy.visualize.videomontage(actlist_k[0:15], 256, 256, gridrows=3, gridcols=5).saveas(outfile).filename())
-
-        outfile = os.path.join(filepath(outfile), '%s_%d_bycategory.mp4' % (filebase(outfile), gridcols))
-        print('[pycollector.dataset.activitymontage_bycategory]: rows=%s' % str(sorted(categories)))
-        return vipy.visualize.videomontage(actlist, mindim, mindim, gridrows=len(categories), gridcols=gridcols).saveas(outfile).filename()
-
-    def copy(self, src, dst):
-        return self.new(self.load(src).list(), dst)
-
-
-
 class TorchDataset(torch.utils.data.Dataset):
     """Converter from a pycollector dataset to a torch dataset"""
     def __init__(self, f_transformer, d):
@@ -399,20 +107,6 @@ class TorchDataset(torch.utils.data.Dataset):
 
     def __len__(self):
         return len(self._dataset)
-
-
-class TorchDatadir(torch.utils.data.Dataset):
-    """A torch dataset stored as a directory of .json files each containing a single object for training, and a transformer lambda function to conver this object to a tensor/label for data augmented training"""
-    def __init__(self, f_transformer, jsondir):
-        assert os.path.isdir(jsondir)
-        self._jsonlist = vipy.util.listjson(jsondir)
-        self._f_transformer = f_transformer
-
-    def __getitem__(self, k):
-        return self._f_transformer(vipy.util.load(self._jsonlist[k]))
-
-    def __len__(self):
-        return len(self._jsonlist)
 
 
 class TorchTensordir(torch.utils.data.Dataset):
@@ -721,6 +415,9 @@ class Dataset():
         assert self.isvipy()
         return vipy.util.countby(self.list(), lambda v: v.category())
 
+    def frequency(self):
+        return self.count()
+
     def percentage(self):
         """Fraction of dataset for each label"""
         d = self.count()
@@ -904,15 +601,24 @@ class Dataset():
     
         return d
 
-    def totorch(self, f_video_to_tensor):
+    def to_torch(self, f_video_to_tensor):
+        """Return a torch dataset that will apply the lambda function f_video_to_tensor to each element in the dataset on demand"""
         return TorchDataset(f_video_to_tensor, self)
 
-    def totorch_datadir(self, f_video_to_tensor, outdir):
-        return TorchDatadir(f_video_to_tensor, self.tojsondir(outdir))
+    def to_torch_tensordir(self, f_video_to_tensor, outdir, n_augmentations=20, n_chunks=512):
+        """Return a TorchTensordir dataset that will load a pkl.bz2 file that contains one of n_augmentations (tensor, label) pairs.
+        
+        This is useful for fast loading of datasets that contain many videos.
+
+        """
+        outdir = vipy.util.remkdir(outdir)
+        B = vipy.util.chunklist(self._objlist, n_chunks)
+        vipy.batch.Batch(B, as_completed=True, minscatter=1).map(lambda V, f=f_video_to_tensor, outdir=outdir, n_augmentations=n_augmentations: [vipy.util.bz2pkl(os.path.join(outdir, '%s_%s.pkl.bz2' % (v.videoid(), str(vipy.util.shortuuid(8)))), [f(v) for k in range(0, n_augmentations)]) for v in V])
+        return TorchTensordir(outdir)
 
     def annotate(self, outdir, mindim=512):
         assert self.isvipy()
-        f = lambda v, outdir=outdir, mindim=mindim: v.mindim(mindim).annotate().saveas(os.path.join(outdir, '%s.mp4' % v.videoid())).print()
+        f = lambda v, outdir=outdir, mindim=mindim: v.mindim(mindim).annotate(outfile=os.path.join(outdir, '%s.mp4' % v.videoid())).print()
         return self.map(f, dst='annotate')
 
     def tohtml(self, outfile, mindim=512, title='Visualization', fraction=1.0, display=False, clip=True, activities=True, category=True):
