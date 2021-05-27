@@ -704,7 +704,7 @@ class Dataset():
         D = self.clone()
         if bycategory:
             categories = sorted(D.classlist()) if (gridrows is None) else sorted(D.classlist())[0:gridrows] 
-            vidlist = sorted(D.filter(lambda v: v.category() in categories()).take_per_category(gridcols, canload=True).tolist(), key=lambda v: v.category())
+            vidlist = sorted(D.filter(lambda v: v.category() in categories).take_per_category(gridcols, canload=True).tolist(), key=lambda v: v.category())
             gridrows = len(categories) if (gridrows is None) else gridrows
         elif category is not None:
             vidlist = D.filter(lambda v: v.category() == category).take(gridrows*gridcols, canload=True).tolist()            
