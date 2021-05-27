@@ -110,21 +110,26 @@ class TorchDataset(torch.utils.data.Dataset):
 
 
 class TorchTensordir(torch.utils.data.Dataset):
-    """A torch dataset stored as a directory of .pkl.bz2 files each containing a list of tensor/labels used for data augmented training"""
+    """A torch dataset stored as a directory of .pkl.bz2 files each containing a list of [(tensor, str=json.dumps(label)), ...] tuples used for data augmented training.
+    
+       This is useful to use the default Dataset loaders in Torch.
+    """
     def __init__(self, tensordir):
         assert os.path.isdir(tensordir)
-        self._dirlist = sorted([s for s in vipy.util.extlist(tensordir, '.pkl.bz2')], key=lambda d: int(vipy.util.filetail(d).rsplit('_', 1)[1].split('.pkl.bz2')[0]))
+        self._dirlist = [s for s in vipy.util.extlist(tensordir, '.pkl.bz2')]
 
     def __getitem__(self, k):
         assert k >= 0 and k < len(self._dirlist)
         for j in range(0,2):
             try:
-                obj = vipy.util.bz2pkl(self._dirlist[k])
+                obj = vipy.util.bz2pkl(self._dirlist[k])  # load me
                 assert len(obj) > 0, "Invalid augmentation"
-                return obj[np.random.randint(0, len(obj))]  # choose one tensor at random
+                (t, lbl) = obj[np.random.randint(0, len(obj))]  # choose one tensor at random
+                assert t is not None and json.loads(lbl) is not None, "Invalid augmentation"  # get another one if the augmentation was invalid
+                return (t, lbl)
             except:
                 time.sleep(1)  # try again after a bit if another process is augmenting this .pkl.bz2 in parallel
-        print('ERROR: %s corrupted' % self._dirlist[k])
+        print('[pycollector.dataset.TorchTensordir][WARNING]: %s corrupted or invalid' % self._dirlist[k])
         return self.__getitem__(np.random.randint(0, len(self)))  # maximum retries reached, get another one
 
     def __len__(self):

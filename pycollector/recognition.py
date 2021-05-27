@@ -282,50 +282,10 @@ class PIP_370k(PIP_250k):
         super().__init__(pretrained, deterministic, modelfile, mlbl, mlfl)
 
         # Generated using pycollector.dataset.Dataset(...).inverse_frequency_weight()
-        self._class_to_weight = {}
-        self._class_to_weight['person_puts_down_object_on_shelf'] = 1.0   # run 5
+        self._class_to_weight = {'car': 1.256920352494539, 'car_drops_off_person': 0.6436403737411649, 'car_picks_up_person': 0.642446678686007, 'car_reverses': 0.6413365511247129, 'car_starts': 0.526508130227219, 'car_stops': 0.518108359478754, 'car_turns_left': 1.0319977631007795, 'car_turns_right': 0.6198388091628801, 'hand_interacts_with_person': 0.3247973957502453, 'person_abandons_package': 0.9290378575384273, 'person_carries_heavy_object': 0.48620835942850416, 'person_closes_car_door': 0.4278041114121871, 'person_closes_car_trunk': 0.6420497636491318, 'person_closes_facility_door': 0.42162518153297823, 'person_embraces_person': 0.5922841373774563, 'person_enters_car': 0.60716390946628, 'person_enters_scene_through_structure': 0.3187601212939344, 'person_exits_car': 0.5859391900329751, 'person_exits_scene_through_structure': 0.38526794225642647, 'person_interacts_with_laptop': 0.5533072875319374, 'person_loads_car': 0.7182898447902163, 'person_opens_car_door': 0.4362445417859478, 'person_opens_car_trunk': 0.641732584563718, 'person_opens_facility_door': 0.36151873215142455, 'person_picks_up_object': 0.405914283041358, 'person_purchases_from_cashier': 5.144662116051904, 'person_purchases_from_machine': 5.064433467068639, 'person_puts_down_object': 0.28509320406081556, 'person_reads_document': 0.4866181623162038, 'person_rides_bicycle': 1.4369769737866216, 'person_sits_down': 0.48089854115802166, 'person_stands_up': 0.4898754348272296, 'person_steals_object': 0.8798016825622121, 'person_talks_on_phone': 0.23963975175079202, 'person_talks_to_person': 0.24299049463208117, 'person_texts_on_phone': 0.4786393457270104, 'person_transfers_object_to_car': 2.8676096783733023, 'person_transfers_object_to_person': 0.5788891195646639, 'person_unloads_car': 0.5349092791036055, 'person_walks': 6.070220487397692}
 
         # Generated using pycollector.dataset.Dataset(...).class_to_index()
-        self._class_to_index = {'car': 0,
-                                'car_drops_off_person': 1,
-                                'car_picks_up_person': 2,
-                                'car_reverses': 3,
-                                'car_starts': 4,
-                                'car_stops': 5,
-                                'car_turns_left': 6,
-                                'car_turns_right': 7,
-                                'person': 8,
-                                'person_abandons_package': 9,
-                                'person_carries_heavy_object': 10,
-                                'person_closes_car_door': 11,
-                                'person_closes_car_trunk': 12,
-                                'person_closes_facility_door': 13,
-                                'person_embraces_person': 14,
-                                'person_enters_car': 15,
-                                'person_enters_scene_through_structure': 16,
-                                'person_exits_car': 17,
-                                'person_exits_scene_through_structure': 18,
-                                'person_holds_hand': 19,
-                                'person_interacts_with_laptop': 20,
-                                'person_loads_car': 21,
-                                'person_opens_car_door': 22,
-                                'person_opens_car_trunk': 23,
-                                'person_opens_facility_door': 24,
-                                'person_picks_up_object': 25,
-                                'person_purchases_from_cashier': 26,
-                                'person_puts_down_object': 27,
-                                'person_puts_down_object_on_floor': 28,
-                                'person_reads_document': 29,
-                                'person_rides_bicycle': 30,
-                                'person_shakes_hand': 31,
-                                'person_sits_down': 32,
-                                'person_stands_up': 33,
-                                'person_steals_object_from_person': 34,
-                                'person_talks_on_phone': 35,
-                                'person_talks_to_person': 36,
-                                'person_texts_on_phone': 37,
-                                'person_transfers_object_to_person': 38,
-                                'person_unloads_car': 39}
+        self._class_to_index = {'car': 0, 'car_drops_off_person': 1, 'car_picks_up_person': 2, 'car_reverses': 3, 'car_starts': 4, 'car_stops': 5, 'car_turns_left': 6, 'car_turns_right': 7, 'hand_interacts_with_person': 8, 'person_abandons_package': 9, 'person_carries_heavy_object': 10, 'person_closes_car_door': 11, 'person_closes_car_trunk': 12, 'person_closes_facility_door': 13, 'person_embraces_person': 14, 'person_enters_car': 15, 'person_enters_scene_through_structure': 16, 'person_exits_car': 17, 'person_exits_scene_through_structure': 18, 'person_interacts_with_laptop': 19, 'person_loads_car': 20, 'person_opens_car_door': 21, 'person_opens_car_trunk': 22, 'person_opens_facility_door': 23, 'person_picks_up_object': 24, 'person_purchases_from_cashier': 25, 'person_purchases_from_machine': 26, 'person_puts_down_object': 27, 'person_reads_document': 28, 'person_rides_bicycle': 29, 'person_sits_down': 30, 'person_stands_up': 31, 'person_steals_object': 32, 'person_talks_on_phone': 33, 'person_talks_to_person': 34, 'person_texts_on_phone': 35, 'person_transfers_object_to_car': 36, 'person_transfers_object_to_person': 37, 'person_unloads_car': 38, 'person_walks': 39}
 
         self._verb_to_noun = {k:set(['car','vehicle','motorcycle','bus','truck']) if (k.startswith('car') or k.startswith('motorcycle') or k.startswith('vehicle')) else set(['person']) for k in self.classlist()}        
         self._class_to_shortlabel = pycollector.label.pip_to_shortlabel
@@ -342,22 +302,25 @@ class PIP_370k(PIP_250k):
         assert isinstance(v, vipy.video.Scene), "Invalid input"
         
         try:
-            v = v.download() if (not v.hasfilename() and v.hasurl()) else v  # fetch it if necessary, but do not do this during training!        
+            v = v.download() if (v.hasurl() and not v.hasfilename()) else v  # fetch it if necessary, but do not do this during training!        
+            vc = v.clone()
             if training or validation:
-                a = v.primary_activity().clone().padto(num_frames/float(v.framerate()))
-                (ai,aj) = (a.startframe(), a.endframe())  # activity (start,end)
-                #(ti,tj) = (v.actor().startframe(), v.actor().endframe())  # track (start,end) 
-                startframe = np.random.randint(ai, aj-num_frames) if aj-num_frames > 0 else ai
-                endframe = min((startframe+num_frames), aj)  # endframe truncated to be end of activity
-                (startframe, endframe) = (startframe, endframe) if (startframe < endframe) else (max(0, aj-num_frames), aj)  # fallback
-                assert endframe - startframe <= num_frames
-                vc = v.clone().clip(startframe, endframe)    # may fail for some short clips
+                a = vc.primary_activity().clone().padto((num_frames+1)/float(vc.framerate()))  # for clip context only, may be past end of video now!
+                (startframe, endframe) = (max(0, a.startframe()), max(0, a.endframe()))  # activity (start,end)
+                if (endframe - startframe) > num_frames:
+                    (ai,aj) = (a.startframe(), a.endframe())  # activity (start,end)
+                    startframe = np.random.randint(ai, aj-num_frames-1) if aj-num_frames-1 > ai else ai
+                    endframe = min((startframe+num_frames), aj)  # endframe truncated to be end of activity
+                    (startframe, endframe) = (startframe, endframe) if (startframe < endframe) else (max(0, aj-num_frames), aj)  # fallback
+                    (startframe, endframe) = (max(0, startframe), max(0, endframe))
+                    assert endframe - startframe <= num_frames 
+                vc = vc.clip(startframe, endframe)    # may fail for some short clips or if endframe is too big
                 vc = vc.trackcrop(dilate=1.2, maxsquare=True)  # may be None if clip contains no track
                 vc = vc.resize(input_size, input_size)   
-                vc = vc.fliplr() if (doflip or (np.random.rand() > 0.5)) and (noflip is None or vc.category() not in noflip) else vc
+                vc = vc.fliplr() if (doflip or ((np.random.rand() > 0.5) and (noflip is None or vc.category() not in noflip))) else vc
             else:
-                vc = v.trackcrop(dilate=1.2, maxsquare=True)  # may be None if clip contains no track
-                vc = vc.resize(input_size, input_size)  # TESTING: this may introduce a preview()
+                vc = vc.trackcrop(dilate=1.2, maxsquare=True)  # may be None if clip contains no track
+                vc = vc.resize(input_size, input_size)  # This may introduce a preview()
                 vc = vc.fliplr() if doflip and (noflip is None or vc.category() not in noflip) else vc
                 
             if show:
@@ -370,15 +333,16 @@ class PIP_370k(PIP_250k):
             
         except Exception as e:
             if training or validation:
-                #print('ERROR: %s' % (str(v)))
-                t = torch.zeros(4, num_frames, input_size, input_size)  # skip me
-                lbl = None
+                print('[pycollector.recognition.PIP_370k._totensor][SKIPPING]: video="%s", exception="%s"' % (str(vc), str(e)))
+                (t, lbl) = (torch.zeros(4, num_frames, input_size, input_size), None)  # must always return conformal tensor
+                #raise
             else:
-                print('WARNING: discarding tensor for video "%s" with exception "%s"' % (str(v), str(e)))
-                t = torch.zeros(4, num_frames, input_size, input_size)  # skip me (should never get here)
-            
+                print('[pycollector.recognition.PIP_370k._totensor][ERROR]: discarding tensor for video "%s" with exception "%s"' % (str(vc), str(e)))
+                #t = torch.zeros(4, num_frames, input_size, input_size)  # skip me (should never get here)
+                raise
+
         if training or validation:
-            return (t, json.dumps(lbl))  # json to use default collate_fn
+            return (t, json.dumps(lbl))  # json to use default torch collate_fn
         else:
             return t
 
