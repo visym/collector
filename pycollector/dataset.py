@@ -21,6 +21,7 @@ from torch.utils.data import DataLoader, random_split
 import bz2
 import pickle
 import time
+import json
 
     
 def disjoint_activities(V, activitylist):    
@@ -189,6 +190,9 @@ class Dataset():
     def isvipy(self):
         return self.istype([vipy.image.Image, vipy.video.Video])
 
+    def is_vipy_video(self):
+        return self.istype([vipy.video.Video])
+
     def clone(self):
         return copy.deepcopy(self)
 
@@ -291,6 +295,8 @@ class Dataset():
 
     def classes(self):
         return self.classlist()
+    def categories(self):
+        return self.classlist()
 
     def class_to_index(self):
         return {v:k for (k,v) in enumerate(self.classlist())}
@@ -353,23 +359,44 @@ class Dataset():
     def valid(self):
         return self.filter(lambda v: v is not None)
 
-    def take_per_category(self, n, id=None):
-        C = vipy.util.groupbyasdict(self._objlist, lambda v: v.category())
-        return Dataset([C[k][j] for (k,v) in C.items() for j in np.random.permutation(list(range(len(v))))[0:n]], id=id)
+    def takefilter(self, f, n=1):
+        """Apply the lambda function f and return n elements in a list where the filter returns true
+        
+        Args:
+            f: [lambda] If f(x) returns true, then keep
+            n: [int >= 0] The number of elements to take
+        
+        Returns:
+            [n=0] Returns empty list
+            [n=1] Returns singleton element
+            [n>1] Returns list of elements of at most n such that each element f(x) is True            
+        """
+        objlist = [obj for obj in self._objlist if f(obj)]
+        return [] if (len(objlist) == 0 or n == 0) else (objlist[0] if n==1 else objlist[0:n])
 
-    def tojsondir(self, outdir):
+    def to_jsondir(self, outdir):
         print('[pycollector.dataset]: exporting %d json files to "%s"...' % (len(self), outdir))
         vipy.util.remkdir(outdir)  # to avoid race condition
         Batch(vipy.util.chunklist([(k,v) for (k,v) in enumerate(self._objlist)], 64), as_completed=True, minscatter=1).map(lambda X: [vipy.util.save(x[1].clone(), os.path.join(outdir, '%s_%d.json' % (x[1].clone().videoid(), x[0]))) for x in X]).result()
         return outdir
 
-    def takelist(self, n, category=None):
-        objlist = self._objlist if category is None else [v for v in self._objlist if v.category() == category]
-        assert n <= len(objlist), "Invalid length"
-        return [objlist[k] for k in random.sample(range(0, len(objlist)), n)]  # without replacement
+    def takelist(self, n, category=None, canload=False):
+        assert n >= 0, "Invalid length"
 
-    def take(self, n, category=None):
-        return Dataset(self.takelist(n, category))
+        outlist = []
+        objlist = self._objlist if category is None else [v for v in self._objlist if v.category() == category]
+        for k in np.random.permutation(range(0, len(objlist))):
+            if not canload or objlist[k].canload():
+                outlist.append(objlist[k])  # without replacement
+            if len(outlist) == n:
+                break
+        return outlist
+
+    def take(self, n, category=None, canload=False):
+        return Dataset(self.takelist(n, category=category, canload=canload))
+
+    def take_per_category(self, n, id=None, canload=False):
+        return Dataset([v for c in self.categories() for v in self.takelist(n, category=c, canload=canload)], id=id)
     
     def split(self, trainfraction=0.9, valfraction=0.1, testfraction=0, seed=42):
         """Split the dataset by category by fraction so that video IDs are never in the same set"""
@@ -651,30 +678,45 @@ class Dataset():
         return vipy.visualize.tohtml(quicklooks, provenance, title='%s' % title, outfile=outfile, mindim=mindim, display=display)
 
 
-    def video_montage(self, outfile, gridrows=30, gridcols=50, mindim=64, bycategory=False, category=None):
+    def video_montage(self, outfile, gridrows=30, gridcols=50, mindim=64, bycategory=False, category=None, annotate=True, trackcrop=False):
         """30x50 activity montage, each 64x64 elements.
+
+        Args:
+            outfile: [str] The name of the outfile for the video.  Must have a valid video extension. 
+            gridrows: [int, None]  The number of rows to include in the montage.  If None, infer from other args
+            gridcols: [int] The number of columns in the montage
+            mindim: [int] The square size of each video in the montage
+            bycategory: [bool]  Make the video such that each row is a category 
+            category: [str] Make the video so that every element is of category
+            annotate: [bool] If true, include boxes and captions for objects and activities
+            trackcrop: [bool] If true, center the video elements on the tracks with dilation factor 1.5
 
         Returns:
             A clone of the dataset containing the selected videos for the montage.
-        )"""
-        assert self.isvipy()
+        """
+        assert self.is_vipy_video()
         assert vipy.util.isvideo(outfile)
         assert gridrows is None or (isinstance(gridrows, int) and gridrows >= 1)
         assert isinstance(gridcols, int) and gridcols >= 1 
         assert isinstance(mindim, int) and mindim >= 1
         assert category is None or isinstance(category, str)
 
-        D = self.clone().localmap(lambda v: v.mindim(mindim))        
+        D = self.clone()
         if bycategory:
             categories = sorted(D.classlist()) if (gridrows is None) else sorted(D.classlist())[0:gridrows] 
-            vidlist = sorted(D.take_per_category(gridcols).filter(lambda v: v.category() in categories).tolist(), key=lambda v: v.category())
+            vidlist = sorted(D.filter(lambda v: v.category() in categories()).take_per_category(gridcols, canload=True).tolist(), key=lambda v: v.category())
             gridrows = len(categories) if (gridrows is None) else gridrows
         elif category is not None:
-            vidlist = D.filter(lambda v: v.category() == category).take(gridrows*gridcols).tolist()            
+            vidlist = D.filter(lambda v: v.category() == category).take(gridrows*gridcols, canload=True).tolist()            
         elif len(D) != gridrows*gridcols:
-            vidlist = D.take(gridrows*gridcols).tolist()
+            vidlist = D.take(gridrows*gridcols, canload=True).tolist()
         else:
             vidlist = D.tolist()
+
+        if trackcrop:
+            vidlist = [v.trackcrop(dilate=1.5, maxsquare=True) for v in vidlist]
+        if not annotate:
+            vidlist = [vipy.video.Video.cast(v) for v in vidlist] 
 
         vipy.visualize.videomontage(vidlist, mindim, mindim, gridrows=gridrows, gridcols=gridcols).saveas(outfile)
         return Dataset(vidlist, id='video_montage')
