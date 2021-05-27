@@ -176,6 +176,8 @@ class Dataset():
 
     def list(self):
         return self._objlist
+    def tolist(self):
+        return self._objlist
 
     def flatten(self):
         self._objlist = [o for objlist in self._objlist for o in vipy.util.tolist(objlist)]
@@ -471,6 +473,7 @@ class Dataset():
         return d
 
     def device(self, outfile=None, n=24, fontsize=7):
+        assert self.isvipy()
         d_all = vipy.util.countby([v for v in self.list() if v.hasattribute('device_type') and v.attributes['device_type'] != 'unrecognized'], lambda v: v.attributes['device_type'])
         
         topk = [k for (k,v) in sorted(list(d_all.items()), key=lambda x: x[1])[-n:]] 
@@ -646,6 +649,35 @@ class Dataset():
         provenance = [{'clip':str(v), 'activities':str(';'.join([str(a) for a in v.activitylist()])), 'category':v.category()} for (imq, v) in quicklist]
         (quicklooks, provenance) = zip(*sorted([(q,p) for (q,p) in zip(quicklooks, provenance)], key=lambda x: x[1]['category']))  # sorted in category order
         return vipy.visualize.tohtml(quicklooks, provenance, title='%s' % title, outfile=outfile, mindim=mindim, display=display)
+
+
+    def video_montage(self, outfile, gridrows=30, gridcols=50, mindim=64, bycategory=False, category=None):
+        """30x50 activity montage, each 64x64 elements.
+
+        Returns:
+            A clone of the dataset containing the selected videos for the montage.
+        )"""
+        assert self.isvipy()
+        assert vipy.util.isvideo(outfile)
+        assert gridrows is None or (isinstance(gridrows, int) and gridrows >= 1)
+        assert isinstance(gridcols, int) and gridcols >= 1 
+        assert isinstance(mindim, int) and mindim >= 1
+        assert category is None or isinstance(category, str)
+
+        D = self.clone().localmap(lambda v: v.mindim(mindim))        
+        if bycategory:
+            categories = sorted(D.classlist()) if (gridrows is None) else sorted(D.classlist())[0:gridrows] 
+            vidlist = sorted(D.take_per_category(gridcols).filter(lambda v: v.category() in categories).tolist(), key=lambda v: v.category())
+            gridrows = len(categories) if (gridrows is None) else gridrows
+        elif category is not None:
+            vidlist = D.filter(lambda v: v.category() == category).take(gridrows*gridcols).tolist()            
+        elif len(D) != gridrows*gridcols:
+            vidlist = D.take(gridrows*gridcols).tolist()
+        else:
+            vidlist = D.tolist()
+
+        vipy.visualize.videomontage(vidlist, mindim, mindim, gridrows=gridrows, gridcols=gridcols).saveas(outfile)
+        return Dataset(vidlist, id='video_montage')
 
 
     def boundingbox_refinement(self, dst='boundingbox_refinement', batchsize=1, dt=3, minlength=5, f_savepkl=None):        
