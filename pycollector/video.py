@@ -86,6 +86,7 @@ class Video(Scene):
     def cast(self, v):
         assert isinstance(v, vipy.video.Scene), "Invalid input - must be derived from vipy.video.Scene"
         v.__class__ = Video
+        v._is_json_loaded = True
         return v
 
     @classmethod

@@ -538,4 +538,9 @@ pip_to_shortlabel = {'car_drops_off_person': 'drops-off person',
                      'person_unloads_motorcycle': 'unloads',
                      'person_walks': 'walks',
                      'person':'person',
-                     'vehicle':'vehicle'}
+                     'vehicle':'vehicle',
+                     'car_moves':'moves'}
+
+
+pip_plus_meva_to_meva = {k:v for (k,v) in list(pip_to_meva.items()) + [(k,k) for k in set(list(pip_to_meva.values()))]}
+

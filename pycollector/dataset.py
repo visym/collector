@@ -193,6 +193,9 @@ class Dataset():
     def is_vipy_video(self):
         return self.istype([vipy.video.Video])
 
+    def is_vipy_scene(self):
+        return self.istype([vipy.video.Scene])
+
     def clone(self):
         return copy.deepcopy(self)
 
@@ -352,6 +355,11 @@ class Dataset():
         D2 = other.clone().localmap(lambda v: v.filename(v.filename().replace(otherdir, outdir), copy=False, symlink=True))
         return D1.union(D2)
 
+    def augment(self, f, n_augmentations):
+        assert n_augmentations >= 1
+        self._objlist = [f(v.clone()) for v in self._objlist for k in range(n_augmentations)]  # This will remove the originals
+        return self
+
     def filter(self, f):
         self._objlist = [v for v in self._objlist if f(v)]
         return self
@@ -385,8 +393,8 @@ class Dataset():
 
         outlist = []
         objlist = self._objlist if category is None else [v for v in self._objlist if v.category() == category]
-        for k in np.random.permutation(range(0, len(objlist))):
-            if not canload or objlist[k].canload():
+        for k in np.random.permutation(range(0, len(objlist))).tolist():
+            if not canload or objlist[k].isloadable():
                 outlist.append(objlist[k])  # without replacement
             if len(outlist) == n:
                 break
@@ -430,6 +438,14 @@ class Dataset():
         return vipy.util.writecsv(csv, csvfile) if csvfile is not None else (csv[0], csv[1:])
 
     def map(self, f_transform, model=None, dst=None, checkpoint=False, strict=False, ascompleted=True):        
+        """Distributed map.
+
+        To perform this in parallel across four processes:
+
+        >>> with vipy.globals.parallel(4):
+        >>>     self.map(lambda v: ...)
+
+        """
         B = Batch(self.list(), strict=strict, as_completed=ascompleted, checkpoint=checkpoint, warnme=False, minscatter=1000000)
         V = B.map(f_transform).result() if not model else B.scattermap(f_transform, model).result() 
         if any([v is None for v in V]):
@@ -646,9 +662,10 @@ class Dataset():
         This is useful for fast loading of datasets that contain many videos.
 
         """
+        assert self.is_vipy_scene()
         outdir = vipy.util.remkdir(outdir)
         B = vipy.util.chunklist(self._objlist, n_chunks)
-        vipy.batch.Batch(B, as_completed=True, minscatter=1).map(lambda V, f=f_video_to_tensor, outdir=outdir, n_augmentations=n_augmentations: [vipy.util.bz2pkl(os.path.join(outdir, '%s_%s.pkl.bz2' % (v.videoid(), str(vipy.util.shortuuid(8)))), [f(v) for k in range(0, n_augmentations)]) for v in V])
+        vipy.batch.Batch(B, as_completed=True, minscatter=1).map(lambda V, f=f_video_to_tensor, outdir=outdir, n_augmentations=n_augmentations: [vipy.util.bz2pkl(os.path.join(outdir, '%s.pkl.bz2' % v.instanceid()), [f(v) for k in range(0, n_augmentations)]) for v in V])
         return TorchTensordir(outdir)
 
     def annotate(self, outdir, mindim=512):
@@ -678,7 +695,7 @@ class Dataset():
         return vipy.visualize.tohtml(quicklooks, provenance, title='%s' % title, outfile=outfile, mindim=mindim, display=display)
 
 
-    def video_montage(self, outfile, gridrows=30, gridcols=50, mindim=64, bycategory=False, category=None, annotate=True, trackcrop=False):
+    def video_montage(self, outfile, gridrows=30, gridcols=50, mindim=64, bycategory=False, category=None, annotate=True, trackcrop=False, transpose=False, max_duration=None, framerate=30, fontsize=8):
         """30x50 activity montage, each 64x64 elements.
 
         Args:
@@ -687,39 +704,54 @@ class Dataset():
             gridcols: [int] The number of columns in the montage
             mindim: [int] The square size of each video in the montage
             bycategory: [bool]  Make the video such that each row is a category 
-            category: [str] Make the video so that every element is of category
+            category: [str, list] Make the video so that every element is of category.  May be a list of more than one categories
             annotate: [bool] If true, include boxes and captions for objects and activities
             trackcrop: [bool] If true, center the video elements on the tracks with dilation factor 1.5
+            transpose: [bool] If true, organize categories columnwise, but still return a montage of size (gridrows, gridcols)
+            max_duration: [float] If not None, then set a maximum duration in seconds for elements in the video.  If None, then the max duration is the duration of the longest element.
 
         Returns:
-            A clone of the dataset containing the selected videos for the montage.
+            A clone of the dataset containing the selected videos for the montage, ordered rowwise in the montage
+
+        .. notes::  
+            - If a category does not contain the required number of elements for bycategory, it is removed prior to visualization
+            - Elements are looped if they exit prior to the end of the longest video (or max_duration)
         """
         assert self.is_vipy_video()
         assert vipy.util.isvideo(outfile)
         assert gridrows is None or (isinstance(gridrows, int) and gridrows >= 1)
-        assert isinstance(gridcols, int) and gridcols >= 1 
+        assert gridcols is None or (isinstance(gridcols, int) and gridcols >= 1)
         assert isinstance(mindim, int) and mindim >= 1
         assert category is None or isinstance(category, str)
 
         D = self.clone()
         if bycategory:
-            categories = sorted(D.classlist()) if (gridrows is None) else sorted(D.classlist())[0:gridrows] 
-            vidlist = sorted(D.filter(lambda v: v.category() in categories).take_per_category(gridcols, canload=True).tolist(), key=lambda v: v.category())
-            gridrows = len(categories) if (gridrows is None) else gridrows
+            (num_categories, num_elements) = (gridrows, gridcols) if not transpose else (gridcols, gridrows)
+            assert num_elements is not None
+            requested_categories = sorted(D.classlist()) if (num_categories is None) else sorted(D.classlist())[0:num_categories]             
+            categories = [c for c in requested_categories if D.count()[c] >= num_elements]  # filter those categories that do not have enough
+            if set(categories) != set(requested_categories):
+                warnings.warn('[pycollector.dataset.video_montage]: removing "%s" without at least %d examples' % (str(set(requested_categories).difference(set(categories))), num_elements))
+            vidlist = sorted(D.filter(lambda v: v.category() in categories).take_per_category(num_elements, canload=True).tolist(), key=lambda v: v.category())
+            vidlist = vidlist if not transpose else [vidlist[k] for k in np.array(range(0, len(vidlist))).reshape( (len(categories), num_elements) ).transpose().flatten().tolist()] 
+            (gridrows, gridcols) = (len(categories), num_elements) if not transpose else (num_elements, len(categories))
+            assert len(vidlist) == gridrows*gridcols
+
         elif category is not None:
-            vidlist = D.filter(lambda v: v.category() == category).take(gridrows*gridcols, canload=True).tolist()            
+            vidlist = D.filter(lambda v: v.category() in vipy.util.tolist(category)).take(gridrows*gridcols, canload=True).tolist()            
         elif len(D) != gridrows*gridcols:
             vidlist = D.take(gridrows*gridcols, canload=True).tolist()
         else:
             vidlist = D.tolist()
 
-        if trackcrop:
-            vidlist = [v.trackcrop(dilate=1.5, maxsquare=True) for v in vidlist]
-        if not annotate:
-            vidlist = [vipy.video.Video.cast(v) for v in vidlist] 
-
-        vipy.visualize.videomontage(vidlist, mindim, mindim, gridrows=gridrows, gridcols=gridcols).saveas(outfile)
-        return Dataset(vidlist, id='video_montage')
+        vidlist = [v.framerate(framerate) for v in vidlist]  # resample to common framerate (this may result in jittery tracks
+        montage = Dataset(vidlist, id='video_montage').clone()  # for output
+        vidlist = [v.trackcrop(dilate=1.5, maxsquare=True) if (v.trackbox() is not None) else v for v in vidlist] if trackcrop else vidlist  # may be None, if so return the video
+        vidlist = [v.mindim(mindim) for v in vidlist]  # before annotate for common font size
+        vidlist = [vipy.video.Video.cast(v) for v in vidlist] if not annotate else [v.annotate(verbose=False, fontsize=fontsize) for v in vidlist]  # pre-annotate
+            
+        vipy.visualize.videomontage(vidlist, mindim, mindim, gridrows=gridrows, gridcols=gridcols, framerate=framerate, max_duration=max_duration).saveas(outfile)
+        return montage
 
 
     def boundingbox_refinement(self, dst='boundingbox_refinement', batchsize=1, dt=3, minlength=5, f_savepkl=None):        
