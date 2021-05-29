@@ -299,7 +299,6 @@ class PIP_370k(PIP_250k):
         elif modelfile is not None:
             self._load_trained(modelfile)
         
-
     @staticmethod
     def _totensor(v, training, validation, input_size, num_frames, mean, std, noflip=None, show=False, doflip=False, stride_jitter=3):
         assert isinstance(v, vipy.video.Scene), "Invalid input"
@@ -330,12 +329,12 @@ class PIP_370k(PIP_250k):
                 
             if show:
                 vc.clone().resize(512,512).show(timestamp=True)
-                vc.clone().binarymask().frame(0).rgb().show(figure='binary mask: frame 0')
+                vc.clone().binarymask().frame(0).gain(255).rgb().show(figure='binary mask: frame 0')
                 
             vc = vc.load(shape=(input_size, input_size, 3)).normalize(mean=mean, std=std, scale=1.0/255.0)  # [0,255] -> [0,1], triggers load() with known shape
             (t,lbl) = vc.torch(startframe=0, length=num_frames, boundary='repeat', order='cdhw', withlabel=training or validation, nonelabel=True)  # (c=3)x(d=num_frames)x(H=input_size)x(W=input_size), reuses vc._array
             t = torch.cat((t, vc.asfloatmask(fg=0.5, bg=-0.5).torch(startframe=0, length=num_frames, boundary='repeat', order='cdhw')), dim=0)  # (c=4) x (d=num_frames) x (H=input_size) x (W=input_size), copy
-            
+
         except Exception as e:
             if training or validation:
                 print('[pycollector.recognition.PIP_370k._totensor][SKIPPING]: video="%s", exception="%s"' % (str(vc), str(e)))
