@@ -143,11 +143,11 @@ class Dataset():
        This class is designed to be used with vipy.batch.Batch() for massively parallel operations 
     """
 
-    def __init__(self, objlist, id=None, abspath=True):
-        objlist = vipy.util.load(objlist, abspath=abspath) if (vipy.util.isjsonfile(objlist) or vipy.util.ispklfile(objlist)) else objlist
+    def __init__(self, objlist_or_filename, id=None, abspath=True):
+        objlist = vipy.util.load(objlist_or_filename, abspath=abspath) if (vipy.util.isjsonfile(objlist_or_filename) or vipy.util.ispklfile(objlist_or_filename)) else objlist_or_filename
         assert isinstance(objlist, list), "Invalid input"
         self._saveas_ext = ['pkl', 'json']
-        self._id = uuid.uuid4().hex if id is None else id
+        self._id = id if id is not None else (vipy.util.filetail(objlist_or_filename) if isinstance(objlist_or_filename, str) else uuid.uuid4().hex)
         self._objlist = tolist(objlist)
         assert len(self._objlist) > 0, "Invalid object list"
 
@@ -475,18 +475,23 @@ class Dataset():
         return {k:v/float(n) for (k,v) in d.items()}
 
     def multilabel_inverse_frequency_weight(self):
-        fw = {k:0 for k in self.classlist()}
-        for v in self.list():
-            lbl_frequency = vipy.util.countby([a for A in v.activitylabel() for a in A], lambda x: x)  # frequency within clip
-            lbl_weight = {k:(f/float(max(1, sum(lbl_frequency.values())))) for (k,f) in lbl_frequency.items()}  # multi-label likelihood within clip, sums to one
-            for (k,w) in lbl_weight.items():
-                fw[k] += w
+        """Return an inverse frequency weight for multilabel activities, where label counts are the fractional label likelihood within a clip"""
+        assert self.is_vipy_video()
 
-        n = sum(fw.values())  
-        ifw = {k:1.0/((w/n)*len(fw)) for (k,w) in fw.items()}
-        return ifw
+        lbl_likelihood  = {k:0 for k in self.classlist()}
+        for v in self.list():
+            (ef, sf) = (max([a.endframe() for a in v.activitylist()]), min([a.startframe() for a in v.activitylist()]))  # clip length 
+            lbl_frequency = vipy.util.countby([a for A in v.activitylabel(sf, ef) for a in A], lambda x: x)  # frequency within clip
+            for (k,f) in lbl_frequency.items():
+                lbl_likelihood[k] += f/(ef-sf)
+
+        # Inverse frequency weight on label likelihood per clip
+        d = {k:1.0/max(v,1) for (k,v) in lbl_likelihood.items()}
+        n = sum(d.values())  
+        return {k:len(d)*(v/float(n)) for (k,v) in d.items()}
 
     def inverse_frequency_weight(self):
+        """Return inverse frequency weight for categories in dataset.  Useful for unbalanced class weighting during training"""
         d = {k:1.0/max(v,1) for (k,v) in self.count().items()}
         n = sum(d.values())
         return {k:len(d)*(v/float(n)) for (k,v) in d.items()}
@@ -770,4 +775,36 @@ class Dataset():
         D = self.map(f_stabilize, dst=dst)
         D.filter(lambda v: (v is not None) and (not v.hasattribute('unstabilized')))  # remove videos that failed
         return D
+    
+    def track(self, dst='tracked'):
+        return self.map(f=lambda net, v: net.track(v), dst=dst, model=pycollector.detection.MultiscaleVideoTracker())
+        
+        
+    def zip(self, other, sortkey=None):
+        """Zip two datasets.  Equivalent to zip(self, other).
 
+        >>> for (d1,d2) in D1.zip(D2, sortkey=lambda v: v.instanceid()):
+        >>>     pass
+        
+        >>> for (d1, d2) in zip(D1, D2):
+        >>>     pass
+
+        Args:
+            other: [`pycollector.dataset.Dataset`] 
+            sortkey: [lambda] sort both datasets using the provided sortkey lambda.
+        
+        Returns:
+            Generator for the tuple sequence ( (self[0], other[0]), (self[1], other[1]), ... )
+        """ 
+        assert isinstance(other, Dataset)
+        assert len(self) == len(other)
+
+        for (vi, vj) in zip(self.sort(sortkey), other.sort(sortkey)):
+            yield (vi, vj)
+
+    def sort(self, key):
+        """Sort the dataset in-place using the sortkey lambda function"""
+        if key is not None:
+            self._objlist.sort(key=key)
+        return self
+                

@@ -128,19 +128,20 @@ class Yolov5(TorchNet):
         assert objects is None or (isinstance(objects, list) and all([(k[0] if isinstance(k, tuple) else k) in self._cls2index for k in objects])), "Objects must be a list of allowable categories"
         objects = {(k[0] if isinstance(k,tuple) else k):(k[1] if isinstance(k,tuple) else k) for k in objects} if isinstance(objects, list) else objects
 
-        imlist = tolist(imlist)
-        imlistdets = []
-        t = torch.cat([im.clone(shallow=True).maxsquare().mindim(self._mindim).gain(1.0/255.0).torch() for im in imlist])  # triggers load
-        if torch.cuda.is_available() and not self.iscpu():
-            t = t.pin_memory()
+        with torch.no_grad():
+            imlist = tolist(imlist)
+            imlistdets = []
+            t = torch.cat([im.clone(shallow=True).maxsquare().mindim(self._mindim).gain(1.0/255.0).torch() for im in imlist])  # triggers load
+            if torch.cuda.is_available() and not self.iscpu():
+                t = t.pin_memory()
 
-        assert len(t) <= self.batchsize(), "Invalid batch size"
-        todevice = [b.to(d, memory_format=torch.contiguous_format, non_blocking=True) for (b,d) in zip(t.split(self._batchsize), self._devices)]  # contiguous_format required for torch-1.8.1
-        fromdevice = [m(b)[0] for (m,b) in zip(self._models, todevice)]     # detection
+            assert len(t) <= self.batchsize(), "Invalid batch size"
+            todevice = [b.to(d, memory_format=torch.contiguous_format, non_blocking=True) for (b,d) in zip(t.split(self._batchsize), self._devices)]  # contiguous_format required for torch-1.8.1
+            fromdevice = [m(b)[0] for (m,b) in zip(self._models, todevice)]     # detection
         
-        t_out = [torch.squeeze(t, dim=0) for d in fromdevice for t in torch.split(d, 1, 0)]   # unpack batch to list of detections per imag
-        t_out = [torch.cat((t[:,0:5], torch.argmax(t[:,5:], dim=1, keepdim=True)), dim=1) for t in t_out]  # filter argmax on device 
-        t_out = [t[t[:,4]>conf].cpu().numpy() for t in t_out]  # filter conf on device (this must be last)
+            t_out = [torch.squeeze(t, dim=0) for d in fromdevice for t in torch.split(d, 1, 0)]   # unpack batch to list of detections per imag
+            t_out = [torch.cat((t[:,0:5], torch.argmax(t[:,5:], dim=1, keepdim=True)), dim=1) for t in t_out]  # filter argmax on device 
+            t_out = [t[t[:,4]>conf].cpu().detach().numpy() for t in t_out]  # filter conf on device (this must be last)
 
         k_valid_objects = set([self._cls2index[k] for k in objects.keys()]) if objects is not None else self._cls2index.values()        
         for (im, dets) in zip(imlist, t_out):
@@ -210,7 +211,7 @@ class Yolov3(TorchNet):
         imlist = tolist(im)
         imlistdets = []
         t = torch.cat([im.clone().maxsquare().mindim(self._mindim).gain(1.0/255.0).torch() for im in imlist]).type(self._tensortype)  # triggers load
-        t_out = super().__call__(t).numpy()   # parallel multi-GPU evaluation, using TorchNet()
+        t_out = super().__call__(t).detach().numpy()   # parallel multi-GPU evaluation, using TorchNet()
         for (im, dets) in zip(imlist, t_out):
             k_class = np.argmax(dets[:,5:], axis=1).flatten().tolist()
             k_det = np.argwhere((dets[:,4] > conf).flatten() & np.array([((objects is None) or (self._index2cls[k] in objects.keys())) for k in k_class])).flatten().tolist()
@@ -421,10 +422,11 @@ class VideoProposal(Proposal):
         tensor = vc.flush().crop(bb, zeropad=False).maxsquare().mindim(self._mindim).torch()[::dt]  # transformed video, NxCxHxW, re-triggers load due to crop()
 
         for i in range(0, len(tensor), self.batchsize()):
-            t = tensor[i:i+self.batchsize()]
-            todevice = [b.to(d, non_blocking=True) for (b,d) in zip(t.split(self._batchsize) , self._devices)]  # async?
-            fromdevice = [m(b)[0] for (m,b) in zip(self._models, todevice)]     # detection!
-            dets = [torch.squeeze(t, dim=0).cpu().numpy() for d in fromdevice for t in torch.split(d, 1, 0)]   # unpack batch to list of detections per imag
+            with torch.no_grad():
+                t = tensor[i:i+self.batchsize()]
+                todevice = [b.to(d, non_blocking=True) for (b,d) in zip(t.split(self._batchsize) , self._devices)]  # async?
+                fromdevice = [m(b)[0] for (m,b) in zip(self._models, todevice)]     # detection!
+                dets = [torch.squeeze(t, dim=0).cpu().detach().numpy() for d in fromdevice for t in torch.split(d, 1, 0)]   # unpack batch to list of detections per imag
 
             for (j, det) in enumerate(dets):
                 # Objects in transformed video
