@@ -115,9 +115,10 @@ class TorchTensordir(torch.utils.data.Dataset):
     
        This is useful to use the default Dataset loaders in Torch.
     """
-    def __init__(self, tensordir):
+    def __init__(self, tensordir, verbose=True):
         assert os.path.isdir(tensordir)
         self._dirlist = [s for s in vipy.util.extlist(tensordir, '.pkl.bz2')]
+        self._verbose = verbose
 
     def __getitem__(self, k):
         assert k >= 0 and k < len(self._dirlist)
@@ -130,7 +131,8 @@ class TorchTensordir(torch.utils.data.Dataset):
                 return (t, lbl)
             except:
                 time.sleep(1)  # try again after a bit if another process is augmenting this .pkl.bz2 in parallel
-        print('[pycollector.dataset.TorchTensordir][WARNING]: %s corrupted or invalid' % self._dirlist[k])
+        if self._verbose:
+            print('[pycollector.dataset.TorchTensordir][WARNING]: %s corrupted or invalid' % self._dirlist[k])
         return self.__getitem__(np.random.randint(0, len(self)))  # maximum retries reached, get another one
 
     def __len__(self):
@@ -480,10 +482,11 @@ class Dataset():
 
         lbl_likelihood  = {k:0 for k in self.classlist()}
         for v in self.list():
-            (ef, sf) = (max([a.endframe() for a in v.activitylist()]), min([a.startframe() for a in v.activitylist()]))  # clip length 
-            lbl_frequency = vipy.util.countby([a for A in v.activitylabel(sf, ef) for a in A], lambda x: x)  # frequency within clip
-            for (k,f) in lbl_frequency.items():
-                lbl_likelihood[k] += f/(ef-sf)
+            if len(v.activities()) > 0:
+                (ef, sf) = (max([a.endframe() for a in v.activitylist()]), min([a.startframe() for a in v.activitylist()]))  # clip length 
+                lbl_frequency = vipy.util.countby([a for A in v.activitylabel(sf, ef) for a in A], lambda x: x)  # frequency within clip
+                for (k,f) in lbl_frequency.items():
+                    lbl_likelihood[k] += f/(ef-sf)
 
         # Inverse frequency weight on label likelihood per clip
         d = {k:1.0/max(v,1) for (k,v) in lbl_likelihood.items()}
