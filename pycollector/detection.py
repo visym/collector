@@ -25,13 +25,13 @@ class TorchNet(object):
         self._devices = ['cuda:%d' % k if k is not None and torch.cuda.is_available() and k != 'cpu' else 'cpu' for k in idlist]
         #self._tensortype = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor       
         self._tensortype = torch.FloatTensor       
-        
-        if not hasattr(self, '_gpulist') or not hasattr(self, '_models') or idlist != self._gpulist  or not hasattr(self, '_models'):
+
+        if not hasattr(self, '_gpulist') or not hasattr(self, '_models') or idlist != self._gpulist  or not hasattr(self, '_models'):        
             self._models = [copy.deepcopy(self._model).to(d, non_blocking=False) for d in self._devices]
             for (d,m) in zip(self._devices, self._models):
                 m.eval()
             self._gpulist = idlist
-        torch.set_grad_enabled(False)            
+        torch.set_grad_enabled(False)
         return self
 
     def cpu(self, batchsize=None):
@@ -111,7 +111,7 @@ class Yolov5(TorchNet):
         self._index2cls = {k:c for (c,k) in self._cls2index.items()}
 
         self._device = None
-        self._gpulist = gpu
+        #self._gpulist = gpu  # will be set in self.gpu()
         if gpu is not None:
             self.gpu(gpu, batchsize)
         else:

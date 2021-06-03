@@ -2,6 +2,7 @@ import os
 import sys
 import torch
 import vipy
+import vipy.dataset.meva
 import shutil
 import numpy as np
 from vipy.util import remkdir, filetail, readlist, tolist, filepath
@@ -279,21 +280,30 @@ class PIP_250k(pl.LightningModule, ActivityRecognition):
     
 
 
-class PIP_370k(PIP_250k):
+class PIP_370k(PIP_250k, pl.LightningModule, ActivityRecognition):
 
     def __init__(self, pretrained=True, deterministic=False, modelfile=None, mlbl=False, mlfl=False):
-        super().__init__(pretrained, deterministic, modelfile, mlbl, mlfl)
+        pl.LightningModule.__init__(self)
+        ActivityRecognition.__init__(self)  
 
+        self._input_size = 112
+        self._num_frames = 16        
+        self._mean = [0.485, 0.456, 0.406]
+        self._std = [0.229, 0.224, 0.225]
+        self._mlfl = mlfl
+        self._mlbl = mlbl
+        if deterministic:
+            np.random.seed(42)
+        
         # Generated using pycollector.dataset.Dataset(...).inverse_frequency_weight()
-        # FIXME: person_abandons_object -> person_abandons_package, but first so that index_to_class is correct
-        self._class_to_weight = {'person_abandons_object':1.0877244442917522,  'car_drops_off_person': 0.7906342671243076, 'car_moves': 0.1728924508978899, 'car_picks_up_person': 0.744591983629173, 'car_reverses': 0.5625024019501815, 'car_starts': 0.4467583886964254, 'car_stops': 0.430160839200115, 'car_turns_left': 0.727673423173566, 'car_turns_right': 0.5160523798926192, 'hand_interacts_with_person': 0.28175479108430757, 'person_abandons_package': 1.0877244442917522, 'person_carries_heavy_object': 0.5053622881142429, 'person_closes_car_door': 0.4703753885226609, 'person_closes_car_trunk': 0.6928248588612624, 'person_closes_facility_door': 0.39406002011139385, 'person_embraces_person': 0.6554117604511975, 'person_enters_car': 0.7013752531749727, 'person_enters_scene_through_structure': 0.25862362630057595, 'person_exits_car': 0.6851072146386348, 'person_exits_scene_through_structure': 0.32925713909415666, 'person_interacts_with_laptop': 0.6828671510405533, 'person_loads_car': 0.6991536349409544, 'person_opens_car_door': 0.41223348406666405, 'person_opens_car_trunk': 0.7017455482030671, 'person_opens_facility_door': 0.30336878388584076, 'person_picks_up_object': 0.43295156139207985, 'person_purchases_from_cashier': 5.43117607463826, 'person_purchases_from_machine': 5.403092038389894, 'person_puts_down_object': 0.2834290222912044, 'person_reads_document': 0.5543937051355645, 'person_rides_bicycle': 1.4689792821591197, 'person_sits_down': 0.48012898833909146, 'person_stands_up': 0.5072329086310685, 'person_steals_object': 0.9233661396296822, 'person_talks_on_phone': 0.15855166035296925, 'person_talks_to_person': 0.20891819081174015, 'person_texts_on_phone': 0.33192967224013464, 'person_transfers_object_to_car': 3.013871176772424, 'person_transfers_object_to_person': 0.6556567642566855, 'person_unloads_car': 0.5233426749492156, 'person_walks': 6.370468618664338}
+        self._class_to_weight = {'car_drops_off_person': 0.7906342671243076, 'car_moves': 0.1728924508978899, 'car_picks_up_person': 0.744591983629173, 'car_reverses': 0.5625024019501815, 'car_starts': 0.4467583886964254, 'car_stops': 0.430160839200115, 'car_turns_left': 0.727673423173566, 'car_turns_right': 0.5160523798926192, 'hand_interacts_with_person': 0.28175479108430757, 'person_abandons_package': 1.0877244442917522, 'person_carries_heavy_object': 0.5053622881142429, 'person_closes_car_door': 0.4703753885226609, 'person_closes_car_trunk': 0.6928248588612624, 'person_closes_facility_door': 0.39406002011139385, 'person_embraces_person': 0.6554117604511975, 'person_enters_car': 0.7013752531749727, 'person_enters_scene_through_structure': 0.25862362630057595, 'person_exits_car': 0.6851072146386348, 'person_exits_scene_through_structure': 0.32925713909415666, 'person_interacts_with_laptop': 0.6828671510405533, 'person_loads_car': 0.6991536349409544, 'person_opens_car_door': 0.41223348406666405, 'person_opens_car_trunk': 0.7017455482030671, 'person_opens_facility_door': 0.30336878388584076, 'person_picks_up_object': 0.43295156139207985, 'person_purchases_from_cashier': 5.43117607463826, 'person_purchases_from_machine': 5.403092038389894, 'person_puts_down_object': 0.2834290222912044, 'person_reads_document': 0.5543937051355645, 'person_rides_bicycle': 1.4689792821591197, 'person_sits_down': 0.48012898833909146, 'person_stands_up': 0.5072329086310685, 'person_steals_object': 0.9233661396296822, 'person_talks_on_phone': 0.15855166035296925, 'person_talks_to_person': 0.20891819081174015, 'person_texts_on_phone': 0.33192967224013464, 'person_transfers_object_to_car': 3.013871176772424, 'person_transfers_object_to_person': 0.6556567642566855, 'person_unloads_car': 0.5233426749492156, 'person_walks': 6.370468618664338}
 
         # Generated using pycollector.dataset.Dataset(...).class_to_index()
-        # FIXME: person_abandons_object -> person_abandons_package, but first so that index_to_class is correct
-        self._class_to_index = {'person_abandons_object': 9, 'car_drops_off_person': 0, 'car_moves': 1, 'car_picks_up_person': 2, 'car_reverses': 3, 'car_starts': 4, 'car_stops': 5, 'car_turns_left': 6, 'car_turns_right': 7, 'hand_interacts_with_person': 8, 'person_abandons_package': 9, 'person_carries_heavy_object': 10, 'person_closes_car_door': 11, 'person_closes_car_trunk': 12, 'person_closes_facility_door': 13, 'person_embraces_person': 14, 'person_enters_car': 15, 'person_enters_scene_through_structure': 16, 'person_exits_car': 17, 'person_exits_scene_through_structure': 18, 'person_interacts_with_laptop': 19, 'person_loads_car': 20, 'person_opens_car_door': 21, 'person_opens_car_trunk': 22, 'person_opens_facility_door': 23, 'person_picks_up_object': 24, 'person_purchases_from_cashier': 25, 'person_purchases_from_machine': 26, 'person_puts_down_object': 27, 'person_reads_document': 28, 'person_rides_bicycle': 29, 'person_sits_down': 30, 'person_stands_up': 31, 'person_steals_object': 32, 'person_talks_on_phone': 33, 'person_talks_to_person': 34, 'person_texts_on_phone': 35, 'person_transfers_object_to_car': 36, 'person_transfers_object_to_person': 37, 'person_unloads_car': 38, 'person_walks': 39}
+        self._class_to_index = {'car_drops_off_person': 0, 'car_moves': 1, 'car_picks_up_person': 2, 'car_reverses': 3, 'car_starts': 4, 'car_stops': 5, 'car_turns_left': 6, 'car_turns_right': 7, 'hand_interacts_with_person': 8, 'person_abandons_package': 9, 'person_carries_heavy_object': 10, 'person_closes_car_door': 11, 'person_closes_car_trunk': 12, 'person_closes_facility_door': 13, 'person_embraces_person': 14, 'person_enters_car': 15, 'person_enters_scene_through_structure': 16, 'person_exits_car': 17, 'person_exits_scene_through_structure': 18, 'person_interacts_with_laptop': 19, 'person_loads_car': 20, 'person_opens_car_door': 21, 'person_opens_car_trunk': 22, 'person_opens_facility_door': 23, 'person_picks_up_object': 24, 'person_purchases_from_cashier': 25, 'person_purchases_from_machine': 26, 'person_puts_down_object': 27, 'person_reads_document': 28, 'person_rides_bicycle': 29, 'person_sits_down': 30, 'person_stands_up': 31, 'person_steals_object': 32, 'person_talks_on_phone': 33, 'person_talks_to_person': 34, 'person_texts_on_phone': 35, 'person_transfers_object_to_car': 36, 'person_transfers_object_to_person': 37, 'person_unloads_car': 38, 'person_walks': 39}
 
         self._verb_to_noun = {k:set(['car','vehicle','motorcycle','bus','truck']) if (k.startswith('car') or k.startswith('motorcycle') or k.startswith('vehicle')) else set(['person']) for k in self.classlist()}        
         self._class_to_shortlabel = pycollector.label.pip_to_shortlabel
+        self._class_to_shortlabel.update( vipy.dataset.meva.d_category_to_shortlabel )
 
         if pretrained:
             self._load_pretrained()
@@ -312,7 +322,6 @@ class PIP_370k(PIP_250k):
                 (clipstart, clipend) = vc.cliprange()  # clip (start, end) relative to video 
                 (clipstart, clipend) = (clipstart if clipstart is not None else 0,   
                                         clipend if clipend is not None else int(np.floor(v.duration_in_frames_of_videofile() * (vc.framerate() / v.framerate_of_videofile()))))  # (yuck)
-
                 # WARNINGS: 
                 # - There exist videos with tracks outside the image rectangle due to the padding in stabilization.  
                 # - There exist MEVA videos that have no tracks at the beginning and end of the padded clip since the annotations only exist for the activity
@@ -367,7 +376,7 @@ class PIP_370k(PIP_250k):
         return f(v) if v is not None else f
 
 
-class ActivityTracker(PIP_250k):
+class ActivityTracker(PIP_370k): 
     def __init__(self, stride=1, activities=None, gpus=None, batchsize=None, mlbl=False, mlfl=False, modelfile=None):
         assert modelfile is not None
 
@@ -415,11 +424,11 @@ class ActivityTracker(PIP_250k):
         j_bg_vehicle = self._class_to_index['vehicle'] if 'vehicle' in self._class_to_index else self._class_to_index['car_moves']  # FIXME
 
         yh = x_logits.detach().cpu().numpy()
-        yh_softmax = F.softmax(x_logits.detach().cpu(), dim=1)    
+        yh_softmax = F.softmax(x_logits.detach().cpu(), dim=1)
         p_null = np.maximum(yh[:, j_bg_person], yh[:, j_bg_vehicle]).reshape(yh.shape[0], 1)
         lr = yh - p_null   # ~= log likelihood ratio
         f_logistic = lambda x,b,s=1.0: float(1.0 / (1.0 + np.exp(-s*(x + b))))
-        return [sorted([(self.index_to_class(j), s[j], t[j], f_logistic(s[j], 1.0)*f_logistic(t[j], 0.0), sm[j]) for j in range(len(s)) if t[j] >= lrt_threshold], key=lambda x: x[3], reverse=True) for (s,t,sm) in zip(yh, lr, yh_softmax)]
+        return [sorted([(self.index_to_class(j), float(s[j]), float(t[j]), f_logistic(s[j], 1.0)*f_logistic(t[j], 0.0), sm[j]) for j in range(len(s)) if t[j] >= lrt_threshold], key=lambda x: x[3], reverse=True) for (s,t,sm) in zip(yh, lr, yh_softmax)]
         
     def __call__(self, vi, topk=1, activityiou=0, mirror=False, minprob=0, trackconf=0.1, maxdets=None, lr_threshold=-2.0, lr_merge_threshold=-2.0, avgdets=None):
         (n,m) = (self.temporal_support(), self.temporal_stride())
@@ -450,7 +459,7 @@ class ActivityTracker(PIP_250k):
                     logits = self.forward(torch.stack(f_totensorlist(videotracks))) # augmented logits in track index order, copy
                     logits = f_reduce(logits, videotracks) if mirror else logits  # reduced logits in track index order
                     (actorid, actorcategory) = ([t.actorid() for t in videotracks], [t.actor().category() for t in videotracks])
-                    dets = [vipy.activity.Activity(category=aa[category], shortlabel=self._class_to_shortlabel[category], startframe=k-n, endframe=k, confidence=sm, framerate=framerate, actorid=actorid[j], attributes={'pip':category, 'lr':lr}) 
+                    dets = [vipy.activity.Activity(category=aa[category], shortlabel=self._class_to_shortlabel[category], startframe=k-n, endframe=k, confidence=sm, framerate=framerate, actorid=actorid[j], attributes={'pip':category, 'lr':float(lr)}) 
                             for (j, category_conf_lr_prob_sm) in enumerate(self.lrt(logits, lr_threshold))  # likelihood ratio test
                             for (category, conf, lr, prob, sm) in category_conf_lr_prob_sm   
                             if ((category in aa) and   # requested activities only
@@ -466,7 +475,7 @@ class ActivityTracker(PIP_250k):
 
         finally:
             # Activity probability:  noun*verb_proposal*verb probability
-            nounconf = {k:t.confidence(samples=8) for (k,t) in v.tracks().items()}
+            nounconf = {k:t.confidence(samples=8) for (k,t) in v.tracks().items()}   # will throw exception that 'v' is not set if one loop did not succceed
             v.activitymap(lambda a: a.confidence(nounconf[a.actorid()]*a.confidence()))
             
             # Bad tracks:  Remove low confidence or too short non-moving tracks
@@ -558,5 +567,3 @@ class ActivityTracker(PIP_250k):
             v.setattribute('_completed', str(datetime.now()))
 
 
-class ActivityTracker370k(PIP_370k):
-    pass
