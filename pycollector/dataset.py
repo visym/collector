@@ -138,7 +138,10 @@ class TorchTensordir(torch.utils.data.Dataset):
     def __len__(self):
         return len(self._dirlist)
 
-    
+    def filter(self, f):
+        self._dirlist = [x for x in self._dirlist if f(x)]
+        return self
+
 class Dataset():
     """pycollector.dataset.Dataset() class
     

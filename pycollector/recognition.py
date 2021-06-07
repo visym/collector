@@ -185,13 +185,15 @@ class PIP_250k(pl.LightningModule, ActivityRecognition):
 
     def validation_step(self, batch, batch_nb):
         loss = self.training_step(batch, batch_nb, logging=False, valstep=True)['loss']
-        self.log('val_loss', loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)
+        self.log('val_loss', loss, on_step=True, on_epoch=True, prog_bar=False, logger=True)
         return {'val_loss': loss}
 
-    def validation_end(self, outputs):
+    def validation_epoch_end(self, outputs):
         avg_loss = torch.stack([x['val_loss'] for x in outputs]).mean()
-        return {'avg_val_loss': avg_loss}
-    # ---- </LIGHTNING>
+        self.log('val_loss', avg_loss, on_epoch=True, prog_bar=False, logger=True)
+        self.log('avg_val_loss', avg_loss, on_epoch=True, prog_bar=True, logger=True)                
+        return {'val_loss': avg_loss, 'avg_val_loss': avg_loss}                            
+    #---- </LIGHTNING>
     
     @classmethod
     def from_checkpoint(cls, checkpointpath):
@@ -295,7 +297,7 @@ class PIP_370k(PIP_250k, pl.LightningModule, ActivityRecognition):
         if deterministic:
             np.random.seed(42)
         
-        # Generated using pycollector.dataset.Dataset(...).inverse_frequency_weight()
+        # Generated using pycollector.dataset.Dataset(...).multilabel_inverse_frequency_weight()
         self._class_to_weight = {'car_drops_off_person': 0.7906342671243076, 'car_moves': 0.1728924508978899, 'car_picks_up_person': 0.744591983629173, 'car_reverses': 0.5625024019501815, 'car_starts': 0.4467583886964254, 'car_stops': 0.430160839200115, 'car_turns_left': 0.727673423173566, 'car_turns_right': 0.5160523798926192, 'hand_interacts_with_person': 0.28175479108430757, 'person_abandons_package': 1.0877244442917522, 'person_carries_heavy_object': 0.5053622881142429, 'person_closes_car_door': 0.4703753885226609, 'person_closes_car_trunk': 0.6928248588612624, 'person_closes_facility_door': 0.39406002011139385, 'person_embraces_person': 0.6554117604511975, 'person_enters_car': 0.7013752531749727, 'person_enters_scene_through_structure': 0.25862362630057595, 'person_exits_car': 0.6851072146386348, 'person_exits_scene_through_structure': 0.32925713909415666, 'person_interacts_with_laptop': 0.6828671510405533, 'person_loads_car': 0.6991536349409544, 'person_opens_car_door': 0.41223348406666405, 'person_opens_car_trunk': 0.7017455482030671, 'person_opens_facility_door': 0.30336878388584076, 'person_picks_up_object': 0.43295156139207985, 'person_purchases_from_cashier': 5.43117607463826, 'person_purchases_from_machine': 5.403092038389894, 'person_puts_down_object': 0.2834290222912044, 'person_reads_document': 0.5543937051355645, 'person_rides_bicycle': 1.4689792821591197, 'person_sits_down': 0.48012898833909146, 'person_stands_up': 0.5072329086310685, 'person_steals_object': 0.9233661396296822, 'person_talks_on_phone': 0.15855166035296925, 'person_talks_to_person': 0.20891819081174015, 'person_texts_on_phone': 0.33192967224013464, 'person_transfers_object_to_car': 3.013871176772424, 'person_transfers_object_to_person': 0.6556567642566855, 'person_unloads_car': 0.5233426749492156, 'person_walks': 6.370468618664338}
 
         # Generated using pycollector.dataset.Dataset(...).class_to_index()
@@ -434,8 +436,8 @@ class ActivityTracker(PIP_370k):
         (n,m) = (self.temporal_support(), self.temporal_stride())
         aa = self._allowable_activities  # dictionary mapping of allowable classified activities to output names        
         f_encode = self.totensor(training=False, validation=False, show=False, doflip=False)  # video -> tensor CxNxHxW
-        f_mirror = lambda t: (t, torch.from_numpy(np.copy(np.flip(np.asarray(t), axis=3))))  # CxNxHxW -> CxNxHx(-W), np.flip is much faster than torch.flip, faster than encode mirror=True
-        f_totensor = lambda v: (f_encode(v.clone(sharedarray=True)),) if (not mirror or v.actor().category() != 'person') else f_mirror(f_encode(v.clone(sharedarray=True)))
+        f_mirror = lambda t: (t, torch.from_numpy(np.copy(np.flip(np.asarray(t), axis=3))))  # CxNxHxW -> CxNxHx(-W), np.flip is much faster than torch.flip, faster than encode mirror=True, np.flip returns a view
+        f_totensor = lambda v: (f_encode(v.clone(sharedarray=True)),) if (not mirror or v.actor().category() != 'person') else f_mirror(f_encode(v.clone(sharedarray=True)))  # do not mirror vehicle activities
         f_totensorlist = lambda V: [t for v in V for t in f_totensor(v)]        
         def f_reduce(T,V):
             j = sum([v.actor().category() == 'person' for v in V])  # person mirrored, vehicle not mirrored
