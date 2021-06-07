@@ -436,7 +436,7 @@ class ActivityTracker(PIP_370k):
         (n,m) = (self.temporal_support(), self.temporal_stride())
         aa = self._allowable_activities  # dictionary mapping of allowable classified activities to output names        
         f_encode = self.totensor(training=False, validation=False, show=False, doflip=False)  # video -> tensor CxNxHxW
-        f_mirror = lambda t: (t, torch.from_numpy(np.copy(np.flip(np.asarray(t), axis=3))))  # CxNxHxW -> CxNxHx(-W), np.flip is much faster than torch.flip, faster than encode mirror=True, np.flip returns a view
+        f_mirror = lambda t: (t, torch.from_numpy(np.copy(np.flip(np.asarray(t), axis=3))))  # CxNxHxW -> CxNxHx(-W), np.flip is much faster than torch.flip, faster than encode mirror=True, np.flip returns a view which must be copied
         f_totensor = lambda v: (f_encode(v.clone(sharedarray=True)),) if (not mirror or v.actor().category() != 'person') else f_mirror(f_encode(v.clone(sharedarray=True)))  # do not mirror vehicle activities
         f_totensorlist = lambda V: [t for v in V for t in f_totensor(v)]        
         def f_reduce(T,V):
@@ -480,7 +480,7 @@ class ActivityTracker(PIP_370k):
             nounconf = {k:t.confidence(samples=8) for (k,t) in v.tracks().items()}   # will throw exception that 'v' is not set if one loop did not succceed
             v.activitymap(lambda a: a.confidence(nounconf[a.actorid()]*a.confidence()))
             
-            # Bad tracks:  Remove low confidence or too short non-moving tracks
+            # Bad tracks:  Remove low confidence or too short non-moving tracks, and associated activities
             v.trackfilter(lambda t: len(t)>=v.framerate() and (t.confidence() >= trackconf or t.startbox().iou(t.endbox()) == 0)).activityfilter(lambda a: a.actorid() in v.tracks())  
             
             # Missing objects:  Significantly reduce confidence of complex classes (yuck)
@@ -490,7 +490,7 @@ class ActivityTracker(PIP_370k):
             v.activitymap(lambda a: a.confidence(0.1*a.confidence()) if (a.category() in ['person_talks_on_phone', 'person_texts_on_phone', 'person_reads_document', 'person_interacts_with_laptop', 'person_carries_heavy_object']) else a) 
             
             # Vehicle track:  High confidence vehicle turns must be a minimum angle
-            v.activitymap(lambda a: a.confidence(0.1*a.confidence()) if ((a.category() in ['vehicle_turns_left', 'vehicle_turns_right']) and (abs(v.track(a.actorid()).bearing_change(a.startframe(), a.endframe(), dt=v.framerate(), samples=5)) < (np.pi/4))) else a)
+            v.activitymap(lambda a: a.confidence(0.1*a.confidence()) if ((a.category() in ['vehicle_turns_left', 'vehicle_turns_right']) and (abs(v.track(a.actorid()).bearing_change(a.startframe(), a.endframe(), dt=v.framerate(), samples=5)) < (np.pi/8))) else a) # CHANGED: /4 -> /8
 
             # Vehicle track:  U-turn can only be distinguished from left/right turn at the end of a track by looking at the turn angle
             v.activitymap(lambda a: a.category('vehicle_makes_u_turn').shortlabel('u turn') if ((a.category() in ['vehicle_turns_left', 'vehicle_turns_right']) and (abs(v.track(a.actorid()).bearing_change(a.startframe(), a.endframe(), dt=v.framerate(), samples=5)) > (np.pi-(np.pi/4)))) else a)
