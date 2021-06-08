@@ -351,7 +351,8 @@ class MultiscaleVideoTracker(MultiscaleObjectDetector):
         self._gate = gate
 
     def _track(self, vi, stride=1):
-        """Yield vipy.video.Scene(), an incremental tracked result for each frame"""
+        """Yield vipy.video.Scene(), an incremental tracked result for each frame.
+        """
         assert isinstance(vi, vipy.video.Video), "Invalid input"
 
         (det, n) = (super().__call__, self._mindim)

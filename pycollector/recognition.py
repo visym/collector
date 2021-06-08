@@ -1,5 +1,6 @@
 import os
 import sys
+import random
 import torch
 import vipy
 import vipy.dataset.meva
@@ -28,7 +29,6 @@ from torchvision import transforms
 import pytorch_lightning as pl
 import json
 import math
-import random
 
 
 class ActivityRecognition(object):
@@ -236,16 +236,17 @@ class PIP_250k(pl.LightningModule, ActivityRecognition):
         try:
             v = v.download() if (not v.hasfilename() and v.hasurl()) else v  # fetch it if necessary, but do not do this during training!        
             if training or validation:
+                random.seed()  # force randomness after fork() 
                 (ai,aj) = (v.primary_activity().startframe(), v.primary_activity().endframe())  # activity (start,end)
                 (ti,tj) = (v.actor().startframe(), v.actor().endframe())  # track (start,end) 
-                startframe = np.random.randint(max(0, ti-(num_frames//2)), max(1, tj-(num_frames//2)))  # random startframe that contains track
+                startframe = random.randint(max(0, ti-(num_frames//2)), max(1, tj-(num_frames//2)))  # random startframe that contains track
                 endframe = min((startframe+num_frames), aj)  # endframe truncated to be end of activity
                 (startframe, endframe) = (startframe, endframe) if (startframe < endframe) else (max(0, aj-num_frames), aj)  # fallback
                 assert endframe - startframe <= num_frames
                 vc = v.clone().clip(startframe, endframe)    # may fail for some short clips
                 vc = vc.trackcrop(dilate=1.2, maxsquare=True)  # may be None if clip contains no track
                 vc = vc.resize(input_size, input_size)   
-                vc = vc.fliplr() if (doflip or (np.random.rand() > 0.5)) and (noflip is None or vc.category() not in noflip) else vc
+                vc = vc.fliplr() if (doflip or (random.random() > 0.5)) and (noflip is None or vc.category() not in noflip) else vc
             else:
                 vc = v.trackcrop(dilate=1.2, maxsquare=True)  # may be None if clip contains no track
                 vc = vc.resize(input_size, input_size)  # TESTING: this may introduce a preview()
@@ -321,6 +322,7 @@ class PIP_370k(PIP_250k, pl.LightningModule, ActivityRecognition):
             v = v.download() if (v.hasurl() and not v.hasfilename()) else v  # fetch it if necessary, but do not do this during training!        
             vc = v.clone()
             if training or validation:
+                random.seed()  # force randomness after fork() 
                 (clipstart, clipend) = vc.cliprange()  # clip (start, end) relative to video 
                 (clipstart, clipend) = (clipstart if clipstart is not None else 0,   
                                         clipend if clipend is not None else int(np.floor(v.duration_in_frames_of_videofile() * (vc.framerate() / v.framerate_of_videofile()))))  # (yuck)
@@ -329,11 +331,16 @@ class PIP_370k(PIP_250k, pl.LightningModule, ActivityRecognition):
                 # - There exist MEVA videos that have no tracks at the beginning and end of the padded clip since the annotations only exist for the activity
                 # - There exist MEVA videos with activities that are longer than the tracks, if so, keep the interval of the activity that contains the track
 
+                # - turning activities may be outside the frame (filter these)
+                # - turning activities may turn into the stabilized black area.  Is this avoidaable?
+                # - all of the training activities should be centered on the activity.  See if not.
+                # - why are the pip tracks so jerky?  (only for montage, needs to be resampled)
+                
                 if (clipend - clipstart) > (num_frames + stride_jitter):
                     a = vc.primary_activity().clone().padto(num_frames/float(vc.framerate()))  # for context only, may be past end of clip now!
                     (ai, aj) = (a.startframe(), a.endframe())  # activity (start,end) relative to (clipstart, clipend)
-                    (ai, aj) = (max(ai, vc.actor().startframe()-num_frames//2), min(aj, vc.actor().endframe()+num_frames//2))  # clip activity to when actor is present
-                    startframe = np.random.randint(ai, aj-num_frames-1) if aj-num_frames-1 > ai else ai
+                    (ai, aj) = (max(ai, vc.actor().startframe()), min(aj, vc.actor().endframe()))  # clip activity to when actor is present
+                    startframe = random.randint(ai, aj-num_frames-1) if aj-num_frames-1 > ai else ai
                     startframe = max(0, startframe + random.randint(-stride_jitter, stride_jitter))   # +/- 3 frames jitter for activity stride
                     endframe = min(clipend-clipstart-1, startframe + num_frames)  # new end cannot be past duration of clip
                     if (endframe > startframe) and ((endframe - startframe) < (clipend - clipstart)):
@@ -342,7 +349,7 @@ class PIP_370k(PIP_250k, pl.LightningModule, ActivityRecognition):
                         raise ValueError('invalid clip for "%s"' % str(v))
                 vc = vc.trackcrop(dilate=1.2, maxsquare=True)  # may be None if clip contains no track
                 vc = vc.resize(input_size, input_size)   
-                vc = vc.fliplr() if (doflip or ((np.random.rand() > 0.5) and (noflip is None or vc.category() not in noflip))) else vc
+                vc = vc.fliplr() if (doflip or (random.random() > 0.5)) and (noflip is None or vc.category() not in noflip) else vc
             else:
                 vc = vc.trackcrop(dilate=1.2, maxsquare=True)  # may be None if clip contains no track
                 vc = vc.resize(input_size, input_size)  # This may introduce a preview()
@@ -432,8 +439,8 @@ class ActivityTracker(PIP_370k):
         f_logistic = lambda x,b,s=1.0: float(1.0 / (1.0 + np.exp(-s*(x + b))))
         return [sorted([(self.index_to_class(j), float(s[j]), float(t[j]), f_logistic(s[j], 1.0)*f_logistic(t[j], 0.0), sm[j]) for j in range(len(s)) if t[j] >= lrt_threshold], key=lambda x: x[3], reverse=True) for (s,t,sm) in zip(yh, lr, yh_softmax)]
         
-    def __call__(self, vi, topk=1, activityiou=0, mirror=False, minprob=0, trackconf=0.1, maxdets=None, lr_threshold=-2.0, lr_merge_threshold=-2.0, avgdets=None):
-        (n,m) = (self.temporal_support(), self.temporal_stride())
+    def __call__(self, vi, topk=1, activityiou=0, mirror=False, minprob=0, trackconf=0.1, maxdets=None, lr_threshold=-2.0, lr_merge_threshold=-2.0, avgdets=None, throttle=False):
+        (n,m,dt) = (self.temporal_support(), self.temporal_stride(), 1)  
         aa = self._allowable_activities  # dictionary mapping of allowable classified activities to output names        
         f_encode = self.totensor(training=False, validation=False, show=False, doflip=False)  # video -> tensor CxNxHxW
         f_mirror = lambda t: (t, torch.from_numpy(np.copy(np.flip(np.asarray(t), axis=3))))  # CxNxHxW -> CxNxHx(-W), np.flip is much faster than torch.flip, faster than encode mirror=True, np.flip returns a view which must be copied
@@ -445,39 +452,41 @@ class ActivityTracker(PIP_370k):
             return torch.cat((torch.mean(tm.view(-1, 2, tm.shape[1]), dim=1), t), dim=0) if j>0 else T  # mean over mirror augmentation
         
         try:
-            vp = next(vi)  # peek in generator to create clip
-            vi = itertools.chain([vp], vi)  # unpeek
-            sw = vipy.util.Stopwatch()  # real-time framerate estimate
-            framerate = vp.framerate()
-            for (k, (v,vc)) in enumerate(zip(vi, vp.stream().clip(n, m, continuous=True, activities=False))):
-                videotracks = [] if vc is None else [vt for vt in vc.trackfilter(lambda t: len(t)>=4 and (t.category() == 'person' or (t.category() == 'vehicle' and v.track(t.id()).ismoving(k-10*n, k)))).tracksplit()]  # vehicle moved recently?
-                videotracks.sort(key=lambda v: v.actor().confidence(last=1))  # in-place
-                numdets = (maxdets if ((avgdets is None) or (sw.duration()<=60) or ((sw.duration()>60) and ((k/sw.duration())/vp.framerate())>0.8)) else
-                           (avgdets if ((k/sw.duration())/vp.framerate())>0.67 else int(avgdets//2)))   # real-time throttle schedule
-                videotracks = videotracks[-numdets:] if (numdets is not None and len(videotracks)>numdets) else videotracks   # select only the most confident for detection
-                videotracks.sort(key=lambda v: v.actor().category())  # in-place, for grouping mirrored encoding: person<vehicle
+            with torch.no_grad():                                
+                vp = next(vi)  # peek in generator to create clip
+                vi = itertools.chain([vp], vi)  # unpeek
+                sw = vipy.util.Stopwatch() if throttle else None  # real-time framerate estimate
+                framerate = vp.framerate()
+                for (k, (v,vc)) in enumerate(zip(vi, vp.stream().clip(n, m, continuous=True, activities=False, delay=dt))):
+                    videotracks = [] if vc is None else [vt for vt in vc.trackfilter(lambda t: len(t)>=4 and (t.category() == 'person' or (t.category() == 'vehicle' and v.track(t.id()).ismoving(k-10*n+dt, k+dt)))).tracksplit()]  # vehicle moved recently?
+                    videotracks.sort(key=lambda v: v.actor().confidence(last=1))  # in-place                    
+                    if throttle:
+                        numdets = (maxdets if ((avgdets is None) or (sw.duration()<=60) or ((sw.duration()>60) and ((k/sw.duration())/vp.framerate())>0.8)) else
+                                   (avgdets if ((k/sw.duration())/vp.framerate())>0.67 else int(avgdets//2)))   # real-time throttle schedule
+                        videotracks = videotracks[-numdets:] if (numdets is not None and len(videotracks)>numdets) else videotracks   # select only the most confident for detection                
+                    videotracks.sort(key=lambda v: v.actor().category())  # in-place, for grouping mirrored encoding: person<vehicle
                 
-                if len(videotracks)>0 and (k > n):
-                    logits = self.forward(torch.stack(f_totensorlist(videotracks))) # augmented logits in track index order, copy
-                    logits = f_reduce(logits, videotracks) if mirror else logits  # reduced logits in track index order
-                    (actorid, actorcategory) = ([t.actorid() for t in videotracks], [t.actor().category() for t in videotracks])
-                    dets = [vipy.activity.Activity(category=aa[category], shortlabel=self._class_to_shortlabel[category], startframe=k-n, endframe=k, confidence=sm, framerate=framerate, actorid=actorid[j], attributes={'pip':category, 'lr':float(lr)}) 
-                            for (j, category_conf_lr_prob_sm) in enumerate(self.lrt(logits, lr_threshold))  # likelihood ratio test
-                            for (category, conf, lr, prob, sm) in category_conf_lr_prob_sm   
-                            if ((category in aa) and   # requested activities only
-                                (actorcategory[j] in self._verb_to_noun[category]) and   # noun matching with category renaming dictionary
-                                prob>minprob)]   # minimum probability for new activity detection
-                    v.assign(k, [d for d in dets if d.attributes['lr'] >= lr_merge_threshold], activityiou=activityiou, activitymerge=True)   # assign new activity detections by merging overlapping activities with weighted average of probability
-                    added = [v.add(d, rangecheck=False) for d in dets if d.attributes['lr'] < lr_merge_threshold]   # create new activity detections for extremely low confidence detections, no clone
-                    del logits, dets, videotracks  # torch garabage collection
-                yield v
+                    if len(videotracks)>0 and (k+dt > n):
+                        logits = self.forward(torch.stack(f_totensorlist(videotracks))) # augmented logits in track index order, copy
+                        logits = f_reduce(logits, videotracks) if mirror else logits  # reduced logits in track index order
+                        (actorid, actorcategory) = ([t.actorid() for t in videotracks], [t.actor().category() for t in videotracks])
+                        dets = [vipy.activity.Activity(category=aa[category], shortlabel=self._class_to_shortlabel[category], startframe=k-n+dt, endframe=k+dt, confidence=sm, framerate=framerate, actorid=actorid[j], attributes={'pip':category, 'lr':float(lr)}) 
+                                for (j, category_conf_lr_prob_sm) in enumerate(self.lrt(logits, lr_threshold))  # likelihood ratio test
+                                for (category, conf, lr, prob, sm) in category_conf_lr_prob_sm   
+                                if ((category in aa) and   # requested activities only
+                                    (actorcategory[j] in self._verb_to_noun[category]) and   # noun matching with category renaming dictionary
+                                    prob>minprob)]   # minimum probability for new activity detection
+                        v.assign(k+dt, [d for d in dets if d.attributes['lr'] >= lr_merge_threshold], activityiou=activityiou, activitymerge=True)   # assign new activity detections by merging overlapping activities with weighted average of probability
+                        added = [v.add(d, rangecheck=False, frame=k+dt) for d in dets if d.attributes['lr'] < lr_merge_threshold]   # create new activity detections for extremely low confidence detections, no clone
+                        del logits, dets, videotracks  # torch garabage collection
+                    yield v
 
         except Exception as e:                
             raise
 
         finally:
             # Activity probability:  noun*verb_proposal*verb probability
-            nounconf = {k:t.confidence(samples=8) for (k,t) in v.tracks().items()}   # will throw exception that 'v' is not set if one loop did not succceed
+            nounconf = {k:t.confidence(samples=8) for (k,t) in v.tracks().items()}   # will throw exception that 'v is referenced before assignment' if one loop did not succceed
             v.activitymap(lambda a: a.confidence(nounconf[a.actorid()]*a.confidence()))
             
             # Bad tracks:  Remove low confidence or too short non-moving tracks, and associated activities

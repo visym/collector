@@ -114,26 +114,32 @@ class TorchTensordir(torch.utils.data.Dataset):
     """A torch dataset stored as a directory of .pkl.bz2 files each containing a list of [(tensor, str=json.dumps(label)), ...] tuples used for data augmented training.
     
        This is useful to use the default Dataset loaders in Torch.
+    
+    .. note:: Use python random() and not numpy random 
     """
-    def __init__(self, tensordir, verbose=True):
+    def __init__(self, tensordir, verbose=True, reseed=True):
         assert os.path.isdir(tensordir)
         self._dirlist = [s for s in vipy.util.extlist(tensordir, '.pkl.bz2')]
         self._verbose = verbose
+        self._reseed = reseed
 
     def __getitem__(self, k):
+        if self._reseed:
+            random.seed()  # force randomness after fork()
+
         assert k >= 0 and k < len(self._dirlist)
-        for j in range(0,2):
+        for j in range(0,3):
             try:
                 obj = vipy.util.bz2pkl(self._dirlist[k])  # load me
                 assert len(obj) > 0, "Invalid augmentation"
-                (t, lbl) = obj[np.random.randint(0, len(obj))]  # choose one tensor at random
+                (t, lbl) = obj[random.randint(0, len(obj))]  # choose one tensor at random
                 assert t is not None and json.loads(lbl) is not None, "Invalid augmentation"  # get another one if the augmentation was invalid
                 return (t, lbl)
             except:
                 time.sleep(1)  # try again after a bit if another process is augmenting this .pkl.bz2 in parallel
         if self._verbose:
             print('[pycollector.dataset.TorchTensordir][WARNING]: %s corrupted or invalid' % self._dirlist[k])
-        return self.__getitem__(np.random.randint(0, len(self)))  # maximum retries reached, get another one
+        return self.__getitem__(random.randint(0, len(self)))  # maximum retries reached, get another one
 
     def __len__(self):
         return len(self._dirlist)
@@ -676,7 +682,7 @@ class Dataset():
         assert self.is_vipy_scene()
         outdir = vipy.util.remkdir(outdir)
         B = vipy.util.chunklist(self._objlist, n_chunks)
-        vipy.batch.Batch(B, as_completed=True, minscatter=1).map(lambda V, f=f_video_to_tensor, outdir=outdir, n_augmentations=n_augmentations: [vipy.util.bz2pkl(os.path.join(outdir, '%s.pkl.bz2' % v.instanceid()), [f(v) for k in range(0, n_augmentations)]) for v in V])
+        vipy.batch.Batch(B, as_completed=True, minscatter=1).map(lambda V, f=f_video_to_tensor, outdir=outdir, n_augmentations=n_augmentations: [vipy.util.bz2pkl(os.path.join(outdir, '%s.pkl.bz2' % v.instanceid()), [f(v.clone()) for k in range(0, n_augmentations)]) for v in V])
         return TorchTensordir(outdir)
 
     def annotate(self, outdir, mindim=512):
