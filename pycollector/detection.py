@@ -131,11 +131,11 @@ class Yolov5(TorchNet):
         with torch.no_grad():
             imlist = tolist(imlist)
             imlistdets = []
-            t = torch.cat([im.clone(shallow=True).maxsquare().mindim(self._mindim).gain(1.0/255.0).torch() for im in imlist])  # triggers load
+            t = torch.cat([im.clone(shallow=True).maxsquare().mindim(self._mindim).gain(1.0/255.0).torch(order='NCHW') for im in imlist])  # triggers load
             if torch.cuda.is_available() and not self.iscpu():
                 t = t.pin_memory()
 
-            assert len(t) <= self.batchsize(), "Invalid batch size"
+            assert len(t) <= self.batchsize(), "Invalid batch size: %d > %d" % (len(t), self.batchsize())
             todevice = [b.to(d, memory_format=torch.contiguous_format, non_blocking=True) for (b,d) in zip(t.split(self._batchsize), self._devices)]  # contiguous_format required for torch-1.8.1
             fromdevice = [m(b)[0] for (m,b) in zip(self._models, todevice)]     # detection
         
@@ -210,7 +210,7 @@ class Yolov3(TorchNet):
 
         imlist = tolist(im)
         imlistdets = []
-        t = torch.cat([im.clone().maxsquare().mindim(self._mindim).gain(1.0/255.0).torch() for im in imlist]).type(self._tensortype)  # triggers load
+        t = torch.cat([im.clone().maxsquare().mindim(self._mindim).gain(1.0/255.0).torch(order='NCHW') for im in imlist]).type(self._tensortype)  # triggers load
         t_out = super().__call__(t).detach().numpy()   # parallel multi-GPU evaluation, using TorchNet()
         for (im, dets) in zip(imlist, t_out):
             k_class = np.argmax(dets[:,5:], axis=1).flatten().tolist()
