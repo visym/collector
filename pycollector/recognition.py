@@ -495,18 +495,18 @@ class ActivityTracker(PIP_370k):
             vo.activitymap(lambda a: a.confidence(0.01*a.confidence()) if (a.category() in ['person_steals_object', 'person_abandons_package', 'person_purchases']) else a) 
 
             # Missing objects:  Reduce confidence of classes without an associated object detection
-            vo.activitymap(lambda a: a.confidence(0.1*a.confidence()) if (a.category() in ['person_talks_on_phone', 'person_texts_on_phone', 'person_reads_document', 'person_interacts_with_laptop', 'person_carries_heavy_object']) else a) 
+            #vo.activitymap(lambda a: a.confidence(0.1*a.confidence()) if (a.category() in ['person_talks_on_phone', 'person_texts_on_phone', 'person_reads_document', 'person_interacts_with_laptop', 'person_carries_heavy_object']) else a) 
             
             # Vehicle track:  High confidence vehicle turns must be a minimum angle
-            vo.activitymap(lambda a: a.confidence(0.1*a.confidence()) if ((a.category() in ['vehicle_turns_left', 'vehicle_turns_right']) and (abs(vo.track(a.actorid()).bearing_change(a.startframe(), a.endframe(), dt=vo.framerate(), samples=5)) < (np.pi/8))) else a) # CHANGED: /4 -> /8
+            vo.activitymap(lambda a: a.confidence(0.1*a.confidence()) if ((a.category() in ['vehicle_turns_left', 'vehicle_turns_right']) and (abs(vo.track(a.actorid()).bearing_change(a.startframe(), a.endframe(), dt=vo.framerate(), samples=5)) < (np.pi/8))) else a) 
 
             # Vehicle track:  U-turn can only be distinguished from left/right turn at the end of a track by looking at the turn angle
-            vo.activitymap(lambda a: a.category('vehicle_makes_u_turn').shortlabel('u turn') if ((a.category() in ['vehicle_turns_left', 'vehicle_turns_right']) and (abs(vo.track(a.actorid()).bearing_change(a.startframe(), a.endframe(), dt=vo.framerate(), samples=5)) > (np.pi-(np.pi/4)))) else a)
+            vo.activitymap(lambda a: a.category('vehicle_makes_u_turn').shortlabel('u turn') if ((a.category() in ['vehicle_turns_left', 'vehicle_turns_right']) and (abs(vo.track(a.actorid()).bearing_change(a.startframe(), a.endframe(), dt=vo.framerate(), samples=5)) > (np.pi-(np.pi/2)))) else a)
 
             # Vehicle track: Starts and stops must be at most 5 seconds (yuck)
-            vo.activitymap(lambda a: a.truncate(a.startframe(), a.startframe()+vo.framerate()*5) if a.category() in ['vehicle_starts', 'vehicle_reverses'] else a)
-            vo.activitymap(lambda a: a.truncate(a.endframe()-5*vo.framerate(), a.endframe()) if a.category() == 'vehicle_stops' else a)
-            vo.activitymap(lambda a: a.truncate(a.middleframe()-2.5*vo.framerate(), a.middleframe()+2.5*vo.framerate()) if a.category() in ['vehicle_turns_left', 'vehicle_turns_right', 'vehicle_makes_u_turn'] else a)   
+            #vo.activitymap(lambda a: a.truncate(a.startframe(), a.startframe()+vo.framerate()*5) if a.category() in ['vehicle_starts', 'vehicle_reverses'] else a)
+            #vo.activitymap(lambda a: a.truncate(a.endframe()-5*vo.framerate(), a.endframe()) if a.category() == 'vehicle_stops' else a)
+            #vo.activitymap(lambda a: a.truncate(a.middleframe()-2.5*vo.framerate(), a.middleframe()+2.5*vo.framerate()) if a.category() in ['vehicle_turns_left', 'vehicle_turns_right', 'vehicle_makes_u_turn'] else a)   
 
             # Group activity: Must be accompanied by a friend with the same activity detection
             categories = ['person_embraces_person', 'hand_interacts_with_person', 'person_talks_to_person', 'person_transfers_object']           
