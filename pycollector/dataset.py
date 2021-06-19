@@ -8,7 +8,6 @@ import vipy
 import vipy.util
 import shutil
 import uuid
-from pathlib import PurePath
 import warnings
 import copy 
 import atexit
@@ -18,7 +17,6 @@ from vipy.batch import Batch
 import hashlib
 import torch.utils.data
 from torch.utils.data import DataLoader, random_split
-import bz2
 import pickle
 import time
 import json
@@ -471,10 +469,19 @@ class Dataset():
         self._objlist = [x for v in self._objlist for x in f(v)]
         return self
     
-    def count(self):
-        """Counts for each label"""
+    def count(self, f=None):
+        """Counts for each label.  
+        
+        Args:
+            f: [lambda] if provided, count the number of elements that return true.  This is the same as len(self.filter(f)) without modifying the dataset.
+
+        Returns:
+            A dictionary of counts per category [if f is None]
+            A length of elements that satisfy f(v) = True [if f is not None]
+        """
         assert self.isvipy()
-        return vipy.util.countby(self.list(), lambda v: v.category())
+        assert f is None or callable(f)
+        return vipy.util.countby(self.list(), lambda v: v.category()) if f is None else len([v for v in self if f(v)])
 
     def frequency(self):
         return self.count()
