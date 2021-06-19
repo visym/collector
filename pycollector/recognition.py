@@ -584,6 +584,7 @@ class ActivityTracker(PIP_370k):
             vo.activitymap(lambda a: a.padto(5) if a.category() in ['person_talks_to_person', 'person_interacts_with_laptop', 'person_reads_document', 'person_purchases'] else a)   
             vo.activitymap(lambda a: a.duration(2, centered=False) if a.category() in ['person_opens_vehicle_door', 'person_closes_vehicle_door'] else a)
             vo.activitymap(lambda a: a.duration(2, centered=True) if a.category() in ['person_enters_scene_through_structure', 'person_exits_scene_through_structure'] else a)
+            vo.activitymap(lambda a: a.startframe(0) if a.startframe() < 0 else a)
             
             # Done!
             vo.setattribute('_completed', str(datetime.now()))
