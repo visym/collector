@@ -493,11 +493,8 @@ class ActivityTracker(PIP_370k):
             vo.trackfilter(lambda t: len(t)>=vo.framerate() and (t.confidence() >= trackconf or t.startbox().iou(t.endbox()) == 0)).activityfilter(lambda a: a.actorid() in vo.tracks())  
             
             # Missing objects:  Significantly reduce confidence of complex classes (yuck)
-            vo.activitymap(lambda a: a.confidence(0.01*a.confidence()) if (a.category() in ['person_steals_object', 'person_abandons_package', 'person_purchases']) else a) 
+            vo.activitymap(lambda a: a.confidence(0.01*a.confidence()) if (a.category() in ['person_steals_object', 'person_purchases']) else a) 
 
-            # Missing objects:  Reduce confidence of classes without an associated object detection
-            #vo.activitymap(lambda a: a.confidence(0.1*a.confidence()) if (a.category() in ['person_talks_on_phone', 'person_texts_on_phone', 'person_reads_document', 'person_interacts_with_laptop', 'person_carries_heavy_object']) else a) 
-            
             # Vehicle turns:  High confidence vehicle turns must be a minimum angle
             vo.activitymap(lambda a: a.confidence(0.1*a.confidence()) if ((a.category() in ['vehicle_turns_left', 'vehicle_turns_right']) and (abs(vo.track(a.actorid()).bearing_change(a.startframe(), a.endframe(), dt=vo.framerate(), samples=5)) < (np.pi/8))) else a) 
 
@@ -538,7 +535,7 @@ class ActivityTracker(PIP_370k):
             vo.activitymap(lambda a: a.confidence(0.1*a.confidence()) if (a.category() == 'person_exits_scene_through_structure' and vo.track(a.actorid())[min(a.endframe(), vo.track(a.actorid()).endframe())].cover(boundary) < 1) else a)
                         
             # Activity union:  Temporal gaps less than support should be merged into one activity detection for a single track
-            # Activity union:  "Brief" breaks of confident activities should be merged into one activity detection for a single track
+            # Activity union:  "Brief" breaks (<5 seconds) of confident activities should be merged into one activity detection for a single track
             briefmerge = set(['person_reads_document', 'person_interacts_with_laptop', 'person_talks_to_person', 'person_purchases', 'person_steals_object', 'person_talks_on_phone', 'person_texts_on_phone', 'person_rides_bicycle', 'person_carries_heavy_object', 'person', 'person_walks', 'vehicle', 'car_moves'])  
             merged = set([])
             mergeable_dets = [a for a in vo.activities().values() if a.confidence() > 0.2]  # only mergeable detections
@@ -546,7 +543,7 @@ class ActivityTracker(PIP_370k):
             for a in mergeable_dets:
                 for o in mergeable_dets:
                     if ((o._startframe >= a._startframe) and (a._id != o._id) and (o._actorid == a._actorid) and (o._label == a._label) and (o._id not in merged) and (a._id not in merged) and
-                        ((a.temporal_distance(o) <= self.temporal_support() or (a.category() in briefmerge and a.temporal_distance(o) < 10*vo.framerate())))):
+                        ((a.temporal_distance(o) <= self.temporal_support() or (a.category() in briefmerge and a.temporal_distance(o) < 5*vo.framerate())))):
                         a.union(o)  # in-place update
                         merged.add(o.id())
             vo.activityfilter(lambda a: a.id() not in merged)
@@ -576,7 +573,8 @@ class ActivityTracker(PIP_370k):
                             o._id not in suppressed and  # not already suppressed
                             o.during_interval(a.startframe(), a.endframe()) and # overlaps temporally by at least one frame
                             (activitybox[a._id] is not None and activitybox[o._id] is not None) and   # has valid tracks
-                            (activitybox[a._id].hasintersection(activitybox[o._id]))):  # overlaps spatially "close by"
+                            activitybox[a._id].hasintersection(activitybox[o._id]) and  # has coarse overlap 
+                            vo.track(a.actorid()).clone().maxsquare().dilate(1.2).segment_maxiou(vo.track(o.actorid()), a.startframe(), a.endframe()) > 0):  # has fine overlap "close by"
                             suppressed.add(o.id())  # greedy non-maximum suppression of lower confidence activity detection
             vo.activityfilter(lambda a: a.id() not in suppressed)
 
