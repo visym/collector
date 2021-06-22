@@ -20,6 +20,7 @@ from torch.utils.data import DataLoader, random_split
 import pickle
 import time
 import json
+import dill
 
     
 def disjoint_activities(V, activitylist):    
@@ -98,14 +99,27 @@ class TorchDataset(torch.utils.data.Dataset):
     """Converter from a pycollector dataset to a torch dataset"""
     def __init__(self, f_transformer, d):
         assert isinstance(d, Dataset), "Invalid input"
-        self._dataset = d
-        self._f_transformer = f_transformer
+        assert callable(f_transformer), "Invalid input"
+        self._f_transformer = dill.dumps(f_transformer)  # for torch serialization of lambda functions        
+        self.dataset = d
+        
+    def _unpack(self):
+        if isinstance(self._f_transformer, bytes):
+            self._f_transformer = dill.loads(self._f_transformer)        
+        return self
 
+    def __iter__(self):
+        for k in range(len(self)):
+            yield self[k]
+            
     def __getitem__(self, k):
-        return self._f_transformer(self._dataset[k])
+        """Should return tuple(tensor, index)"""
+        x = self._unpack()._f_transformer(self.dataset[k])
+        assert isinstance(x, tuple) and len(x) == 2 and isinstance(x[0], torch.Tensor) and isinstance(x[1], int)
+        return x
 
     def __len__(self):
-        return len(self._dataset)
+        return len(self.dataset)
 
 
 class TorchTensordir(torch.utils.data.Dataset):
@@ -309,7 +323,9 @@ class Dataset():
         return self.classlist()
     def categories(self):
         return self.classlist()
-
+    def num_classes(self):
+        return len(self.classlist())
+    
     def class_to_index(self):
         return {v:k for (k,v) in enumerate(self.classlist())}
 
