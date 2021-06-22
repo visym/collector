@@ -471,7 +471,7 @@ class ActivityTracker(PIP_370k):
                         logits = self.forward(torch.stack(f_totensorlist(videotracks))) # augmented logits in track index order, copy
                         logits = f_reduce(logits, videotracks) if mirror else logits  # reduced logits in track index order
                         (actorid, actorcategory) = ([t.actorid() for t in videotracks], [t.actor().category() for t in videotracks])
-                        dets = [vipy.activity.Activity(category=aa[category], shortlabel=self._class_to_shortlabel[category], startframe=k-n+dt, endframe=k+dt, confidence=sm, framerate=framerate, actorid=actorid[j], attributes={'pip':category, 'lr':float(lr)}) 
+                        dets = [vipy.activity.Activity(category=aa[category], shortlabel=self._class_to_shortlabel[category], startframe=k-n+dt, endframe=k+dt, confidence=sm, framerate=framerate, actorid=actorid[j], attributes={'pip':category, 'logit':float(conf)}) 
                                 for (j, category_conf_lr_prob_sm) in enumerate(self.lrt(logits, lr_threshold))  # likelihood ratio test
                                 for (category, conf, lr, prob, sm) in category_conf_lr_prob_sm   
                                 if ((category in aa) and   # requested activities only
@@ -485,22 +485,26 @@ class ActivityTracker(PIP_370k):
             raise
 
         finally:
+            # Bad tracks:  Remove low confidence or too short non-moving tracks, and associated activities
+            vo.trackfilter(lambda t: len(t)>=vo.framerate() and (t.confidence() >= trackconf or t.startbox().iou(t.endbox()) == 0)).activityfilter(lambda a: a.actorid() in vo.tracks())  
+                        
             # Activity probability:  noun_probability*verb probability
             nounconf = {k:t.confidence(samples=8) for (k,t) in vo.tracks().items()}   # will throw exception that 'vo referenced before assignment' if one loop did not succceed
             vo.activitymap(lambda a: a.confidence(nounconf[a.actorid()]*a.confidence()))
             
-            # Bad tracks:  Remove low confidence or too short non-moving tracks, and associated activities
-            vo.trackfilter(lambda t: len(t)>=vo.framerate() and (t.confidence() >= trackconf or t.startbox().iou(t.endbox()) == 0)).activityfilter(lambda a: a.actorid() in vo.tracks())  
-            
             # Missing objects:  Significantly reduce confidence of complex classes (yuck)
-            vo.activitymap(lambda a: a.confidence(0.01*a.confidence()) if (a.category() in ['person_steals_object', 'person_purchases']) else a) 
+            vo.activitymap(lambda a: a.confidence(0.01*a.confidence()) if (a.category() in ['person_purchases']) else a) 
 
             # Vehicle turns:  High confidence vehicle turns must be a minimum angle
-            vo.activitymap(lambda a: a.confidence(0.1*a.confidence()) if ((a.category() in ['vehicle_turns_left', 'vehicle_turns_right']) and (abs(vo.track(a.actorid()).bearing_change(a.startframe(), a.endframe(), dt=vo.framerate(), samples=5)) < (np.pi/8))) else a) 
+            vo.activitymap(lambda a: a.confidence(0.1*a.confidence()) if ((a.category() in ['vehicle_turns_left', 'vehicle_turns_right']) and (abs(vo.track(a.actorid()).bearing_change(a.startframe(), a.endframe(), dt=vo.framerate(), samples=5)) < (np.pi/16))) else a) 
 
             # Vehicle turns:  U-turn can only be distinguished from left/right turn at the end of a track by looking at the turn angle
             vo.activitymap(lambda a: a.category('vehicle_makes_u_turn').shortlabel('u turn') if ((a.category() in ['vehicle_turns_left', 'vehicle_turns_right']) and (abs(vo.track(a.actorid()).bearing_change(a.startframe(), a.endframe(), dt=vo.framerate(), samples=5)) > (np.pi-(np.pi/2)))) else a)
 
+            # Background activities:  Use logistic confidence on logit due to lack of background class "person stands", otherwise every standing person is using a phone
+            f_logistic = lambda x,b,s=1.0: float(1.0 / (1.0 + np.exp(-s*(x + b))))
+            vo.activitymap(lambda a: a.confidence(a.confidence()*f_logistic(a.attributes['logit'], -1.5)) if a.category() in ['person_talks_on_phone', 'person_texts_on_phone', 'person_abandons_package', 'person_steals_object'] else a)
+            
             # Vehicle motion: start and stop must be accompanied by a minimum track acceleration/deceleration
             vo.activitymap(lambda a: a.confidence(0.1*a.confidence()) if (a.category() in ['vehicle_starts', 'vehicle_stops'] and abs(vo.track(a.actorid()).acceleration(a.middleframe(), dt=vo.framerate())) < 1) else a)
             
@@ -516,7 +520,7 @@ class ActivityTracker(PIP_370k):
             
             # Person/Bicycle track: riding must be accompanied by an associated moving bicycle track
             vo.activityfilter(lambda a: a.category() != 'person_rides_bicycle')
-            bikelist = [vo.add(vipy.activity.Activity(startframe=t.startframe(), endframe=t.endframe(), category='person_rides_bicycle', shortlabel='rides', confidence=t.confidence(samples=8), framerate=vo.framerate(), actorid=t.id(), attributes={'pip':'person_rides_bicycle', 'lr':lr_merge_threshold}))
+            bikelist = [vo.add(vipy.activity.Activity(startframe=t.startframe(), endframe=t.endframe(), category='person_rides_bicycle', shortlabel='rides', confidence=t.confidence(samples=8), framerate=vo.framerate(), actorid=t.id(), attributes={'pip':'person_rides_bicycle'}))
                         for (tk,t) in vo.tracks().items() if t.category() == 'bicycle' and t.ismoving()]
 
             # Person/Vehicle track: person/vehicle interaction must be accompanied by an associated stopped vehicle track
