@@ -503,10 +503,12 @@ class ActivityTracker(PIP_370k):
 
             # Background activities:  Use logistic confidence on logit due to lack of background class "person stands", otherwise every standing person is using a phone
             f_logistic = lambda x,b,s=1.0: float(1.0 / (1.0 + np.exp(-s*(x + b))))
-            vo.activitymap(lambda a: a.confidence(a.confidence()*f_logistic(a.attributes['logit'], -1.5)) if a.category() in ['person_talks_on_phone', 'person_texts_on_phone', 'person_abandons_package', 'person_steals_object'] else a)
+            #vo.activitymap(lambda a: a.confidence(a.confidence()*f_logistic(a.attributes['logit'], -1.5)) if a.category() in ['person_talks_on_phone', 'person_texts_on_phone', 'person_abandons_package', 'person_steals_object'] else a)
+            vo.activitymap(lambda a: a.confidence(a.confidence()*f_logistic(a.attributes['logit'], -1.5)))  # TESTING
             
             # Vehicle motion: start and stop must be accompanied by a minimum track acceleration/deceleration
             vo.activitymap(lambda a: a.confidence(0.1*a.confidence()) if (a.category() in ['vehicle_starts', 'vehicle_stops'] and abs(vo.track(a.actorid()).acceleration(a.middleframe(), dt=vo.framerate())) < 1) else a)
+            vo.activitymap(lambda a: a.padto(5).offset(int(1.5*vo.framerate())) if a.category() == 'vehicle_starts' else (a.padto(5).offset(-int(1.5*vo.framerate())) if a.category() == 'vehicle_stops' else a))
             
             # Vehicle/person interaction: 'vehicle_drops_off_person'/'vehicle_picks_up_person'  must be followed by car driving away/pulling up, must be accompanied by person track start/end
             vo.activitymap(lambda a: a.confidence(0.1*a.confidence()) if (a.category() == 'vehicle_drops_off_person' and
