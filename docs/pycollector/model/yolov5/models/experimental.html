@@ -25,7 +25,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/experimental.py#L0-L152" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/models/experimental.py#L0-L152" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python"># This file contains experimental modules
 
@@ -197,7 +197,7 @@ def attempt_load(weights, map_location=None):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/experimental.py#L132-L153" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/models/experimental.py#L132-L153" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def attempt_load(weights, map_location=None):
     # Loads an ensemble of models weights=[a,b,c] or a single model weights=[a] or weights=a
@@ -259,7 +259,7 @@ evaluation mode.
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/experimental.py#L25-L41" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/models/experimental.py#L25-L41" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class C3(nn.Module):
     # Cross Convolution CSP
@@ -312,7 +312,7 @@ registered hooks while the latter silently ignores them.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/experimental.py#L38-L41" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/models/experimental.py#L38-L41" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def forward(self, x):
     y1 = self.cv3(self.m(self.cv1(x)))
@@ -353,7 +353,7 @@ evaluation mode.
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/experimental.py#L11-L22" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/models/experimental.py#L11-L22" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class CrossConv(nn.Module):
     # Cross Convolution Downsample
@@ -401,7 +401,7 @@ registered hooks while the latter silently ignores them.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/experimental.py#L21-L22" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/models/experimental.py#L21-L22" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def forward(self, x):
     return x + self.cv2(self.cv1(x)) if self.add else self.cv2(self.cv1(x))</code></pre>
@@ -438,7 +438,7 @@ modules it contains are properly registered, and will be visible by all
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/experimental.py#L117-L129" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/models/experimental.py#L117-L129" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Ensemble(nn.ModuleList):
     # Ensemble of models
@@ -488,7 +488,7 @@ registered hooks while the latter silently ignores them.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/experimental.py#L122-L129" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/models/experimental.py#L122-L129" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def forward(self, x, augment=False):
     y = []
@@ -533,7 +533,7 @@ evaluation mode.
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/experimental.py#L78-L90" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/models/experimental.py#L78-L90" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class GhostBottleneck(nn.Module):
     # Ghost Bottleneck https://github.com/huawei-noah/ghostnet
@@ -582,7 +582,7 @@ registered hooks while the latter silently ignores them.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/experimental.py#L89-L90" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/models/experimental.py#L89-L90" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def forward(self, x):
     return self.conv(x) + self.shortcut(x)</code></pre>
@@ -621,7 +621,7 @@ evaluation mode.
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/experimental.py#L65-L75" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/models/experimental.py#L65-L75" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class GhostConv(nn.Module):
     # Ghost Convolution https://github.com/huawei-noah/ghostnet
@@ -668,7 +668,7 @@ registered hooks while the latter silently ignores them.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/experimental.py#L73-L75" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/models/experimental.py#L73-L75" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def forward(self, x):
     y = self.cv1(x)
@@ -708,7 +708,7 @@ evaluation mode.
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/experimental.py#L93-L114" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/models/experimental.py#L93-L114" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class MixConv2d(nn.Module):
     # Mixed Depthwise Conv https://arxiv.org/abs/1907.09595
@@ -766,7 +766,7 @@ registered hooks while the latter silently ignores them.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/experimental.py#L113-L114" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/models/experimental.py#L113-L114" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def forward(self, x):
     return x + self.act(self.bn(torch.cat([m(x) for m in self.m], 1)))</code></pre>
@@ -805,7 +805,7 @@ evaluation mode.
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/experimental.py#L44-L62" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/models/experimental.py#L44-L62" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Sum(nn.Module):
     # Weighted sum of 2 or more layers https://arxiv.org/abs/1911.09070
@@ -860,7 +860,7 @@ registered hooks while the latter silently ignores them.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/experimental.py#L53-L62" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/models/experimental.py#L53-L62" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def forward(self, x):
     y = x[0]  # no weight

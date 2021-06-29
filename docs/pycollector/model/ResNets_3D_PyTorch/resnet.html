@@ -25,7 +25,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/ResNets_3D_PyTorch/resnet.py#L0-L233" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/ResNets_3D_PyTorch/resnet.py#L0-L233" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">import math
 from functools import partial
@@ -278,7 +278,7 @@ def generate_model(model_depth, **kwargs):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/ResNets_3D_PyTorch/resnet.py#L22-L27" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/ResNets_3D_PyTorch/resnet.py#L22-L27" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def conv1x1x1(in_planes, out_planes, stride=1):
     return nn.Conv3d(in_planes,
@@ -296,7 +296,7 @@ def generate_model(model_depth, **kwargs):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/ResNets_3D_PyTorch/resnet.py#L13-L19" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/ResNets_3D_PyTorch/resnet.py#L13-L19" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def conv3x3x3(in_planes, out_planes, stride=1):
     return nn.Conv3d(in_planes,
@@ -315,7 +315,7 @@ def generate_model(model_depth, **kwargs):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/ResNets_3D_PyTorch/resnet.py#L216-L234" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/ResNets_3D_PyTorch/resnet.py#L216-L234" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def generate_model(model_depth, **kwargs):
     assert model_depth in [10, 18, 34, 50, 101, 152, 200]
@@ -346,7 +346,7 @@ def generate_model(model_depth, **kwargs):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/ResNets_3D_PyTorch/resnet.py#L9-L10" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/ResNets_3D_PyTorch/resnet.py#L9-L10" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def get_inplanes():
     return [64, 128, 256, 512]</code></pre>
@@ -388,7 +388,7 @@ evaluation mode.
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/ResNets_3D_PyTorch/resnet.py#L30-L60" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/ResNets_3D_PyTorch/resnet.py#L30-L60" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class BasicBlock(nn.Module):
     expansion = 1
@@ -459,7 +459,7 @@ registered hooks while the latter silently ignores them.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/ResNets_3D_PyTorch/resnet.py#L44-L60" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/ResNets_3D_PyTorch/resnet.py#L44-L60" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def forward(self, x):
     residual = x
@@ -513,7 +513,7 @@ evaluation mode.
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/ResNets_3D_PyTorch/resnet.py#L63-L99" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/ResNets_3D_PyTorch/resnet.py#L63-L99" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Bottleneck(nn.Module):
     expansion = 4
@@ -590,7 +590,7 @@ registered hooks while the latter silently ignores them.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/ResNets_3D_PyTorch/resnet.py#L79-L99" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/ResNets_3D_PyTorch/resnet.py#L79-L99" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def forward(self, x):
     residual = x
@@ -648,7 +648,7 @@ evaluation mode.
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/ResNets_3D_PyTorch/resnet.py#L102-L213" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/ResNets_3D_PyTorch/resnet.py#L102-L213" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ResNet(nn.Module):
 
@@ -796,7 +796,7 @@ registered hooks while the latter silently ignores them.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/ResNets_3D_PyTorch/resnet.py#L196-L213" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/ResNets_3D_PyTorch/resnet.py#L196-L213" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def forward(self, x):
     x = self.conv1(x)

@@ -25,7 +25,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L0-L844" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L0-L844" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">import os
 import numpy as np
@@ -889,7 +889,7 @@ class Dataset():
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L35-L94" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L35-L94" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def asmeva(V):
     &#34;&#34;&#34;Convert a list of collector.dataset.Video() to MEVA annotation style&#34;&#34;&#34;
@@ -961,7 +961,7 @@ class Dataset():
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L26-L32" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L26-L32" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def disjoint_activities(V, activitylist):    
     assert all([isinstance(v, vipy.video.Video) for v in V])
@@ -987,7 +987,7 @@ class Dataset():
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L163-L844" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L163-L844" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Dataset():
     &#34;&#34;&#34;pycollector.dataset.Dataset() class
@@ -1682,7 +1682,7 @@ class Dataset():
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L711-L714" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L711-L714" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def annotate(self, outdir, mindim=512):
     assert self.isvipy()
@@ -1729,7 +1729,7 @@ Usually "videos".
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L225-L282" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L225-L282" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def archive(self, tarfile, delprefix, mediadir=&#39;&#39;, format=&#39;json&#39;, castas=vipy.video.Scene, verbose=False, extrafiles=None, novideos=False):
     &#34;&#34;&#34;Create a archive file for this dataset.  This will be archived as:
@@ -1799,7 +1799,7 @@ Usually "videos".
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L383-L386" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L383-L386" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def augment(self, f, n_augmentations):
     assert n_augmentations &gt;= 1
@@ -1815,7 +1815,7 @@ Usually "videos".
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L797-L804" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L797-L804" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def boundingbox_refinement(self, dst=&#39;boundingbox_refinement&#39;, batchsize=1, dt=3, minlength=5, f_savepkl=None):        
     &#34;&#34;&#34;Must be connected to dask scheduler such that each machine has GPU resources&#34;&#34;&#34;
@@ -1835,7 +1835,7 @@ Usually "videos".
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L324-L325" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L324-L325" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def categories(self):
     return self.classlist()</code></pre>
@@ -1849,7 +1849,7 @@ Usually "videos".
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L329-L330" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L329-L330" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def class_to_index(self):
     return {v:k for (k,v) in enumerate(self.classlist())}</code></pre>
@@ -1863,7 +1863,7 @@ Usually "videos".
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L322-L323" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L322-L323" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def classes(self):
     return self.classlist()</code></pre>
@@ -1877,7 +1877,7 @@ Usually "videos".
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L318-L320" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L318-L320" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def classlist(self):
     assert self.isvipy(), &#34;Invalid input&#34;
@@ -1892,7 +1892,7 @@ Usually "videos".
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L222-L223" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L222-L223" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def clone(self):
     return copy.deepcopy(self)</code></pre>
@@ -1906,7 +1906,7 @@ Usually "videos".
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L534-L547" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L534-L547" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def collectors(self, outfile=None):
     assert self.isvipy()
@@ -1942,7 +1942,7 @@ A length of elements that satisfy f(v) = True [if f is not None]</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L488-L500" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L488-L500" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def count(self, f=None):
     &#34;&#34;&#34;Counts for each label.  
@@ -1967,7 +1967,7 @@ A length of elements that satisfy f(v) = True [if f is not None]</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L349-L350" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L349-L350" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def countby(self, f):
     return len([v for v in self._objlist if f(v)])</code></pre>
@@ -1981,7 +1981,7 @@ A length of elements that satisfy f(v) = True [if f is not None]</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L345-L347" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L345-L347" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def dedupe(self, key):
     self._objlist = list({key(v):v for v in self._objlist}.values())
@@ -1996,7 +1996,7 @@ A length of elements that satisfy f(v) = True [if f is not None]</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L602-L609" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L602-L609" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def density(self, outfile=None):
     assert self.isvipy()
@@ -2016,7 +2016,7 @@ A length of elements that satisfy f(v) = True [if f is not None]</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L558-L575" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L558-L575" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def device(self, outfile=None, n=24, fontsize=7):
     assert self.isvipy()
@@ -2046,7 +2046,7 @@ A length of elements that satisfy f(v) = True [if f is not None]</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L357-L361" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L357-L361" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def difference(self, other, key):
     assert isinstance(other, Dataset), &#34;invalid input&#34;
@@ -2063,7 +2063,7 @@ A length of elements that satisfy f(v) = True [if f is not None]</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L577-L583" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L577-L583" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def duration_in_frames(self, outfile=None):
     assert self.isvipy()
@@ -2082,7 +2082,7 @@ A length of elements that satisfy f(v) = True [if f is not None]</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L585-L591" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L585-L591" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def duration_in_seconds(self, outfile=None):
     assert self.isvipy()
@@ -2101,7 +2101,7 @@ A length of elements that satisfy f(v) = True [if f is not None]</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L388-L390" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L388-L390" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def filter(self, f):
     self._objlist = [v for v in self._objlist if f(v)]
@@ -2116,7 +2116,7 @@ A length of elements that satisfy f(v) = True [if f is not None]</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L484-L486" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L484-L486" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def flatmap(self, f):
     self._objlist = [x for v in self._objlist for x in f(v)]
@@ -2131,7 +2131,7 @@ A length of elements that satisfy f(v) = True [if f is not None]</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L206-L208" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L206-L208" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def flatten(self):
     self._objlist = [o for objlist in self._objlist for o in vipy.util.tolist(objlist)]
@@ -2146,7 +2146,7 @@ A length of elements that satisfy f(v) = True [if f is not None]</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L593-L599" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L593-L599" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def framerate(self, outfile=None):
     assert self.isvipy()
@@ -2165,7 +2165,7 @@ A length of elements that satisfy f(v) = True [if f is not None]</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L502-L503" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L502-L503" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def frequency(self):
     return self.count()</code></pre>
@@ -2179,7 +2179,7 @@ A length of elements that satisfy f(v) = True [if f is not None]</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L363-L364" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L363-L364" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def has(self, val, key):
     return any([key(obj) == val for obj in self._objlist])</code></pre>
@@ -2193,7 +2193,7 @@ A length of elements that satisfy f(v) = True [if f is not None]</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L194-L199" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L194-L199" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def id(self, n=None):
     if n is None:
@@ -2211,7 +2211,7 @@ A length of elements that satisfy f(v) = True [if f is not None]</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L332-L333" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L332-L333" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def index_to_class(self):
     return {v:k for (k,v) in self.class_to_index().items()}</code></pre>
@@ -2226,7 +2226,7 @@ Useful for unbalanced class weighting during training</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L528-L532" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L528-L532" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def inverse_frequency_weight(self):
     &#34;&#34;&#34;Return inverse frequency weight for categories in dataset.  Useful for unbalanced class weighting during training&#34;&#34;&#34;
@@ -2243,7 +2243,7 @@ Useful for unbalanced class weighting during training</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L219-L220" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L219-L220" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def is_vipy_scene(self):
     return self.istype([vipy.video.Scene])</code></pre>
@@ -2257,7 +2257,7 @@ Useful for unbalanced class weighting during training</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L216-L217" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L216-L217" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def is_vipy_video(self):
     return self.istype([vipy.video.Video])</code></pre>
@@ -2271,7 +2271,7 @@ Useful for unbalanced class weighting during training</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L210-L211" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L210-L211" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def istype(self, validtype):
     return all([any([isinstance(v,t) for t in tolist(validtype)]) for v in self._objlist]), &#34;invalid type - must be %s&#34; % str(validtype)            </code></pre>
@@ -2285,7 +2285,7 @@ Useful for unbalanced class weighting during training</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L213-L214" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L213-L214" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def isvipy(self):
     return self.istype([vipy.image.Image, vipy.video.Video])</code></pre>
@@ -2299,7 +2299,7 @@ Useful for unbalanced class weighting during training</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L335-L336" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L335-L336" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def label_to_index(self):
     return self.class_to_index()</code></pre>
@@ -2313,7 +2313,7 @@ Useful for unbalanced class weighting during training</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L201-L202" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L201-L202" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def list(self):
     return self._objlist</code></pre>
@@ -2327,7 +2327,7 @@ Useful for unbalanced class weighting during training</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L480-L482" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L480-L482" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def localmap(self, f):
     self._objlist = [f(v) for v in self._objlist]
@@ -2346,7 +2346,7 @@ Useful for unbalanced class weighting during training</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L465-L478" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L465-L478" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def map(self, f_transform, model=None, dst=None, checkpoint=False, strict=False, ascompleted=True):        
     &#34;&#34;&#34;Distributed map.
@@ -2372,7 +2372,7 @@ Useful for unbalanced class weighting during training</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L373-L381" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L373-L381" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def merge(self, other, outdir, selfdir, otherdir):
     assert isinstance(other, Dataset), &#34;invalid input&#34;
@@ -2393,7 +2393,7 @@ Useful for unbalanced class weighting during training</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L511-L526" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L511-L526" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def multilabel_inverse_frequency_weight(self):
     &#34;&#34;&#34;Return an inverse frequency weight for multilabel activities, where label counts are the fractional label likelihood within a clip&#34;&#34;&#34;
@@ -2421,7 +2421,7 @@ Useful for unbalanced class weighting during training</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L326-L327" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L326-L327" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def num_classes(self):
     return len(self.classlist())</code></pre>
@@ -2435,7 +2435,7 @@ Useful for unbalanced class weighting during training</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L549-L556" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L549-L556" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def os(self, outfile=None):
     assert self.isvipy()
@@ -2455,7 +2455,7 @@ Useful for unbalanced class weighting during training</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L505-L509" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L505-L509" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def percentage(self):
     &#34;&#34;&#34;Fraction of dataset for each label&#34;&#34;&#34;
@@ -2472,7 +2472,7 @@ Useful for unbalanced class weighting during training</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L338-L339" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L338-L339" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def powerset(self):
     return list(sorted(set([tuple(sorted(list(a))) for v in self._objlist for a in v.activitylabel() if len(a) &gt; 0])))        </code></pre>
@@ -2486,7 +2486,7 @@ Useful for unbalanced class weighting during training</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L341-L343" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L341-L343" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def powerset_to_index(self):        
     assert self.isvipy(), &#34;Invalid input&#34;
@@ -2501,7 +2501,7 @@ Useful for unbalanced class weighting during training</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L366-L371" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L366-L371" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def replace(self, other, key):
     &#34;&#34;&#34;Replace elements in self with other with equality detemrined by the key lambda function&#34;&#34;&#34;
@@ -2519,7 +2519,7 @@ Useful for unbalanced class weighting during training</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L284-L316" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L284-L316" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def save(self, outfile, nourl=False, castas=None, relpath=False, noadmin=False, strict=True, significant_digits=2, noemail=True, flush=True):    
     n = len([v for v in self._objlist if v is None])
@@ -2564,7 +2564,7 @@ Useful for unbalanced class weighting during training</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L840-L844" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L840-L844" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def sort(self, key):
     &#34;&#34;&#34;Sort the dataset in-place using the sortkey lambda function&#34;&#34;&#34;
@@ -2581,7 +2581,7 @@ Useful for unbalanced class weighting during training</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L434-L459" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L434-L459" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def split(self, trainfraction=0.9, valfraction=0.1, testfraction=0, seed=42):
     &#34;&#34;&#34;Split the dataset by category by fraction so that video IDs are never in the same set&#34;&#34;&#34;
@@ -2619,7 +2619,7 @@ Useful for unbalanced class weighting during training</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L806-L812" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L806-L812" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def stabilize(self, f_saveas, dst=&#39;stabilize&#39;, padwidthfrac=1.0, padheightfrac=0.2):
     from vipy.flow import Flow
@@ -2638,7 +2638,7 @@ Useful for unbalanced class weighting during training</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L612-L693" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L612-L693" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def stats(self, outdir=None, object_categories=[&#39;Person&#39;, &#39;Car&#39;], plot=True):
     &#34;&#34;&#34;Analyze the dataset to return helpful statistics and plots&#34;&#34;&#34;
@@ -2732,7 +2732,7 @@ Useful for unbalanced class weighting during training</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L428-L429" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L428-L429" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def take(self, n, category=None, canload=False):
     return Dataset(self.takelist(n, category=category, canload=canload))</code></pre>
@@ -2746,7 +2746,7 @@ Useful for unbalanced class weighting during training</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L431-L432" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L431-L432" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def take_per_category(self, n, id=None, canload=False):
     return Dataset([v for c in self.categories() for v in self.takelist(n, category=c, canload=canload)], id=id)</code></pre>
@@ -2771,7 +2771,7 @@ Useful for unbalanced class weighting during training</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L395-L408" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L395-L408" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def takefilter(self, f, n=1):
     &#34;&#34;&#34;Apply the lambda function f and return n elements in a list where the filter returns true
@@ -2797,7 +2797,7 @@ Useful for unbalanced class weighting during training</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L416-L426" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L416-L426" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def takelist(self, n, category=None, canload=False):
     assert n &gt;= 0, &#34;Invalid length&#34;
@@ -2820,7 +2820,7 @@ Useful for unbalanced class weighting during training</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L410-L414" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L410-L414" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def to_jsondir(self, outdir):
     print(&#39;[pycollector.dataset]: exporting %d json files to &#34;%s&#34;...&#39; % (len(self), outdir))
@@ -2837,7 +2837,7 @@ Useful for unbalanced class weighting during training</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L695-L697" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L695-L697" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def to_torch(self, f_video_to_tensor):
     &#34;&#34;&#34;Return a torch dataset that will apply the lambda function f_video_to_tensor to each element in the dataset on demand&#34;&#34;&#34;
@@ -2853,7 +2853,7 @@ Useful for unbalanced class weighting during training</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L699-L709" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L699-L709" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def to_torch_tensordir(self, f_video_to_tensor, outdir, n_augmentations=20, n_chunks=512):
     &#34;&#34;&#34;Return a TorchTensordir dataset that will load a pkl.bz2 file that contains one of n_augmentations (tensor, label) pairs.
@@ -2876,7 +2876,7 @@ Useful for unbalanced class weighting during training</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L461-L463" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L461-L463" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def tocsv(self, csvfile=None):
     csv = [v.csv() for v in self.list]        
@@ -2891,7 +2891,7 @@ Useful for unbalanced class weighting during training</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L716-L735" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L716-L735" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def tohtml(self, outfile, mindim=512, title=&#39;Visualization&#39;, fraction=1.0, display=False, clip=True, activities=True, category=True):
     &#34;&#34;&#34;Generate a standalone HTML file containing quicklooks for each annotated activity in dataset, along with some helpful provenance information for where the annotation came from&#34;&#34;&#34;
@@ -2923,7 +2923,7 @@ Useful for unbalanced class weighting during training</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L203-L204" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L203-L204" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def tolist(self):
     return self._objlist</code></pre>
@@ -2937,7 +2937,7 @@ Useful for unbalanced class weighting during training</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L814-L815" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L814-L815" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def track(self, dst=&#39;tracked&#39;):
     return self.map(f=lambda net, v: net.track(v), dst=dst, model=pycollector.detection.MultiscaleVideoTracker())</code></pre>
@@ -2951,7 +2951,7 @@ Useful for unbalanced class weighting during training</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L352-L355" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L352-L355" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def union(self, other, key=None):
     assert isinstance(other, Dataset), &#34;invalid input&#34;
@@ -2967,7 +2967,7 @@ Useful for unbalanced class weighting during training</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L392-L393" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L392-L393" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def valid(self):
     return self.filter(lambda v: v is not None)</code></pre>
@@ -3019,7 +3019,7 @@ If None, then the max duration is the duration of the longest element.</dd>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L738-L794" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L738-L794" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def video_montage(self, outfile, gridrows=30, gridcols=50, mindim=64, bycategory=False, category=None, annotate=True, trackcrop=False, transpose=False, max_duration=None, framerate=30, fontsize=8):
     &#34;&#34;&#34;30x50 activity montage, each 64x64 elements.
@@ -3104,7 +3104,7 @@ Equivalent to zip(self, other).</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L818-L838" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L818-L838" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def zip(self, other, sortkey=None):
     &#34;&#34;&#34;Zip two datasets.  Equivalent to zip(self, other).
@@ -3140,7 +3140,7 @@ Equivalent to zip(self, other).</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L98-L122" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L98-L122" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class TorchDataset(torch.utils.data.Dataset):
     &#34;&#34;&#34;Converter from a pycollector dataset to a torch dataset&#34;&#34;&#34;
@@ -3187,7 +3187,7 @@ Equivalent to zip(self, other).</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L125-L161" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L125-L161" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class TorchTensordir(torch.utils.data.Dataset):
     &#34;&#34;&#34;A torch dataset stored as a directory of .pkl.bz2 files each containing a list of [(tensor, str=json.dumps(label)), ...] tuples used for data augmented training.
@@ -3242,7 +3242,7 @@ Equivalent to zip(self, other).</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/dataset.py#L159-L161" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/dataset.py#L159-L161" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def filter(self, f):
     self._dirlist = [x for x in self._dirlist if f(x)]
