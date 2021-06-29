@@ -25,7 +25,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/face/detection.py#L0-L548" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/face/detection.py#L0-L548" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">import numpy as np
 import os
@@ -593,7 +593,7 @@ class FaceRCNN(object):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/face/detection.py#L33-L35" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/face/detection.py#L33-L35" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def log_info(s):
     if VERBOSE:
@@ -614,7 +614,7 @@ class FaceRCNN(object):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/face/detection.py#L38-L549" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/face/detection.py#L38-L549" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class FaceRCNN(object):
     &#34;Wrapper for PyTorch RCNN detector&#34;
@@ -1139,7 +1139,7 @@ class FaceRCNN(object):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/face/detection.py#L483-L501" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/face/detection.py#L483-L501" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def bbox_transform(self, ex_rois, gt_rois):
     ex_widths = ex_rois[:, 2] - ex_rois[:, 0] + 1.0
@@ -1170,7 +1170,7 @@ class FaceRCNN(object):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/face/detection.py#L503-L534" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/face/detection.py#L503-L534" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def bbox_transform_inv(self, boxes, deltas):
     if boxes is None or boxes.shape[0] == 0:
@@ -1214,7 +1214,7 @@ class FaceRCNN(object):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/face/detection.py#L536-L549" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/face/detection.py#L536-L549" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def clip_boxes(self, boxes, im_shape):
     &#34;&#34;&#34;
@@ -1240,7 +1240,7 @@ class FaceRCNN(object):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/face/detection.py#L114-L271" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/face/detection.py#L114-L271" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def detect(self, image, padding=0, min_face_size=DIM_THRESH):
     &#34;Run detection on a numpy image, with specified padding and min size&#34;
@@ -1410,7 +1410,7 @@ class FaceRCNN(object):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/face/detection.py#L109-L111" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/face/detection.py#L109-L111" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def dets_to_scene(img, dets):
     &#34;&#34;&#34;Convert detections returned from this object to a vipy.image.Scene object&#34;&#34;&#34;
@@ -1433,7 +1433,7 @@ boxes (ndarray): R x (4*K) array of predicted bounding boxes</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/face/detection.py#L412-L480" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/face/detection.py#L412-L480" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def im_detect(self, net, im, boxes=None):
     &#34;&#34;&#34;Detect object classes in an image given object proposals.
@@ -1514,7 +1514,7 @@ boxes (ndarray): R x (4*K) array of predicted bounding boxes</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/face/detection.py#L274-L320" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/face/detection.py#L274-L320" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def select_from_rotated(self, det_lists, start_time):
     &#34;Given that we tried rotating the image, select the best rotation to use&#34;

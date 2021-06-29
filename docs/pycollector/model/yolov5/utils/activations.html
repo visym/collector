@@ -25,7 +25,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/utils/activations.py#L0-L71" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/utils/activations.py#L0-L71" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python"># Activation functions
 
@@ -141,7 +141,7 @@ evaluation mode.
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/utils/activations.py#L65-L72" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/utils/activations.py#L65-L72" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class FReLU(nn.Module):
     def __init__(self, c1, k=3):  # ch_in, kernel
@@ -185,7 +185,7 @@ registered hooks while the latter silently ignores them.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/utils/activations.py#L71-L72" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/utils/activations.py#L71-L72" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def forward(self, x):
     return torch.max(x, self.bn(self.conv(x)))</code></pre>
@@ -223,7 +223,7 @@ evaluation mode.
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/utils/activations.py#L15-L19" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/utils/activations.py#L15-L19" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Hardswish(nn.Module):  # export-friendly version of nn.Hardswish()
     @staticmethod
@@ -264,7 +264,7 @@ registered hooks while the latter silently ignores them.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/utils/activations.py#L16-L19" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/utils/activations.py#L16-L19" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@staticmethod
 def forward(x):
@@ -304,7 +304,7 @@ evaluation mode.
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/utils/activations.py#L46-L61" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/utils/activations.py#L46-L61" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class MemoryEfficientMish(nn.Module):
     class F(torch.autograd.Function):
@@ -389,7 +389,7 @@ registered hooks while the latter silently ignores them.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/utils/activations.py#L60-L61" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/utils/activations.py#L60-L61" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def forward(self, x):
     return self.F.apply(x)</code></pre>
@@ -427,7 +427,7 @@ evaluation mode.
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/utils/activations.py#L22-L36" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/utils/activations.py#L22-L36" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class MemoryEfficientSwish(nn.Module):
     class F(torch.autograd.Function):
@@ -511,7 +511,7 @@ registered hooks while the latter silently ignores them.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/utils/activations.py#L35-L36" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/utils/activations.py#L35-L36" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def forward(self, x):
     return self.F.apply(x)</code></pre>
@@ -549,7 +549,7 @@ evaluation mode.
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/utils/activations.py#L40-L43" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/utils/activations.py#L40-L43" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Mish(nn.Module):
     @staticmethod
@@ -589,7 +589,7 @@ registered hooks while the latter silently ignores them.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/utils/activations.py#L41-L43" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/utils/activations.py#L41-L43" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@staticmethod
 def forward(x):
@@ -628,7 +628,7 @@ evaluation mode.
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/utils/activations.py#L9-L12" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/utils/activations.py#L9-L12" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Swish(nn.Module):  #
     @staticmethod
@@ -668,7 +668,7 @@ registered hooks while the latter silently ignores them.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/utils/activations.py#L10-L12" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/utils/activations.py#L10-L12" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@staticmethod
 def forward(x):

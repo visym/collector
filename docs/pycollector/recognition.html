@@ -25,7 +25,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/recognition.py#L0-L595" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/recognition.py#L0-L595" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">import os
 import sys
@@ -641,7 +641,7 @@ class ActivityTracker(PIP_370k):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/recognition.py#L34-L88" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/recognition.py#L34-L88" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ActivityRecognition(object):
     def __init__(self, pretrained=True):
@@ -714,7 +714,7 @@ class ActivityTracker(PIP_370k):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/recognition.py#L64-L66" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/recognition.py#L64-L66" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def activity(self, video, threshold=None):
     (c,s) = zip(*self.label_confidence(video=video, threshold=None))
@@ -729,7 +729,7 @@ class ActivityTracker(PIP_370k):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/recognition.py#L84-L88" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/recognition.py#L84-L88" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def binary_vector(self, categories):
     y = np.zeros(len(self.classlist())).astype(np.float32)
@@ -746,7 +746,7 @@ class ActivityTracker(PIP_370k):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/recognition.py#L40-L41" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/recognition.py#L40-L41" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def class_to_index(self, c=None):
     return self._class_to_index if c is None else self._class_to_index[c]</code></pre>
@@ -760,7 +760,7 @@ class ActivityTracker(PIP_370k):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/recognition.py#L47-L48" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/recognition.py#L47-L48" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def classlist(self):
     return [k for (k,v) in sorted(list(self.class_to_index().items()), key=lambda x: x[0])]  # sorted in index order</code></pre>
@@ -774,7 +774,7 @@ class ActivityTracker(PIP_370k):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/recognition.py#L53-L56" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/recognition.py#L53-L56" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def fromindex(self, k):
     index_to_class = {v:k for (k,v) in self.class_to_index().items()}
@@ -790,7 +790,7 @@ class ActivityTracker(PIP_370k):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/recognition.py#L43-L45" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/recognition.py#L43-L45" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def index_to_class(self, index=None):
     d = {v:k for (k,v) in self.class_to_index().items()}
@@ -805,7 +805,7 @@ class ActivityTracker(PIP_370k):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/recognition.py#L58-L62" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/recognition.py#L58-L62" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def label_confidence(self, video=None, tensor=None, threshold=None):
     raise
@@ -822,7 +822,7 @@ class ActivityTracker(PIP_370k):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/recognition.py#L50-L51" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/recognition.py#L50-L51" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def num_classes(self):
     return len(self.classlist())</code></pre>
@@ -836,7 +836,7 @@ class ActivityTracker(PIP_370k):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/recognition.py#L78-L79" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/recognition.py#L78-L79" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def temporal_support(self):
     return self._num_frames</code></pre>
@@ -850,7 +850,7 @@ class ActivityTracker(PIP_370k):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/recognition.py#L68-L70" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/recognition.py#L68-L70" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def top1(self, video=None, tensor=None, threshold=None):
     raise
@@ -865,7 +865,7 @@ class ActivityTracker(PIP_370k):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/recognition.py#L72-L76" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/recognition.py#L72-L76" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def topk(self, k, video=None, tensor=None, threshold=None):
     raise
@@ -882,7 +882,7 @@ class ActivityTracker(PIP_370k):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/recognition.py#L81-L82" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/recognition.py#L81-L82" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def totensor(self, training=False):
     raise</code></pre>
@@ -899,7 +899,7 @@ class ActivityTracker(PIP_370k):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/recognition.py#L389-L594" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/recognition.py#L389-L594" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ActivityTracker(PIP_370k): 
     def __init__(self, stride=1, activities=None, gpus=None, batchsize=None, mlbl=False, mlfl=False, modelfile=None):
@@ -1145,7 +1145,7 @@ Don't use torch DataParallel!</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/recognition.py#L415-L429" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/recognition.py#L415-L429" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def forward(self, x):
     &#34;&#34;&#34;Overload forward for multi-gpu batch.  Don&#39;t use torch DataParallel!&#34;&#34;&#34;
@@ -1172,7 +1172,7 @@ Don't use torch DataParallel!</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/recognition.py#L431-L441" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/recognition.py#L431-L441" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def lrt(self, x_logits, lrt_threshold):
     &#34;&#34;&#34;top-k with likelihood ratio test with background null hypothesis&#34;&#34;&#34;
@@ -1195,7 +1195,7 @@ Don't use torch DataParallel!</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/recognition.py#L408-L413" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/recognition.py#L408-L413" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def temporal_stride(self, s=None):
     if s is not None:
@@ -1228,7 +1228,7 @@ Don't use torch DataParallel!</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/recognition.py#L92-L282" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/recognition.py#L92-L282" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class PIP_250k(pl.LightningModule, ActivityRecognition):
     &#34;&#34;&#34;Activity recognition using people in public - 250k stabilized&#34;&#34;&#34;
@@ -1460,7 +1460,7 @@ Don't use torch DataParallel!</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/recognition.py#L198-L200" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/recognition.py#L198-L200" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@classmethod
 def from_checkpoint(cls, checkpointpath):
@@ -1478,7 +1478,7 @@ def from_checkpoint(cls, checkpointpath):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/recognition.py#L121-L123" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/recognition.py#L121-L123" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def category(self, x):
     yh = self.forward(x if x.ndim == 5 else torch.unsqueeze(x, 0))
@@ -1493,7 +1493,7 @@ def from_checkpoint(cls, checkpointpath):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/recognition.py#L125-L127" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/recognition.py#L125-L127" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def category_confidence(self, x):
     yh = self.forward(x if x.ndim == 5 else torch.unsqueeze(x, 0))
@@ -1609,7 +1609,7 @@ override the :meth:<code>optimizer_step</code> hook.</li>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/recognition.py#L144-L146" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/recognition.py#L144-L146" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def configure_optimizers(self):
     optimizer = torch.optim.AdamW(self.parameters(), lr=1e-3)
@@ -1633,7 +1633,7 @@ override the :meth:<code>optimizer_step</code> hook.</li>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/recognition.py#L141-L142" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/recognition.py#L141-L142" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def forward(self, x):
     return self.net(x)  # lighting handles device</code></pre>
@@ -1647,7 +1647,7 @@ override the :meth:<code>optimizer_step</code> hook.</li>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/recognition.py#L129-L132" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/recognition.py#L129-L132" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def topk(self, x_logits, k):
     yh = x_logits.detach().cpu().numpy()
@@ -1663,7 +1663,7 @@ override the :meth:<code>optimizer_step</code> hook.</li>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/recognition.py#L134-L138" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/recognition.py#L134-L138" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def topk_probability(self, x_logits, k):
     yh = x_logits.detach().cpu().numpy()
@@ -1680,7 +1680,7 @@ override the :meth:<code>optimizer_step</code> hook.</li>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/recognition.py#L277-L282" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/recognition.py#L277-L282" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def totensor(self, v=None, training=False, validation=False, show=False, doflip=False):
     &#34;&#34;&#34;Return captured lambda function if v=None, else return tensor&#34;&#34;&#34;    
@@ -1752,7 +1752,7 @@ so it differs from the actual loss returned in train/validation step.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/recognition.py#L148-L184" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/recognition.py#L148-L184" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def training_step(self, batch, batch_nb, logging=True, valstep=False):
     (x,Y) = batch  
@@ -1836,7 +1836,7 @@ each validation step for that dataloader.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/recognition.py#L191-L195" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/recognition.py#L191-L195" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def validation_epoch_end(self, outputs):
     avg_loss = torch.stack([x[&#39;val_loss&#39;] for x in outputs]).mean()
@@ -1929,7 +1929,7 @@ the model goes back to training mode and gradients are enabled.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/recognition.py#L186-L189" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/recognition.py#L186-L189" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def validation_step(self, batch, batch_nb):
     loss = self.training_step(batch, batch_nb, logging=False, valstep=True)[&#39;loss&#39;]
@@ -1948,7 +1948,7 @@ the model goes back to training mode and gradients are enabled.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/recognition.py#L286-L386" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/recognition.py#L286-L386" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class PIP_370k(PIP_250k, pl.LightningModule, ActivityRecognition):
 

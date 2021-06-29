@@ -25,7 +25,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/models/yolo.py#L0-L283" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/models/yolo.py#L0-L283" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">import argparse
 import logging
@@ -328,7 +328,7 @@ if __name__ == &#39;__main__&#39;:
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/models/yolo.py#L199-L259" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/models/yolo.py#L199-L259" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def parse_model(d, ch):  # model_dict, input_channels(3)
     logger.info(&#39;\n%3s%18s%3s%10s  %-40s%-30s&#39; % (&#39;&#39;, &#39;from&#39;, &#39;n&#39;, &#39;params&#39;, &#39;module&#39;, &#39;arguments&#39;))
@@ -429,7 +429,7 @@ evaluation mode.
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/models/yolo.py#L27-L66" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/models/yolo.py#L27-L66" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Detect(nn.Module):
     stride = None  # strides computed during build
@@ -513,7 +513,7 @@ registered hooks while the latter silently ignores them.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/models/yolo.py#L43-L61" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/models/yolo.py#L43-L61" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def forward(self, x):
     # x = x.copy()  # for profiling
@@ -569,7 +569,7 @@ evaluation mode.
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/models/yolo.py#L69-L196" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/models/yolo.py#L69-L196" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Model(nn.Module):
     def __init__(self, cfg=&#39;yolov5s.yaml&#39;, ch=3, nc=None):  # model, input channels, number of classes
@@ -733,7 +733,7 @@ registered hooks while the latter silently ignores them.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/models/yolo.py#L103-L121" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/models/yolo.py#L103-L121" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def forward(self, x, augment=False, profile=False):
     if augment:
@@ -764,7 +764,7 @@ registered hooks while the latter silently ignores them.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/models/yolo.py#L123-L142" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/models/yolo.py#L123-L142" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def forward_once(self, x, profile=False):
     y, dt = [], []  # outputs
@@ -796,7 +796,7 @@ registered hooks while the latter silently ignores them.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/models/yolo.py#L165-L173" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/models/yolo.py#L165-L173" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def fuse(self):  # fuse model Conv2d() + BatchNorm2d() layers
     #print(&#39;Fusing layers... &#39;)  # JEBYRNE
@@ -817,7 +817,7 @@ registered hooks while the latter silently ignores them.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/models/yolo.py#L195-L196" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/models/yolo.py#L195-L196" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def info(self, verbose=False, img_size=640):  # print model information
     model_info(self, verbose, img_size)</code></pre>
@@ -831,7 +831,7 @@ registered hooks while the latter silently ignores them.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/models/yolo.py#L175-L187" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/models/yolo.py#L175-L187" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def nms(self, mode=True):  # add or remove NMS module
     present = type(self.model[-1]) is NMS  # last layer is NMS

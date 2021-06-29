@@ -25,7 +25,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/detection.py#L0-L572" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L0-L572" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">import os
 import sys
@@ -621,7 +621,7 @@ Add the best object track to the scene and associate with all activities perform
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/detection.py#L517-L564" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L517-L564" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ActorAssociation(MultiscaleVideoTracker):
     &#34;&#34;&#34;pycollector.detection.VideoAssociation() class
@@ -690,7 +690,7 @@ Add the best object track to the scene and associate with all activities perform
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/detection.py#L524-L529" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L524-L529" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@staticmethod
 def isallowable(v, actor_class, association_class, fps=None):
@@ -719,7 +719,7 @@ def isallowable(v, actor_class, association_class, fps=None):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/detection.py#L60-L78" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L60-L78" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class FaceDetector(TorchNet):
     &#34;&#34;&#34;Faster R-CNN based face detector
@@ -755,7 +755,7 @@ def isallowable(v, actor_class, association_class, fps=None):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/detection.py#L244-L300" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L244-L300" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class MultiscaleObjectDetector(ObjectDetector):  
     &#34;&#34;&#34;Given a list of images, break each one into a set of overlapping tiles, and ObjectDetector() on each, then recombining detections&#34;&#34;&#34;
@@ -836,7 +836,7 @@ def isallowable(v, actor_class, association_class, fps=None):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/detection.py#L311-L315" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L311-L315" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class MultiscaleVideoDetector(MultiscaleObjectDetector):
     def __call__(self, v, conf=0.5, iou=0.5):
@@ -861,7 +861,7 @@ def isallowable(v, actor_class, association_class, fps=None):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/detection.py#L336-L377" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L336-L377" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class MultiscaleVideoTracker(MultiscaleObjectDetector):
     &#34;&#34;&#34;MultiscaleVideoTracker() class&#34;&#34;&#34;
@@ -927,7 +927,7 @@ def isallowable(v, actor_class, association_class, fps=None):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/detection.py#L369-L370" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L369-L370" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def stream(self, vi):
     return self._track(vi)</code></pre>
@@ -941,7 +941,7 @@ def isallowable(v, actor_class, association_class, fps=None):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/detection.py#L372-L377" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L372-L377" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def track(self, vi, verbose=False):
     &#34;&#34;&#34;Batch tracking&#34;&#34;&#34;
@@ -962,7 +962,7 @@ def isallowable(v, actor_class, association_class, fps=None):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/detection.py#L239-L241" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L239-L241" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ObjectDetector(Yolov5):
     &#34;&#34;&#34;Default object detector&#34;&#34;&#34;
@@ -990,7 +990,7 @@ def isallowable(v, actor_class, association_class, fps=None):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/detection.py#L381-L383" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L381-L383" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Proposal(ObjectDetector):
     def __call__(self, v, conf=1E-2, iou=0.8):
@@ -1015,7 +1015,7 @@ def isallowable(v, actor_class, association_class, fps=None):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/detection.py#L17-L57" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L17-L57" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class TorchNet(object):
 
@@ -1075,7 +1075,7 @@ def isallowable(v, actor_class, association_class, fps=None):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/detection.py#L56-L57" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L56-L57" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def batchsize(self):
     return int(len(self._models)*self._batchsize)</code></pre>
@@ -1089,7 +1089,7 @@ def isallowable(v, actor_class, association_class, fps=None):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/detection.py#L37-L38" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L37-L38" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def cpu(self, batchsize=None):
     return self.gpu(idlist=[&#39;cpu&#39;], batchsize=batchsize)</code></pre>
@@ -1103,7 +1103,7 @@ def isallowable(v, actor_class, association_class, fps=None):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/detection.py#L19-L35" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L19-L35" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def gpu(self, idlist, batchsize=None):
     assert batchsize is None or (isinstance(batchsize, int) and batchsize &gt; 0), &#34;Batchsize must be integer&#34;
@@ -1132,7 +1132,7 @@ def isallowable(v, actor_class, association_class, fps=None):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/detection.py#L40-L41" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L40-L41" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def iscpu(self):
     return any([&#39;cpu&#39; in d for d in self._devices])</code></pre>
@@ -1146,7 +1146,7 @@ def isallowable(v, actor_class, association_class, fps=None):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/detection.py#L43-L44" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L43-L44" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def isgpu(self):
     return any([&#39;cuda&#39; in d for d in self._devices])</code></pre>
@@ -1163,7 +1163,7 @@ def isallowable(v, actor_class, association_class, fps=None):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/detection.py#L303-L308" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L303-L308" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class VideoDetector(ObjectDetector):  
     &#34;&#34;&#34;Iterate ObjectDetector() over each frame of video, yielding the detected frame&#34;&#34;&#34;
@@ -1189,7 +1189,7 @@ def isallowable(v, actor_class, association_class, fps=None):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/detection.py#L386-L446" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L386-L446" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class VideoProposal(Proposal):
     &#34;&#34;&#34;pycollector.detection.VideoProposal() class.
@@ -1274,7 +1274,7 @@ def isallowable(v, actor_class, association_class, fps=None):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/detection.py#L391-L392" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L391-L392" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def allowable_objects(self):
     return [&#39;person&#39;, &#39;vehicle&#39;, &#39;car&#39;, &#39;motorcycle&#39;, &#39;object&#39;, &#39;bicycle&#39;, &#39;motorbike&#39;, &#39;truck&#39;]</code></pre>
@@ -1288,7 +1288,7 @@ def isallowable(v, actor_class, association_class, fps=None):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/detection.py#L394-L396" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L394-L396" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def isallowable(self, v):
     assert isinstance(v, vipy.video.Video), &#34;Invalid input - must be vipy.video.Video not &#39;%s&#39;&#34; % (str(type(v)))
@@ -1307,7 +1307,7 @@ def isallowable(v, actor_class, association_class, fps=None):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/detection.py#L449-L514" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L449-L514" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class VideoProposalRefinement(VideoProposal):
     &#34;&#34;&#34;pycollector.detection.VideoProposalRefinement() class.
@@ -1394,7 +1394,7 @@ def isallowable(v, actor_class, association_class, fps=None):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/detection.py#L318-L333" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L318-L333" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class VideoTracker(ObjectDetector):
     def __call__(self, v, minconf=0.001, miniou=0.6, maxhistory=5, smoothing=None, objects=None, trackconf=0.05):
@@ -1429,7 +1429,7 @@ def isallowable(v, actor_class, association_class, fps=None):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/detection.py#L328-L333" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L328-L333" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def track(self, v, minconf=0.001, miniou=0.6, maxhistory=5, smoothing=None, objects=None, trackconf=0.05, verbose=False):
     &#34;&#34;&#34;Batch tracking&#34;&#34;&#34;
@@ -1453,7 +1453,7 @@ def isallowable(v, actor_class, association_class, fps=None):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/detection.py#L176-L236" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L176-L236" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Yolov3(TorchNet):
     &#34;&#34;&#34;Yolov3 based object detector
@@ -1531,7 +1531,7 @@ def isallowable(v, actor_class, association_class, fps=None):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/detection.py#L235-L236" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L235-L236" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def classlist(self):
     return list(self._cls2index.keys())</code></pre>
@@ -1551,7 +1551,7 @@ def isallowable(v, actor_class, association_class, fps=None):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/detection.py#L81-L173" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L81-L173" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Yolov5(TorchNet):
     &#34;&#34;&#34;Yolov5 based object detector
@@ -1665,7 +1665,7 @@ def isallowable(v, actor_class, association_class, fps=None):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/detection.py#L172-L173" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L172-L173" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def classlist(self):
     return list(self._cls2index.keys())</code></pre>

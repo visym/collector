@@ -25,7 +25,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/pyvideoresearch/bases/resnet50_3d.py#L0-L172" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/pyvideoresearch/bases/resnet50_3d.py#L0-L172" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">#from models.bases.base import Base
 from pycollector.model.pyvideoresearch.bases.base import Base
@@ -242,7 +242,7 @@ evaluation mode.
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/pyvideoresearch/bases/resnet50_3d.py#L7-L52" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/pyvideoresearch/bases/resnet50_3d.py#L7-L52" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Bottleneck3D(nn.Module):
     expansion = 4
@@ -328,7 +328,7 @@ registered hooks while the latter silently ignores them.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/pyvideoresearch/bases/resnet50_3d.py#L32-L52" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/pyvideoresearch/bases/resnet50_3d.py#L32-L52" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def forward(self, x):
     residual = x
@@ -386,7 +386,7 @@ evaluation mode.
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/pyvideoresearch/bases/resnet50_3d.py#L55-L150" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/pyvideoresearch/bases/resnet50_3d.py#L55-L150" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ResNet3D(nn.Module):
 
@@ -518,7 +518,7 @@ registered hooks while the latter silently ignores them.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/pyvideoresearch/bases/resnet50_3d.py#L102-L128" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/pyvideoresearch/bases/resnet50_3d.py#L102-L128" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def forward(self, x):
     # x is of the form b x n x h x w x c
@@ -557,7 +557,7 @@ registered hooks while the latter silently ignores them.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/pyvideoresearch/bases/resnet50_3d.py#L130-L147" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/pyvideoresearch/bases/resnet50_3d.py#L130-L147" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def load_2d(self, model2d):
     print(&#39;inflating 2d resnet parameters&#39;)
@@ -587,7 +587,7 @@ registered hooks while the latter silently ignores them.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/pyvideoresearch/bases/resnet50_3d.py#L149-L150" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/pyvideoresearch/bases/resnet50_3d.py#L149-L150" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def replace_logits(self, num_classes):
     self.fc = nn.Conv3d(self.fc.in_channels, num_classes, kernel_size=1)</code></pre>
@@ -603,7 +603,7 @@ registered hooks while the latter silently ignores them.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/pyvideoresearch/bases/resnet50_3d.py#L153-L161" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/pyvideoresearch/bases/resnet50_3d.py#L153-L161" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ResNet503D(Base):
     @classmethod

@@ -25,7 +25,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/utils/torch_utils.py#L0-L241" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/utils/torch_utils.py#L0-L241" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python"># PyTorch utils
 
@@ -286,7 +286,7 @@ class ModelEMA:
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/utils/torch_utils.py#L199-L205" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/utils/torch_utils.py#L199-L205" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def copy_attr(a, b, include=(), exclude=()):
     # Copy attributes from b to a, options to only include [...] and to exclude [...]
@@ -305,7 +305,7 @@ class ModelEMA:
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/utils/torch_utils.py#L94-L96" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/utils/torch_utils.py#L94-L96" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def find_modules(model, mclass=nn.Conv2d):
     # Finds layer indices matching module class &#39;mclass&#39;
@@ -320,7 +320,7 @@ class ModelEMA:
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/utils/torch_utils.py#L119-L139" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/utils/torch_utils.py#L119-L139" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def fuse_conv_and_bn(conv, bn):
     # Fuse convolution and batchnorm layers https://tehnokv.com/posts/fusing-batchnorm-and-conv/
@@ -353,7 +353,7 @@ class ModelEMA:
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/utils/torch_utils.py#L31-L39" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/utils/torch_utils.py#L31-L39" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def init_torch_seeds(seed=0):
     # Speed-reproducibility tradeoff https://pytorch.org/docs/stable/notes/randomness.html
@@ -374,7 +374,7 @@ class ModelEMA:
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/utils/torch_utils.py#L82-L91" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/utils/torch_utils.py#L82-L91" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def initialize_weights(model):
     for m in model.modules():
@@ -396,7 +396,7 @@ class ModelEMA:
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/utils/torch_utils.py#L77-L79" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/utils/torch_utils.py#L77-L79" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def intersect_dicts(da, db, exclude=()):
     # Dictionary intersection of matching keys and shapes, omitting &#39;exclude&#39; keys, using da values
@@ -411,7 +411,7 @@ class ModelEMA:
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/utils/torch_utils.py#L73-L74" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/utils/torch_utils.py#L73-L74" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def is_parallel(model):
     return type(model) in (nn.parallel.DataParallel, nn.parallel.DistributedDataParallel)</code></pre>
@@ -425,7 +425,7 @@ class ModelEMA:
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/utils/torch_utils.py#L166-L182" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/utils/torch_utils.py#L166-L182" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def load_classifier(name=&#39;resnet101&#39;, n=2):
     # Loads a pretrained model reshaped to n-class output
@@ -454,7 +454,7 @@ class ModelEMA:
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/utils/torch_utils.py#L142-L163" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/utils/torch_utils.py#L142-L163" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def model_info(model, verbose=False, img_size=640):
     # Model information. img_size may be int or list, i.e. img_size=640 or img_size=[640, 320]
@@ -488,7 +488,7 @@ class ModelEMA:
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/utils/torch_utils.py#L108-L116" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/utils/torch_utils.py#L108-L116" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def prune(model, amount=0.3):
     # Prune model to requested global sparsity
@@ -509,7 +509,7 @@ class ModelEMA:
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/utils/torch_utils.py#L185-L196" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/utils/torch_utils.py#L185-L196" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def scale_img(img, ratio=1.0, same_shape=False):  # img(16,3,256,416), r=ratio
     # scales img(bs,3,y,x) by ratio
@@ -533,7 +533,7 @@ class ModelEMA:
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/utils/torch_utils.py#L42-L65" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/utils/torch_utils.py#L42-L65" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def select_device(device=&#39;&#39;, batch_size=None):
     # device = &#39;cpu&#39; or &#39;0&#39; or &#39;0,1,2,3&#39;
@@ -569,7 +569,7 @@ class ModelEMA:
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/utils/torch_utils.py#L99-L105" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/utils/torch_utils.py#L99-L105" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def sparsity(model):
     # Return global model sparsity
@@ -588,7 +588,7 @@ class ModelEMA:
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/utils/torch_utils.py#L68-L70" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/utils/torch_utils.py#L68-L70" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def time_synchronized():
     torch.cuda.synchronize() if torch.cuda.is_available() else None
@@ -603,7 +603,7 @@ class ModelEMA:
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/utils/torch_utils.py#L19-L28" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/utils/torch_utils.py#L19-L28" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@contextmanager
 def torch_distributed_zero_first(local_rank: int):
@@ -637,7 +637,7 @@ GPU assignment and distributed training wrappers.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/utils/torch_utils.py#L208-L242" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/utils/torch_utils.py#L208-L242" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ModelEMA:
     &#34;&#34;&#34; Model Exponential Moving Average from https://github.com/rwightman/pytorch-image-models
@@ -685,7 +685,7 @@ GPU assignment and distributed training wrappers.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/utils/torch_utils.py#L228-L238" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/utils/torch_utils.py#L228-L238" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def update(self, model):
     # Update EMA parameters
@@ -708,7 +708,7 @@ GPU assignment and distributed training wrappers.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/60e2cc017171b77a037dfbee460fee83eb001c8a/pycollector/model/yolov5/utils/torch_utils.py#L240-L242" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/model/yolov5/utils/torch_utils.py#L240-L242" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def update_attr(self, model, include=(), exclude=(&#39;process_group&#39;, &#39;reducer&#39;)):
     # Update EMA attributes
