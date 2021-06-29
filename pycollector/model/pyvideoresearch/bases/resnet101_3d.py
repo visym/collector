@@ -1,5 +1,5 @@
-from base import Base
-from resnet50_3d import Bottleneck3D, ResNet3D
+from pycollector.model.pyvideoresearch.bases.base import Base
+from pycollector.model.pyvideoresearch.bases.resnet50_3d import Bottleneck3D, ResNet3D
 
 
 class ResNet1013D(Base):
