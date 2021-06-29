@@ -1,0 +1,2226 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>pycollector.recognition API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}#lunr-search{width:100%;font-size:1em;padding:6px 9px 5px 9px;border:1px solid silver}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pycollector.recognition</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/recognition.py#L0-L595" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">import os
+import sys
+import random
+import torch
+import vipy
+import vipy.dataset.meva
+import shutil
+import numpy as np
+from vipy.util import remkdir, filetail, readlist, tolist, filepath
+from datetime import datetime
+from pycollector.video import Video
+from pycollector.model.yolov3.network import Darknet
+from pycollector.globals import print
+from pycollector.model.pyvideoresearch.bases.resnet50_3d import ResNet503D, ResNet3D, Bottleneck3D
+import pycollector.model.ResNets_3D_PyTorch.resnet
+import pycollector.label
+import pycollector.dataset
+import vipy.activity
+import itertools
+import copy
+import os
+import torch
+from torch import nn
+import torch.nn.functional as F
+from torchvision.datasets import MNIST
+import torch.utils.data
+from torch.utils.data import DataLoader, random_split, Dataset
+from torchvision import transforms
+import pytorch_lightning as pl
+import json
+import math
+
+
+class ActivityRecognition(object):
+    def __init__(self, pretrained=True):
+        self.net =  None
+        self._class_to_index = {}
+        self._num_frames = 0
+
+    def class_to_index(self, c=None):
+        return self._class_to_index if c is None else self._class_to_index[c]
+    
+    def index_to_class(self, index=None):
+        d = {v:k for (k,v) in self.class_to_index().items()}
+        return d if index is None else d[index]
+    
+    def classlist(self):
+        return [k for (k,v) in sorted(list(self.class_to_index().items()), key=lambda x: x[0])]  # sorted in index order
+
+    def num_classes(self):
+        return len(self.classlist())
+
+    def fromindex(self, k):
+        index_to_class = {v:k for (k,v) in self.class_to_index().items()}
+        assert k in index_to_class, &#34;Invalid class index &#39;%s&#39;&#34; % (str(k))
+        return index_to_class[k]
+
+    def label_confidence(self, video=None, tensor=None, threshold=None):
+        raise
+        logits = self.__call__(video, tensor)
+        conf = [[(self.index_to_class(j), s[j]) for j in i[::-1] if threshold is None or s[j]&gt;threshold] for (s,i) in zip(logits, np.argsort(logits, axis=1))]
+        return conf if len(logits) &gt; 1 else conf[0]
+
+    def activity(self, video, threshold=None):
+        (c,s) = zip(*self.label_confidence(video=video, threshold=None))
+        return vipy.activity.Activity(startframe=0, endframe=self._num_frames, category=c[0], actorid=video.actorid(), confidence=s[0]) if (threshold is None or s[0]&gt;threshold) else None
+            
+    def top1(self, video=None, tensor=None, threshold=None):
+        raise
+        return self.topk(k=1, video=video, tensor=tensor, threshold=threshold)
+
+    def topk(self, k, video=None, tensor=None, threshold=None):
+        raise
+        logits = self.__call__(video, tensor)
+        topk = [[self.index_to_class(j) for j in i[-k:][::-1] if threshold is None or s[j] &gt;= threshold] for (s,i) in zip(logits, np.argsort(logits, axis=1))]
+        return topk if len(topk) &gt; 1 else topk[0]
+
+    def temporal_support(self):
+        return self._num_frames
+
+    def totensor(self, training=False):
+        raise
+
+    def binary_vector(self, categories):
+        y = np.zeros(len(self.classlist())).astype(np.float32)
+        for c in tolist(categories):
+            y[self.class_to_index(c)] = 1
+        return torch.from_numpy(y).type(torch.FloatTensor)
+        
+    
+    
+class PIP_250k(pl.LightningModule, ActivityRecognition):
+    &#34;&#34;&#34;Activity recognition using people in public - 250k stabilized&#34;&#34;&#34;
+    
+    def __init__(self, pretrained=True, deterministic=False, modelfile=None, mlbl=False, mlfl=False):
+        super().__init__()
+        self._input_size = 112
+        self._num_frames = 16        
+        self._mean = [0.485, 0.456, 0.406]
+        self._std = [0.229, 0.224, 0.225]
+        self._mlfl = mlfl
+        self._mlbl = mlbl
+
+        if deterministic:
+            np.random.seed(42)
+
+        self._class_to_weight = {&#39;car_drops_off_person&#39;: 1.4162811344926518, &#39;car_picks_up_person&#39;: 1.4103618337303332, &#39;car_reverses&#39;: 1.0847976470131024, &#39;car_starts&#39;: 1.0145749063037774, &#39;car_stops&#39;: 0.6659236295324015, &#39;car_turns_left&#39;: 2.942269221156227, &#39;car_turns_right&#39;: 1.1077783089040996, &#39;hand_interacts_with_person_highfive&#39;: 2.793646013249904, &#39;person&#39;: 0.4492053391155403, &#39;person_abandons_object&#39;: 1.0944029463871692, &#39;person_carries_heavy_object&#39;: 0.5848339202761978, &#39;person_closes_car_door&#39;: 0.8616907697519004, &#39;person_closes_car_trunk&#39;: 1.468393359799126, &#39;person_closes_facility_door&#39;: 0.8927495923340439, &#39;person_embraces_person&#39;: 0.6072654081071569, &#39;person_enters_car&#39;: 1.3259274145537951, &#39;person_enters_scene_through_structure&#39;: 0.6928103470838287, &#39;person_exits_car&#39;: 1.6366577285051707, &#39;person_exits_scene_through_structure&#39;: 0.8368692178634396, &#39;person_holds_hand&#39;: 1.2378881634203558, &#39;person_interacts_with_laptop&#39;: 1.6276031281396193, &#39;person_loads_car&#39;: 2.170167410167583, &#39;person_opens_car_door&#39;: 0.7601817241565009, &#39;person_opens_car_trunk&#39;: 1.7255285914206204, &#39;person_opens_facility_door&#39;: 0.9167411017455822, &#39;person_picks_up_object_from_floor&#39;: 1.123251610875369, &#39;person_picks_up_object_from_table&#39;: 3.5979689180114205, &#39;person_purchases_from_cashier&#39;: 7.144918373837205, &#39;person_purchases_from_machine&#39;: 5.920886403645001, &#39;person_puts_down_object_on_floor&#39;: 0.7295795950752353, &#39;person_puts_down_object_on_shelf&#39;: 9.247614426653692, &#39;person_puts_down_object_on_table&#39;: 1.9884672074906158, &#39;person_reads_document&#39;: 0.7940480628992879, &#39;person_rides_bicycle&#39;: 2.662661823600623, &#39;person_shakes_hand&#39;: 0.7819547332927879, &#39;person_sits_down&#39;: 0.8375202893491961, &#39;person_stands_up&#39;: 1.0285510019795079, &#39;person_steals_object_from_person&#39;: 1.0673909796893626, &#39;person_talks_on_phone&#39;: 0.3031855242664589, &#39;person_talks_to_person&#39;: 0.334895684562076, &#39;person_texts_on_phone&#39;: 0.713951043919232, &#39;person_transfers_object_to_car&#39;: 3.2832615561297605, &#39;person_transfers_object_to_person&#39;: 0.9633429807282274, &#39;person_unloads_car&#39;: 1.1051597100801462, &#39;vehicle&#39;: 1.1953172363332243}
+        self._class_to_weight[&#39;person_puts_down_object_on_shelf&#39;] = 1.0   # run 5
+
+        self._class_to_index = {&#39;car_drops_off_person&#39;: 0, &#39;car_picks_up_person&#39;: 1, &#39;car_reverses&#39;: 2, &#39;car_starts&#39;: 3, &#39;car_stops&#39;: 4, &#39;car_turns_left&#39;: 5, &#39;car_turns_right&#39;: 6, &#39;hand_interacts_with_person_highfive&#39;: 7, &#39;person&#39;: 8, &#39;person_abandons_object&#39;: 9, &#39;person_carries_heavy_object&#39;: 10, &#39;person_closes_car_door&#39;: 11, &#39;person_closes_car_trunk&#39;: 12, &#39;person_closes_facility_door&#39;: 13, &#39;person_embraces_person&#39;: 14, &#39;person_enters_car&#39;: 15, &#39;person_enters_scene_through_structure&#39;: 16, &#39;person_exits_car&#39;: 17, &#39;person_exits_scene_through_structure&#39;: 18, &#39;person_holds_hand&#39;: 19, &#39;person_interacts_with_laptop&#39;: 20, &#39;person_loads_car&#39;: 21, &#39;person_opens_car_door&#39;: 22, &#39;person_opens_car_trunk&#39;: 23, &#39;person_opens_facility_door&#39;: 24, &#39;person_picks_up_object_from_floor&#39;: 25, &#39;person_picks_up_object_from_table&#39;: 26, &#39;person_purchases_from_cashier&#39;: 27, &#39;person_purchases_from_machine&#39;: 28, &#39;person_puts_down_object_on_floor&#39;: 29, &#39;person_puts_down_object_on_shelf&#39;: 30, &#39;person_puts_down_object_on_table&#39;: 31, &#39;person_reads_document&#39;: 32, &#39;person_rides_bicycle&#39;: 33, &#39;person_shakes_hand&#39;: 34, &#39;person_sits_down&#39;: 35, &#39;person_stands_up&#39;: 36, &#39;person_steals_object_from_person&#39;: 37, &#39;person_talks_on_phone&#39;: 38, &#39;person_talks_to_person&#39;: 39, &#39;person_texts_on_phone&#39;: 40, &#39;person_transfers_object_to_car&#39;: 41, &#39;person_transfers_object_to_person&#39;: 42, &#39;person_unloads_car&#39;: 43, &#39;vehicle&#39;: 44}
+
+        self._verb_to_noun = {k:set([&#39;car&#39;,&#39;vehicle&#39;,&#39;motorcycle&#39;,&#39;bus&#39;,&#39;truck&#39;]) if (k.startswith(&#39;car&#39;) or k.startswith(&#39;motorcycle&#39;) or k.startswith(&#39;vehicle&#39;)) else set([&#39;person&#39;]) for k in self.classlist()}        
+        self._class_to_shortlabel = pycollector.label.pip_to_shortlabel
+
+        if pretrained:
+            self._load_pretrained()
+            self.net.fc = nn.Linear(self.net.fc.in_features, self.num_classes())
+        elif modelfile is not None:
+            self._load_trained(modelfile)
+        
+    def category(self, x):
+        yh = self.forward(x if x.ndim == 5 else torch.unsqueeze(x, 0))
+        return [self.index_to_class(int(k)) for (c,k) in zip(*torch.max(yh, dim=1))]
+
+    def category_confidence(self, x):
+        yh = self.forward(x if x.ndim == 5 else torch.unsqueeze(x, 0))
+        return [(self.index_to_class(int(k)), float(c)) for (c,k) in zip(*torch.max(yh, dim=1))]
+
+    def topk(self, x_logits, k):
+        yh = x_logits.detach().cpu().numpy()
+        topk = [[(self.index_to_class(j), s[j]) for j in i[-k:][::-1]] for (s,i) in zip(yh, np.argsort(yh, axis=1))]
+        return topk
+
+    def topk_probability(self, x_logits, k):
+        yh = x_logits.detach().cpu().numpy()
+        yh_prob = F.softmax(x_logits, dim=1).detach().cpu().numpy()
+        topk = [[(self.index_to_class(j), c[j], p[j]) for j in i[-k:][::-1]] for (c,p,i) in zip(yh, yh_prob, np.argsort(yh, axis=1))]
+        return topk
+        
+    # ---- &lt;LIGHTNING&gt;
+    def forward(self, x):
+        return self.net(x)  # lighting handles device
+
+    def configure_optimizers(self):
+        optimizer = torch.optim.AdamW(self.parameters(), lr=1e-3)
+        return optimizer
+
+    def training_step(self, batch, batch_nb, logging=True, valstep=False):
+        (x,Y) = batch  
+        y_hat = self.forward(x)
+        y_hat_softmax = F.softmax(y_hat, dim=1)
+
+        (loss, n_valid) = (0, 0)
+        C = torch.tensor([self._class_to_weight[k] for (k,v) in sorted(self._class_to_index.items(), key=lambda x: x[1])], device=y_hat.device)  # inverse class frequency        
+        for (yh, yhs, labelstr) in zip(y_hat, y_hat_softmax, Y):
+            labels = json.loads(labelstr)
+            if labels is None:
+                continue  # skip me
+            lbllist = [l for lbl in labels for l in lbl]  # list of multi-labels within clip (unpack from JSON to use default collate_fn)
+            lbl_frequency = vipy.util.countby(lbllist, lambda x: x)  # frequency within clip
+            lbl_weight = {k:v/float(len(lbllist)) for (k,v) in lbl_frequency.items()}  # multi-label likelihood within clip, sums to one
+            for (y,w) in lbl_weight.items():
+                if valstep:
+                    # Pick all labels normalized (https://papers.nips.cc/paper/2019/file/da647c549dde572c2c5edc4f5bef039c-Paper.pdf
+                    loss += float(w)*F.cross_entropy(torch.unsqueeze(yh, dim=0), torch.tensor([self._class_to_index[y]], device=y_hat.device), weight=C)
+                elif self._mlfl:
+                    # Pick all labels normalized, with multi-label focal loss
+                    loss += torch.min(torch.tensor(1.0, device=y_hat.device), ((w-yhs[self._class_to_index[y]])/w)**2)*float(w)*F.cross_entropy(torch.unsqueeze(yh, dim=0), torch.tensor([self._class_to_index[y]], device=y_hat.device), weight=C)  
+                elif self._mlbl:
+                    # Pick all labels normalized with multi-label background loss
+                    j_bg_person = self._class_to_index[&#39;person&#39;] if &#39;person&#39; in self._class_to_index else self._class_to_index[&#39;person_walks&#39;]  # FIXME: does not generalize
+                    j_bg_vehicle = self._class_to_index[&#39;vehicle&#39;] if &#39;vehicle&#39; in self._class_to_index else self._class_to_index[&#39;car_moves&#39;]  # FIXME: does not generalize
+                    j = j_bg_person if (y.startswith(&#39;person&#39;) or y.startswith(&#39;hand&#39;)) else j_bg_vehicle
+                    loss += ((1-torch.sqrt(yhs[j]*yhs[self._class_to_index[y]]))**2)*float(w)*F.cross_entropy(torch.unsqueeze(yh, dim=0), torch.tensor([self._class_to_index[y]], device=y_hat.device), weight=C)  
+                else:
+                    # Pick all labels normalized (https://papers.nips.cc/paper/2019/file/da647c549dde572c2c5edc4f5bef039c-Paper.pdf
+                    loss += float(w)*F.cross_entropy(torch.unsqueeze(yh, dim=0), torch.tensor([self._class_to_index[y]], device=y_hat.device), weight=C)
+
+            n_valid += 1
+        loss = loss / float(max(1, n_valid))  # batch reduction: mean
+
+        if logging:
+            self.log(&#39;train_loss&#39;, loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)
+        return {&#39;loss&#39;: loss}
+
+    def validation_step(self, batch, batch_nb):
+        loss = self.training_step(batch, batch_nb, logging=False, valstep=True)[&#39;loss&#39;]
+        self.log(&#39;val_loss&#39;, loss, on_step=True, on_epoch=True, prog_bar=False, logger=True)
+        return {&#39;val_loss&#39;: loss}
+
+    def validation_epoch_end(self, outputs):
+        avg_loss = torch.stack([x[&#39;val_loss&#39;] for x in outputs]).mean()
+        self.log(&#39;val_loss&#39;, avg_loss, on_epoch=True, prog_bar=False, logger=True)
+        self.log(&#39;avg_val_loss&#39;, avg_loss, on_epoch=True, prog_bar=True, logger=True)                
+        return {&#39;val_loss&#39;: avg_loss, &#39;avg_val_loss&#39;: avg_loss}                            
+    #---- &lt;/LIGHTNING&gt;
+    
+    @classmethod
+    def from_checkpoint(cls, checkpointpath):
+        return cls().load_from_checkpoint(checkpointpath)  # lightning
+            
+    def _load_trained(self, ckptfile):
+        self.net = pycollector.model.ResNets_3D_PyTorch.resnet.generate_model(50, n_classes=self.num_classes())
+        t = torch.split(self.net.conv1.weight.data, dim=1, split_size_or_sections=1)
+        self.net.conv1.weight.data = torch.cat( (*t, t[-1]), dim=1).contiguous()
+        self.net.conv1.in_channels = 4  # inflate RGB -&gt; RGBA
+        self.load_state_dict(torch.load(ckptfile)[&#39;state_dict&#39;])  # FIXME
+        self.eval()
+        return self
+        
+    def _load_pretrained(self):
+
+        pthfile = vipy.util.tocache(&#39;r3d50_KMS_200ep.pth&#39;)
+        if not os.path.exists(pthfile) or not vipy.downloader.verify_sha1(pthfile, &#39;39ea626355308d8f75307cab047a8d75862c3261&#39;):
+            print(&#39;[pycollector.recognition]: Downloading pretrained weights ...&#39;)
+            os.system(&#39;wget -c https://dl.dropboxusercontent.com/s/t3xge6lrfqpklr0/r3d50_kms_200ep.pth -O %s&#39; % pthfile) 
+        assert vipy.downloader.verify_sha1(pthfile, &#39;39ea626355308d8f75307cab047a8d75862c3261&#39;), &#34;SHA1 check failed&#34;
+
+        net = pycollector.model.ResNets_3D_PyTorch.resnet.generate_model(50, n_classes=1139)
+        pretrain = torch.load(pthfile, map_location=&#39;cpu&#39;)
+        net.load_state_dict(pretrain[&#39;state_dict&#39;])
+
+        # Inflate RGB -&gt; RGBA         
+        t = torch.split(net.conv1.weight.data, dim=1, split_size_or_sections=1)
+        net.conv1.weight.data = torch.cat( (*t, t[-1]), dim=1).contiguous()
+        net.conv1.in_channels = 4
+
+        self.net = net
+
+        return self
+
+    @staticmethod
+    def _totensor(v, training, validation, input_size, num_frames, mean, std, noflip=None, show=False, doflip=False):
+        assert isinstance(v, vipy.video.Scene), &#34;Invalid input&#34;
+        
+        try:
+            v = v.download() if (not v.hasfilename() and v.hasurl()) else v  # fetch it if necessary, but do not do this during training!        
+            if training or validation:
+                random.seed()  # force randomness after fork() 
+                (ai,aj) = (v.primary_activity().startframe(), v.primary_activity().endframe())  # activity (start,end)
+                (ti,tj) = (v.actor().startframe(), v.actor().endframe())  # track (start,end) 
+                startframe = random.randint(max(0, ti-(num_frames//2)), max(1, tj-(num_frames//2)))  # random startframe that contains track
+                endframe = min((startframe+num_frames), aj)  # endframe truncated to be end of activity
+                (startframe, endframe) = (startframe, endframe) if (startframe &lt; endframe) else (max(0, aj-num_frames), aj)  # fallback
+                assert endframe - startframe &lt;= num_frames
+                vc = v.clone().clip(startframe, endframe)    # may fail for some short clips
+                vc = vc.trackcrop(dilate=1.2, maxsquare=True)  # may be None if clip contains no track
+                vc = vc.resize(input_size, input_size)   
+                vc = vc.fliplr() if (doflip or (random.random() &gt; 0.5)) and (noflip is None or vc.category() not in noflip) else vc
+            else:
+                vc = v.trackcrop(dilate=1.2, maxsquare=True)  # may be None if clip contains no track
+                vc = vc.resize(input_size, input_size)  # TESTING: this may introduce a preview()
+                vc = vc.fliplr() if doflip and (noflip is None or vc.category() not in noflip) else vc
+                
+            if show:
+                vc.clone().resize(512,512).show(timestamp=True)
+                vc.clone().binarymask().frame(0).rgb().show(figure=&#39;binary mask: frame 0&#39;)
+                
+            vc = vc.load(shape=(input_size, input_size, 3)).normalize(mean=mean, std=std, scale=1.0/255.0)  # [0,255] -&gt; [0,1], triggers load() with known shape
+            (t,lbl) = vc.torch(startframe=0, length=num_frames, boundary=&#39;cyclic&#39;, order=&#39;cdhw&#39;, withlabel=training or validation, nonelabel=True)  # (c=3)x(d=num_frames)x(H=input_size)x(W=input_size), reuses vc._array
+            t = torch.cat((t, vc.asfloatmask(fg=0.5, bg=-0.5).torch(startframe=0, length=num_frames, boundary=&#39;cyclic&#39;, order=&#39;cdhw&#39;)), dim=0)  # (c=4) x (d=num_frames) x (H=input_size) x (W=input_size), copy
+            
+        except Exception as e:
+            if training or validation:
+                #print(&#39;ERROR: %s&#39; % (str(v)))
+                t = torch.zeros(4, num_frames, input_size, input_size)  # skip me
+                lbl = None
+            else:
+                print(&#39;WARNING: discarding tensor for video &#34;%s&#34; with exception &#34;%s&#34;&#39; % (str(v), str(e)))
+                t = torch.zeros(4, num_frames, input_size, input_size)  # skip me (should never get here)
+            
+        if training or validation:
+            return (t, json.dumps(lbl))  # json to use default collate_fn
+        else:
+            return t
+
+    def totensor(self, v=None, training=False, validation=False, show=False, doflip=False):
+        &#34;&#34;&#34;Return captured lambda function if v=None, else return tensor&#34;&#34;&#34;    
+        assert v is None or isinstance(v, vipy.video.Scene), &#34;Invalid input&#34;
+        f = (lambda v, num_frames=self._num_frames, input_size=self._input_size, mean=self._mean, std=self._std, training=training, validation=validation, show=show:
+             PIP_250k._totensor(v, training, validation, input_size, num_frames, mean, std, noflip=[&#39;car_turns_left&#39;, &#39;car_turns_right&#39;], show=show, doflip=doflip))
+        return f(v) if v is not None else f
+    
+
+
+class PIP_370k(PIP_250k, pl.LightningModule, ActivityRecognition):
+
+    def __init__(self, pretrained=True, deterministic=False, modelfile=None, mlbl=False, mlfl=False):
+        pl.LightningModule.__init__(self)
+        ActivityRecognition.__init__(self)  
+
+        self._input_size = 112
+        self._num_frames = 16        
+        self._mean = [0.485, 0.456, 0.406]
+        self._std = [0.229, 0.224, 0.225]
+        self._mlfl = mlfl
+        self._mlbl = mlbl
+        if deterministic:
+            np.random.seed(42)
+        
+        # Generated using pycollector.dataset.Dataset(...).multilabel_inverse_frequency_weight()
+        self._class_to_weight = {&#39;car_drops_off_person&#39;: 0.7858124882763793, &#39;car_moves&#39;: 0.18439798528529147, &#39;car_picks_up_person&#39;: 0.7380666753394193, &#39;car_reverses&#39;: 0.5753369570213479, &#39;car_starts&#39;: 0.47486292483745757, &#39;car_stops&#39;: 0.44244800737774037, &#39;car_turns_left&#39;: 0.7697107319736983, &#39;car_turns_right&#39;: 0.5412936796835607, &#39;hand_interacts_with_person&#39;: 0.2794031245117859, &#39;person_abandons_package&#39;: 1.0789960714517162, &#39;person_carries_heavy_object&#39;: 0.5032333530901552, &#39;person_closes_car_door&#39;: 0.46460114438995603, &#39;person_closes_car_trunk&#39;: 0.6824201392305784, &#39;person_closes_facility_door&#39;: 0.38990434394080076, &#39;person_embraces_person&#39;: 0.6457437695527715, &#39;person_enters_car&#39;: 0.6934926810021877, &#39;person_enters_scene_through_structure&#39;: 0.2586965095740063, &#39;person_exits_car&#39;: 0.6766386632434479, &#39;person_exits_scene_through_structure&#39;: 0.33054895987676847, &#39;person_interacts_with_laptop&#39;: 0.6720176496986436, &#39;person_loads_car&#39;: 0.6880555743488312, &#39;person_opens_car_door&#39;: 0.4069868136393968, &#39;person_opens_car_trunk&#39;: 0.6911966903970317, &#39;person_opens_facility_door&#39;: 0.3018924474724252, &#39;person_picks_up_object&#39;: 0.4298381074082487, &#39;person_purchases_from_cashier&#39;: 5.479834409621331, &#39;person_purchases_from_machine&#39;: 5.31528236654537, &#39;person_puts_down_object&#39;: 0.2804690906037155, &#39;person_reads_document&#39;: 0.5476186269530937, &#39;person_rides_bicycle&#39;: 1.6090962879286763, &#39;person_sits_down&#39;: 0.4750148103149501, &#39;person_stands_up&#39;: 0.5022364750834624, &#39;person_steals_object&#39;: 0.910991409921711, &#39;person_talks_on_phone&#39;: 0.15771902851484076, &#39;person_talks_to_person&#39;: 0.21362675034201736, &#39;person_texts_on_phone&#39;: 0.3328378404741194, &#39;person_transfers_object_to_car&#39;: 2.964890512157848, &#39;person_transfers_object_to_person&#39;: 0.6481292773603928, &#39;person_unloads_car&#39;: 0.515379337544623, &#39;person_walks&#39;: 6.341278284010202}
+
+        # Generated using pycollector.dataset.Dataset(...).class_to_index()
+        self._class_to_index = {&#39;car_drops_off_person&#39;: 0, &#39;car_moves&#39;: 1, &#39;car_picks_up_person&#39;: 2, &#39;car_reverses&#39;: 3, &#39;car_starts&#39;: 4, &#39;car_stops&#39;: 5, &#39;car_turns_left&#39;: 6, &#39;car_turns_right&#39;: 7, &#39;hand_interacts_with_person&#39;: 8, &#39;person_abandons_package&#39;: 9, &#39;person_carries_heavy_object&#39;: 10, &#39;person_closes_car_door&#39;: 11, &#39;person_closes_car_trunk&#39;: 12, &#39;person_closes_facility_door&#39;: 13, &#39;person_embraces_person&#39;: 14, &#39;person_enters_car&#39;: 15, &#39;person_enters_scene_through_structure&#39;: 16, &#39;person_exits_car&#39;: 17, &#39;person_exits_scene_through_structure&#39;: 18, &#39;person_interacts_with_laptop&#39;: 19, &#39;person_loads_car&#39;: 20, &#39;person_opens_car_door&#39;: 21, &#39;person_opens_car_trunk&#39;: 22, &#39;person_opens_facility_door&#39;: 23, &#39;person_picks_up_object&#39;: 24, &#39;person_purchases_from_cashier&#39;: 25, &#39;person_purchases_from_machine&#39;: 26, &#39;person_puts_down_object&#39;: 27, &#39;person_reads_document&#39;: 28, &#39;person_rides_bicycle&#39;: 29, &#39;person_sits_down&#39;: 30, &#39;person_stands_up&#39;: 31, &#39;person_steals_object&#39;: 32, &#39;person_talks_on_phone&#39;: 33, &#39;person_talks_to_person&#39;: 34, &#39;person_texts_on_phone&#39;: 35, &#39;person_transfers_object_to_car&#39;: 36, &#39;person_transfers_object_to_person&#39;: 37, &#39;person_unloads_car&#39;: 38, &#39;person_walks&#39;: 39}
+
+        self._verb_to_noun = {k:set([&#39;car&#39;,&#39;vehicle&#39;,&#39;motorcycle&#39;,&#39;bus&#39;,&#39;truck&#39;]) if (k.startswith(&#39;car&#39;) or k.startswith(&#39;motorcycle&#39;) or k.startswith(&#39;vehicle&#39;)) else set([&#39;person&#39;]) for k in self.classlist()}        
+        self._class_to_shortlabel = pycollector.label.pip_to_shortlabel
+        self._class_to_shortlabel.update( vipy.dataset.meva.d_category_to_shortlabel )
+
+        if pretrained:
+            self._load_pretrained()
+            self.net.fc = nn.Linear(self.net.fc.in_features, self.num_classes())
+        elif modelfile is not None:
+            self._load_trained(modelfile)
+        
+    @staticmethod
+    def _totensor(v, training, validation, input_size, num_frames, mean, std, noflip=None, show=False, doflip=False, stride_jitter=3):
+        assert isinstance(v, vipy.video.Scene), &#34;Invalid input&#34;
+        
+        try:
+            v = v.download() if (v.hasurl() and not v.hasfilename()) else v  # fetch it if necessary, but do not do this during training!        
+            vc = v.clone()
+            if training or validation:
+                random.seed()  # force randomness after fork() 
+                (clipstart, clipend) = vc.cliprange()  # clip (start, end) relative to video 
+                (clipstart, clipend) = (clipstart if clipstart is not None else 0,   
+                                        clipend if clipend is not None else int(np.floor(v.duration_in_frames_of_videofile() * (vc.framerate() / v.framerate_of_videofile()))))  # (yuck)
+                # WARNINGS: 
+                # - There exist videos with tracks outside the image rectangle due to the padding in stabilization.  
+                # - There exist MEVA videos that have no tracks at the beginning and end of the padded clip since the annotations only exist for the activity
+                # - There exist MEVA videos with activities that are longer than the tracks, if so, keep the interval of the activity that contains the track
+                # - There exist MEVA videos with multiple objects, need to include only primary actor
+                
+                # - turning activities may be outside the frame (filter these)
+                # - turning activities may turn into the stabilized black area.  Is this avoidaable?
+                # - all of the training activities should be centered on the activity.  See if not.
+                # - 
+                
+                if (clipend - clipstart) &gt; (num_frames + stride_jitter):
+                    a = vc.primary_activity().clone().padto(num_frames/float(vc.framerate()))  # for context only, may be past end of clip now!
+                    (ai, aj) = (a.startframe(), a.endframe())  # activity (start,end) relative to (clipstart, clipend)
+                    (ai, aj) = (max(ai, vc.actor().startframe()), min(aj, vc.actor().endframe()))  # clip activity to when actor is present
+                    startframe = random.randint(ai, aj-num_frames-1) if aj-num_frames-1 &gt; ai else ai
+                    startframe = max(0, startframe + random.randint(-stride_jitter, stride_jitter))   # +/- 3 frames jitter for activity stride
+                    endframe = min(clipend-clipstart-1, startframe + num_frames)  # new end cannot be past duration of clip
+                    if (endframe &gt; startframe) and ((endframe - startframe) &lt; (clipend - clipstart)):
+                        vc = vc.clip(startframe, endframe)
+                    else: 
+                        raise ValueError(&#39;invalid clip for &#34;%s&#34;&#39; % str(v))
+                vc = vc.trackcrop(dilate=1.2, maxsquare=True)  # may be None if clip contains no track
+                vc = vc.resize(input_size, input_size)   
+                vc = vc.fliplr() if (doflip or (random.random() &gt; 0.5)) and (noflip is None or vc.category() not in noflip) else vc
+            else:
+                vc = vc.trackcrop(dilate=1.2, maxsquare=True)  # may be None if clip contains no track
+                vc = vc.resize(input_size, input_size)  # This may introduce a preview()
+                vc = vc.fliplr() if doflip and (noflip is None or vc.category() not in noflip) else vc
+                
+            if show:
+                vc.clone().resize(512,512).show(timestamp=True)
+                vc.clone().binarymask().frame(0).gain(255).rgb().show(figure=&#39;binary mask: frame 0&#39;)
+                
+            vc = vc.load(shape=(input_size, input_size, 3)).normalize(mean=mean, std=std, scale=1.0/255.0)  # [0,255] -&gt; [0,1], triggers load() with known shape
+            (t,lbl) = vc.torch(startframe=0, length=num_frames, boundary=&#39;repeat&#39;, order=&#39;cdhw&#39;, withlabel=training or validation, nonelabel=True)  # (c=3)x(d=num_frames)x(H=input_size)x(W=input_size), reuses vc._array
+            t = torch.cat((t, vc.asfloatmask(fg=0.5, bg=-0.5).torch(startframe=0, length=num_frames, boundary=&#39;repeat&#39;, order=&#39;cdhw&#39;)), dim=0)  # (c=4) x (d=num_frames) x (H=input_size) x (W=input_size), copy
+
+        except Exception as e:
+            if training or validation:
+                print(&#39;[pycollector.recognition.PIP_370k._totensor][SKIPPING]: video=&#34;%s&#34;, exception=&#34;%s&#34;&#39; % (str(vc), str(e)))
+                (t, lbl) = (torch.zeros(4, num_frames, input_size, input_size), None)  # must always return conformal tensor (label=None means it will be ignored)
+            else:
+                print(&#39;[pycollector.recognition.PIP_370k._totensor][ERROR]: discarding tensor for video &#34;%s&#34; with exception &#34;%s&#34;&#39; % (str(vc), str(e)))
+                #t = torch.zeros(4, num_frames, input_size, input_size)  # skip me (should never get here)
+                raise
+
+        if training or validation:
+            return (t, json.dumps(lbl))  # json to use default torch collate_fn
+        else:
+            return t
+
+    def totensor(self, v=None, training=False, validation=False, show=False, doflip=False):
+        &#34;&#34;&#34;Return captured lambda function if v=None, else return tensor&#34;&#34;&#34;    
+        assert v is None or isinstance(v, vipy.video.Scene), &#34;Invalid input&#34;
+        f = (lambda v, num_frames=self._num_frames, input_size=self._input_size, mean=self._mean, std=self._std, training=training, validation=validation, show=show:
+             PIP_370k._totensor(v, training, validation, input_size, num_frames, mean, std, noflip=[&#39;car_turns_left&#39;, &#39;car_turns_right&#39;, &#39;vehicle_turns_left&#39;, &#39;vehicle_turns_right&#39;, &#39;motorcycle_turns_left&#39;, &#39;motorcycle_turns_right&#39;], show=show, doflip=doflip))
+        return f(v) if v is not None else f
+
+
+class ActivityTracker(PIP_370k): 
+    def __init__(self, stride=1, activities=None, gpus=None, batchsize=None, mlbl=False, mlfl=False, modelfile=None):
+        assert modelfile is not None
+
+        super().__init__(pretrained=False, modelfile=modelfile, mlbl=mlbl, mlfl=mlfl)
+        self._stride = stride
+        self._allowable_activities = {k:v for (k,v) in [(a,a) if not isinstance(a, tuple) else a for a in activities]} if activities is not None else {k:k for k in self.classlist()}
+        self._batchsize_per_gpu = batchsize
+        self._gpus = gpus
+
+        if gpus is not None:
+            assert torch.cuda.is_available()
+            assert batchsize is not None
+            self._devices = [&#39;cuda:%d&#39; % k for k in gpus]
+            self._gpus = [copy.deepcopy(self.net).to(d, non_blocking=False) for d in self._devices]  
+            for m in self._gpus:
+                m.eval()
+        torch.set_grad_enabled(False)
+
+    def temporal_stride(self, s=None):
+        if s is not None:
+            self._stride = s
+            return self
+        else:
+            return self._stride
+
+    def forward(self, x):
+        &#34;&#34;&#34;Overload forward for multi-gpu batch.  Don&#39;t use torch DataParallel!&#34;&#34;&#34;
+        if self._gpus is None:
+            return super().forward(x)  # cpu
+        else:
+            x_forward = None            
+            for b in x.pin_memory().split(self._batchsize_per_gpu*len(self._gpus)):  # pinned copy
+                n_todevice = np.sum(np.array([1 if k&lt;len(b) else 0 for k in range(int(len(self._devices)*np.ceil(len(b)/len(self._devices))))]).reshape(-1, len(self._devices)), axis=0).tolist()
+                todevice = [t.to(d, non_blocking=True) for (t,d) in zip(b.split(n_todevice), self._devices) if len(t)&gt;0]   # async device copy
+                ondevice = [m(t) for (m,t) in zip(self._gpus, todevice)]   # async
+                fromdevice = torch.cat([t.cpu() for t in ondevice], dim=0)
+                x_forward = fromdevice if x_forward is None else torch.cat((x_forward, fromdevice), dim=0)
+                del ondevice, todevice, fromdevice, b  # force garbage collection of GPU memory
+            del x  # force garbage collection
+            return x_forward
+
+    def lrt(self, x_logits, lrt_threshold):
+        &#34;&#34;&#34;top-k with likelihood ratio test with background null hypothesis&#34;&#34;&#34;
+        j_bg_person = self._class_to_index[&#39;person&#39;] if &#39;person&#39; in self._class_to_index else self._class_to_index[&#39;person_walks&#39;]  # FIXME
+        j_bg_vehicle = self._class_to_index[&#39;vehicle&#39;] if &#39;vehicle&#39; in self._class_to_index else self._class_to_index[&#39;car_moves&#39;]  # FIXME
+
+        yh = x_logits.detach().cpu().numpy()
+        yh_softmax = F.softmax(x_logits.detach().cpu(), dim=1)
+        p_null = np.maximum(yh[:, j_bg_person], yh[:, j_bg_vehicle]).reshape(yh.shape[0], 1)
+        lr = yh - p_null   # ~= log likelihood ratio
+        f_logistic = lambda x,b,s=1.0: float(1.0 / (1.0 + np.exp(-s*(x + b))))
+        return [sorted([(self.index_to_class(j), float(s[j]), float(t[j]), f_logistic(s[j], 1.0)*f_logistic(t[j], 0.0), float(sm[j])) for j in range(len(s)) if (lrt_threshold is None or t[j] &gt;= lrt_threshold)], key=lambda x: x[3], reverse=True) for (s,t,sm) in zip(yh, lr, yh_softmax)]
+        
+    def __call__(self, vi, topk=1, activityiou=0, mirror=False, minprob=0, trackconf=0.1, maxdets=None, lr_threshold=None, lr_merge_threshold=None, avgdets=None, throttle=False):
+        (n,m,dt) = (self.temporal_support(), self.temporal_stride(), 1)  
+        aa = self._allowable_activities  # dictionary mapping of allowable classified activities to output names        
+        f_encode = self.totensor(training=False, validation=False, show=False, doflip=False)  # video -&gt; tensor CxNxHxW
+        f_mirror = lambda t: (t, torch.from_numpy(np.copy(np.flip(np.asarray(t), axis=3))))  # CxNxHxW -&gt; CxNxHx(-W), np.flip is much faster than torch.flip, faster than encode mirror=True, np.flip returns a view which must be copied
+        f_totensor = lambda v: (f_encode(v.clone(sharedarray=True) if mirror else v),) if (not mirror or v.actor().category() != &#39;person&#39;) else f_mirror(f_encode(v.clone(sharedarray=True)))  # do not mirror vehicle activities
+        f_totensorlist = lambda V: [t for v in V for t in f_totensor(v)]        
+        def f_reduce(T,V):
+            j = sum([v.actor().category() == &#39;person&#39; for v in V])  # person mirrored, vehicle not mirrored
+            (tm, t) = torch.split(T, (2*j, len(T)-2*j), dim=0)  # assumes sorted order, person first, only person/vehicle
+            return torch.cat((torch.mean(tm.view(-1, 2, tm.shape[1]), dim=1), t), dim=0) if j&gt;0 else T  # mean over mirror augmentation
+        
+        try:
+            with torch.no_grad():                                
+                vp = next(vi)  # peek in generator to create clip
+                vi = itertools.chain([vp], vi)  # unpeek
+                sw = vipy.util.Stopwatch() if throttle else None  # real-time framerate estimate
+                framerate = vp.framerate()
+                for (k, (vo,vc)) in enumerate(zip(vi, vp.stream().clip(n, m, continuous=True, activities=False, delay=dt))):
+                    videotracks = [] if vc is None else [vt for vt in vc.trackfilter(lambda t: len(t)&gt;=4 and (t.category() == &#39;person&#39; or (t.category() == &#39;vehicle&#39; and vo.track(t.id()).ismoving(k-10*n+dt, k+dt)))).tracksplit()]  # vehicle moved recently?
+                    if throttle:
+                        videotracks.sort(key=lambda v: v.actor().confidence(last=1))  # in-place                                            
+                        numdets = (maxdets if ((avgdets is None) or (sw.duration()&lt;=60) or ((sw.duration()&gt;60) and ((k/sw.duration())/vp.framerate())&gt;0.8)) else
+                                   (avgdets if ((k/sw.duration())/vp.framerate())&gt;0.67 else int(avgdets//2)))   # real-time throttle schedule
+                        videotracks = videotracks[-numdets:] if (numdets is not None and len(videotracks)&gt;numdets) else videotracks   # select only the most confident for detection                
+                    videotracks.sort(key=lambda v: v.actor().category())  # in-place, for grouping mirrored encoding: person&lt;vehicle
+                
+                    if len(videotracks)&gt;0 and (k+dt &gt; n):
+                        logits = self.forward(torch.stack(f_totensorlist(videotracks))) # augmented logits in track index order, copy
+                        logits = f_reduce(logits, videotracks) if mirror else logits  # reduced logits in track index order
+                        (actorid, actorcategory) = ([t.actorid() for t in videotracks], [t.actor().category() for t in videotracks])
+                        dets = [vipy.activity.Activity(category=aa[category], shortlabel=self._class_to_shortlabel[category], startframe=k-n+dt, endframe=k+dt, confidence=sm, framerate=framerate, actorid=actorid[j], attributes={&#39;pip&#39;:category, &#39;logit&#39;:float(conf)}) 
+                                for (j, category_conf_lr_prob_sm) in enumerate(self.lrt(logits, lr_threshold))  # likelihood ratio test
+                                for (category, conf, lr, prob, sm) in category_conf_lr_prob_sm   
+                                if ((category in aa) and   # requested activities only
+                                    (actorcategory[j] in self._verb_to_noun[category]) and   # noun matching with category renaming dictionary
+                                    sm&gt;=minprob)]   # minimum probability for new activity detection
+                        vo.assign(k+dt, dets, activityiou=activityiou, activitymerge=False, activitynms=True)   # assign new activity detections by non-maximum suppression (merge happens at the end)
+                        del logits, dets, videotracks  # torch garabage collection                                                
+                    yield vo
+
+        except Exception as e:                
+            raise
+
+        finally:
+            # Bad tracks:  Remove low confidence or too short non-moving tracks, and associated activities
+            vo.trackfilter(lambda t: len(t)&gt;=vo.framerate() and (t.confidence() &gt;= trackconf or t.startbox().iou(t.endbox()) == 0)).activityfilter(lambda a: a.actorid() in vo.tracks())  
+                        
+            # Activity probability:  noun_probability*verb probability
+            nounconf = {k:t.confidence(samples=8) for (k,t) in vo.tracks().items()}   # will throw exception that &#39;vo referenced before assignment&#39; if one loop did not succceed
+            vo.activitymap(lambda a: a.confidence(nounconf[a.actorid()]*a.confidence()))
+            
+            # Missing objects:  Significantly reduce confidence of complex classes (yuck)
+            vo.activitymap(lambda a: a.confidence(0.01*a.confidence()) if (a.category() in [&#39;person_purchases&#39;]) else a) 
+
+            # Vehicle turns:  High confidence vehicle turns must be a minimum angle
+            vo.activitymap(lambda a: a.confidence(0.1*a.confidence()) if ((a.category() in [&#39;vehicle_turns_left&#39;, &#39;vehicle_turns_right&#39;]) and (abs(vo.track(a.actorid()).bearing_change(a.startframe(), a.endframe(), dt=vo.framerate(), samples=5)) &lt; (np.pi/16))) else a) 
+
+            # Vehicle turns:  U-turn can only be distinguished from left/right turn at the end of a track by looking at the turn angle
+            vo.activitymap(lambda a: a.category(&#39;vehicle_makes_u_turn&#39;).shortlabel(&#39;u turn&#39;) if ((a.category() in [&#39;vehicle_turns_left&#39;, &#39;vehicle_turns_right&#39;]) and (abs(vo.track(a.actorid()).bearing_change(a.startframe(), a.endframe(), dt=vo.framerate(), samples=5)) &gt; (np.pi-(np.pi/2)))) else a)
+
+            # Background activities:  Use logistic confidence on logit due to lack of background class &#34;person stands&#34;, otherwise every standing person is using a phone
+            f_logistic = lambda x,b,s=1.0: float(1.0 / (1.0 + np.exp(-s*(x + b))))
+            #vo.activitymap(lambda a: a.confidence(a.confidence()*f_logistic(a.attributes[&#39;logit&#39;], -1.5)) if a.category() in [&#39;person_talks_on_phone&#39;, &#39;person_texts_on_phone&#39;, &#39;person_abandons_package&#39;, &#39;person_steals_object&#39;] else a)
+            vo.activitymap(lambda a: a.confidence(a.confidence()*f_logistic(a.attributes[&#39;logit&#39;], -1.5)))  # TESTING
+            
+            # Vehicle motion: start and stop must be accompanied by a minimum track acceleration/deceleration
+            vo.activitymap(lambda a: a.confidence(0.1*a.confidence()) if (a.category() in [&#39;vehicle_starts&#39;, &#39;vehicle_stops&#39;] and abs(vo.track(a.actorid()).acceleration(a.middleframe(), dt=vo.framerate())) &lt; 1) else a)
+            vo.activitymap(lambda a: a.padto(5).offset(int(1.5*vo.framerate())) if a.category() == &#39;vehicle_starts&#39; else (a.padto(5).offset(-int(1.5*vo.framerate())) if a.category() == &#39;vehicle_stops&#39; else a))
+            
+            # Vehicle/person interaction: &#39;vehicle_drops_off_person&#39;/&#39;vehicle_picks_up_person&#39;  must be followed by car driving away/pulling up, must be accompanied by person track start/end
+            vo.activitymap(lambda a: a.confidence(0.1*a.confidence()) if (a.category() == &#39;vehicle_drops_off_person&#39; and
+                                                                          (not vo.track(a.actorid()).ismoving(a.middleframe(), a.endframe()+10*vo.framerate()) or
+                                                                           not any([t.category() == &#39;person&#39; and t.segment_maxiou(vo.track(a._actorid), t.startframe(), t.startframe()+1) &gt; 0 for t in vo.tracks().values()])))
+                                                                          else a)
+            vo.activitymap(lambda a: a.confidence(0.1*a.confidence()) if (a.category() == &#39;vehicle_picks_up_person&#39; and
+                                                                          (not vo.track(a.actorid()).ismoving(a.startframe()-10*vo.framerate(), a.middleframe()) or
+                                                                           not any([t.category() == &#39;person&#39; and t.segment_maxiou(vo.track(a._actorid), t.endframe()-1, t.endframe()) &gt; 0 for t in vo.tracks().values()])))
+                                                                          else a)
+            
+            # Person/Bicycle track: riding must be accompanied by an associated moving bicycle track
+            vo.activityfilter(lambda a: a.category() != &#39;person_rides_bicycle&#39;)
+            bikelist = [vo.add(vipy.activity.Activity(startframe=t.startframe(), endframe=t.endframe(), category=&#39;person_rides_bicycle&#39;, shortlabel=&#39;rides&#39;, confidence=t.confidence(samples=8), framerate=vo.framerate(), actorid=t.id(), attributes={&#39;pip&#39;:&#39;person_rides_bicycle&#39;}))
+                        for (tk,t) in vo.tracks().items() if t.category() == &#39;bicycle&#39; and t.ismoving()]
+
+            # Person/Vehicle track: person/vehicle interaction must be accompanied by an associated stopped vehicle track
+            dstbox = {k:vo.track(a.actorid()).boundingbox(a.startframe(), a.endframe()) for (k,a) in vo.activities().items() if (a.category().startswith(&#39;person&#39;) and (&#39;vehicle&#39; in a.category() or &#39;trunk&#39; in a.category()))}  # precompute            
+            vo.activitymap(lambda a: a.confidence(0.1*a.confidence()) if ((a.category().startswith(&#39;person&#39;) and (&#39;vehicle&#39; in a.category() or &#39;trunk&#39; in a.category())) and not any([t.category() == &#39;vehicle&#39; and 
+                                                                                                                                                                                     t.during(a.startframe()) and
+                                                                                                                                                                                     not t.ismoving(a.startframe(), a.endframe()) and
+                                                                                                                                                                                     t[a.startframe()].hasintersection(dstbox[a._id])
+                                                                                                                                                                                     for t in vo.tracks().values()])) else a)
+            # Vehicle/Person track: vehicle/person interaction must be accompanied by an associated person track
+            vo.activitymap(lambda a: a.confidence(0.1*a.confidence()) if ((a.category().startswith(&#39;vehicle&#39;) and (&#39;person&#39; in a.category())) and not any([t.category() == &#39;person&#39; and t.segment_maxiou(vo.track(a._actorid), a._startframe, a._endframe) &gt; 0 for t in vo.tracks().values()])) else a)
+            
+            # Person track: enter/exit scene cannot be at the image boundary
+            boundary = vo.framebox().dilate(0.9)
+            vo.activitymap(lambda a: a.confidence(0.1*a.confidence()) if (a.category() == &#39;person_enters_scene_through_structure&#39; and vo.track(a.actorid())[max(a.startframe(), vo.track(a.actorid()).startframe())].cover(boundary) &lt; 1) else a)
+            vo.activitymap(lambda a: a.confidence(0.1*a.confidence()) if (a.category() == &#39;person_exits_scene_through_structure&#39; and vo.track(a.actorid())[min(a.endframe(), vo.track(a.actorid()).endframe())].cover(boundary) &lt; 1) else a)
+                        
+            # Activity union:  Temporal gaps less than support should be merged into one activity detection for a single track
+            # Activity union:  &#34;Brief&#34; breaks (&lt;5 seconds) of confident activities should be merged into one activity detection for a single track
+            briefmerge = set([&#39;person_reads_document&#39;, &#39;person_interacts_with_laptop&#39;, &#39;person_talks_to_person&#39;, &#39;person_purchases&#39;, &#39;person_steals_object&#39;, &#39;person_talks_on_phone&#39;, &#39;person_texts_on_phone&#39;, &#39;person_rides_bicycle&#39;, &#39;person_carries_heavy_object&#39;, &#39;person&#39;, &#39;person_walks&#39;, &#39;vehicle&#39;, &#39;car_moves&#39;])  
+            merged = set([])
+            mergeable_dets = [a for a in vo.activities().values() if a.confidence() &gt; 0.2]  # only mergeable detections
+            mergeable_dets.sort(key=lambda a: a.startframe())  # in-place
+            for a in mergeable_dets:
+                for o in mergeable_dets:
+                    if ((o._startframe &gt;= a._startframe) and (a._id != o._id) and (o._actorid == a._actorid) and (o._label == a._label) and (o._id not in merged) and (a._id not in merged) and
+                        ((a.temporal_distance(o) &lt;= self.temporal_support() or (a.category() in briefmerge and a.temporal_distance(o) &lt; 5*vo.framerate())))):
+                        a.union(o)  # in-place update
+                        merged.add(o.id())
+            vo.activityfilter(lambda a: a.id() not in merged)
+
+            # Group activity: Must be accompanied by a friend with the same activity detection
+            categories = [&#39;person_embraces_person&#39;, &#39;hand_interacts_with_person&#39;, &#39;person_talks_to_person&#39;, &#39;person_transfers_object&#39;]           
+            dstbox = {k:vo.track(a.actorid()).boundingbox(a.startframe(), a.endframe()) for (k,a) in vo.activities().items() if a.category() in categories}  # precompute
+            srcbox = {k:bb.clone().maxsquare().dilate(1.2) for (k,bb) in dstbox.items()}                            
+            vo.activitymap(lambda a: a.confidence(0.1*a.confidence()) if (a._label in categories and
+                                                                         not any([(af._label == a._label and
+                                                                                   af._id != a._id and
+                                                                                   af._actorid != a._actorid and 
+                                                                                   srcbox[a._id].hasintersection(dstbox[af._id]))
+                                                                                  for af in vo.activities().values() if af.during_interval(a._startframe, a._endframe, inclusive=True)])) else a)
+            
+            # Activity group suppression:  Group activities may have at most one activity detection of this type per group in a spatial region surrounding the actor
+            tosuppress = set([&#39;hand_interacts_with_person&#39;, &#39;person_embraces_person&#39;, &#39;person_transfers_object&#39;, &#39;person_steals_object&#39;, &#39;person_purchases&#39;, &#39;person_talks_to_person&#39;])
+            suppressed = set([])
+            activitybox = {a.id():vo.track(a.actorid()).boundingbox(a.startframe(), a.endframe()) for a in vo.activities().values() if a.category() in tosuppress}
+            activitybox = {k:bb.dilate(1.2).maxsquare() if bb is not None else bb for (k,bb) in activitybox.items()}
+            for a in sorted(vo.activities().values(), key=lambda a: a.confidence(), reverse=True):  # decreasing confidence
+                if a.category() in tosuppress:
+                    for o in vo.activities().values():  # other activities
+                        if (o._actorid != a._actorid and  # different tracks
+                            o._label == a._label and  # same category
+                            o.confidence() &lt;= a.confidence() and   # lower confidence
+                            o._id not in suppressed and  # not already suppressed
+                            o.during_interval(a.startframe(), a.endframe()) and # overlaps temporally by at least one frame
+                            (activitybox[a._id] is not None and activitybox[o._id] is not None) and   # has valid tracks
+                            activitybox[a._id].hasintersection(activitybox[o._id]) and  # has coarse overlap 
+                            vo.track(a.actorid()).clone().maxsquare().dilate(1.2).segment_maxiou(vo.track(o.actorid()), a.startframe(), a.endframe()) &gt; 0):  # has fine overlap &#34;close by&#34;
+                            suppressed.add(o.id())  # greedy non-maximum suppression of lower confidence activity detection
+            vo.activityfilter(lambda a: a.id() not in suppressed)
+
+            # Activity duration
+            vo.activitymap(lambda a: a.padto(5) if a.category() in [&#39;person_talks_to_person&#39;, &#39;person_interacts_with_laptop&#39;, &#39;person_reads_document&#39;, &#39;person_purchases&#39;] else a)   
+            vo.activitymap(lambda a: a.duration(2, centered=False) if a.category() in [&#39;person_opens_vehicle_door&#39;, &#39;person_closes_vehicle_door&#39;] else a)
+            vo.activitymap(lambda a: a.duration(2, centered=True) if a.category() in [&#39;person_enters_scene_through_structure&#39;, &#39;person_exits_scene_through_structure&#39;] else a)
+            vo.activitymap(lambda a: a.startframe(0) if a.startframe() &lt; 0 else a)
+            
+            # Done!
+            vo.setattribute(&#39;_completed&#39;, str(datetime.now()))</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="pycollector.recognition.ActivityRecognition"><code class="flex name class">
+<span>class <span class="ident">ActivityRecognition</span></span>
+<span>(</span><span>pretrained=True)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/recognition.py#L34-L88" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class ActivityRecognition(object):
+    def __init__(self, pretrained=True):
+        self.net =  None
+        self._class_to_index = {}
+        self._num_frames = 0
+
+    def class_to_index(self, c=None):
+        return self._class_to_index if c is None else self._class_to_index[c]
+    
+    def index_to_class(self, index=None):
+        d = {v:k for (k,v) in self.class_to_index().items()}
+        return d if index is None else d[index]
+    
+    def classlist(self):
+        return [k for (k,v) in sorted(list(self.class_to_index().items()), key=lambda x: x[0])]  # sorted in index order
+
+    def num_classes(self):
+        return len(self.classlist())
+
+    def fromindex(self, k):
+        index_to_class = {v:k for (k,v) in self.class_to_index().items()}
+        assert k in index_to_class, &#34;Invalid class index &#39;%s&#39;&#34; % (str(k))
+        return index_to_class[k]
+
+    def label_confidence(self, video=None, tensor=None, threshold=None):
+        raise
+        logits = self.__call__(video, tensor)
+        conf = [[(self.index_to_class(j), s[j]) for j in i[::-1] if threshold is None or s[j]&gt;threshold] for (s,i) in zip(logits, np.argsort(logits, axis=1))]
+        return conf if len(logits) &gt; 1 else conf[0]
+
+    def activity(self, video, threshold=None):
+        (c,s) = zip(*self.label_confidence(video=video, threshold=None))
+        return vipy.activity.Activity(startframe=0, endframe=self._num_frames, category=c[0], actorid=video.actorid(), confidence=s[0]) if (threshold is None or s[0]&gt;threshold) else None
+            
+    def top1(self, video=None, tensor=None, threshold=None):
+        raise
+        return self.topk(k=1, video=video, tensor=tensor, threshold=threshold)
+
+    def topk(self, k, video=None, tensor=None, threshold=None):
+        raise
+        logits = self.__call__(video, tensor)
+        topk = [[self.index_to_class(j) for j in i[-k:][::-1] if threshold is None or s[j] &gt;= threshold] for (s,i) in zip(logits, np.argsort(logits, axis=1))]
+        return topk if len(topk) &gt; 1 else topk[0]
+
+    def temporal_support(self):
+        return self._num_frames
+
+    def totensor(self, training=False):
+        raise
+
+    def binary_vector(self, categories):
+        y = np.zeros(len(self.classlist())).astype(np.float32)
+        for c in tolist(categories):
+            y[self.class_to_index(c)] = 1
+        return torch.from_numpy(y).type(torch.FloatTensor)</code></pre>
+</details>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="pycollector.recognition.PIP_250k" href="#pycollector.recognition.PIP_250k">PIP_250k</a></li>
+<li><a title="pycollector.recognition.PIP_370k" href="#pycollector.recognition.PIP_370k">PIP_370k</a></li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="pycollector.recognition.ActivityRecognition.activity"><code class="name flex">
+<span>def <span class="ident">activity</span></span>(<span>self, video, threshold=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/recognition.py#L64-L66" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def activity(self, video, threshold=None):
+    (c,s) = zip(*self.label_confidence(video=video, threshold=None))
+    return vipy.activity.Activity(startframe=0, endframe=self._num_frames, category=c[0], actorid=video.actorid(), confidence=s[0]) if (threshold is None or s[0]&gt;threshold) else None</code></pre>
+</details>
+</dd>
+<dt id="pycollector.recognition.ActivityRecognition.binary_vector"><code class="name flex">
+<span>def <span class="ident">binary_vector</span></span>(<span>self, categories)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/recognition.py#L84-L88" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def binary_vector(self, categories):
+    y = np.zeros(len(self.classlist())).astype(np.float32)
+    for c in tolist(categories):
+        y[self.class_to_index(c)] = 1
+    return torch.from_numpy(y).type(torch.FloatTensor)</code></pre>
+</details>
+</dd>
+<dt id="pycollector.recognition.ActivityRecognition.class_to_index"><code class="name flex">
+<span>def <span class="ident">class_to_index</span></span>(<span>self, c=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/recognition.py#L40-L41" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def class_to_index(self, c=None):
+    return self._class_to_index if c is None else self._class_to_index[c]</code></pre>
+</details>
+</dd>
+<dt id="pycollector.recognition.ActivityRecognition.classlist"><code class="name flex">
+<span>def <span class="ident">classlist</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/recognition.py#L47-L48" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def classlist(self):
+    return [k for (k,v) in sorted(list(self.class_to_index().items()), key=lambda x: x[0])]  # sorted in index order</code></pre>
+</details>
+</dd>
+<dt id="pycollector.recognition.ActivityRecognition.fromindex"><code class="name flex">
+<span>def <span class="ident">fromindex</span></span>(<span>self, k)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/recognition.py#L53-L56" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def fromindex(self, k):
+    index_to_class = {v:k for (k,v) in self.class_to_index().items()}
+    assert k in index_to_class, &#34;Invalid class index &#39;%s&#39;&#34; % (str(k))
+    return index_to_class[k]</code></pre>
+</details>
+</dd>
+<dt id="pycollector.recognition.ActivityRecognition.index_to_class"><code class="name flex">
+<span>def <span class="ident">index_to_class</span></span>(<span>self, index=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/recognition.py#L43-L45" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def index_to_class(self, index=None):
+    d = {v:k for (k,v) in self.class_to_index().items()}
+    return d if index is None else d[index]</code></pre>
+</details>
+</dd>
+<dt id="pycollector.recognition.ActivityRecognition.label_confidence"><code class="name flex">
+<span>def <span class="ident">label_confidence</span></span>(<span>self, video=None, tensor=None, threshold=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/recognition.py#L58-L62" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def label_confidence(self, video=None, tensor=None, threshold=None):
+    raise
+    logits = self.__call__(video, tensor)
+    conf = [[(self.index_to_class(j), s[j]) for j in i[::-1] if threshold is None or s[j]&gt;threshold] for (s,i) in zip(logits, np.argsort(logits, axis=1))]
+    return conf if len(logits) &gt; 1 else conf[0]</code></pre>
+</details>
+</dd>
+<dt id="pycollector.recognition.ActivityRecognition.num_classes"><code class="name flex">
+<span>def <span class="ident">num_classes</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/recognition.py#L50-L51" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def num_classes(self):
+    return len(self.classlist())</code></pre>
+</details>
+</dd>
+<dt id="pycollector.recognition.ActivityRecognition.temporal_support"><code class="name flex">
+<span>def <span class="ident">temporal_support</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/recognition.py#L78-L79" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def temporal_support(self):
+    return self._num_frames</code></pre>
+</details>
+</dd>
+<dt id="pycollector.recognition.ActivityRecognition.top1"><code class="name flex">
+<span>def <span class="ident">top1</span></span>(<span>self, video=None, tensor=None, threshold=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/recognition.py#L68-L70" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def top1(self, video=None, tensor=None, threshold=None):
+    raise
+    return self.topk(k=1, video=video, tensor=tensor, threshold=threshold)</code></pre>
+</details>
+</dd>
+<dt id="pycollector.recognition.ActivityRecognition.topk"><code class="name flex">
+<span>def <span class="ident">topk</span></span>(<span>self, k, video=None, tensor=None, threshold=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/recognition.py#L72-L76" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def topk(self, k, video=None, tensor=None, threshold=None):
+    raise
+    logits = self.__call__(video, tensor)
+    topk = [[self.index_to_class(j) for j in i[-k:][::-1] if threshold is None or s[j] &gt;= threshold] for (s,i) in zip(logits, np.argsort(logits, axis=1))]
+    return topk if len(topk) &gt; 1 else topk[0]</code></pre>
+</details>
+</dd>
+<dt id="pycollector.recognition.ActivityRecognition.totensor"><code class="name flex">
+<span>def <span class="ident">totensor</span></span>(<span>self, training=False)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/recognition.py#L81-L82" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def totensor(self, training=False):
+    raise</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="pycollector.recognition.ActivityTracker"><code class="flex name class">
+<span>class <span class="ident">ActivityTracker</span></span>
+<span>(</span><span>stride=1, activities=None, gpus=None, batchsize=None, mlbl=False, mlfl=False, modelfile=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Activity recognition using people in public - 250k stabilized</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/recognition.py#L389-L594" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class ActivityTracker(PIP_370k): 
+    def __init__(self, stride=1, activities=None, gpus=None, batchsize=None, mlbl=False, mlfl=False, modelfile=None):
+        assert modelfile is not None
+
+        super().__init__(pretrained=False, modelfile=modelfile, mlbl=mlbl, mlfl=mlfl)
+        self._stride = stride
+        self._allowable_activities = {k:v for (k,v) in [(a,a) if not isinstance(a, tuple) else a for a in activities]} if activities is not None else {k:k for k in self.classlist()}
+        self._batchsize_per_gpu = batchsize
+        self._gpus = gpus
+
+        if gpus is not None:
+            assert torch.cuda.is_available()
+            assert batchsize is not None
+            self._devices = [&#39;cuda:%d&#39; % k for k in gpus]
+            self._gpus = [copy.deepcopy(self.net).to(d, non_blocking=False) for d in self._devices]  
+            for m in self._gpus:
+                m.eval()
+        torch.set_grad_enabled(False)
+
+    def temporal_stride(self, s=None):
+        if s is not None:
+            self._stride = s
+            return self
+        else:
+            return self._stride
+
+    def forward(self, x):
+        &#34;&#34;&#34;Overload forward for multi-gpu batch.  Don&#39;t use torch DataParallel!&#34;&#34;&#34;
+        if self._gpus is None:
+            return super().forward(x)  # cpu
+        else:
+            x_forward = None            
+            for b in x.pin_memory().split(self._batchsize_per_gpu*len(self._gpus)):  # pinned copy
+                n_todevice = np.sum(np.array([1 if k&lt;len(b) else 0 for k in range(int(len(self._devices)*np.ceil(len(b)/len(self._devices))))]).reshape(-1, len(self._devices)), axis=0).tolist()
+                todevice = [t.to(d, non_blocking=True) for (t,d) in zip(b.split(n_todevice), self._devices) if len(t)&gt;0]   # async device copy
+                ondevice = [m(t) for (m,t) in zip(self._gpus, todevice)]   # async
+                fromdevice = torch.cat([t.cpu() for t in ondevice], dim=0)
+                x_forward = fromdevice if x_forward is None else torch.cat((x_forward, fromdevice), dim=0)
+                del ondevice, todevice, fromdevice, b  # force garbage collection of GPU memory
+            del x  # force garbage collection
+            return x_forward
+
+    def lrt(self, x_logits, lrt_threshold):
+        &#34;&#34;&#34;top-k with likelihood ratio test with background null hypothesis&#34;&#34;&#34;
+        j_bg_person = self._class_to_index[&#39;person&#39;] if &#39;person&#39; in self._class_to_index else self._class_to_index[&#39;person_walks&#39;]  # FIXME
+        j_bg_vehicle = self._class_to_index[&#39;vehicle&#39;] if &#39;vehicle&#39; in self._class_to_index else self._class_to_index[&#39;car_moves&#39;]  # FIXME
+
+        yh = x_logits.detach().cpu().numpy()
+        yh_softmax = F.softmax(x_logits.detach().cpu(), dim=1)
+        p_null = np.maximum(yh[:, j_bg_person], yh[:, j_bg_vehicle]).reshape(yh.shape[0], 1)
+        lr = yh - p_null   # ~= log likelihood ratio
+        f_logistic = lambda x,b,s=1.0: float(1.0 / (1.0 + np.exp(-s*(x + b))))
+        return [sorted([(self.index_to_class(j), float(s[j]), float(t[j]), f_logistic(s[j], 1.0)*f_logistic(t[j], 0.0), float(sm[j])) for j in range(len(s)) if (lrt_threshold is None or t[j] &gt;= lrt_threshold)], key=lambda x: x[3], reverse=True) for (s,t,sm) in zip(yh, lr, yh_softmax)]
+        
+    def __call__(self, vi, topk=1, activityiou=0, mirror=False, minprob=0, trackconf=0.1, maxdets=None, lr_threshold=None, lr_merge_threshold=None, avgdets=None, throttle=False):
+        (n,m,dt) = (self.temporal_support(), self.temporal_stride(), 1)  
+        aa = self._allowable_activities  # dictionary mapping of allowable classified activities to output names        
+        f_encode = self.totensor(training=False, validation=False, show=False, doflip=False)  # video -&gt; tensor CxNxHxW
+        f_mirror = lambda t: (t, torch.from_numpy(np.copy(np.flip(np.asarray(t), axis=3))))  # CxNxHxW -&gt; CxNxHx(-W), np.flip is much faster than torch.flip, faster than encode mirror=True, np.flip returns a view which must be copied
+        f_totensor = lambda v: (f_encode(v.clone(sharedarray=True) if mirror else v),) if (not mirror or v.actor().category() != &#39;person&#39;) else f_mirror(f_encode(v.clone(sharedarray=True)))  # do not mirror vehicle activities
+        f_totensorlist = lambda V: [t for v in V for t in f_totensor(v)]        
+        def f_reduce(T,V):
+            j = sum([v.actor().category() == &#39;person&#39; for v in V])  # person mirrored, vehicle not mirrored
+            (tm, t) = torch.split(T, (2*j, len(T)-2*j), dim=0)  # assumes sorted order, person first, only person/vehicle
+            return torch.cat((torch.mean(tm.view(-1, 2, tm.shape[1]), dim=1), t), dim=0) if j&gt;0 else T  # mean over mirror augmentation
+        
+        try:
+            with torch.no_grad():                                
+                vp = next(vi)  # peek in generator to create clip
+                vi = itertools.chain([vp], vi)  # unpeek
+                sw = vipy.util.Stopwatch() if throttle else None  # real-time framerate estimate
+                framerate = vp.framerate()
+                for (k, (vo,vc)) in enumerate(zip(vi, vp.stream().clip(n, m, continuous=True, activities=False, delay=dt))):
+                    videotracks = [] if vc is None else [vt for vt in vc.trackfilter(lambda t: len(t)&gt;=4 and (t.category() == &#39;person&#39; or (t.category() == &#39;vehicle&#39; and vo.track(t.id()).ismoving(k-10*n+dt, k+dt)))).tracksplit()]  # vehicle moved recently?
+                    if throttle:
+                        videotracks.sort(key=lambda v: v.actor().confidence(last=1))  # in-place                                            
+                        numdets = (maxdets if ((avgdets is None) or (sw.duration()&lt;=60) or ((sw.duration()&gt;60) and ((k/sw.duration())/vp.framerate())&gt;0.8)) else
+                                   (avgdets if ((k/sw.duration())/vp.framerate())&gt;0.67 else int(avgdets//2)))   # real-time throttle schedule
+                        videotracks = videotracks[-numdets:] if (numdets is not None and len(videotracks)&gt;numdets) else videotracks   # select only the most confident for detection                
+                    videotracks.sort(key=lambda v: v.actor().category())  # in-place, for grouping mirrored encoding: person&lt;vehicle
+                
+                    if len(videotracks)&gt;0 and (k+dt &gt; n):
+                        logits = self.forward(torch.stack(f_totensorlist(videotracks))) # augmented logits in track index order, copy
+                        logits = f_reduce(logits, videotracks) if mirror else logits  # reduced logits in track index order
+                        (actorid, actorcategory) = ([t.actorid() for t in videotracks], [t.actor().category() for t in videotracks])
+                        dets = [vipy.activity.Activity(category=aa[category], shortlabel=self._class_to_shortlabel[category], startframe=k-n+dt, endframe=k+dt, confidence=sm, framerate=framerate, actorid=actorid[j], attributes={&#39;pip&#39;:category, &#39;logit&#39;:float(conf)}) 
+                                for (j, category_conf_lr_prob_sm) in enumerate(self.lrt(logits, lr_threshold))  # likelihood ratio test
+                                for (category, conf, lr, prob, sm) in category_conf_lr_prob_sm   
+                                if ((category in aa) and   # requested activities only
+                                    (actorcategory[j] in self._verb_to_noun[category]) and   # noun matching with category renaming dictionary
+                                    sm&gt;=minprob)]   # minimum probability for new activity detection
+                        vo.assign(k+dt, dets, activityiou=activityiou, activitymerge=False, activitynms=True)   # assign new activity detections by non-maximum suppression (merge happens at the end)
+                        del logits, dets, videotracks  # torch garabage collection                                                
+                    yield vo
+
+        except Exception as e:                
+            raise
+
+        finally:
+            # Bad tracks:  Remove low confidence or too short non-moving tracks, and associated activities
+            vo.trackfilter(lambda t: len(t)&gt;=vo.framerate() and (t.confidence() &gt;= trackconf or t.startbox().iou(t.endbox()) == 0)).activityfilter(lambda a: a.actorid() in vo.tracks())  
+                        
+            # Activity probability:  noun_probability*verb probability
+            nounconf = {k:t.confidence(samples=8) for (k,t) in vo.tracks().items()}   # will throw exception that &#39;vo referenced before assignment&#39; if one loop did not succceed
+            vo.activitymap(lambda a: a.confidence(nounconf[a.actorid()]*a.confidence()))
+            
+            # Missing objects:  Significantly reduce confidence of complex classes (yuck)
+            vo.activitymap(lambda a: a.confidence(0.01*a.confidence()) if (a.category() in [&#39;person_purchases&#39;]) else a) 
+
+            # Vehicle turns:  High confidence vehicle turns must be a minimum angle
+            vo.activitymap(lambda a: a.confidence(0.1*a.confidence()) if ((a.category() in [&#39;vehicle_turns_left&#39;, &#39;vehicle_turns_right&#39;]) and (abs(vo.track(a.actorid()).bearing_change(a.startframe(), a.endframe(), dt=vo.framerate(), samples=5)) &lt; (np.pi/16))) else a) 
+
+            # Vehicle turns:  U-turn can only be distinguished from left/right turn at the end of a track by looking at the turn angle
+            vo.activitymap(lambda a: a.category(&#39;vehicle_makes_u_turn&#39;).shortlabel(&#39;u turn&#39;) if ((a.category() in [&#39;vehicle_turns_left&#39;, &#39;vehicle_turns_right&#39;]) and (abs(vo.track(a.actorid()).bearing_change(a.startframe(), a.endframe(), dt=vo.framerate(), samples=5)) &gt; (np.pi-(np.pi/2)))) else a)
+
+            # Background activities:  Use logistic confidence on logit due to lack of background class &#34;person stands&#34;, otherwise every standing person is using a phone
+            f_logistic = lambda x,b,s=1.0: float(1.0 / (1.0 + np.exp(-s*(x + b))))
+            #vo.activitymap(lambda a: a.confidence(a.confidence()*f_logistic(a.attributes[&#39;logit&#39;], -1.5)) if a.category() in [&#39;person_talks_on_phone&#39;, &#39;person_texts_on_phone&#39;, &#39;person_abandons_package&#39;, &#39;person_steals_object&#39;] else a)
+            vo.activitymap(lambda a: a.confidence(a.confidence()*f_logistic(a.attributes[&#39;logit&#39;], -1.5)))  # TESTING
+            
+            # Vehicle motion: start and stop must be accompanied by a minimum track acceleration/deceleration
+            vo.activitymap(lambda a: a.confidence(0.1*a.confidence()) if (a.category() in [&#39;vehicle_starts&#39;, &#39;vehicle_stops&#39;] and abs(vo.track(a.actorid()).acceleration(a.middleframe(), dt=vo.framerate())) &lt; 1) else a)
+            vo.activitymap(lambda a: a.padto(5).offset(int(1.5*vo.framerate())) if a.category() == &#39;vehicle_starts&#39; else (a.padto(5).offset(-int(1.5*vo.framerate())) if a.category() == &#39;vehicle_stops&#39; else a))
+            
+            # Vehicle/person interaction: &#39;vehicle_drops_off_person&#39;/&#39;vehicle_picks_up_person&#39;  must be followed by car driving away/pulling up, must be accompanied by person track start/end
+            vo.activitymap(lambda a: a.confidence(0.1*a.confidence()) if (a.category() == &#39;vehicle_drops_off_person&#39; and
+                                                                          (not vo.track(a.actorid()).ismoving(a.middleframe(), a.endframe()+10*vo.framerate()) or
+                                                                           not any([t.category() == &#39;person&#39; and t.segment_maxiou(vo.track(a._actorid), t.startframe(), t.startframe()+1) &gt; 0 for t in vo.tracks().values()])))
+                                                                          else a)
+            vo.activitymap(lambda a: a.confidence(0.1*a.confidence()) if (a.category() == &#39;vehicle_picks_up_person&#39; and
+                                                                          (not vo.track(a.actorid()).ismoving(a.startframe()-10*vo.framerate(), a.middleframe()) or
+                                                                           not any([t.category() == &#39;person&#39; and t.segment_maxiou(vo.track(a._actorid), t.endframe()-1, t.endframe()) &gt; 0 for t in vo.tracks().values()])))
+                                                                          else a)
+            
+            # Person/Bicycle track: riding must be accompanied by an associated moving bicycle track
+            vo.activityfilter(lambda a: a.category() != &#39;person_rides_bicycle&#39;)
+            bikelist = [vo.add(vipy.activity.Activity(startframe=t.startframe(), endframe=t.endframe(), category=&#39;person_rides_bicycle&#39;, shortlabel=&#39;rides&#39;, confidence=t.confidence(samples=8), framerate=vo.framerate(), actorid=t.id(), attributes={&#39;pip&#39;:&#39;person_rides_bicycle&#39;}))
+                        for (tk,t) in vo.tracks().items() if t.category() == &#39;bicycle&#39; and t.ismoving()]
+
+            # Person/Vehicle track: person/vehicle interaction must be accompanied by an associated stopped vehicle track
+            dstbox = {k:vo.track(a.actorid()).boundingbox(a.startframe(), a.endframe()) for (k,a) in vo.activities().items() if (a.category().startswith(&#39;person&#39;) and (&#39;vehicle&#39; in a.category() or &#39;trunk&#39; in a.category()))}  # precompute            
+            vo.activitymap(lambda a: a.confidence(0.1*a.confidence()) if ((a.category().startswith(&#39;person&#39;) and (&#39;vehicle&#39; in a.category() or &#39;trunk&#39; in a.category())) and not any([t.category() == &#39;vehicle&#39; and 
+                                                                                                                                                                                     t.during(a.startframe()) and
+                                                                                                                                                                                     not t.ismoving(a.startframe(), a.endframe()) and
+                                                                                                                                                                                     t[a.startframe()].hasintersection(dstbox[a._id])
+                                                                                                                                                                                     for t in vo.tracks().values()])) else a)
+            # Vehicle/Person track: vehicle/person interaction must be accompanied by an associated person track
+            vo.activitymap(lambda a: a.confidence(0.1*a.confidence()) if ((a.category().startswith(&#39;vehicle&#39;) and (&#39;person&#39; in a.category())) and not any([t.category() == &#39;person&#39; and t.segment_maxiou(vo.track(a._actorid), a._startframe, a._endframe) &gt; 0 for t in vo.tracks().values()])) else a)
+            
+            # Person track: enter/exit scene cannot be at the image boundary
+            boundary = vo.framebox().dilate(0.9)
+            vo.activitymap(lambda a: a.confidence(0.1*a.confidence()) if (a.category() == &#39;person_enters_scene_through_structure&#39; and vo.track(a.actorid())[max(a.startframe(), vo.track(a.actorid()).startframe())].cover(boundary) &lt; 1) else a)
+            vo.activitymap(lambda a: a.confidence(0.1*a.confidence()) if (a.category() == &#39;person_exits_scene_through_structure&#39; and vo.track(a.actorid())[min(a.endframe(), vo.track(a.actorid()).endframe())].cover(boundary) &lt; 1) else a)
+                        
+            # Activity union:  Temporal gaps less than support should be merged into one activity detection for a single track
+            # Activity union:  &#34;Brief&#34; breaks (&lt;5 seconds) of confident activities should be merged into one activity detection for a single track
+            briefmerge = set([&#39;person_reads_document&#39;, &#39;person_interacts_with_laptop&#39;, &#39;person_talks_to_person&#39;, &#39;person_purchases&#39;, &#39;person_steals_object&#39;, &#39;person_talks_on_phone&#39;, &#39;person_texts_on_phone&#39;, &#39;person_rides_bicycle&#39;, &#39;person_carries_heavy_object&#39;, &#39;person&#39;, &#39;person_walks&#39;, &#39;vehicle&#39;, &#39;car_moves&#39;])  
+            merged = set([])
+            mergeable_dets = [a for a in vo.activities().values() if a.confidence() &gt; 0.2]  # only mergeable detections
+            mergeable_dets.sort(key=lambda a: a.startframe())  # in-place
+            for a in mergeable_dets:
+                for o in mergeable_dets:
+                    if ((o._startframe &gt;= a._startframe) and (a._id != o._id) and (o._actorid == a._actorid) and (o._label == a._label) and (o._id not in merged) and (a._id not in merged) and
+                        ((a.temporal_distance(o) &lt;= self.temporal_support() or (a.category() in briefmerge and a.temporal_distance(o) &lt; 5*vo.framerate())))):
+                        a.union(o)  # in-place update
+                        merged.add(o.id())
+            vo.activityfilter(lambda a: a.id() not in merged)
+
+            # Group activity: Must be accompanied by a friend with the same activity detection
+            categories = [&#39;person_embraces_person&#39;, &#39;hand_interacts_with_person&#39;, &#39;person_talks_to_person&#39;, &#39;person_transfers_object&#39;]           
+            dstbox = {k:vo.track(a.actorid()).boundingbox(a.startframe(), a.endframe()) for (k,a) in vo.activities().items() if a.category() in categories}  # precompute
+            srcbox = {k:bb.clone().maxsquare().dilate(1.2) for (k,bb) in dstbox.items()}                            
+            vo.activitymap(lambda a: a.confidence(0.1*a.confidence()) if (a._label in categories and
+                                                                         not any([(af._label == a._label and
+                                                                                   af._id != a._id and
+                                                                                   af._actorid != a._actorid and 
+                                                                                   srcbox[a._id].hasintersection(dstbox[af._id]))
+                                                                                  for af in vo.activities().values() if af.during_interval(a._startframe, a._endframe, inclusive=True)])) else a)
+            
+            # Activity group suppression:  Group activities may have at most one activity detection of this type per group in a spatial region surrounding the actor
+            tosuppress = set([&#39;hand_interacts_with_person&#39;, &#39;person_embraces_person&#39;, &#39;person_transfers_object&#39;, &#39;person_steals_object&#39;, &#39;person_purchases&#39;, &#39;person_talks_to_person&#39;])
+            suppressed = set([])
+            activitybox = {a.id():vo.track(a.actorid()).boundingbox(a.startframe(), a.endframe()) for a in vo.activities().values() if a.category() in tosuppress}
+            activitybox = {k:bb.dilate(1.2).maxsquare() if bb is not None else bb for (k,bb) in activitybox.items()}
+            for a in sorted(vo.activities().values(), key=lambda a: a.confidence(), reverse=True):  # decreasing confidence
+                if a.category() in tosuppress:
+                    for o in vo.activities().values():  # other activities
+                        if (o._actorid != a._actorid and  # different tracks
+                            o._label == a._label and  # same category
+                            o.confidence() &lt;= a.confidence() and   # lower confidence
+                            o._id not in suppressed and  # not already suppressed
+                            o.during_interval(a.startframe(), a.endframe()) and # overlaps temporally by at least one frame
+                            (activitybox[a._id] is not None and activitybox[o._id] is not None) and   # has valid tracks
+                            activitybox[a._id].hasintersection(activitybox[o._id]) and  # has coarse overlap 
+                            vo.track(a.actorid()).clone().maxsquare().dilate(1.2).segment_maxiou(vo.track(o.actorid()), a.startframe(), a.endframe()) &gt; 0):  # has fine overlap &#34;close by&#34;
+                            suppressed.add(o.id())  # greedy non-maximum suppression of lower confidence activity detection
+            vo.activityfilter(lambda a: a.id() not in suppressed)
+
+            # Activity duration
+            vo.activitymap(lambda a: a.padto(5) if a.category() in [&#39;person_talks_to_person&#39;, &#39;person_interacts_with_laptop&#39;, &#39;person_reads_document&#39;, &#39;person_purchases&#39;] else a)   
+            vo.activitymap(lambda a: a.duration(2, centered=False) if a.category() in [&#39;person_opens_vehicle_door&#39;, &#39;person_closes_vehicle_door&#39;] else a)
+            vo.activitymap(lambda a: a.duration(2, centered=True) if a.category() in [&#39;person_enters_scene_through_structure&#39;, &#39;person_exits_scene_through_structure&#39;] else a)
+            vo.activitymap(lambda a: a.startframe(0) if a.startframe() &lt; 0 else a)
+            
+            # Done!
+            vo.setattribute(&#39;_completed&#39;, str(datetime.now()))</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pycollector.recognition.PIP_370k" href="#pycollector.recognition.PIP_370k">PIP_370k</a></li>
+<li><a title="pycollector.recognition.PIP_250k" href="#pycollector.recognition.PIP_250k">PIP_250k</a></li>
+<li>pytorch_lightning.core.lightning.LightningModule</li>
+<li>abc.ABC</li>
+<li>pytorch_lightning.utilities.device_dtype_mixin.DeviceDtypeModuleMixin</li>
+<li>pytorch_lightning.core.grads.GradInformation</li>
+<li>pytorch_lightning.core.saving.ModelIO</li>
+<li>pytorch_lightning.core.hooks.ModelHooks</li>
+<li>pytorch_lightning.core.hooks.DataHooks</li>
+<li>pytorch_lightning.core.hooks.CheckpointHooks</li>
+<li>torch.nn.modules.module.Module</li>
+<li><a title="pycollector.recognition.ActivityRecognition" href="#pycollector.recognition.ActivityRecognition">ActivityRecognition</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pycollector.recognition.ActivityTracker.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pycollector.recognition.ActivityTracker.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="pycollector.recognition.ActivityTracker.forward"><code class="name flex">
+<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Overload forward for multi-gpu batch.
+Don't use torch DataParallel!</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/recognition.py#L415-L429" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def forward(self, x):
+    &#34;&#34;&#34;Overload forward for multi-gpu batch.  Don&#39;t use torch DataParallel!&#34;&#34;&#34;
+    if self._gpus is None:
+        return super().forward(x)  # cpu
+    else:
+        x_forward = None            
+        for b in x.pin_memory().split(self._batchsize_per_gpu*len(self._gpus)):  # pinned copy
+            n_todevice = np.sum(np.array([1 if k&lt;len(b) else 0 for k in range(int(len(self._devices)*np.ceil(len(b)/len(self._devices))))]).reshape(-1, len(self._devices)), axis=0).tolist()
+            todevice = [t.to(d, non_blocking=True) for (t,d) in zip(b.split(n_todevice), self._devices) if len(t)&gt;0]   # async device copy
+            ondevice = [m(t) for (m,t) in zip(self._gpus, todevice)]   # async
+            fromdevice = torch.cat([t.cpu() for t in ondevice], dim=0)
+            x_forward = fromdevice if x_forward is None else torch.cat((x_forward, fromdevice), dim=0)
+            del ondevice, todevice, fromdevice, b  # force garbage collection of GPU memory
+        del x  # force garbage collection
+        return x_forward</code></pre>
+</details>
+</dd>
+<dt id="pycollector.recognition.ActivityTracker.lrt"><code class="name flex">
+<span>def <span class="ident">lrt</span></span>(<span>self, x_logits, lrt_threshold)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>top-k with likelihood ratio test with background null hypothesis</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/recognition.py#L431-L441" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def lrt(self, x_logits, lrt_threshold):
+    &#34;&#34;&#34;top-k with likelihood ratio test with background null hypothesis&#34;&#34;&#34;
+    j_bg_person = self._class_to_index[&#39;person&#39;] if &#39;person&#39; in self._class_to_index else self._class_to_index[&#39;person_walks&#39;]  # FIXME
+    j_bg_vehicle = self._class_to_index[&#39;vehicle&#39;] if &#39;vehicle&#39; in self._class_to_index else self._class_to_index[&#39;car_moves&#39;]  # FIXME
+
+    yh = x_logits.detach().cpu().numpy()
+    yh_softmax = F.softmax(x_logits.detach().cpu(), dim=1)
+    p_null = np.maximum(yh[:, j_bg_person], yh[:, j_bg_vehicle]).reshape(yh.shape[0], 1)
+    lr = yh - p_null   # ~= log likelihood ratio
+    f_logistic = lambda x,b,s=1.0: float(1.0 / (1.0 + np.exp(-s*(x + b))))
+    return [sorted([(self.index_to_class(j), float(s[j]), float(t[j]), f_logistic(s[j], 1.0)*f_logistic(t[j], 0.0), float(sm[j])) for j in range(len(s)) if (lrt_threshold is None or t[j] &gt;= lrt_threshold)], key=lambda x: x[3], reverse=True) for (s,t,sm) in zip(yh, lr, yh_softmax)]</code></pre>
+</details>
+</dd>
+<dt id="pycollector.recognition.ActivityTracker.temporal_stride"><code class="name flex">
+<span>def <span class="ident">temporal_stride</span></span>(<span>self, s=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/recognition.py#L408-L413" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def temporal_stride(self, s=None):
+    if s is not None:
+        self._stride = s
+        return self
+    else:
+        return self._stride</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="pycollector.recognition.PIP_370k" href="#pycollector.recognition.PIP_370k">PIP_370k</a></b></code>:
+<ul class="hlist">
+<li><code><a title="pycollector.recognition.PIP_370k.configure_optimizers" href="#pycollector.recognition.PIP_250k.configure_optimizers">configure_optimizers</a></code></li>
+<li><code><a title="pycollector.recognition.PIP_370k.totensor" href="#pycollector.recognition.PIP_250k.totensor">totensor</a></code></li>
+<li><code><a title="pycollector.recognition.PIP_370k.training_step" href="#pycollector.recognition.PIP_250k.training_step">training_step</a></code></li>
+<li><code><a title="pycollector.recognition.PIP_370k.validation_epoch_end" href="#pycollector.recognition.PIP_250k.validation_epoch_end">validation_epoch_end</a></code></li>
+<li><code><a title="pycollector.recognition.PIP_370k.validation_step" href="#pycollector.recognition.PIP_250k.validation_step">validation_step</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="pycollector.recognition.PIP_250k"><code class="flex name class">
+<span>class <span class="ident">PIP_250k</span></span>
+<span>(</span><span>pretrained=True, deterministic=False, modelfile=None, mlbl=False, mlfl=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Activity recognition using people in public - 250k stabilized</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/recognition.py#L92-L282" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class PIP_250k(pl.LightningModule, ActivityRecognition):
+    &#34;&#34;&#34;Activity recognition using people in public - 250k stabilized&#34;&#34;&#34;
+    
+    def __init__(self, pretrained=True, deterministic=False, modelfile=None, mlbl=False, mlfl=False):
+        super().__init__()
+        self._input_size = 112
+        self._num_frames = 16        
+        self._mean = [0.485, 0.456, 0.406]
+        self._std = [0.229, 0.224, 0.225]
+        self._mlfl = mlfl
+        self._mlbl = mlbl
+
+        if deterministic:
+            np.random.seed(42)
+
+        self._class_to_weight = {&#39;car_drops_off_person&#39;: 1.4162811344926518, &#39;car_picks_up_person&#39;: 1.4103618337303332, &#39;car_reverses&#39;: 1.0847976470131024, &#39;car_starts&#39;: 1.0145749063037774, &#39;car_stops&#39;: 0.6659236295324015, &#39;car_turns_left&#39;: 2.942269221156227, &#39;car_turns_right&#39;: 1.1077783089040996, &#39;hand_interacts_with_person_highfive&#39;: 2.793646013249904, &#39;person&#39;: 0.4492053391155403, &#39;person_abandons_object&#39;: 1.0944029463871692, &#39;person_carries_heavy_object&#39;: 0.5848339202761978, &#39;person_closes_car_door&#39;: 0.8616907697519004, &#39;person_closes_car_trunk&#39;: 1.468393359799126, &#39;person_closes_facility_door&#39;: 0.8927495923340439, &#39;person_embraces_person&#39;: 0.6072654081071569, &#39;person_enters_car&#39;: 1.3259274145537951, &#39;person_enters_scene_through_structure&#39;: 0.6928103470838287, &#39;person_exits_car&#39;: 1.6366577285051707, &#39;person_exits_scene_through_structure&#39;: 0.8368692178634396, &#39;person_holds_hand&#39;: 1.2378881634203558, &#39;person_interacts_with_laptop&#39;: 1.6276031281396193, &#39;person_loads_car&#39;: 2.170167410167583, &#39;person_opens_car_door&#39;: 0.7601817241565009, &#39;person_opens_car_trunk&#39;: 1.7255285914206204, &#39;person_opens_facility_door&#39;: 0.9167411017455822, &#39;person_picks_up_object_from_floor&#39;: 1.123251610875369, &#39;person_picks_up_object_from_table&#39;: 3.5979689180114205, &#39;person_purchases_from_cashier&#39;: 7.144918373837205, &#39;person_purchases_from_machine&#39;: 5.920886403645001, &#39;person_puts_down_object_on_floor&#39;: 0.7295795950752353, &#39;person_puts_down_object_on_shelf&#39;: 9.247614426653692, &#39;person_puts_down_object_on_table&#39;: 1.9884672074906158, &#39;person_reads_document&#39;: 0.7940480628992879, &#39;person_rides_bicycle&#39;: 2.662661823600623, &#39;person_shakes_hand&#39;: 0.7819547332927879, &#39;person_sits_down&#39;: 0.8375202893491961, &#39;person_stands_up&#39;: 1.0285510019795079, &#39;person_steals_object_from_person&#39;: 1.0673909796893626, &#39;person_talks_on_phone&#39;: 0.3031855242664589, &#39;person_talks_to_person&#39;: 0.334895684562076, &#39;person_texts_on_phone&#39;: 0.713951043919232, &#39;person_transfers_object_to_car&#39;: 3.2832615561297605, &#39;person_transfers_object_to_person&#39;: 0.9633429807282274, &#39;person_unloads_car&#39;: 1.1051597100801462, &#39;vehicle&#39;: 1.1953172363332243}
+        self._class_to_weight[&#39;person_puts_down_object_on_shelf&#39;] = 1.0   # run 5
+
+        self._class_to_index = {&#39;car_drops_off_person&#39;: 0, &#39;car_picks_up_person&#39;: 1, &#39;car_reverses&#39;: 2, &#39;car_starts&#39;: 3, &#39;car_stops&#39;: 4, &#39;car_turns_left&#39;: 5, &#39;car_turns_right&#39;: 6, &#39;hand_interacts_with_person_highfive&#39;: 7, &#39;person&#39;: 8, &#39;person_abandons_object&#39;: 9, &#39;person_carries_heavy_object&#39;: 10, &#39;person_closes_car_door&#39;: 11, &#39;person_closes_car_trunk&#39;: 12, &#39;person_closes_facility_door&#39;: 13, &#39;person_embraces_person&#39;: 14, &#39;person_enters_car&#39;: 15, &#39;person_enters_scene_through_structure&#39;: 16, &#39;person_exits_car&#39;: 17, &#39;person_exits_scene_through_structure&#39;: 18, &#39;person_holds_hand&#39;: 19, &#39;person_interacts_with_laptop&#39;: 20, &#39;person_loads_car&#39;: 21, &#39;person_opens_car_door&#39;: 22, &#39;person_opens_car_trunk&#39;: 23, &#39;person_opens_facility_door&#39;: 24, &#39;person_picks_up_object_from_floor&#39;: 25, &#39;person_picks_up_object_from_table&#39;: 26, &#39;person_purchases_from_cashier&#39;: 27, &#39;person_purchases_from_machine&#39;: 28, &#39;person_puts_down_object_on_floor&#39;: 29, &#39;person_puts_down_object_on_shelf&#39;: 30, &#39;person_puts_down_object_on_table&#39;: 31, &#39;person_reads_document&#39;: 32, &#39;person_rides_bicycle&#39;: 33, &#39;person_shakes_hand&#39;: 34, &#39;person_sits_down&#39;: 35, &#39;person_stands_up&#39;: 36, &#39;person_steals_object_from_person&#39;: 37, &#39;person_talks_on_phone&#39;: 38, &#39;person_talks_to_person&#39;: 39, &#39;person_texts_on_phone&#39;: 40, &#39;person_transfers_object_to_car&#39;: 41, &#39;person_transfers_object_to_person&#39;: 42, &#39;person_unloads_car&#39;: 43, &#39;vehicle&#39;: 44}
+
+        self._verb_to_noun = {k:set([&#39;car&#39;,&#39;vehicle&#39;,&#39;motorcycle&#39;,&#39;bus&#39;,&#39;truck&#39;]) if (k.startswith(&#39;car&#39;) or k.startswith(&#39;motorcycle&#39;) or k.startswith(&#39;vehicle&#39;)) else set([&#39;person&#39;]) for k in self.classlist()}        
+        self._class_to_shortlabel = pycollector.label.pip_to_shortlabel
+
+        if pretrained:
+            self._load_pretrained()
+            self.net.fc = nn.Linear(self.net.fc.in_features, self.num_classes())
+        elif modelfile is not None:
+            self._load_trained(modelfile)
+        
+    def category(self, x):
+        yh = self.forward(x if x.ndim == 5 else torch.unsqueeze(x, 0))
+        return [self.index_to_class(int(k)) for (c,k) in zip(*torch.max(yh, dim=1))]
+
+    def category_confidence(self, x):
+        yh = self.forward(x if x.ndim == 5 else torch.unsqueeze(x, 0))
+        return [(self.index_to_class(int(k)), float(c)) for (c,k) in zip(*torch.max(yh, dim=1))]
+
+    def topk(self, x_logits, k):
+        yh = x_logits.detach().cpu().numpy()
+        topk = [[(self.index_to_class(j), s[j]) for j in i[-k:][::-1]] for (s,i) in zip(yh, np.argsort(yh, axis=1))]
+        return topk
+
+    def topk_probability(self, x_logits, k):
+        yh = x_logits.detach().cpu().numpy()
+        yh_prob = F.softmax(x_logits, dim=1).detach().cpu().numpy()
+        topk = [[(self.index_to_class(j), c[j], p[j]) for j in i[-k:][::-1]] for (c,p,i) in zip(yh, yh_prob, np.argsort(yh, axis=1))]
+        return topk
+        
+    # ---- &lt;LIGHTNING&gt;
+    def forward(self, x):
+        return self.net(x)  # lighting handles device
+
+    def configure_optimizers(self):
+        optimizer = torch.optim.AdamW(self.parameters(), lr=1e-3)
+        return optimizer
+
+    def training_step(self, batch, batch_nb, logging=True, valstep=False):
+        (x,Y) = batch  
+        y_hat = self.forward(x)
+        y_hat_softmax = F.softmax(y_hat, dim=1)
+
+        (loss, n_valid) = (0, 0)
+        C = torch.tensor([self._class_to_weight[k] for (k,v) in sorted(self._class_to_index.items(), key=lambda x: x[1])], device=y_hat.device)  # inverse class frequency        
+        for (yh, yhs, labelstr) in zip(y_hat, y_hat_softmax, Y):
+            labels = json.loads(labelstr)
+            if labels is None:
+                continue  # skip me
+            lbllist = [l for lbl in labels for l in lbl]  # list of multi-labels within clip (unpack from JSON to use default collate_fn)
+            lbl_frequency = vipy.util.countby(lbllist, lambda x: x)  # frequency within clip
+            lbl_weight = {k:v/float(len(lbllist)) for (k,v) in lbl_frequency.items()}  # multi-label likelihood within clip, sums to one
+            for (y,w) in lbl_weight.items():
+                if valstep:
+                    # Pick all labels normalized (https://papers.nips.cc/paper/2019/file/da647c549dde572c2c5edc4f5bef039c-Paper.pdf
+                    loss += float(w)*F.cross_entropy(torch.unsqueeze(yh, dim=0), torch.tensor([self._class_to_index[y]], device=y_hat.device), weight=C)
+                elif self._mlfl:
+                    # Pick all labels normalized, with multi-label focal loss
+                    loss += torch.min(torch.tensor(1.0, device=y_hat.device), ((w-yhs[self._class_to_index[y]])/w)**2)*float(w)*F.cross_entropy(torch.unsqueeze(yh, dim=0), torch.tensor([self._class_to_index[y]], device=y_hat.device), weight=C)  
+                elif self._mlbl:
+                    # Pick all labels normalized with multi-label background loss
+                    j_bg_person = self._class_to_index[&#39;person&#39;] if &#39;person&#39; in self._class_to_index else self._class_to_index[&#39;person_walks&#39;]  # FIXME: does not generalize
+                    j_bg_vehicle = self._class_to_index[&#39;vehicle&#39;] if &#39;vehicle&#39; in self._class_to_index else self._class_to_index[&#39;car_moves&#39;]  # FIXME: does not generalize
+                    j = j_bg_person if (y.startswith(&#39;person&#39;) or y.startswith(&#39;hand&#39;)) else j_bg_vehicle
+                    loss += ((1-torch.sqrt(yhs[j]*yhs[self._class_to_index[y]]))**2)*float(w)*F.cross_entropy(torch.unsqueeze(yh, dim=0), torch.tensor([self._class_to_index[y]], device=y_hat.device), weight=C)  
+                else:
+                    # Pick all labels normalized (https://papers.nips.cc/paper/2019/file/da647c549dde572c2c5edc4f5bef039c-Paper.pdf
+                    loss += float(w)*F.cross_entropy(torch.unsqueeze(yh, dim=0), torch.tensor([self._class_to_index[y]], device=y_hat.device), weight=C)
+
+            n_valid += 1
+        loss = loss / float(max(1, n_valid))  # batch reduction: mean
+
+        if logging:
+            self.log(&#39;train_loss&#39;, loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)
+        return {&#39;loss&#39;: loss}
+
+    def validation_step(self, batch, batch_nb):
+        loss = self.training_step(batch, batch_nb, logging=False, valstep=True)[&#39;loss&#39;]
+        self.log(&#39;val_loss&#39;, loss, on_step=True, on_epoch=True, prog_bar=False, logger=True)
+        return {&#39;val_loss&#39;: loss}
+
+    def validation_epoch_end(self, outputs):
+        avg_loss = torch.stack([x[&#39;val_loss&#39;] for x in outputs]).mean()
+        self.log(&#39;val_loss&#39;, avg_loss, on_epoch=True, prog_bar=False, logger=True)
+        self.log(&#39;avg_val_loss&#39;, avg_loss, on_epoch=True, prog_bar=True, logger=True)                
+        return {&#39;val_loss&#39;: avg_loss, &#39;avg_val_loss&#39;: avg_loss}                            
+    #---- &lt;/LIGHTNING&gt;
+    
+    @classmethod
+    def from_checkpoint(cls, checkpointpath):
+        return cls().load_from_checkpoint(checkpointpath)  # lightning
+            
+    def _load_trained(self, ckptfile):
+        self.net = pycollector.model.ResNets_3D_PyTorch.resnet.generate_model(50, n_classes=self.num_classes())
+        t = torch.split(self.net.conv1.weight.data, dim=1, split_size_or_sections=1)
+        self.net.conv1.weight.data = torch.cat( (*t, t[-1]), dim=1).contiguous()
+        self.net.conv1.in_channels = 4  # inflate RGB -&gt; RGBA
+        self.load_state_dict(torch.load(ckptfile)[&#39;state_dict&#39;])  # FIXME
+        self.eval()
+        return self
+        
+    def _load_pretrained(self):
+
+        pthfile = vipy.util.tocache(&#39;r3d50_KMS_200ep.pth&#39;)
+        if not os.path.exists(pthfile) or not vipy.downloader.verify_sha1(pthfile, &#39;39ea626355308d8f75307cab047a8d75862c3261&#39;):
+            print(&#39;[pycollector.recognition]: Downloading pretrained weights ...&#39;)
+            os.system(&#39;wget -c https://dl.dropboxusercontent.com/s/t3xge6lrfqpklr0/r3d50_kms_200ep.pth -O %s&#39; % pthfile) 
+        assert vipy.downloader.verify_sha1(pthfile, &#39;39ea626355308d8f75307cab047a8d75862c3261&#39;), &#34;SHA1 check failed&#34;
+
+        net = pycollector.model.ResNets_3D_PyTorch.resnet.generate_model(50, n_classes=1139)
+        pretrain = torch.load(pthfile, map_location=&#39;cpu&#39;)
+        net.load_state_dict(pretrain[&#39;state_dict&#39;])
+
+        # Inflate RGB -&gt; RGBA         
+        t = torch.split(net.conv1.weight.data, dim=1, split_size_or_sections=1)
+        net.conv1.weight.data = torch.cat( (*t, t[-1]), dim=1).contiguous()
+        net.conv1.in_channels = 4
+
+        self.net = net
+
+        return self
+
+    @staticmethod
+    def _totensor(v, training, validation, input_size, num_frames, mean, std, noflip=None, show=False, doflip=False):
+        assert isinstance(v, vipy.video.Scene), &#34;Invalid input&#34;
+        
+        try:
+            v = v.download() if (not v.hasfilename() and v.hasurl()) else v  # fetch it if necessary, but do not do this during training!        
+            if training or validation:
+                random.seed()  # force randomness after fork() 
+                (ai,aj) = (v.primary_activity().startframe(), v.primary_activity().endframe())  # activity (start,end)
+                (ti,tj) = (v.actor().startframe(), v.actor().endframe())  # track (start,end) 
+                startframe = random.randint(max(0, ti-(num_frames//2)), max(1, tj-(num_frames//2)))  # random startframe that contains track
+                endframe = min((startframe+num_frames), aj)  # endframe truncated to be end of activity
+                (startframe, endframe) = (startframe, endframe) if (startframe &lt; endframe) else (max(0, aj-num_frames), aj)  # fallback
+                assert endframe - startframe &lt;= num_frames
+                vc = v.clone().clip(startframe, endframe)    # may fail for some short clips
+                vc = vc.trackcrop(dilate=1.2, maxsquare=True)  # may be None if clip contains no track
+                vc = vc.resize(input_size, input_size)   
+                vc = vc.fliplr() if (doflip or (random.random() &gt; 0.5)) and (noflip is None or vc.category() not in noflip) else vc
+            else:
+                vc = v.trackcrop(dilate=1.2, maxsquare=True)  # may be None if clip contains no track
+                vc = vc.resize(input_size, input_size)  # TESTING: this may introduce a preview()
+                vc = vc.fliplr() if doflip and (noflip is None or vc.category() not in noflip) else vc
+                
+            if show:
+                vc.clone().resize(512,512).show(timestamp=True)
+                vc.clone().binarymask().frame(0).rgb().show(figure=&#39;binary mask: frame 0&#39;)
+                
+            vc = vc.load(shape=(input_size, input_size, 3)).normalize(mean=mean, std=std, scale=1.0/255.0)  # [0,255] -&gt; [0,1], triggers load() with known shape
+            (t,lbl) = vc.torch(startframe=0, length=num_frames, boundary=&#39;cyclic&#39;, order=&#39;cdhw&#39;, withlabel=training or validation, nonelabel=True)  # (c=3)x(d=num_frames)x(H=input_size)x(W=input_size), reuses vc._array
+            t = torch.cat((t, vc.asfloatmask(fg=0.5, bg=-0.5).torch(startframe=0, length=num_frames, boundary=&#39;cyclic&#39;, order=&#39;cdhw&#39;)), dim=0)  # (c=4) x (d=num_frames) x (H=input_size) x (W=input_size), copy
+            
+        except Exception as e:
+            if training or validation:
+                #print(&#39;ERROR: %s&#39; % (str(v)))
+                t = torch.zeros(4, num_frames, input_size, input_size)  # skip me
+                lbl = None
+            else:
+                print(&#39;WARNING: discarding tensor for video &#34;%s&#34; with exception &#34;%s&#34;&#39; % (str(v), str(e)))
+                t = torch.zeros(4, num_frames, input_size, input_size)  # skip me (should never get here)
+            
+        if training or validation:
+            return (t, json.dumps(lbl))  # json to use default collate_fn
+        else:
+            return t
+
+    def totensor(self, v=None, training=False, validation=False, show=False, doflip=False):
+        &#34;&#34;&#34;Return captured lambda function if v=None, else return tensor&#34;&#34;&#34;    
+        assert v is None or isinstance(v, vipy.video.Scene), &#34;Invalid input&#34;
+        f = (lambda v, num_frames=self._num_frames, input_size=self._input_size, mean=self._mean, std=self._std, training=training, validation=validation, show=show:
+             PIP_250k._totensor(v, training, validation, input_size, num_frames, mean, std, noflip=[&#39;car_turns_left&#39;, &#39;car_turns_right&#39;], show=show, doflip=doflip))
+        return f(v) if v is not None else f</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>pytorch_lightning.core.lightning.LightningModule</li>
+<li>abc.ABC</li>
+<li>pytorch_lightning.utilities.device_dtype_mixin.DeviceDtypeModuleMixin</li>
+<li>pytorch_lightning.core.grads.GradInformation</li>
+<li>pytorch_lightning.core.saving.ModelIO</li>
+<li>pytorch_lightning.core.hooks.ModelHooks</li>
+<li>pytorch_lightning.core.hooks.DataHooks</li>
+<li>pytorch_lightning.core.hooks.CheckpointHooks</li>
+<li>torch.nn.modules.module.Module</li>
+<li><a title="pycollector.recognition.ActivityRecognition" href="#pycollector.recognition.ActivityRecognition">ActivityRecognition</a></li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="pycollector.recognition.PIP_370k" href="#pycollector.recognition.PIP_370k">PIP_370k</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pycollector.recognition.PIP_250k.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pycollector.recognition.PIP_250k.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="pycollector.recognition.PIP_250k.from_checkpoint"><code class="name flex">
+<span>def <span class="ident">from_checkpoint</span></span>(<span>checkpointpath)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/recognition.py#L198-L200" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">@classmethod
+def from_checkpoint(cls, checkpointpath):
+    return cls().load_from_checkpoint(checkpointpath)  # lightning</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="pycollector.recognition.PIP_250k.category"><code class="name flex">
+<span>def <span class="ident">category</span></span>(<span>self, x)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/recognition.py#L121-L123" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def category(self, x):
+    yh = self.forward(x if x.ndim == 5 else torch.unsqueeze(x, 0))
+    return [self.index_to_class(int(k)) for (c,k) in zip(*torch.max(yh, dim=1))]</code></pre>
+</details>
+</dd>
+<dt id="pycollector.recognition.PIP_250k.category_confidence"><code class="name flex">
+<span>def <span class="ident">category_confidence</span></span>(<span>self, x)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/recognition.py#L125-L127" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def category_confidence(self, x):
+    yh = self.forward(x if x.ndim == 5 else torch.unsqueeze(x, 0))
+    return [(self.index_to_class(int(k)), float(c)) for (c,k) in zip(*torch.max(yh, dim=1))]</code></pre>
+</details>
+</dd>
+<dt id="pycollector.recognition.PIP_250k.configure_optimizers"><code class="name flex">
+<span>def <span class="ident">configure_optimizers</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Choose what optimizers and learning-rate schedulers to use in your optimization.
+Normally you'd need one. But in the case of GANs or similar you might have multiple.</p>
+<h2 id="return">Return</h2>
+<p>Any of these 6 options.</p>
+<ul>
+<li><strong>Single optimizer</strong>.</li>
+<li><strong>List or Tuple</strong> of optimizers.</li>
+<li><strong>Two lists</strong> - The first list has multiple optimizers, and the second has multiple LR schedulers (or
+multiple lr_dict).</li>
+<li><strong>Dictionary</strong>, with an <code>"optimizer"</code> key, and (optionally) a <code>"lr_scheduler"</code>
+key whose value is a single LR scheduler or lr_dict.</li>
+<li><strong>Tuple of dictionaries</strong> as described above, with an optional <code>"frequency"</code> key.</li>
+<li><strong>None</strong> - Fit will run without any optimizer.</li>
+</ul>
+<h2 id="note">Note</h2>
+<p>The lr_dict is a dictionary which contains the scheduler and its associated configuration.
+The default configuration is shown below.</p>
+<p>.. code-block:: python</p>
+<pre><code>lr_dict = {
+    'scheduler': lr_scheduler, # The LR scheduler instance (required)
+    # The unit of the scheduler's step size, could also be 'step'
+    'interval': 'epoch',
+    'frequency': 1, # The frequency of the scheduler
+    'monitor': 'val_loss', # Metric for &lt;code&gt;ReduceLROnPlateau&lt;/code&gt; to monitor
+    'strict': True, # Whether to crash the training if &lt;code&gt;monitor&lt;/code&gt; is not found
+    'name': None, # Custom name for &lt;code&gt;LearningRateMonitor&lt;/code&gt; to use
+}
+</code></pre>
+<p>Only the <code>"scheduler"</code> key is required, the rest will be set to the defaults above.</p>
+<h2 id="note_1">Note</h2>
+<p>The <code>frequency</code> value specified in a dict along with the <code>optimizer</code> key is an int corresponding
+to the number of sequential batches optimized with the specific optimizer.
+It should be given to none or to all of the optimizers.
+There is a difference between passing multiple optimizers in a list,
+and passing multiple optimizers in dictionaries with a frequency of 1:
+In the former case, all optimizers will operate on the given batch in each optimization step.
+In the latter, only one optimizer will operate on the given batch at every step.
+This is different from the <code>frequency</code> value specified in the lr_dict mentioned below.</p>
+<p>.. code-block:: python</p>
+<pre><code>def configure_optimizers(self):
+    optimizer_one = torch.optim.SGD(self.model.parameters(), lr=0.01)
+    optimizer_two = torch.optim.SGD(self.model.parameters(), lr=0.01)
+    return [
+        {'optimizer': optimizer_one, 'frequency': 5},
+        {'optimizer': optimizer_two, 'frequency': 10},
+    ]
+</code></pre>
+<p>In this example, the first optimizer will be used for the first 5 steps,
+the second optimizer for the next 10 steps and that cycle will continue.
+If an LR scheduler is specified for an optimizer using the <code>lr_scheduler</code> key in the above dict,
+the scheduler will only be updated when its optimizer is being used.</p>
+<p>Examples::</p>
+<pre><code># most cases
+def configure_optimizers(self):
+    return Adam(self.parameters(), lr=1e-3)
+
+# multiple optimizer case (e.g.: GAN)
+def configure_optimizers(self):
+    gen_opt = Adam(self.model_gen.parameters(), lr=0.01)
+    dis_opt = Adam(self.model_dis.parameters(), lr=0.02)
+    return gen_opt, dis_opt
+
+# example with learning rate schedulers
+def configure_optimizers(self):
+    gen_opt = Adam(self.model_gen.parameters(), lr=0.01)
+    dis_opt = Adam(self.model_dis.parameters(), lr=0.02)
+    dis_sch = CosineAnnealing(dis_opt, T_max=10)
+    return [gen_opt, dis_opt], [dis_sch]
+
+# example with step-based learning rate schedulers
+def configure_optimizers(self):
+    gen_opt = Adam(self.model_gen.parameters(), lr=0.01)
+    dis_opt = Adam(self.model_dis.parameters(), lr=0.02)
+    gen_sch = {'scheduler': ExponentialLR(gen_opt, 0.99),
+               'interval': 'step'}  # called after each training step
+    dis_sch = CosineAnnealing(dis_opt, T_max=10) # called every epoch
+    return [gen_opt, dis_opt], [gen_sch, dis_sch]
+
+# example with optimizer frequencies
+# see training procedure in &lt;code&gt;Improved Training of Wasserstein GANs&lt;/code&gt;, Algorithm 1
+# &lt;https://arxiv.org/abs/1704.00028&gt;
+def configure_optimizers(self):
+    gen_opt = Adam(self.model_gen.parameters(), lr=0.01)
+    dis_opt = Adam(self.model_dis.parameters(), lr=0.02)
+    n_critic = 5
+    return (
+        {'optimizer': dis_opt, 'frequency': n_critic},
+        {'optimizer': gen_opt, 'frequency': 1}
+    )
+</code></pre>
+<h2 id="note_2">Note</h2>
+<p>Some things to know:</p>
+<ul>
+<li>Lightning calls <code>.backward()</code> and <code>.step()</code> on each optimizer and learning rate scheduler as needed.</li>
+<li>If you use 16-bit precision (<code>precision=16</code>), Lightning will automatically handle the optimizers.</li>
+<li>If you use multiple optimizers, :meth:<code>training_step</code> will have an additional <code>optimizer_idx</code> parameter.</li>
+<li>If you use :class:<code>torch.optim.LBFGS</code>, Lightning handles the closure function automatically for you.</li>
+<li>If you use multiple optimizers, gradients will be calculated only for the parameters of current optimizer
+at each training step.</li>
+<li>If you need to control how often those optimizers step or override the default <code>.step()</code> schedule,
+override the :meth:<code>optimizer_step</code> hook.</li>
+</ul></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/recognition.py#L144-L146" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def configure_optimizers(self):
+    optimizer = torch.optim.AdamW(self.parameters(), lr=1e-3)
+    return optimizer</code></pre>
+</details>
+</dd>
+<dt id="pycollector.recognition.PIP_250k.forward"><code class="name flex">
+<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Same as :meth:<code>torch.nn.Module.forward()</code>.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>*args</code></strong></dt>
+<dd>Whatever you decide to pass into the forward method.</dd>
+<dt><strong><code>**kwargs</code></strong></dt>
+<dd>Keyword arguments are also possible.</dd>
+</dl>
+<h2 id="return">Return</h2>
+<p>Your model's output</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/recognition.py#L141-L142" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def forward(self, x):
+    return self.net(x)  # lighting handles device</code></pre>
+</details>
+</dd>
+<dt id="pycollector.recognition.PIP_250k.topk"><code class="name flex">
+<span>def <span class="ident">topk</span></span>(<span>self, x_logits, k)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/recognition.py#L129-L132" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def topk(self, x_logits, k):
+    yh = x_logits.detach().cpu().numpy()
+    topk = [[(self.index_to_class(j), s[j]) for j in i[-k:][::-1]] for (s,i) in zip(yh, np.argsort(yh, axis=1))]
+    return topk</code></pre>
+</details>
+</dd>
+<dt id="pycollector.recognition.PIP_250k.topk_probability"><code class="name flex">
+<span>def <span class="ident">topk_probability</span></span>(<span>self, x_logits, k)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/recognition.py#L134-L138" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def topk_probability(self, x_logits, k):
+    yh = x_logits.detach().cpu().numpy()
+    yh_prob = F.softmax(x_logits, dim=1).detach().cpu().numpy()
+    topk = [[(self.index_to_class(j), c[j], p[j]) for j in i[-k:][::-1]] for (c,p,i) in zip(yh, yh_prob, np.argsort(yh, axis=1))]
+    return topk</code></pre>
+</details>
+</dd>
+<dt id="pycollector.recognition.PIP_250k.totensor"><code class="name flex">
+<span>def <span class="ident">totensor</span></span>(<span>self, v=None, training=False, validation=False, show=False, doflip=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return captured lambda function if v=None, else return tensor</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/recognition.py#L277-L282" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def totensor(self, v=None, training=False, validation=False, show=False, doflip=False):
+    &#34;&#34;&#34;Return captured lambda function if v=None, else return tensor&#34;&#34;&#34;    
+    assert v is None or isinstance(v, vipy.video.Scene), &#34;Invalid input&#34;
+    f = (lambda v, num_frames=self._num_frames, input_size=self._input_size, mean=self._mean, std=self._std, training=training, validation=validation, show=show:
+         PIP_250k._totensor(v, training, validation, input_size, num_frames, mean, std, noflip=[&#39;car_turns_left&#39;, &#39;car_turns_right&#39;], show=show, doflip=doflip))
+    return f(v) if v is not None else f</code></pre>
+</details>
+</dd>
+<dt id="pycollector.recognition.PIP_250k.training_step"><code class="name flex">
+<span>def <span class="ident">training_step</span></span>(<span>self, batch, batch_nb, logging=True, valstep=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Here you compute and return the training loss and some additional metrics for e.g.
+the progress bar or logger.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt>batch (:class:<code>~torch.Tensor</code> | (:class:<code>~torch.Tensor</code>, &hellip;) | [:class:<code>~torch.Tensor</code>, &hellip;]):</dt>
+<dt>The output of your :class:<code>~torch.utils.data.DataLoader</code>. A tensor, tuple or list.</dt>
+<dt><strong><code>batch_idx</code></strong> :&ensp;<code>int</code></dt>
+<dd>Integer displaying index of this batch</dd>
+<dt><strong><code>optimizer_idx</code></strong> :&ensp;<code>int</code></dt>
+<dd>When using multiple optimizers, this argument will also be present.</dd>
+</dl>
+<p>hiddens(:class:<code>~torch.Tensor</code>): Passed in if
+:paramref:<code>~pytorch_lightning.core.lightning.LightningModule.truncated_bptt_steps</code> &gt; 0.</p>
+<h2 id="return">Return</h2>
+<p>Any of.</p>
+<ul>
+<li>:class:<code>~torch.Tensor</code> - The loss tensor</li>
+<li><code>dict</code> - A dictionary. Can include any keys, but must include the key <code>'loss'</code></li>
+<li><code>None</code> - Training will skip to the next batch</li>
+</ul>
+<h2 id="note">Note</h2>
+<p>Returning <code>None</code> is currently not supported for multi-GPU or TPU, or with 16-bit precision enabled.</p>
+<p>In this step you'd normally do the forward pass and calculate the loss for a batch.
+You can also do fancier things like multiple forward passes or something model specific.</p>
+<p>Example::</p>
+<pre><code>def training_step(self, batch, batch_idx):
+    x, y, z = batch
+    out = self.encoder(x)
+    loss = self.loss(out, x)
+    return loss
+</code></pre>
+<p>If you define multiple optimizers, this step will be called with an additional
+<code>optimizer_idx</code> parameter.</p>
+<p>.. code-block:: python</p>
+<pre><code># Multiple optimizers (e.g.: GANs)
+def training_step(self, batch, batch_idx, optimizer_idx):
+    if optimizer_idx == 0:
+        # do training_step with encoder
+    if optimizer_idx == 1:
+        # do training_step with decoder
+</code></pre>
+<p>If you add truncated back propagation through time you will also get an additional
+argument with the hidden states of the previous step.</p>
+<p>.. code-block:: python</p>
+<pre><code># Truncated back-propagation through time
+def training_step(self, batch, batch_idx, hiddens):
+    # hiddens are the hidden states from the previous truncated backprop step
+    ...
+    out, hiddens = self.lstm(data, hiddens)
+    ...
+    return {'loss': loss, 'hiddens': hiddens}
+</code></pre>
+<h2 id="note_1">Note</h2>
+<p>The loss value shown in the progress bar is smoothed (averaged) over the last values,
+so it differs from the actual loss returned in train/validation step.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/recognition.py#L148-L184" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def training_step(self, batch, batch_nb, logging=True, valstep=False):
+    (x,Y) = batch  
+    y_hat = self.forward(x)
+    y_hat_softmax = F.softmax(y_hat, dim=1)
+
+    (loss, n_valid) = (0, 0)
+    C = torch.tensor([self._class_to_weight[k] for (k,v) in sorted(self._class_to_index.items(), key=lambda x: x[1])], device=y_hat.device)  # inverse class frequency        
+    for (yh, yhs, labelstr) in zip(y_hat, y_hat_softmax, Y):
+        labels = json.loads(labelstr)
+        if labels is None:
+            continue  # skip me
+        lbllist = [l for lbl in labels for l in lbl]  # list of multi-labels within clip (unpack from JSON to use default collate_fn)
+        lbl_frequency = vipy.util.countby(lbllist, lambda x: x)  # frequency within clip
+        lbl_weight = {k:v/float(len(lbllist)) for (k,v) in lbl_frequency.items()}  # multi-label likelihood within clip, sums to one
+        for (y,w) in lbl_weight.items():
+            if valstep:
+                # Pick all labels normalized (https://papers.nips.cc/paper/2019/file/da647c549dde572c2c5edc4f5bef039c-Paper.pdf
+                loss += float(w)*F.cross_entropy(torch.unsqueeze(yh, dim=0), torch.tensor([self._class_to_index[y]], device=y_hat.device), weight=C)
+            elif self._mlfl:
+                # Pick all labels normalized, with multi-label focal loss
+                loss += torch.min(torch.tensor(1.0, device=y_hat.device), ((w-yhs[self._class_to_index[y]])/w)**2)*float(w)*F.cross_entropy(torch.unsqueeze(yh, dim=0), torch.tensor([self._class_to_index[y]], device=y_hat.device), weight=C)  
+            elif self._mlbl:
+                # Pick all labels normalized with multi-label background loss
+                j_bg_person = self._class_to_index[&#39;person&#39;] if &#39;person&#39; in self._class_to_index else self._class_to_index[&#39;person_walks&#39;]  # FIXME: does not generalize
+                j_bg_vehicle = self._class_to_index[&#39;vehicle&#39;] if &#39;vehicle&#39; in self._class_to_index else self._class_to_index[&#39;car_moves&#39;]  # FIXME: does not generalize
+                j = j_bg_person if (y.startswith(&#39;person&#39;) or y.startswith(&#39;hand&#39;)) else j_bg_vehicle
+                loss += ((1-torch.sqrt(yhs[j]*yhs[self._class_to_index[y]]))**2)*float(w)*F.cross_entropy(torch.unsqueeze(yh, dim=0), torch.tensor([self._class_to_index[y]], device=y_hat.device), weight=C)  
+            else:
+                # Pick all labels normalized (https://papers.nips.cc/paper/2019/file/da647c549dde572c2c5edc4f5bef039c-Paper.pdf
+                loss += float(w)*F.cross_entropy(torch.unsqueeze(yh, dim=0), torch.tensor([self._class_to_index[y]], device=y_hat.device), weight=C)
+
+        n_valid += 1
+    loss = loss / float(max(1, n_valid))  # batch reduction: mean
+
+    if logging:
+        self.log(&#39;train_loss&#39;, loss, on_step=True, on_epoch=True, prog_bar=True, logger=True)
+    return {&#39;loss&#39;: loss}</code></pre>
+</details>
+</dd>
+<dt id="pycollector.recognition.PIP_250k.validation_epoch_end"><code class="name flex">
+<span>def <span class="ident">validation_epoch_end</span></span>(<span>self, outputs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Called at the end of the validation epoch with the outputs of all validation steps.</p>
+<p>.. code-block:: python</p>
+<pre><code># the pseudocode for these calls
+val_outs = []
+for val_batch in val_data:
+    out = validation_step(val_batch)
+    val_outs.append(out)
+validation_epoch_end(val_outs)
+</code></pre>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>outputs</code></strong></dt>
+<dd>List of outputs you defined in :meth:<code>validation_step</code>, or if there
+are multiple dataloaders, a list containing a list of outputs for each dataloader.</dd>
+</dl>
+<h2 id="return">Return</h2>
+<p>None</p>
+<h2 id="note">Note</h2>
+<p>If you didn't define a :meth:<code>validation_step</code>, this won't be called.</p>
+<h2 id="examples">Examples</h2>
+<p>With a single dataloader:</p>
+<p>.. code-block:: python</p>
+<pre><code>def validation_epoch_end(self, val_step_outputs):
+    for out in val_step_outputs:
+        # do something
+</code></pre>
+<p>With multiple dataloaders, <code>outputs</code> will be a list of lists. The outer list contains
+one entry per dataloader, while the inner list contains the individual outputs of
+each validation step for that dataloader.</p>
+<p>.. code-block:: python</p>
+<pre><code>def validation_epoch_end(self, outputs):
+    for dataloader_output_result in outputs:
+        dataloader_outs = dataloader_output_result.dataloader_i_outputs
+
+    self.log('final_metric', final_value)
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/recognition.py#L191-L195" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def validation_epoch_end(self, outputs):
+    avg_loss = torch.stack([x[&#39;val_loss&#39;] for x in outputs]).mean()
+    self.log(&#39;val_loss&#39;, avg_loss, on_epoch=True, prog_bar=False, logger=True)
+    self.log(&#39;avg_val_loss&#39;, avg_loss, on_epoch=True, prog_bar=True, logger=True)                
+    return {&#39;val_loss&#39;: avg_loss, &#39;avg_val_loss&#39;: avg_loss}                            </code></pre>
+</details>
+</dd>
+<dt id="pycollector.recognition.PIP_250k.validation_step"><code class="name flex">
+<span>def <span class="ident">validation_step</span></span>(<span>self, batch, batch_nb)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Operates on a single batch of data from the validation set.
+In this step you'd might generate examples or calculate anything of interest like accuracy.</p>
+<p>.. code-block:: python</p>
+<pre><code># the pseudocode for these calls
+val_outs = []
+for val_batch in val_data:
+    out = validation_step(val_batch)
+    val_outs.append(out)
+validation_epoch_end(val_outs)
+</code></pre>
+<h2 id="args">Args</h2>
+<dl>
+<dt>batch (:class:<code>~torch.Tensor</code> | (:class:<code>~torch.Tensor</code>, &hellip;) | [:class:<code>~torch.Tensor</code>, &hellip;]):</dt>
+<dt>The output of your :class:<code>~torch.utils.data.DataLoader</code>. A tensor, tuple or list.</dt>
+<dt><strong><code>batch_idx</code></strong> :&ensp;<code>int</code></dt>
+<dd>The index of this batch</dd>
+<dt><strong><code>dataloader_idx</code></strong> :&ensp;<code>int</code></dt>
+<dd>The index of the dataloader that produced this batch
+(only if multiple val dataloaders used)</dd>
+</dl>
+<h2 id="return">Return</h2>
+<p>Any of.</p>
+<ul>
+<li>Any object or value</li>
+<li><code>None</code> - Validation will skip to the next batch</li>
+</ul>
+<p>.. code-block:: python</p>
+<pre><code># pseudocode of order
+val_outs = []
+for val_batch in val_data:
+    out = validation_step(val_batch)
+    if defined('validation_step_end'):
+        out = validation_step_end(out)
+    val_outs.append(out)
+val_outs = validation_epoch_end(val_outs)
+</code></pre>
+<p>.. code-block:: python</p>
+<pre><code># if you have one val dataloader:
+def validation_step(self, batch, batch_idx)
+
+# if you have multiple val dataloaders:
+def validation_step(self, batch, batch_idx, dataloader_idx)
+</code></pre>
+<p>Examples::</p>
+<pre><code># CASE 1: A single validation dataset
+def validation_step(self, batch, batch_idx):
+    x, y = batch
+
+    # implement your own
+    out = self(x)
+    loss = self.loss(out, y)
+
+    # log 6 example images
+    # or generated text... or whatever
+    sample_imgs = x[:6]
+    grid = torchvision.utils.make_grid(sample_imgs)
+    self.logger.experiment.add_image('example_images', grid, 0)
+
+    # calculate acc
+    labels_hat = torch.argmax(out, dim=1)
+    val_acc = torch.sum(y == labels_hat).item() / (len(y) * 1.0)
+
+    # log the outputs!
+    self.log_dict({'val_loss': loss, 'val_acc': val_acc})
+</code></pre>
+<p>If you pass in multiple val dataloaders, :meth:<code>validation_step</code> will have an additional argument.</p>
+<p>.. code-block:: python</p>
+<pre><code># CASE 2: multiple validation dataloaders
+def validation_step(self, batch, batch_idx, dataloader_idx):
+    # dataloader_idx tells you which dataset this is.
+</code></pre>
+<h2 id="note">Note</h2>
+<p>If you don't need to validate you don't need to implement this method.</p>
+<h2 id="note_1">Note</h2>
+<p>When the :meth:<code>validation_step</code> is called, the model has been put in eval mode
+and PyTorch gradients have been disabled. At the end of validation,
+the model goes back to training mode and gradients are enabled.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/recognition.py#L186-L189" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def validation_step(self, batch, batch_nb):
+    loss = self.training_step(batch, batch_nb, logging=False, valstep=True)[&#39;loss&#39;]
+    self.log(&#39;val_loss&#39;, loss, on_step=True, on_epoch=True, prog_bar=False, logger=True)
+    return {&#39;val_loss&#39;: loss}</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="pycollector.recognition.PIP_370k"><code class="flex name class">
+<span>class <span class="ident">PIP_370k</span></span>
+<span>(</span><span>pretrained=True, deterministic=False, modelfile=None, mlbl=False, mlfl=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Activity recognition using people in public - 250k stabilized</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/recognition.py#L286-L386" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class PIP_370k(PIP_250k, pl.LightningModule, ActivityRecognition):
+
+    def __init__(self, pretrained=True, deterministic=False, modelfile=None, mlbl=False, mlfl=False):
+        pl.LightningModule.__init__(self)
+        ActivityRecognition.__init__(self)  
+
+        self._input_size = 112
+        self._num_frames = 16        
+        self._mean = [0.485, 0.456, 0.406]
+        self._std = [0.229, 0.224, 0.225]
+        self._mlfl = mlfl
+        self._mlbl = mlbl
+        if deterministic:
+            np.random.seed(42)
+        
+        # Generated using pycollector.dataset.Dataset(...).multilabel_inverse_frequency_weight()
+        self._class_to_weight = {&#39;car_drops_off_person&#39;: 0.7858124882763793, &#39;car_moves&#39;: 0.18439798528529147, &#39;car_picks_up_person&#39;: 0.7380666753394193, &#39;car_reverses&#39;: 0.5753369570213479, &#39;car_starts&#39;: 0.47486292483745757, &#39;car_stops&#39;: 0.44244800737774037, &#39;car_turns_left&#39;: 0.7697107319736983, &#39;car_turns_right&#39;: 0.5412936796835607, &#39;hand_interacts_with_person&#39;: 0.2794031245117859, &#39;person_abandons_package&#39;: 1.0789960714517162, &#39;person_carries_heavy_object&#39;: 0.5032333530901552, &#39;person_closes_car_door&#39;: 0.46460114438995603, &#39;person_closes_car_trunk&#39;: 0.6824201392305784, &#39;person_closes_facility_door&#39;: 0.38990434394080076, &#39;person_embraces_person&#39;: 0.6457437695527715, &#39;person_enters_car&#39;: 0.6934926810021877, &#39;person_enters_scene_through_structure&#39;: 0.2586965095740063, &#39;person_exits_car&#39;: 0.6766386632434479, &#39;person_exits_scene_through_structure&#39;: 0.33054895987676847, &#39;person_interacts_with_laptop&#39;: 0.6720176496986436, &#39;person_loads_car&#39;: 0.6880555743488312, &#39;person_opens_car_door&#39;: 0.4069868136393968, &#39;person_opens_car_trunk&#39;: 0.6911966903970317, &#39;person_opens_facility_door&#39;: 0.3018924474724252, &#39;person_picks_up_object&#39;: 0.4298381074082487, &#39;person_purchases_from_cashier&#39;: 5.479834409621331, &#39;person_purchases_from_machine&#39;: 5.31528236654537, &#39;person_puts_down_object&#39;: 0.2804690906037155, &#39;person_reads_document&#39;: 0.5476186269530937, &#39;person_rides_bicycle&#39;: 1.6090962879286763, &#39;person_sits_down&#39;: 0.4750148103149501, &#39;person_stands_up&#39;: 0.5022364750834624, &#39;person_steals_object&#39;: 0.910991409921711, &#39;person_talks_on_phone&#39;: 0.15771902851484076, &#39;person_talks_to_person&#39;: 0.21362675034201736, &#39;person_texts_on_phone&#39;: 0.3328378404741194, &#39;person_transfers_object_to_car&#39;: 2.964890512157848, &#39;person_transfers_object_to_person&#39;: 0.6481292773603928, &#39;person_unloads_car&#39;: 0.515379337544623, &#39;person_walks&#39;: 6.341278284010202}
+
+        # Generated using pycollector.dataset.Dataset(...).class_to_index()
+        self._class_to_index = {&#39;car_drops_off_person&#39;: 0, &#39;car_moves&#39;: 1, &#39;car_picks_up_person&#39;: 2, &#39;car_reverses&#39;: 3, &#39;car_starts&#39;: 4, &#39;car_stops&#39;: 5, &#39;car_turns_left&#39;: 6, &#39;car_turns_right&#39;: 7, &#39;hand_interacts_with_person&#39;: 8, &#39;person_abandons_package&#39;: 9, &#39;person_carries_heavy_object&#39;: 10, &#39;person_closes_car_door&#39;: 11, &#39;person_closes_car_trunk&#39;: 12, &#39;person_closes_facility_door&#39;: 13, &#39;person_embraces_person&#39;: 14, &#39;person_enters_car&#39;: 15, &#39;person_enters_scene_through_structure&#39;: 16, &#39;person_exits_car&#39;: 17, &#39;person_exits_scene_through_structure&#39;: 18, &#39;person_interacts_with_laptop&#39;: 19, &#39;person_loads_car&#39;: 20, &#39;person_opens_car_door&#39;: 21, &#39;person_opens_car_trunk&#39;: 22, &#39;person_opens_facility_door&#39;: 23, &#39;person_picks_up_object&#39;: 24, &#39;person_purchases_from_cashier&#39;: 25, &#39;person_purchases_from_machine&#39;: 26, &#39;person_puts_down_object&#39;: 27, &#39;person_reads_document&#39;: 28, &#39;person_rides_bicycle&#39;: 29, &#39;person_sits_down&#39;: 30, &#39;person_stands_up&#39;: 31, &#39;person_steals_object&#39;: 32, &#39;person_talks_on_phone&#39;: 33, &#39;person_talks_to_person&#39;: 34, &#39;person_texts_on_phone&#39;: 35, &#39;person_transfers_object_to_car&#39;: 36, &#39;person_transfers_object_to_person&#39;: 37, &#39;person_unloads_car&#39;: 38, &#39;person_walks&#39;: 39}
+
+        self._verb_to_noun = {k:set([&#39;car&#39;,&#39;vehicle&#39;,&#39;motorcycle&#39;,&#39;bus&#39;,&#39;truck&#39;]) if (k.startswith(&#39;car&#39;) or k.startswith(&#39;motorcycle&#39;) or k.startswith(&#39;vehicle&#39;)) else set([&#39;person&#39;]) for k in self.classlist()}        
+        self._class_to_shortlabel = pycollector.label.pip_to_shortlabel
+        self._class_to_shortlabel.update( vipy.dataset.meva.d_category_to_shortlabel )
+
+        if pretrained:
+            self._load_pretrained()
+            self.net.fc = nn.Linear(self.net.fc.in_features, self.num_classes())
+        elif modelfile is not None:
+            self._load_trained(modelfile)
+        
+    @staticmethod
+    def _totensor(v, training, validation, input_size, num_frames, mean, std, noflip=None, show=False, doflip=False, stride_jitter=3):
+        assert isinstance(v, vipy.video.Scene), &#34;Invalid input&#34;
+        
+        try:
+            v = v.download() if (v.hasurl() and not v.hasfilename()) else v  # fetch it if necessary, but do not do this during training!        
+            vc = v.clone()
+            if training or validation:
+                random.seed()  # force randomness after fork() 
+                (clipstart, clipend) = vc.cliprange()  # clip (start, end) relative to video 
+                (clipstart, clipend) = (clipstart if clipstart is not None else 0,   
+                                        clipend if clipend is not None else int(np.floor(v.duration_in_frames_of_videofile() * (vc.framerate() / v.framerate_of_videofile()))))  # (yuck)
+                # WARNINGS: 
+                # - There exist videos with tracks outside the image rectangle due to the padding in stabilization.  
+                # - There exist MEVA videos that have no tracks at the beginning and end of the padded clip since the annotations only exist for the activity
+                # - There exist MEVA videos with activities that are longer than the tracks, if so, keep the interval of the activity that contains the track
+                # - There exist MEVA videos with multiple objects, need to include only primary actor
+                
+                # - turning activities may be outside the frame (filter these)
+                # - turning activities may turn into the stabilized black area.  Is this avoidaable?
+                # - all of the training activities should be centered on the activity.  See if not.
+                # - 
+                
+                if (clipend - clipstart) &gt; (num_frames + stride_jitter):
+                    a = vc.primary_activity().clone().padto(num_frames/float(vc.framerate()))  # for context only, may be past end of clip now!
+                    (ai, aj) = (a.startframe(), a.endframe())  # activity (start,end) relative to (clipstart, clipend)
+                    (ai, aj) = (max(ai, vc.actor().startframe()), min(aj, vc.actor().endframe()))  # clip activity to when actor is present
+                    startframe = random.randint(ai, aj-num_frames-1) if aj-num_frames-1 &gt; ai else ai
+                    startframe = max(0, startframe + random.randint(-stride_jitter, stride_jitter))   # +/- 3 frames jitter for activity stride
+                    endframe = min(clipend-clipstart-1, startframe + num_frames)  # new end cannot be past duration of clip
+                    if (endframe &gt; startframe) and ((endframe - startframe) &lt; (clipend - clipstart)):
+                        vc = vc.clip(startframe, endframe)
+                    else: 
+                        raise ValueError(&#39;invalid clip for &#34;%s&#34;&#39; % str(v))
+                vc = vc.trackcrop(dilate=1.2, maxsquare=True)  # may be None if clip contains no track
+                vc = vc.resize(input_size, input_size)   
+                vc = vc.fliplr() if (doflip or (random.random() &gt; 0.5)) and (noflip is None or vc.category() not in noflip) else vc
+            else:
+                vc = vc.trackcrop(dilate=1.2, maxsquare=True)  # may be None if clip contains no track
+                vc = vc.resize(input_size, input_size)  # This may introduce a preview()
+                vc = vc.fliplr() if doflip and (noflip is None or vc.category() not in noflip) else vc
+                
+            if show:
+                vc.clone().resize(512,512).show(timestamp=True)
+                vc.clone().binarymask().frame(0).gain(255).rgb().show(figure=&#39;binary mask: frame 0&#39;)
+                
+            vc = vc.load(shape=(input_size, input_size, 3)).normalize(mean=mean, std=std, scale=1.0/255.0)  # [0,255] -&gt; [0,1], triggers load() with known shape
+            (t,lbl) = vc.torch(startframe=0, length=num_frames, boundary=&#39;repeat&#39;, order=&#39;cdhw&#39;, withlabel=training or validation, nonelabel=True)  # (c=3)x(d=num_frames)x(H=input_size)x(W=input_size), reuses vc._array
+            t = torch.cat((t, vc.asfloatmask(fg=0.5, bg=-0.5).torch(startframe=0, length=num_frames, boundary=&#39;repeat&#39;, order=&#39;cdhw&#39;)), dim=0)  # (c=4) x (d=num_frames) x (H=input_size) x (W=input_size), copy
+
+        except Exception as e:
+            if training or validation:
+                print(&#39;[pycollector.recognition.PIP_370k._totensor][SKIPPING]: video=&#34;%s&#34;, exception=&#34;%s&#34;&#39; % (str(vc), str(e)))
+                (t, lbl) = (torch.zeros(4, num_frames, input_size, input_size), None)  # must always return conformal tensor (label=None means it will be ignored)
+            else:
+                print(&#39;[pycollector.recognition.PIP_370k._totensor][ERROR]: discarding tensor for video &#34;%s&#34; with exception &#34;%s&#34;&#39; % (str(vc), str(e)))
+                #t = torch.zeros(4, num_frames, input_size, input_size)  # skip me (should never get here)
+                raise
+
+        if training or validation:
+            return (t, json.dumps(lbl))  # json to use default torch collate_fn
+        else:
+            return t
+
+    def totensor(self, v=None, training=False, validation=False, show=False, doflip=False):
+        &#34;&#34;&#34;Return captured lambda function if v=None, else return tensor&#34;&#34;&#34;    
+        assert v is None or isinstance(v, vipy.video.Scene), &#34;Invalid input&#34;
+        f = (lambda v, num_frames=self._num_frames, input_size=self._input_size, mean=self._mean, std=self._std, training=training, validation=validation, show=show:
+             PIP_370k._totensor(v, training, validation, input_size, num_frames, mean, std, noflip=[&#39;car_turns_left&#39;, &#39;car_turns_right&#39;, &#39;vehicle_turns_left&#39;, &#39;vehicle_turns_right&#39;, &#39;motorcycle_turns_left&#39;, &#39;motorcycle_turns_right&#39;], show=show, doflip=doflip))
+        return f(v) if v is not None else f</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="pycollector.recognition.PIP_250k" href="#pycollector.recognition.PIP_250k">PIP_250k</a></li>
+<li>pytorch_lightning.core.lightning.LightningModule</li>
+<li>abc.ABC</li>
+<li>pytorch_lightning.utilities.device_dtype_mixin.DeviceDtypeModuleMixin</li>
+<li>pytorch_lightning.core.grads.GradInformation</li>
+<li>pytorch_lightning.core.saving.ModelIO</li>
+<li>pytorch_lightning.core.hooks.ModelHooks</li>
+<li>pytorch_lightning.core.hooks.DataHooks</li>
+<li>pytorch_lightning.core.hooks.CheckpointHooks</li>
+<li>torch.nn.modules.module.Module</li>
+<li><a title="pycollector.recognition.ActivityRecognition" href="#pycollector.recognition.ActivityRecognition">ActivityRecognition</a></li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="pycollector.recognition.ActivityTracker" href="#pycollector.recognition.ActivityTracker">ActivityTracker</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pycollector.recognition.PIP_370k.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pycollector.recognition.PIP_370k.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="pycollector.recognition.PIP_250k" href="#pycollector.recognition.PIP_250k">PIP_250k</a></b></code>:
+<ul class="hlist">
+<li><code><a title="pycollector.recognition.PIP_250k.configure_optimizers" href="#pycollector.recognition.PIP_250k.configure_optimizers">configure_optimizers</a></code></li>
+<li><code><a title="pycollector.recognition.PIP_250k.forward" href="#pycollector.recognition.PIP_250k.forward">forward</a></code></li>
+<li><code><a title="pycollector.recognition.PIP_250k.totensor" href="#pycollector.recognition.PIP_250k.totensor">totensor</a></code></li>
+<li><code><a title="pycollector.recognition.PIP_250k.training_step" href="#pycollector.recognition.PIP_250k.training_step">training_step</a></code></li>
+<li><code><a title="pycollector.recognition.PIP_250k.validation_epoch_end" href="#pycollector.recognition.PIP_250k.validation_epoch_end">validation_epoch_end</a></code></li>
+<li><code><a title="pycollector.recognition.PIP_250k.validation_step" href="#pycollector.recognition.PIP_250k.validation_step">validation_step</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<header>
+<a class="homelink" rel="home" title="Visym Collector" href="https://github.com/visym/collector/">
+<img src="https://www.visym.com/labs/images/visym_logo_black_notext.png" alt="" width="150"> <p> </p>
+</a>
+</header>
+<form>
+<input id="lunr-search" name="q" placeholder="🔎 Search ..." aria-label="Search"
+disabled minlength="2">
+</form>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/tingle/0.15.3/tingle.min.css" integrity="sha512-j1u8eUJ4f23xPPxwOrLUPQaCD2dwzNqqmDDcWS4deWsMv2ohLqmXXuP3hU7g8TyzbMSakP/mMqoNBYWj8AEIFg==" crossorigin>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tingle/0.15.3/tingle.min.js" integrity="sha512-plGUER9JkeEWPPqQBE4sdLqBoQug5Ap+BCGMc7bJ8BXkm+VVj6QzkpBz5Yv2yPkkq+cqg9IpkBaGCas6uDbW8g==" crossorigin></script>
+<style>
+.modal-dialog iframe {
+width: 100vw;
+height: calc(100vh - 80px);
+}
+@media screen and (min-width: 700px) {
+.modal-dialog iframe {
+width: 70vw;
+height: 80vh;
+}
+}
+.modal-dialog .tingle-modal-box {width: auto;}
+.modal-dialog .tingle-modal-box__content {padding: 0;}
+</style>
+<script>
+const input = document.getElementById('lunr-search');
+input.disabled = false;
+input.form.addEventListener('submit', (ev) => {
+ev.preventDefault();
+const url = new URL(window.location);
+url.searchParams.set('q', input.value);
+history.replaceState({}, null, url.toString());
+search(input.value);
+});
+const query = new URL(window.location).searchParams.get('q');
+if (query)
+search(query);
+function search(query) {
+const url = '../doc-search.html#' + encodeURIComponent(query);
+new tingle.modal({
+cssClass: ['modal-dialog'],
+onClose: () => {
+const url = new URL(window.location);
+url.searchParams.delete('q');
+history.replaceState({}, null, url.toString());
+setTimeout(() => input.focus(), 100);
+}
+}).setContent('<iframe src="' + url + '"></iframe>').open();
+}
+</script>
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pycollector" href="index.html">pycollector</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="pycollector.recognition.ActivityRecognition" href="#pycollector.recognition.ActivityRecognition">ActivityRecognition</a></code></h4>
+<ul class="two-column">
+<li><code><a title="pycollector.recognition.ActivityRecognition.activity" href="#pycollector.recognition.ActivityRecognition.activity">activity</a></code></li>
+<li><code><a title="pycollector.recognition.ActivityRecognition.binary_vector" href="#pycollector.recognition.ActivityRecognition.binary_vector">binary_vector</a></code></li>
+<li><code><a title="pycollector.recognition.ActivityRecognition.class_to_index" href="#pycollector.recognition.ActivityRecognition.class_to_index">class_to_index</a></code></li>
+<li><code><a title="pycollector.recognition.ActivityRecognition.classlist" href="#pycollector.recognition.ActivityRecognition.classlist">classlist</a></code></li>
+<li><code><a title="pycollector.recognition.ActivityRecognition.fromindex" href="#pycollector.recognition.ActivityRecognition.fromindex">fromindex</a></code></li>
+<li><code><a title="pycollector.recognition.ActivityRecognition.index_to_class" href="#pycollector.recognition.ActivityRecognition.index_to_class">index_to_class</a></code></li>
+<li><code><a title="pycollector.recognition.ActivityRecognition.label_confidence" href="#pycollector.recognition.ActivityRecognition.label_confidence">label_confidence</a></code></li>
+<li><code><a title="pycollector.recognition.ActivityRecognition.num_classes" href="#pycollector.recognition.ActivityRecognition.num_classes">num_classes</a></code></li>
+<li><code><a title="pycollector.recognition.ActivityRecognition.temporal_support" href="#pycollector.recognition.ActivityRecognition.temporal_support">temporal_support</a></code></li>
+<li><code><a title="pycollector.recognition.ActivityRecognition.top1" href="#pycollector.recognition.ActivityRecognition.top1">top1</a></code></li>
+<li><code><a title="pycollector.recognition.ActivityRecognition.topk" href="#pycollector.recognition.ActivityRecognition.topk">topk</a></code></li>
+<li><code><a title="pycollector.recognition.ActivityRecognition.totensor" href="#pycollector.recognition.ActivityRecognition.totensor">totensor</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pycollector.recognition.ActivityTracker" href="#pycollector.recognition.ActivityTracker">ActivityTracker</a></code></h4>
+<ul class="">
+<li><code><a title="pycollector.recognition.ActivityTracker.dump_patches" href="#pycollector.recognition.ActivityTracker.dump_patches">dump_patches</a></code></li>
+<li><code><a title="pycollector.recognition.ActivityTracker.forward" href="#pycollector.recognition.ActivityTracker.forward">forward</a></code></li>
+<li><code><a title="pycollector.recognition.ActivityTracker.lrt" href="#pycollector.recognition.ActivityTracker.lrt">lrt</a></code></li>
+<li><code><a title="pycollector.recognition.ActivityTracker.temporal_stride" href="#pycollector.recognition.ActivityTracker.temporal_stride">temporal_stride</a></code></li>
+<li><code><a title="pycollector.recognition.ActivityTracker.training" href="#pycollector.recognition.ActivityTracker.training">training</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pycollector.recognition.PIP_250k" href="#pycollector.recognition.PIP_250k">PIP_250k</a></code></h4>
+<ul class="">
+<li><code><a title="pycollector.recognition.PIP_250k.category" href="#pycollector.recognition.PIP_250k.category">category</a></code></li>
+<li><code><a title="pycollector.recognition.PIP_250k.category_confidence" href="#pycollector.recognition.PIP_250k.category_confidence">category_confidence</a></code></li>
+<li><code><a title="pycollector.recognition.PIP_250k.configure_optimizers" href="#pycollector.recognition.PIP_250k.configure_optimizers">configure_optimizers</a></code></li>
+<li><code><a title="pycollector.recognition.PIP_250k.dump_patches" href="#pycollector.recognition.PIP_250k.dump_patches">dump_patches</a></code></li>
+<li><code><a title="pycollector.recognition.PIP_250k.forward" href="#pycollector.recognition.PIP_250k.forward">forward</a></code></li>
+<li><code><a title="pycollector.recognition.PIP_250k.from_checkpoint" href="#pycollector.recognition.PIP_250k.from_checkpoint">from_checkpoint</a></code></li>
+<li><code><a title="pycollector.recognition.PIP_250k.topk" href="#pycollector.recognition.PIP_250k.topk">topk</a></code></li>
+<li><code><a title="pycollector.recognition.PIP_250k.topk_probability" href="#pycollector.recognition.PIP_250k.topk_probability">topk_probability</a></code></li>
+<li><code><a title="pycollector.recognition.PIP_250k.totensor" href="#pycollector.recognition.PIP_250k.totensor">totensor</a></code></li>
+<li><code><a title="pycollector.recognition.PIP_250k.training" href="#pycollector.recognition.PIP_250k.training">training</a></code></li>
+<li><code><a title="pycollector.recognition.PIP_250k.training_step" href="#pycollector.recognition.PIP_250k.training_step">training_step</a></code></li>
+<li><code><a title="pycollector.recognition.PIP_250k.validation_epoch_end" href="#pycollector.recognition.PIP_250k.validation_epoch_end">validation_epoch_end</a></code></li>
+<li><code><a title="pycollector.recognition.PIP_250k.validation_step" href="#pycollector.recognition.PIP_250k.validation_step">validation_step</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pycollector.recognition.PIP_370k" href="#pycollector.recognition.PIP_370k">PIP_370k</a></code></h4>
+<ul class="">
+<li><code><a title="pycollector.recognition.PIP_370k.dump_patches" href="#pycollector.recognition.PIP_370k.dump_patches">dump_patches</a></code></li>
+<li><code><a title="pycollector.recognition.PIP_370k.training" href="#pycollector.recognition.PIP_370k.training">training</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

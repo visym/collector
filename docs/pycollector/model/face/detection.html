@@ -1,0 +1,1663 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>pycollector.model.face.detection API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}#lunr-search{width:100%;font-size:1em;padding:6px 9px 5px 9px;border:1px solid silver}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pycollector.model.face.detection</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/face/detection.py#L0-L548" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">import numpy as np
+import os
+import numpy as np
+import imp
+import torch 
+import torchvision.ops
+import torch.nn as nn
+import torch.nn.functional
+import PIL.Image
+
+import time
+import os
+import sys
+from math import ceil
+import torch
+import numpy as np
+
+import vipy.image
+import vipy.object
+
+#import sys
+#sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), &#39;..&#39;, &#39;models&#39;, &#39;detection&#39;))
+#from config import cfg
+
+from pycollector.model.face.faster_rcnn import FasterRCNN, FasterRCNN_MMDNN
+
+DIM_THRESH = 15
+CONF_THRESH = 0.5
+NMS_THRESH = 0.15
+FUSION_THRESH = 0.60
+VERBOSE = False
+
+def log_info(s):
+    if VERBOSE:
+        print(s)
+
+
+class FaceRCNN(object):
+    &#34;Wrapper for PyTorch RCNN detector&#34;
+    def __init__(self, model_path=None, gpu_index=None, conf_threshold=None, rotate_flags=None,
+                 rotate_thresh=None, fusion_thresh=None, test_scales=800, max_size=1300, as_scene=False):
+        
+        if model_path is None:
+            model_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), &#39;../models/detection/resnet-101_faster_rcnn_ohem_iter_20000.pth&#39;)
+            if not os.path.exists(model_path):
+                d = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), &#39;..&#39;))
+                raise ValueError(&#39;[pycollector.detection]: FaceRCNN detection models not downloaded; Run &#34;cd %s; ./download_models.sh&#34;&#39; % d)
+    
+        # This logs the contents of the detector_params dict, along with the other values that we passed.
+        #log_info(f&#34;Params=[{&#39;, &#39;.join((chr(34) + k + chr(34) + &#39;: &#39; + str(v)) for k, v in detector_params)}], threshold=[{conf_threshold}], &#34;
+        #         &#34;rotate=[{rotate_flags}], rotate_thresh=[{rotate_thresh}], fusion_thresh=[{fusion_thresh}]&#34;)
+        log_info(f&#34;model=[{model_path}], gpu=[{gpu_index}], threshold=[{conf_threshold}], &#34;
+                 &#34;rotate=[{rotate_flags}], rotate_thresh=[{rotate_thresh}], fusion_thresh=[{fusion_thresh}]&#34;)
+
+        # Originally stored in config.py, hardcoded defaults here
+        self.cfg = {&#39;TRAIN&#39;: {&#39;SCALES&#39;: [1024], &#39;MAX_SIZE&#39;: 1024, &#39;IMS_PER_BATCH&#39;: 1, &#39;BATCH_SIZE&#39;: 64, &#39;FG_FRACTION&#39;: 0.4, &#39;FG_THRESH&#39;: 0.5, \
+                              &#39;BG_THRESH_HI&#39;: 0.5, &#39;BG_THRESH_LO&#39;: -0.1, &#39;USE_FLIPPED&#39;: True, &#39;BBOX_REG&#39;: True, &#39;BBOX_THRESH&#39;: 0.5, \
+                              &#39;SNAPSHOT_ITERS&#39;: 5000, &#39;SNAPSHOT_INFIX&#39;: &#39;&#39;, &#39;USE_PREFETCH&#39;: False, &#39;BBOX_NORMALIZE_TARGETS&#39;: True, \
+                              &#39;BBOX_INSIDE_WEIGHTS&#39;: [1.0, 1.0, 1.0, 1.0], &#39;BBOX_NORMALIZE_TARGETS_PRECOMPUTED&#39;: False, &#39;BBOX_NORMALIZE_MEANS&#39;: \
+                              [0.0, 0.0, 0.0, 0.0], &#39;BBOX_NORMALIZE_STDS&#39;: [0.1, 0.1, 0.2, 0.2], &#39;PROPOSAL_METHOD&#39;: &#39;selective_search&#39;, &#39;ASPECT_GROUPING&#39;: \
+                              True, &#39;HAS_RPN&#39;: False, &#39;RPN_POSITIVE_OVERLAP&#39;: 0.7, &#39;RPN_NEGATIVE_OVERLAP&#39;: 0.3, &#39;RPN_CLOBBER_POSITIVES&#39;: False, \
+                              &#39;RPN_FG_FRACTION&#39;: 0.5, &#39;RPN_BATCHSIZE&#39;: 256, &#39;RPN_NMS_THRESH&#39;: 0.7, &#39;RPN_PRE_NMS_TOP_N&#39;: 12000, &#39;RPN_POST_NMS_TOP_N&#39;: \
+                              2000, &#39;RPN_MIN_SIZE&#39;: 3, &#39;RPN_BBOX_INSIDE_WEIGHTS&#39;: [1.0, 1.0, 1.0, 1.0], &#39;RPN_POSITIVE_WEIGHT&#39;: -1.0}, \
+                    &#39;TEST&#39;: {&#39;SCALES&#39;: [800], &#39;MAX_SIZE&#39;: 1300, &#39;NMS&#39;: 0.3, &#39;SVM&#39;: False, &#39;BBOX_REG&#39;: True, &#39;HAS_RPN&#39;: True, &#39;PROPOSAL_METHOD&#39;: \
+                             &#39;selective_search&#39;, &#39;RPN_NMS_THRESH&#39;: 0.7, &#39;RPN_PRE_NMS_TOP_N&#39;: 6000, &#39;RPN_POST_NMS_TOP_N&#39;: 300, &#39;RPN_MIN_SIZE&#39;: 3}, \
+                    &#39;DEDUP_BOXES&#39;: 0.0625, &#39;PIXEL_MEANS&#39;: np.array([[[102.9801, 115.9465, 122.7717]]]), &#39;RNG_SEED&#39;: 3, &#39;EPS&#39;: 1e-14, \
+                    &#39;ROOT_DIR&#39;: None, &#39;DATA_DIR&#39;: None, &#39;MODELS_DIR&#39;: None, &#39;MATLAB&#39;: &#39;matlab&#39;, &#39;EXP_DIR&#39;: &#39;default&#39;, &#39;USE_GPU_NMS&#39;: True, &#39;GPU_ID&#39;: 0}
+
+        # Now do any setup required by the parameters that the framework
+        # itself won&#39;t handle.
+        # import pdb; pdb.set_trace()
+        if gpu_index is not None and gpu_index &gt;= 0:
+            dev = torch.device(gpu_index)
+            self.cfg[&#39;GPU_ID&#39;] = gpu_index
+        else:
+            dev = torch.device(&#34;cpu&#34;)
+
+        self.cfg[&#39;TEST&#39;][&#39;HAS_RPN&#39;] = True  # Use RPN for proposals
+        self.cfg[&#39;TEST&#39;][&#39;SCALES&#39;] = (test_scales,)
+        self.cfg[&#39;TEST&#39;][&#39;MAX_SIZE&#39;] = max_size
+        #self.net = FasterRCNN_MMDNN(model_path, dev)  # model_path is directory
+        self.net = FasterRCNN(dev)
+        self.net.load_state_dict(torch.load(model_path))
+        if conf_threshold is None:
+            self.conf_threshold = CONF_THRESH
+        else:
+            self.conf_threshold = conf_threshold
+        if rotate_flags is None:
+            self.rotate_flags = 0
+        else:
+            self.rotate_flags = rotate_flags
+        if rotate_thresh is None:
+            self.rotate_thresh = conf_threshold
+        else:
+            self.rotate_thresh = rotate_thresh
+        if fusion_thresh is None:
+            self.fusion_thresh = FUSION_THRESH
+        else:
+            self.fusion_thresh = fusion_thresh
+        self.as_scene = as_scene
+        log_info(&#39;Init success; threshold {}&#39;.format(self.conf_threshold))
+
+
+    def __call__(self, img, padding=0, min_face_size=DIM_THRESH):
+        &#34;&#34;&#34;Return list of [[x,y,w,h,conf],...] face detection&#34;&#34;&#34;
+        return self.detect(img, padding=padding, min_face_size=min_face_size)
+
+
+    def dets_to_scene(img, dets):
+        &#34;&#34;&#34;Convert detections returned from this object to a vipy.image.Scene object&#34;&#34;&#34;
+        return vipy.image.Scene(array=img, colorspace=&#39;rgb&#39;, objects=[vipy.object.Detection(&#39;face&#39;, xmin=bb[0], ymin=bb[1], width=bb[2], height=bb[3], confidence=bb[4]) for bb in dets])
+
+        
+    def detect(self, image, padding=0, min_face_size=DIM_THRESH):
+        &#34;Run detection on a numpy image, with specified padding and min size&#34;
+
+        # Input must be a np.array(), have a method image.numpy() or is convertible as np.array(image), otherwise error
+        if &#39;numpy&#39; not in str(type(image)) and hasattr(image, &#39;numpy&#39;):
+            image = image.numpy()
+        else:
+            try:
+                image = np.array(image)
+            except:
+                raise ValueError(&#39;Input must be a numpy array&#39;)
+        
+        
+        start_time = time.time()
+        width = image.shape[1]
+        height = image.shape[0]
+        # These values will get updated for resizing and padding, so we&#39;ll have good numbers
+        # for un-rotating bounding boxes where needed
+        detect_width = width
+        detect_height = height
+        color_space = 1 if image.ndim &gt; 2 else 0
+
+        log_info(&#39;w/h/cs: %d/%d/%d&#39; %(width, height, color_space))
+
+        img = np.array(image)
+
+        if padding &gt; 0:
+            perc = padding / 100.
+            padding = int(ceil(min(width, height) * perc))
+
+            # mean bgr padding
+            bgr_mean = np.mean(img, axis=(0, 1))
+            detect_width = width + padding * 2
+            detect_height = height + padding * 2
+            pad_im = np.zeros((detect_height, detect_width, 3), dtype=np.uint8)
+            pad_im[:, :, ...] = bgr_mean
+            pad_im[padding:padding + height, padding:padding + width, ...] = img
+            img = pad_im
+            log_info(&#39;mean padded to w/h: %d/%d&#39; % (img.shape[1], img.shape[0]))
+            # cv2.imwrite(&#39;debug.png&#39;, im)
+
+        if width &lt;= 16 or height &lt;= 16:
+            img = np.array(PIL.Image.fromarray(img).resize( (32, 32), PIL.Image.BILINEAR))
+            width = img.shape[1]
+            height = img.shape[0]
+
+        rotation_angles = []
+        if (self.rotate_flags &amp; 1) != 0:
+            rotation_angles.append(90)
+        if (self.rotate_flags &amp; 2) != 0:
+            rotation_angles.append(-90)
+        if (self.rotate_flags &amp; 4) != 0:
+            rotation_angles.append(180)
+        current_rotation = 0
+
+        # parallel arrays: one is list of boxes, per rotation; other is list of scores
+        det_lists = []
+        box_proposals = None
+        im_rotated = img
+        while True:
+            scores, boxes = self.im_detect(self.net, im_rotated, box_proposals)
+
+            # Threshold on score and apply NMS
+            cls_ind = 1
+            cls_boxes = boxes[:, 4*cls_ind:4*(cls_ind + 1)]
+            cls_scores = scores[:, cls_ind]
+
+            # Each row of dets is Left, Top, Right, Bottom, score
+            dets = np.hstack((cls_boxes, cls_scores[:, np.newaxis])).astype(np.float32)
+            orig_dets = dets.shape
+            #keep = nms(dets, NMS_THRESH, force_cpu=False)
+            keep = self.net._nms(dets, NMS_THRESH)  # JEBYRNE
+            dets = dets[keep, :]
+            new_dets = dets.shape
+            log_info(&#39;Before NMS: {}; after: {}&#39;.format(orig_dets, new_dets))
+
+            # If we just ran the detector on a rotated image, use the rotation threshold
+            if current_rotation != 0:
+                keep = np.where(dets[:, 4] &gt; self.rotate_thresh)
+            else:
+                keep = np.where(dets[:, 4] &gt; self.conf_threshold)
+            # print &#39;After filter for rotation {}: keep = {}&#39;.format(current_rotation, keep)
+            dets = dets[keep]
+
+            # This is converting the max coords to width and height. The coordinates haven&#39;t been
+            # unrotated yet--save a bit of energy by thresholding and such first.
+            dets[:, 2] = dets[:, 2] - dets[:, 0] + 1
+            dets[:, 3] = dets[:, 3] - dets[:, 1] + 1
+            if current_rotation != 0:
+                # Now unrotate
+                # Rotated coordinates are x_rot, y_rot, Wr, Hr
+                # Unrotated, X, Y, W, H
+                # for +90, width and height swap, top right becomes top left
+                #   W = Hr, H = Wr, X = y_rot, Y = (rotated image width) - (x_rot + Wr)
+                # for -90, width and height swap, bottom left becomes top left
+                #   W = Hr, H = Wr, X = (rotated image height) - (y_rot + Hr), Y = x_rot
+                # for 180, width and height same, bottom right becomes top left
+                #   W = Wr, H = Hr, X = image width - (x_rot + Wr), Y = image height - (y_rot + Hr)
+                if current_rotation == 90:
+                    for det in dets:
+                        x_rot = det[0]
+                        y_rot = det[1]
+                        det[0] = y_rot
+                        # Image was rotated, so width and height swapped
+                        det[1] = detect_height - (x_rot + det[2])
+                        det[2], det[3] = det[3], det[2]
+                elif current_rotation == -90:
+                    for det in dets:
+                        x_rot = det[0]
+                        y_rot = det[1]
+                        # Image was rotated, so width and height swapped
+                        det[0] = detect_width - (y_rot + det[3])
+                        det[1] = x_rot
+                        det[2], det[3] = det[3], det[2]
+                elif current_rotation == 180:
+                    for det in dets:
+                        x_rot = det[0]
+                        y_rot = det[1]
+                        det[0] = detect_width - (x_rot + det[2])
+                        det[1] = detect_height - (y_rot + det[3])
+
+            if padding &gt; 0:
+                # Adjust to original coordinates
+                dets[:, 0] -= padding
+                dets[:, 1] -= padding
+
+                keep = np.where(np.bitwise_and(dets[:, 2] &gt; min_face_size,
+                                               dets[:, 3] &gt; min_face_size))
+                dets = dets[keep]
+            else:
+                keep = np.where(np.bitwise_and(dets[:, 2] &gt; min_face_size,
+                                               dets[:, 3] &gt; min_face_size))
+                dets = dets[keep]
+            det_lists.append(dets)
+            # Exit the list if we&#39;ve done all the rotations we need
+            if len(rotation_angles) == 0:
+                break
+            current_rotation = rotation_angles[0]
+            rotation_angles = rotation_angles[1:]
+            log_info(&#39;Rotating to %d&#39; % current_rotation)
+            if current_rotation == 90:
+                im_rotated = img.transpose(1,0,2)
+                im_rotated = np.flipud(im_rotated)
+            elif current_rotation == -90:
+                im_rotated = img.transpose(1,0,2)
+                im_rotated = np.fliplr(im_rotated)
+            else:
+                # Must be 180
+                im_rotated = np.fliplr(np.flipud(img))
+
+                # Now have 1, 3 (0, 90, -90), or 4 (0, 90, -90, 180) elements of det_lists.
+        if len(det_lists) &gt; 1:
+            return self.select_from_rotated(det_lists, start_time)
+        else:
+            dets = det_lists[0]
+            log_info(&#39;Found %d faces&#39; % dets.shape[0])
+            log_info(&#39;===elapsed %.6f===&#39; % ((time.time() - start_time) * 1000))
+            return dets if not self.as_scene else self.dets_to_scene(img, dets)  # [[x,y,w,h,conf], ...]
+
+
+    def select_from_rotated(self, det_lists, start_time):
+        &#34;Given that we tried rotating the image, select the best rotation to use&#34;
+        dets = det_lists[0]
+        original_dets = dets.shape[0]
+        i = 0
+        for rot_dets in det_lists[1:]:
+            i = i + 1
+            log_info(&#39;Processing rotated detections from slot %d&#39; % (i))
+            # Now iterate over the rows, 1/detection
+            for rot_det in rot_dets:
+                rot_xmin = rot_det[0]
+                rot_ymin = rot_det[1]
+                rot_xmax = rot_xmin + rot_det[2]
+                rot_ymax = rot_ymin + rot_det[3]
+                rot_area = rot_det[2] * rot_det[3]
+                matched = False
+                best_iou = 0.0
+                for det in dets:
+                    xmin = det[0]
+                    ymin = det[1]
+                    xmax = xmin + det[2]
+                    ymax = ymin + det[3]
+                    intersection_width = min(xmax, rot_xmax) - max(xmin, rot_xmin)
+                    intersection_height = min(ymax, rot_ymax) - max(ymin, rot_ymin)
+                    if intersection_width &gt; 0 and intersection_height &gt; 0:
+                        intersection_area = intersection_width * intersection_height
+                        union_area = rot_area + det[2] * det[3] - intersection_area
+                        iou = intersection_area / union_area
+                        if iou &gt; best_iou:
+                            best_iou = iou
+                        if iou &gt; self.fusion_thresh:
+                            matched = True
+                            if rot_det[4] &gt; det[4]:
+                                # Rotated detection was better
+                                det[0] = rot_det[0]
+                                det[1] = rot_det[1]
+                                det[2] = rot_det[2]
+                                det[3] = rot_det[3]
+                                det[4] = rot_det[4]
+                            break
+                if not matched:
+                    # Add this guy, since he had no matches
+                    dets = np.vstack((dets, rot_det))
+        log_info(&#39;Found %d face%s (orig %d)&#39; %
+                 (dets.shape[0], &#39;&#39; if dets.shape[0] == 0 else &#39;s&#39;, original_dets))
+        log_info(&#39;===elapsed %.6f===&#39; % ((time.time() - start_time) * 1000))
+        return dets
+
+    
+    def _get_image_blob(self, im):
+        &#34;&#34;&#34;Converts an image into a network input.
+
+        Arguments:
+        im (ndarray): a color image in BGR order
+
+        Returns:
+        blob (ndarray): a torch Tensor holding the image. Some transposition might have to occur, because
+        we need N, 3, 800, 1205 (say), while the image itself is likely 800, 1205, 3. N is the number of images
+        to process (if len(TEST.SCALES) &gt; 1, then it won&#39;t be 1).
+        im_scale_factors (list): list of image scales (relative to im) used
+        in the image pyramid
+        &#34;&#34;&#34;
+        im_orig = im.astype(np.float32, copy=True)
+        #im_orig -= self.cfg.PIXEL_MEANS
+
+        im_shape = im_orig.shape
+        im_size_min = np.min(im_shape[0:2])
+        im_size_max = np.max(im_shape[0:2])
+        
+        processed_ims = []
+        im_scale_factors = []
+
+        for target_size in self.cfg[&#39;TEST&#39;][&#39;SCALES&#39;]:
+            im_scale = float(target_size) / float(im_size_min)
+            # Prevent the biggest axis from being more than MAX_SIZE
+            if np.round(im_scale * im_size_max) &gt; self.cfg[&#39;TEST&#39;][&#39;MAX_SIZE&#39;]:
+                im_scale = float(self.cfg[&#39;TEST&#39;][&#39;MAX_SIZE&#39;]) / float(im_size_max)
+
+            im = np.array(PIL.Image.fromarray(np.uint8(im_orig)).resize((int(np.round(im_scale*im_orig.shape[1])), int(np.round(im_scale*im_orig.shape[0]))), PIL.Image.BILINEAR))
+            im = im.astype(np.float32, copy=True)        
+            im -= self.cfg[&#39;PIXEL_MEANS&#39;]
+
+            #im = cv2.resize(im_orig, None, None, fx=im_scale, fy=im_scale,
+            #                interpolation=cv2.INTER_LINEAR)
+            #log_info(&#39;Add %s from %s&#39; % (im.shape, im_orig.shape))
+            im_scale_factors.append(im_scale)
+            # We need number of channels first, then height, then width
+            im_transpose = im.transpose(2, 0, 1)
+            processed_ims.append(im)
+
+        # Create a tensor to hold the input images. Typically this will be
+        # 1, 3, ..., 
+        #blob = torch.Tensor(im_list_to_blob(processed_ims))
+        blob = torch.Tensor(np.array(processed_ims).transpose([0,3,1,2]))  # JEBYRNE
+        return blob, np.array(im_scale_factors)
+
+    def _get_rois_blob(self, im_rois, im_scale_factors):
+        &#34;&#34;&#34;Converts RoIs into network inputs.
+
+        Arguments:
+        im_rois (ndarray): R x 4 matrix of RoIs in original image coordinates
+        im_scale_factors (list): scale factors as returned by _get_image_blob
+        
+        Returns:
+        blob (ndarray): R x 5 matrix of RoIs in the image pyramid
+        &#34;&#34;&#34;
+        rois, levels = self._project_im_rois(im_rois, im_scale_factors)
+        rois_blob = np.hstack((levels, rois))
+        return rois_blob.astype(np.float32, copy=False)
+
+    def _project_im_rois(self, im_rois, scales):
+        &#34;&#34;&#34;Project image RoIs into the image pyramid built by _get_image_blob.
+        
+        Arguments:
+        im_rois (ndarray): R x 4 matrix of RoIs in original image coordinates
+        scales (list): scale factors as returned by _get_image_blob
+        
+        Returns:
+        rois (ndarray): R x 4 matrix of projected RoI coordinates
+        levels (list): image pyramid levels used by each projected RoI
+        &#34;&#34;&#34;
+        im_rois = im_rois.astype(np.float, copy=False)
+        
+        if len(scales) &gt; 1:
+            widths = im_rois[:, 2] - im_rois[:, 0] + 1
+            heights = im_rois[:, 3] - im_rois[:, 1] + 1
+
+            areas = widths * heights
+            scaled_areas = areas[:, np.newaxis] * (scales[np.newaxis, :] ** 2)
+            diff_areas = np.abs(scaled_areas - 224 * 224)
+            levels = diff_areas.argmin(axis=1)[:, np.newaxis]
+        else:
+            levels = np.zeros((im_rois.shape[0], 1), dtype=np.int)
+
+            rois = im_rois * scales[levels]
+
+        return rois, levels
+
+    def im_detect(self, net, im, boxes=None):
+        &#34;&#34;&#34;Detect object classes in an image given object proposals.
+        
+        Arguments:
+        net (pytorch): Fast R-CNN network to use
+        im (ndarray): color image to test (in BGR order, as (H, W, C)
+        boxes (ndarray): R x 4 array of object proposals or None (for RPN)
+        
+        Returns:
+        scores (ndarray): R x K array of object class scores (K includes
+        background as object category 0)
+        boxes (ndarray): R x (4*K) array of predicted bounding boxes
+        &#34;&#34;&#34;
+        im_blob, im_scales = self._get_image_blob(im)
+
+        im_info = torch.Tensor(np.array([[im_blob.shape[2], im_blob.shape[3], im_scales[0]]], dtype=np.float32))
+
+        # We think these are already the right shape?
+        # # Now ready to supply inputs to network.
+        # # reshape network inputs
+        # net.blobs[&#39;data&#39;].reshape(*(blobs[&#39;data&#39;].shape))
+        # if self.cfg.TEST.HAS_RPN:
+        #     net.blobs[&#39;im_info&#39;].reshape(*(blobs[&#39;im_info&#39;].shape))
+        # else:
+        #     net.blobs[&#39;rois&#39;].reshape(*(blobs[&#39;rois&#39;].shape))
+        
+        # do forward
+        # Returns are all on CPU
+        (rois, bbox_pred, cls_prob, cls_score) = net(im_blob, im_info)
+        del im_blob
+        del im_info
+        # gc.collect(2)
+        # torch.cuda.empty_cache()
+
+        if self.cfg[&#39;TEST&#39;][&#39;HAS_RPN&#39;]:
+            assert len(im_scales) == 1, &#34;Only single-image batch implemented&#34;
+            rois = rois.detach().numpy()
+            # unscale back to raw image space
+            boxes = rois[:, 1:5] / im_scales[0]
+
+        if self.cfg[&#39;TEST&#39;][&#39;SVM&#39;]:
+            # use the raw scores before softmax under the assumption they
+            # were trained as linear SVMs
+            scores = cls_score.detach().numpy()
+        else:
+            # use softmax estimated probabilities
+            scores = cls_prob.detach().numpy()
+
+        if self.cfg[&#39;TEST&#39;][&#39;BBOX_REG&#39;]:
+            # Apply bounding-box regression deltas
+            box_deltas = bbox_pred.detach().numpy()
+            pred_boxes = self.bbox_transform_inv(boxes, box_deltas)
+            pred_boxes = self.clip_boxes(pred_boxes, im.shape)
+        else:
+            # Simply repeat the boxes, once for each class
+            pred_boxes = np.tile(boxes, (1, scores.shape[1]))
+
+        if self.cfg[&#39;DEDUP_BOXES&#39;] &gt; 0 and not self.cfg[&#39;TEST&#39;][&#39;HAS_RPN&#39;]:
+            # Map scores and predictions back to the original set of boxes
+            raise ValueError(&#39;unsupported configuration option&#39;)
+            #scores = scores[inv_index, :]
+            #pred_boxes = pred_boxes[inv_index, :]
+
+        del rois
+        del bbox_pred
+        del cls_prob
+        del cls_score
+
+        return scores, pred_boxes
+
+
+    def bbox_transform(self, ex_rois, gt_rois):
+        ex_widths = ex_rois[:, 2] - ex_rois[:, 0] + 1.0
+        ex_heights = ex_rois[:, 3] - ex_rois[:, 1] + 1.0
+        ex_ctr_x = ex_rois[:, 0] + 0.5 * ex_widths
+        ex_ctr_y = ex_rois[:, 1] + 0.5 * ex_heights
+        
+        gt_widths = gt_rois[:, 2] - gt_rois[:, 0] + 1.0
+        gt_heights = gt_rois[:, 3] - gt_rois[:, 1] + 1.0
+        gt_ctr_x = gt_rois[:, 0] + 0.5 * gt_widths
+        gt_ctr_y = gt_rois[:, 1] + 0.5 * gt_heights
+        
+        targets_dx = (gt_ctr_x - ex_ctr_x) / ex_widths
+        targets_dy = (gt_ctr_y - ex_ctr_y) / ex_heights
+        targets_dw = np.log(gt_widths / ex_widths)
+        targets_dh = np.log(gt_heights / ex_heights)
+        
+        targets = np.vstack(
+            (targets_dx, targets_dy, targets_dw, targets_dh)).transpose()
+        return targets
+
+    def bbox_transform_inv(self, boxes, deltas):
+        if boxes is None or boxes.shape[0] == 0:
+            return np.zeros((0, deltas.shape[1]), dtype=deltas.dtype)
+
+        boxes = boxes.astype(deltas.dtype, copy=False)
+
+        widths = boxes[:, 2] - boxes[:, 0] + 1.0
+        heights = boxes[:, 3] - boxes[:, 1] + 1.0
+        ctr_x = boxes[:, 0] + 0.5 * widths
+        ctr_y = boxes[:, 1] + 0.5 * heights
+        
+        dx = deltas[:, 0::4]
+        dy = deltas[:, 1::4]
+        dw = deltas[:, 2::4]
+        dh = deltas[:, 3::4]
+        
+        pred_ctr_x = dx * widths[:, np.newaxis] + ctr_x[:, np.newaxis]
+        pred_ctr_y = dy * heights[:, np.newaxis] + ctr_y[:, np.newaxis]
+        pred_w = np.exp(dw) * widths[:, np.newaxis]
+        pred_h = np.exp(dh) * heights[:, np.newaxis]
+        
+        pred_boxes = np.zeros(deltas.shape, dtype=deltas.dtype)
+        # x1
+        pred_boxes[:, 0::4] = pred_ctr_x - 0.5 * pred_w
+        # y1
+        pred_boxes[:, 1::4] = pred_ctr_y - 0.5 * pred_h
+        # x2
+        pred_boxes[:, 2::4] = pred_ctr_x + 0.5 * pred_w
+        # y2
+        pred_boxes[:, 3::4] = pred_ctr_y + 0.5 * pred_h
+
+        return pred_boxes
+
+    def clip_boxes(self, boxes, im_shape):
+        &#34;&#34;&#34;
+        Clip boxes to image boundaries.
+        &#34;&#34;&#34;
+        
+        # x1 &gt;= 0
+        boxes[:, 0::4] = np.maximum(np.minimum(boxes[:, 0::4], im_shape[1] - 1), 0)
+        # y1 &gt;= 0
+        boxes[:, 1::4] = np.maximum(np.minimum(boxes[:, 1::4], im_shape[0] - 1), 0)
+        # x2 &lt; im_shape[1]
+        boxes[:, 2::4] = np.maximum(np.minimum(boxes[:, 2::4], im_shape[1] - 1), 0)
+        # y2 &lt; im_shape[0]
+        boxes[:, 3::4] = np.maximum(np.minimum(boxes[:, 3::4], im_shape[0] - 1), 0)
+        return boxes</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="pycollector.model.face.detection.log_info"><code class="name flex">
+<span>def <span class="ident">log_info</span></span>(<span>s)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/face/detection.py#L33-L35" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def log_info(s):
+    if VERBOSE:
+        print(s)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="pycollector.model.face.detection.FaceRCNN"><code class="flex name class">
+<span>class <span class="ident">FaceRCNN</span></span>
+<span>(</span><span>model_path=None, gpu_index=None, conf_threshold=None, rotate_flags=None, rotate_thresh=None, fusion_thresh=None, test_scales=800, max_size=1300, as_scene=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Wrapper for PyTorch RCNN detector</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/face/detection.py#L38-L549" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class FaceRCNN(object):
+    &#34;Wrapper for PyTorch RCNN detector&#34;
+    def __init__(self, model_path=None, gpu_index=None, conf_threshold=None, rotate_flags=None,
+                 rotate_thresh=None, fusion_thresh=None, test_scales=800, max_size=1300, as_scene=False):
+        
+        if model_path is None:
+            model_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), &#39;../models/detection/resnet-101_faster_rcnn_ohem_iter_20000.pth&#39;)
+            if not os.path.exists(model_path):
+                d = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), &#39;..&#39;))
+                raise ValueError(&#39;[pycollector.detection]: FaceRCNN detection models not downloaded; Run &#34;cd %s; ./download_models.sh&#34;&#39; % d)
+    
+        # This logs the contents of the detector_params dict, along with the other values that we passed.
+        #log_info(f&#34;Params=[{&#39;, &#39;.join((chr(34) + k + chr(34) + &#39;: &#39; + str(v)) for k, v in detector_params)}], threshold=[{conf_threshold}], &#34;
+        #         &#34;rotate=[{rotate_flags}], rotate_thresh=[{rotate_thresh}], fusion_thresh=[{fusion_thresh}]&#34;)
+        log_info(f&#34;model=[{model_path}], gpu=[{gpu_index}], threshold=[{conf_threshold}], &#34;
+                 &#34;rotate=[{rotate_flags}], rotate_thresh=[{rotate_thresh}], fusion_thresh=[{fusion_thresh}]&#34;)
+
+        # Originally stored in config.py, hardcoded defaults here
+        self.cfg = {&#39;TRAIN&#39;: {&#39;SCALES&#39;: [1024], &#39;MAX_SIZE&#39;: 1024, &#39;IMS_PER_BATCH&#39;: 1, &#39;BATCH_SIZE&#39;: 64, &#39;FG_FRACTION&#39;: 0.4, &#39;FG_THRESH&#39;: 0.5, \
+                              &#39;BG_THRESH_HI&#39;: 0.5, &#39;BG_THRESH_LO&#39;: -0.1, &#39;USE_FLIPPED&#39;: True, &#39;BBOX_REG&#39;: True, &#39;BBOX_THRESH&#39;: 0.5, \
+                              &#39;SNAPSHOT_ITERS&#39;: 5000, &#39;SNAPSHOT_INFIX&#39;: &#39;&#39;, &#39;USE_PREFETCH&#39;: False, &#39;BBOX_NORMALIZE_TARGETS&#39;: True, \
+                              &#39;BBOX_INSIDE_WEIGHTS&#39;: [1.0, 1.0, 1.0, 1.0], &#39;BBOX_NORMALIZE_TARGETS_PRECOMPUTED&#39;: False, &#39;BBOX_NORMALIZE_MEANS&#39;: \
+                              [0.0, 0.0, 0.0, 0.0], &#39;BBOX_NORMALIZE_STDS&#39;: [0.1, 0.1, 0.2, 0.2], &#39;PROPOSAL_METHOD&#39;: &#39;selective_search&#39;, &#39;ASPECT_GROUPING&#39;: \
+                              True, &#39;HAS_RPN&#39;: False, &#39;RPN_POSITIVE_OVERLAP&#39;: 0.7, &#39;RPN_NEGATIVE_OVERLAP&#39;: 0.3, &#39;RPN_CLOBBER_POSITIVES&#39;: False, \
+                              &#39;RPN_FG_FRACTION&#39;: 0.5, &#39;RPN_BATCHSIZE&#39;: 256, &#39;RPN_NMS_THRESH&#39;: 0.7, &#39;RPN_PRE_NMS_TOP_N&#39;: 12000, &#39;RPN_POST_NMS_TOP_N&#39;: \
+                              2000, &#39;RPN_MIN_SIZE&#39;: 3, &#39;RPN_BBOX_INSIDE_WEIGHTS&#39;: [1.0, 1.0, 1.0, 1.0], &#39;RPN_POSITIVE_WEIGHT&#39;: -1.0}, \
+                    &#39;TEST&#39;: {&#39;SCALES&#39;: [800], &#39;MAX_SIZE&#39;: 1300, &#39;NMS&#39;: 0.3, &#39;SVM&#39;: False, &#39;BBOX_REG&#39;: True, &#39;HAS_RPN&#39;: True, &#39;PROPOSAL_METHOD&#39;: \
+                             &#39;selective_search&#39;, &#39;RPN_NMS_THRESH&#39;: 0.7, &#39;RPN_PRE_NMS_TOP_N&#39;: 6000, &#39;RPN_POST_NMS_TOP_N&#39;: 300, &#39;RPN_MIN_SIZE&#39;: 3}, \
+                    &#39;DEDUP_BOXES&#39;: 0.0625, &#39;PIXEL_MEANS&#39;: np.array([[[102.9801, 115.9465, 122.7717]]]), &#39;RNG_SEED&#39;: 3, &#39;EPS&#39;: 1e-14, \
+                    &#39;ROOT_DIR&#39;: None, &#39;DATA_DIR&#39;: None, &#39;MODELS_DIR&#39;: None, &#39;MATLAB&#39;: &#39;matlab&#39;, &#39;EXP_DIR&#39;: &#39;default&#39;, &#39;USE_GPU_NMS&#39;: True, &#39;GPU_ID&#39;: 0}
+
+        # Now do any setup required by the parameters that the framework
+        # itself won&#39;t handle.
+        # import pdb; pdb.set_trace()
+        if gpu_index is not None and gpu_index &gt;= 0:
+            dev = torch.device(gpu_index)
+            self.cfg[&#39;GPU_ID&#39;] = gpu_index
+        else:
+            dev = torch.device(&#34;cpu&#34;)
+
+        self.cfg[&#39;TEST&#39;][&#39;HAS_RPN&#39;] = True  # Use RPN for proposals
+        self.cfg[&#39;TEST&#39;][&#39;SCALES&#39;] = (test_scales,)
+        self.cfg[&#39;TEST&#39;][&#39;MAX_SIZE&#39;] = max_size
+        #self.net = FasterRCNN_MMDNN(model_path, dev)  # model_path is directory
+        self.net = FasterRCNN(dev)
+        self.net.load_state_dict(torch.load(model_path))
+        if conf_threshold is None:
+            self.conf_threshold = CONF_THRESH
+        else:
+            self.conf_threshold = conf_threshold
+        if rotate_flags is None:
+            self.rotate_flags = 0
+        else:
+            self.rotate_flags = rotate_flags
+        if rotate_thresh is None:
+            self.rotate_thresh = conf_threshold
+        else:
+            self.rotate_thresh = rotate_thresh
+        if fusion_thresh is None:
+            self.fusion_thresh = FUSION_THRESH
+        else:
+            self.fusion_thresh = fusion_thresh
+        self.as_scene = as_scene
+        log_info(&#39;Init success; threshold {}&#39;.format(self.conf_threshold))
+
+
+    def __call__(self, img, padding=0, min_face_size=DIM_THRESH):
+        &#34;&#34;&#34;Return list of [[x,y,w,h,conf],...] face detection&#34;&#34;&#34;
+        return self.detect(img, padding=padding, min_face_size=min_face_size)
+
+
+    def dets_to_scene(img, dets):
+        &#34;&#34;&#34;Convert detections returned from this object to a vipy.image.Scene object&#34;&#34;&#34;
+        return vipy.image.Scene(array=img, colorspace=&#39;rgb&#39;, objects=[vipy.object.Detection(&#39;face&#39;, xmin=bb[0], ymin=bb[1], width=bb[2], height=bb[3], confidence=bb[4]) for bb in dets])
+
+        
+    def detect(self, image, padding=0, min_face_size=DIM_THRESH):
+        &#34;Run detection on a numpy image, with specified padding and min size&#34;
+
+        # Input must be a np.array(), have a method image.numpy() or is convertible as np.array(image), otherwise error
+        if &#39;numpy&#39; not in str(type(image)) and hasattr(image, &#39;numpy&#39;):
+            image = image.numpy()
+        else:
+            try:
+                image = np.array(image)
+            except:
+                raise ValueError(&#39;Input must be a numpy array&#39;)
+        
+        
+        start_time = time.time()
+        width = image.shape[1]
+        height = image.shape[0]
+        # These values will get updated for resizing and padding, so we&#39;ll have good numbers
+        # for un-rotating bounding boxes where needed
+        detect_width = width
+        detect_height = height
+        color_space = 1 if image.ndim &gt; 2 else 0
+
+        log_info(&#39;w/h/cs: %d/%d/%d&#39; %(width, height, color_space))
+
+        img = np.array(image)
+
+        if padding &gt; 0:
+            perc = padding / 100.
+            padding = int(ceil(min(width, height) * perc))
+
+            # mean bgr padding
+            bgr_mean = np.mean(img, axis=(0, 1))
+            detect_width = width + padding * 2
+            detect_height = height + padding * 2
+            pad_im = np.zeros((detect_height, detect_width, 3), dtype=np.uint8)
+            pad_im[:, :, ...] = bgr_mean
+            pad_im[padding:padding + height, padding:padding + width, ...] = img
+            img = pad_im
+            log_info(&#39;mean padded to w/h: %d/%d&#39; % (img.shape[1], img.shape[0]))
+            # cv2.imwrite(&#39;debug.png&#39;, im)
+
+        if width &lt;= 16 or height &lt;= 16:
+            img = np.array(PIL.Image.fromarray(img).resize( (32, 32), PIL.Image.BILINEAR))
+            width = img.shape[1]
+            height = img.shape[0]
+
+        rotation_angles = []
+        if (self.rotate_flags &amp; 1) != 0:
+            rotation_angles.append(90)
+        if (self.rotate_flags &amp; 2) != 0:
+            rotation_angles.append(-90)
+        if (self.rotate_flags &amp; 4) != 0:
+            rotation_angles.append(180)
+        current_rotation = 0
+
+        # parallel arrays: one is list of boxes, per rotation; other is list of scores
+        det_lists = []
+        box_proposals = None
+        im_rotated = img
+        while True:
+            scores, boxes = self.im_detect(self.net, im_rotated, box_proposals)
+
+            # Threshold on score and apply NMS
+            cls_ind = 1
+            cls_boxes = boxes[:, 4*cls_ind:4*(cls_ind + 1)]
+            cls_scores = scores[:, cls_ind]
+
+            # Each row of dets is Left, Top, Right, Bottom, score
+            dets = np.hstack((cls_boxes, cls_scores[:, np.newaxis])).astype(np.float32)
+            orig_dets = dets.shape
+            #keep = nms(dets, NMS_THRESH, force_cpu=False)
+            keep = self.net._nms(dets, NMS_THRESH)  # JEBYRNE
+            dets = dets[keep, :]
+            new_dets = dets.shape
+            log_info(&#39;Before NMS: {}; after: {}&#39;.format(orig_dets, new_dets))
+
+            # If we just ran the detector on a rotated image, use the rotation threshold
+            if current_rotation != 0:
+                keep = np.where(dets[:, 4] &gt; self.rotate_thresh)
+            else:
+                keep = np.where(dets[:, 4] &gt; self.conf_threshold)
+            # print &#39;After filter for rotation {}: keep = {}&#39;.format(current_rotation, keep)
+            dets = dets[keep]
+
+            # This is converting the max coords to width and height. The coordinates haven&#39;t been
+            # unrotated yet--save a bit of energy by thresholding and such first.
+            dets[:, 2] = dets[:, 2] - dets[:, 0] + 1
+            dets[:, 3] = dets[:, 3] - dets[:, 1] + 1
+            if current_rotation != 0:
+                # Now unrotate
+                # Rotated coordinates are x_rot, y_rot, Wr, Hr
+                # Unrotated, X, Y, W, H
+                # for +90, width and height swap, top right becomes top left
+                #   W = Hr, H = Wr, X = y_rot, Y = (rotated image width) - (x_rot + Wr)
+                # for -90, width and height swap, bottom left becomes top left
+                #   W = Hr, H = Wr, X = (rotated image height) - (y_rot + Hr), Y = x_rot
+                # for 180, width and height same, bottom right becomes top left
+                #   W = Wr, H = Hr, X = image width - (x_rot + Wr), Y = image height - (y_rot + Hr)
+                if current_rotation == 90:
+                    for det in dets:
+                        x_rot = det[0]
+                        y_rot = det[1]
+                        det[0] = y_rot
+                        # Image was rotated, so width and height swapped
+                        det[1] = detect_height - (x_rot + det[2])
+                        det[2], det[3] = det[3], det[2]
+                elif current_rotation == -90:
+                    for det in dets:
+                        x_rot = det[0]
+                        y_rot = det[1]
+                        # Image was rotated, so width and height swapped
+                        det[0] = detect_width - (y_rot + det[3])
+                        det[1] = x_rot
+                        det[2], det[3] = det[3], det[2]
+                elif current_rotation == 180:
+                    for det in dets:
+                        x_rot = det[0]
+                        y_rot = det[1]
+                        det[0] = detect_width - (x_rot + det[2])
+                        det[1] = detect_height - (y_rot + det[3])
+
+            if padding &gt; 0:
+                # Adjust to original coordinates
+                dets[:, 0] -= padding
+                dets[:, 1] -= padding
+
+                keep = np.where(np.bitwise_and(dets[:, 2] &gt; min_face_size,
+                                               dets[:, 3] &gt; min_face_size))
+                dets = dets[keep]
+            else:
+                keep = np.where(np.bitwise_and(dets[:, 2] &gt; min_face_size,
+                                               dets[:, 3] &gt; min_face_size))
+                dets = dets[keep]
+            det_lists.append(dets)
+            # Exit the list if we&#39;ve done all the rotations we need
+            if len(rotation_angles) == 0:
+                break
+            current_rotation = rotation_angles[0]
+            rotation_angles = rotation_angles[1:]
+            log_info(&#39;Rotating to %d&#39; % current_rotation)
+            if current_rotation == 90:
+                im_rotated = img.transpose(1,0,2)
+                im_rotated = np.flipud(im_rotated)
+            elif current_rotation == -90:
+                im_rotated = img.transpose(1,0,2)
+                im_rotated = np.fliplr(im_rotated)
+            else:
+                # Must be 180
+                im_rotated = np.fliplr(np.flipud(img))
+
+                # Now have 1, 3 (0, 90, -90), or 4 (0, 90, -90, 180) elements of det_lists.
+        if len(det_lists) &gt; 1:
+            return self.select_from_rotated(det_lists, start_time)
+        else:
+            dets = det_lists[0]
+            log_info(&#39;Found %d faces&#39; % dets.shape[0])
+            log_info(&#39;===elapsed %.6f===&#39; % ((time.time() - start_time) * 1000))
+            return dets if not self.as_scene else self.dets_to_scene(img, dets)  # [[x,y,w,h,conf], ...]
+
+
+    def select_from_rotated(self, det_lists, start_time):
+        &#34;Given that we tried rotating the image, select the best rotation to use&#34;
+        dets = det_lists[0]
+        original_dets = dets.shape[0]
+        i = 0
+        for rot_dets in det_lists[1:]:
+            i = i + 1
+            log_info(&#39;Processing rotated detections from slot %d&#39; % (i))
+            # Now iterate over the rows, 1/detection
+            for rot_det in rot_dets:
+                rot_xmin = rot_det[0]
+                rot_ymin = rot_det[1]
+                rot_xmax = rot_xmin + rot_det[2]
+                rot_ymax = rot_ymin + rot_det[3]
+                rot_area = rot_det[2] * rot_det[3]
+                matched = False
+                best_iou = 0.0
+                for det in dets:
+                    xmin = det[0]
+                    ymin = det[1]
+                    xmax = xmin + det[2]
+                    ymax = ymin + det[3]
+                    intersection_width = min(xmax, rot_xmax) - max(xmin, rot_xmin)
+                    intersection_height = min(ymax, rot_ymax) - max(ymin, rot_ymin)
+                    if intersection_width &gt; 0 and intersection_height &gt; 0:
+                        intersection_area = intersection_width * intersection_height
+                        union_area = rot_area + det[2] * det[3] - intersection_area
+                        iou = intersection_area / union_area
+                        if iou &gt; best_iou:
+                            best_iou = iou
+                        if iou &gt; self.fusion_thresh:
+                            matched = True
+                            if rot_det[4] &gt; det[4]:
+                                # Rotated detection was better
+                                det[0] = rot_det[0]
+                                det[1] = rot_det[1]
+                                det[2] = rot_det[2]
+                                det[3] = rot_det[3]
+                                det[4] = rot_det[4]
+                            break
+                if not matched:
+                    # Add this guy, since he had no matches
+                    dets = np.vstack((dets, rot_det))
+        log_info(&#39;Found %d face%s (orig %d)&#39; %
+                 (dets.shape[0], &#39;&#39; if dets.shape[0] == 0 else &#39;s&#39;, original_dets))
+        log_info(&#39;===elapsed %.6f===&#39; % ((time.time() - start_time) * 1000))
+        return dets
+
+    
+    def _get_image_blob(self, im):
+        &#34;&#34;&#34;Converts an image into a network input.
+
+        Arguments:
+        im (ndarray): a color image in BGR order
+
+        Returns:
+        blob (ndarray): a torch Tensor holding the image. Some transposition might have to occur, because
+        we need N, 3, 800, 1205 (say), while the image itself is likely 800, 1205, 3. N is the number of images
+        to process (if len(TEST.SCALES) &gt; 1, then it won&#39;t be 1).
+        im_scale_factors (list): list of image scales (relative to im) used
+        in the image pyramid
+        &#34;&#34;&#34;
+        im_orig = im.astype(np.float32, copy=True)
+        #im_orig -= self.cfg.PIXEL_MEANS
+
+        im_shape = im_orig.shape
+        im_size_min = np.min(im_shape[0:2])
+        im_size_max = np.max(im_shape[0:2])
+        
+        processed_ims = []
+        im_scale_factors = []
+
+        for target_size in self.cfg[&#39;TEST&#39;][&#39;SCALES&#39;]:
+            im_scale = float(target_size) / float(im_size_min)
+            # Prevent the biggest axis from being more than MAX_SIZE
+            if np.round(im_scale * im_size_max) &gt; self.cfg[&#39;TEST&#39;][&#39;MAX_SIZE&#39;]:
+                im_scale = float(self.cfg[&#39;TEST&#39;][&#39;MAX_SIZE&#39;]) / float(im_size_max)
+
+            im = np.array(PIL.Image.fromarray(np.uint8(im_orig)).resize((int(np.round(im_scale*im_orig.shape[1])), int(np.round(im_scale*im_orig.shape[0]))), PIL.Image.BILINEAR))
+            im = im.astype(np.float32, copy=True)        
+            im -= self.cfg[&#39;PIXEL_MEANS&#39;]
+
+            #im = cv2.resize(im_orig, None, None, fx=im_scale, fy=im_scale,
+            #                interpolation=cv2.INTER_LINEAR)
+            #log_info(&#39;Add %s from %s&#39; % (im.shape, im_orig.shape))
+            im_scale_factors.append(im_scale)
+            # We need number of channels first, then height, then width
+            im_transpose = im.transpose(2, 0, 1)
+            processed_ims.append(im)
+
+        # Create a tensor to hold the input images. Typically this will be
+        # 1, 3, ..., 
+        #blob = torch.Tensor(im_list_to_blob(processed_ims))
+        blob = torch.Tensor(np.array(processed_ims).transpose([0,3,1,2]))  # JEBYRNE
+        return blob, np.array(im_scale_factors)
+
+    def _get_rois_blob(self, im_rois, im_scale_factors):
+        &#34;&#34;&#34;Converts RoIs into network inputs.
+
+        Arguments:
+        im_rois (ndarray): R x 4 matrix of RoIs in original image coordinates
+        im_scale_factors (list): scale factors as returned by _get_image_blob
+        
+        Returns:
+        blob (ndarray): R x 5 matrix of RoIs in the image pyramid
+        &#34;&#34;&#34;
+        rois, levels = self._project_im_rois(im_rois, im_scale_factors)
+        rois_blob = np.hstack((levels, rois))
+        return rois_blob.astype(np.float32, copy=False)
+
+    def _project_im_rois(self, im_rois, scales):
+        &#34;&#34;&#34;Project image RoIs into the image pyramid built by _get_image_blob.
+        
+        Arguments:
+        im_rois (ndarray): R x 4 matrix of RoIs in original image coordinates
+        scales (list): scale factors as returned by _get_image_blob
+        
+        Returns:
+        rois (ndarray): R x 4 matrix of projected RoI coordinates
+        levels (list): image pyramid levels used by each projected RoI
+        &#34;&#34;&#34;
+        im_rois = im_rois.astype(np.float, copy=False)
+        
+        if len(scales) &gt; 1:
+            widths = im_rois[:, 2] - im_rois[:, 0] + 1
+            heights = im_rois[:, 3] - im_rois[:, 1] + 1
+
+            areas = widths * heights
+            scaled_areas = areas[:, np.newaxis] * (scales[np.newaxis, :] ** 2)
+            diff_areas = np.abs(scaled_areas - 224 * 224)
+            levels = diff_areas.argmin(axis=1)[:, np.newaxis]
+        else:
+            levels = np.zeros((im_rois.shape[0], 1), dtype=np.int)
+
+            rois = im_rois * scales[levels]
+
+        return rois, levels
+
+    def im_detect(self, net, im, boxes=None):
+        &#34;&#34;&#34;Detect object classes in an image given object proposals.
+        
+        Arguments:
+        net (pytorch): Fast R-CNN network to use
+        im (ndarray): color image to test (in BGR order, as (H, W, C)
+        boxes (ndarray): R x 4 array of object proposals or None (for RPN)
+        
+        Returns:
+        scores (ndarray): R x K array of object class scores (K includes
+        background as object category 0)
+        boxes (ndarray): R x (4*K) array of predicted bounding boxes
+        &#34;&#34;&#34;
+        im_blob, im_scales = self._get_image_blob(im)
+
+        im_info = torch.Tensor(np.array([[im_blob.shape[2], im_blob.shape[3], im_scales[0]]], dtype=np.float32))
+
+        # We think these are already the right shape?
+        # # Now ready to supply inputs to network.
+        # # reshape network inputs
+        # net.blobs[&#39;data&#39;].reshape(*(blobs[&#39;data&#39;].shape))
+        # if self.cfg.TEST.HAS_RPN:
+        #     net.blobs[&#39;im_info&#39;].reshape(*(blobs[&#39;im_info&#39;].shape))
+        # else:
+        #     net.blobs[&#39;rois&#39;].reshape(*(blobs[&#39;rois&#39;].shape))
+        
+        # do forward
+        # Returns are all on CPU
+        (rois, bbox_pred, cls_prob, cls_score) = net(im_blob, im_info)
+        del im_blob
+        del im_info
+        # gc.collect(2)
+        # torch.cuda.empty_cache()
+
+        if self.cfg[&#39;TEST&#39;][&#39;HAS_RPN&#39;]:
+            assert len(im_scales) == 1, &#34;Only single-image batch implemented&#34;
+            rois = rois.detach().numpy()
+            # unscale back to raw image space
+            boxes = rois[:, 1:5] / im_scales[0]
+
+        if self.cfg[&#39;TEST&#39;][&#39;SVM&#39;]:
+            # use the raw scores before softmax under the assumption they
+            # were trained as linear SVMs
+            scores = cls_score.detach().numpy()
+        else:
+            # use softmax estimated probabilities
+            scores = cls_prob.detach().numpy()
+
+        if self.cfg[&#39;TEST&#39;][&#39;BBOX_REG&#39;]:
+            # Apply bounding-box regression deltas
+            box_deltas = bbox_pred.detach().numpy()
+            pred_boxes = self.bbox_transform_inv(boxes, box_deltas)
+            pred_boxes = self.clip_boxes(pred_boxes, im.shape)
+        else:
+            # Simply repeat the boxes, once for each class
+            pred_boxes = np.tile(boxes, (1, scores.shape[1]))
+
+        if self.cfg[&#39;DEDUP_BOXES&#39;] &gt; 0 and not self.cfg[&#39;TEST&#39;][&#39;HAS_RPN&#39;]:
+            # Map scores and predictions back to the original set of boxes
+            raise ValueError(&#39;unsupported configuration option&#39;)
+            #scores = scores[inv_index, :]
+            #pred_boxes = pred_boxes[inv_index, :]
+
+        del rois
+        del bbox_pred
+        del cls_prob
+        del cls_score
+
+        return scores, pred_boxes
+
+
+    def bbox_transform(self, ex_rois, gt_rois):
+        ex_widths = ex_rois[:, 2] - ex_rois[:, 0] + 1.0
+        ex_heights = ex_rois[:, 3] - ex_rois[:, 1] + 1.0
+        ex_ctr_x = ex_rois[:, 0] + 0.5 * ex_widths
+        ex_ctr_y = ex_rois[:, 1] + 0.5 * ex_heights
+        
+        gt_widths = gt_rois[:, 2] - gt_rois[:, 0] + 1.0
+        gt_heights = gt_rois[:, 3] - gt_rois[:, 1] + 1.0
+        gt_ctr_x = gt_rois[:, 0] + 0.5 * gt_widths
+        gt_ctr_y = gt_rois[:, 1] + 0.5 * gt_heights
+        
+        targets_dx = (gt_ctr_x - ex_ctr_x) / ex_widths
+        targets_dy = (gt_ctr_y - ex_ctr_y) / ex_heights
+        targets_dw = np.log(gt_widths / ex_widths)
+        targets_dh = np.log(gt_heights / ex_heights)
+        
+        targets = np.vstack(
+            (targets_dx, targets_dy, targets_dw, targets_dh)).transpose()
+        return targets
+
+    def bbox_transform_inv(self, boxes, deltas):
+        if boxes is None or boxes.shape[0] == 0:
+            return np.zeros((0, deltas.shape[1]), dtype=deltas.dtype)
+
+        boxes = boxes.astype(deltas.dtype, copy=False)
+
+        widths = boxes[:, 2] - boxes[:, 0] + 1.0
+        heights = boxes[:, 3] - boxes[:, 1] + 1.0
+        ctr_x = boxes[:, 0] + 0.5 * widths
+        ctr_y = boxes[:, 1] + 0.5 * heights
+        
+        dx = deltas[:, 0::4]
+        dy = deltas[:, 1::4]
+        dw = deltas[:, 2::4]
+        dh = deltas[:, 3::4]
+        
+        pred_ctr_x = dx * widths[:, np.newaxis] + ctr_x[:, np.newaxis]
+        pred_ctr_y = dy * heights[:, np.newaxis] + ctr_y[:, np.newaxis]
+        pred_w = np.exp(dw) * widths[:, np.newaxis]
+        pred_h = np.exp(dh) * heights[:, np.newaxis]
+        
+        pred_boxes = np.zeros(deltas.shape, dtype=deltas.dtype)
+        # x1
+        pred_boxes[:, 0::4] = pred_ctr_x - 0.5 * pred_w
+        # y1
+        pred_boxes[:, 1::4] = pred_ctr_y - 0.5 * pred_h
+        # x2
+        pred_boxes[:, 2::4] = pred_ctr_x + 0.5 * pred_w
+        # y2
+        pred_boxes[:, 3::4] = pred_ctr_y + 0.5 * pred_h
+
+        return pred_boxes
+
+    def clip_boxes(self, boxes, im_shape):
+        &#34;&#34;&#34;
+        Clip boxes to image boundaries.
+        &#34;&#34;&#34;
+        
+        # x1 &gt;= 0
+        boxes[:, 0::4] = np.maximum(np.minimum(boxes[:, 0::4], im_shape[1] - 1), 0)
+        # y1 &gt;= 0
+        boxes[:, 1::4] = np.maximum(np.minimum(boxes[:, 1::4], im_shape[0] - 1), 0)
+        # x2 &lt; im_shape[1]
+        boxes[:, 2::4] = np.maximum(np.minimum(boxes[:, 2::4], im_shape[1] - 1), 0)
+        # y2 &lt; im_shape[0]
+        boxes[:, 3::4] = np.maximum(np.minimum(boxes[:, 3::4], im_shape[0] - 1), 0)
+        return boxes</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="pycollector.model.face.detection.FaceRCNN.bbox_transform"><code class="name flex">
+<span>def <span class="ident">bbox_transform</span></span>(<span>self, ex_rois, gt_rois)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/face/detection.py#L483-L501" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def bbox_transform(self, ex_rois, gt_rois):
+    ex_widths = ex_rois[:, 2] - ex_rois[:, 0] + 1.0
+    ex_heights = ex_rois[:, 3] - ex_rois[:, 1] + 1.0
+    ex_ctr_x = ex_rois[:, 0] + 0.5 * ex_widths
+    ex_ctr_y = ex_rois[:, 1] + 0.5 * ex_heights
+    
+    gt_widths = gt_rois[:, 2] - gt_rois[:, 0] + 1.0
+    gt_heights = gt_rois[:, 3] - gt_rois[:, 1] + 1.0
+    gt_ctr_x = gt_rois[:, 0] + 0.5 * gt_widths
+    gt_ctr_y = gt_rois[:, 1] + 0.5 * gt_heights
+    
+    targets_dx = (gt_ctr_x - ex_ctr_x) / ex_widths
+    targets_dy = (gt_ctr_y - ex_ctr_y) / ex_heights
+    targets_dw = np.log(gt_widths / ex_widths)
+    targets_dh = np.log(gt_heights / ex_heights)
+    
+    targets = np.vstack(
+        (targets_dx, targets_dy, targets_dw, targets_dh)).transpose()
+    return targets</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.face.detection.FaceRCNN.bbox_transform_inv"><code class="name flex">
+<span>def <span class="ident">bbox_transform_inv</span></span>(<span>self, boxes, deltas)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/face/detection.py#L503-L534" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def bbox_transform_inv(self, boxes, deltas):
+    if boxes is None or boxes.shape[0] == 0:
+        return np.zeros((0, deltas.shape[1]), dtype=deltas.dtype)
+
+    boxes = boxes.astype(deltas.dtype, copy=False)
+
+    widths = boxes[:, 2] - boxes[:, 0] + 1.0
+    heights = boxes[:, 3] - boxes[:, 1] + 1.0
+    ctr_x = boxes[:, 0] + 0.5 * widths
+    ctr_y = boxes[:, 1] + 0.5 * heights
+    
+    dx = deltas[:, 0::4]
+    dy = deltas[:, 1::4]
+    dw = deltas[:, 2::4]
+    dh = deltas[:, 3::4]
+    
+    pred_ctr_x = dx * widths[:, np.newaxis] + ctr_x[:, np.newaxis]
+    pred_ctr_y = dy * heights[:, np.newaxis] + ctr_y[:, np.newaxis]
+    pred_w = np.exp(dw) * widths[:, np.newaxis]
+    pred_h = np.exp(dh) * heights[:, np.newaxis]
+    
+    pred_boxes = np.zeros(deltas.shape, dtype=deltas.dtype)
+    # x1
+    pred_boxes[:, 0::4] = pred_ctr_x - 0.5 * pred_w
+    # y1
+    pred_boxes[:, 1::4] = pred_ctr_y - 0.5 * pred_h
+    # x2
+    pred_boxes[:, 2::4] = pred_ctr_x + 0.5 * pred_w
+    # y2
+    pred_boxes[:, 3::4] = pred_ctr_y + 0.5 * pred_h
+
+    return pred_boxes</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.face.detection.FaceRCNN.clip_boxes"><code class="name flex">
+<span>def <span class="ident">clip_boxes</span></span>(<span>self, boxes, im_shape)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Clip boxes to image boundaries.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/face/detection.py#L536-L549" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def clip_boxes(self, boxes, im_shape):
+    &#34;&#34;&#34;
+    Clip boxes to image boundaries.
+    &#34;&#34;&#34;
+    
+    # x1 &gt;= 0
+    boxes[:, 0::4] = np.maximum(np.minimum(boxes[:, 0::4], im_shape[1] - 1), 0)
+    # y1 &gt;= 0
+    boxes[:, 1::4] = np.maximum(np.minimum(boxes[:, 1::4], im_shape[0] - 1), 0)
+    # x2 &lt; im_shape[1]
+    boxes[:, 2::4] = np.maximum(np.minimum(boxes[:, 2::4], im_shape[1] - 1), 0)
+    # y2 &lt; im_shape[0]
+    boxes[:, 3::4] = np.maximum(np.minimum(boxes[:, 3::4], im_shape[0] - 1), 0)
+    return boxes</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.face.detection.FaceRCNN.detect"><code class="name flex">
+<span>def <span class="ident">detect</span></span>(<span>self, image, padding=0, min_face_size=15)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Run detection on a numpy image, with specified padding and min size</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/face/detection.py#L114-L271" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def detect(self, image, padding=0, min_face_size=DIM_THRESH):
+    &#34;Run detection on a numpy image, with specified padding and min size&#34;
+
+    # Input must be a np.array(), have a method image.numpy() or is convertible as np.array(image), otherwise error
+    if &#39;numpy&#39; not in str(type(image)) and hasattr(image, &#39;numpy&#39;):
+        image = image.numpy()
+    else:
+        try:
+            image = np.array(image)
+        except:
+            raise ValueError(&#39;Input must be a numpy array&#39;)
+    
+    
+    start_time = time.time()
+    width = image.shape[1]
+    height = image.shape[0]
+    # These values will get updated for resizing and padding, so we&#39;ll have good numbers
+    # for un-rotating bounding boxes where needed
+    detect_width = width
+    detect_height = height
+    color_space = 1 if image.ndim &gt; 2 else 0
+
+    log_info(&#39;w/h/cs: %d/%d/%d&#39; %(width, height, color_space))
+
+    img = np.array(image)
+
+    if padding &gt; 0:
+        perc = padding / 100.
+        padding = int(ceil(min(width, height) * perc))
+
+        # mean bgr padding
+        bgr_mean = np.mean(img, axis=(0, 1))
+        detect_width = width + padding * 2
+        detect_height = height + padding * 2
+        pad_im = np.zeros((detect_height, detect_width, 3), dtype=np.uint8)
+        pad_im[:, :, ...] = bgr_mean
+        pad_im[padding:padding + height, padding:padding + width, ...] = img
+        img = pad_im
+        log_info(&#39;mean padded to w/h: %d/%d&#39; % (img.shape[1], img.shape[0]))
+        # cv2.imwrite(&#39;debug.png&#39;, im)
+
+    if width &lt;= 16 or height &lt;= 16:
+        img = np.array(PIL.Image.fromarray(img).resize( (32, 32), PIL.Image.BILINEAR))
+        width = img.shape[1]
+        height = img.shape[0]
+
+    rotation_angles = []
+    if (self.rotate_flags &amp; 1) != 0:
+        rotation_angles.append(90)
+    if (self.rotate_flags &amp; 2) != 0:
+        rotation_angles.append(-90)
+    if (self.rotate_flags &amp; 4) != 0:
+        rotation_angles.append(180)
+    current_rotation = 0
+
+    # parallel arrays: one is list of boxes, per rotation; other is list of scores
+    det_lists = []
+    box_proposals = None
+    im_rotated = img
+    while True:
+        scores, boxes = self.im_detect(self.net, im_rotated, box_proposals)
+
+        # Threshold on score and apply NMS
+        cls_ind = 1
+        cls_boxes = boxes[:, 4*cls_ind:4*(cls_ind + 1)]
+        cls_scores = scores[:, cls_ind]
+
+        # Each row of dets is Left, Top, Right, Bottom, score
+        dets = np.hstack((cls_boxes, cls_scores[:, np.newaxis])).astype(np.float32)
+        orig_dets = dets.shape
+        #keep = nms(dets, NMS_THRESH, force_cpu=False)
+        keep = self.net._nms(dets, NMS_THRESH)  # JEBYRNE
+        dets = dets[keep, :]
+        new_dets = dets.shape
+        log_info(&#39;Before NMS: {}; after: {}&#39;.format(orig_dets, new_dets))
+
+        # If we just ran the detector on a rotated image, use the rotation threshold
+        if current_rotation != 0:
+            keep = np.where(dets[:, 4] &gt; self.rotate_thresh)
+        else:
+            keep = np.where(dets[:, 4] &gt; self.conf_threshold)
+        # print &#39;After filter for rotation {}: keep = {}&#39;.format(current_rotation, keep)
+        dets = dets[keep]
+
+        # This is converting the max coords to width and height. The coordinates haven&#39;t been
+        # unrotated yet--save a bit of energy by thresholding and such first.
+        dets[:, 2] = dets[:, 2] - dets[:, 0] + 1
+        dets[:, 3] = dets[:, 3] - dets[:, 1] + 1
+        if current_rotation != 0:
+            # Now unrotate
+            # Rotated coordinates are x_rot, y_rot, Wr, Hr
+            # Unrotated, X, Y, W, H
+            # for +90, width and height swap, top right becomes top left
+            #   W = Hr, H = Wr, X = y_rot, Y = (rotated image width) - (x_rot + Wr)
+            # for -90, width and height swap, bottom left becomes top left
+            #   W = Hr, H = Wr, X = (rotated image height) - (y_rot + Hr), Y = x_rot
+            # for 180, width and height same, bottom right becomes top left
+            #   W = Wr, H = Hr, X = image width - (x_rot + Wr), Y = image height - (y_rot + Hr)
+            if current_rotation == 90:
+                for det in dets:
+                    x_rot = det[0]
+                    y_rot = det[1]
+                    det[0] = y_rot
+                    # Image was rotated, so width and height swapped
+                    det[1] = detect_height - (x_rot + det[2])
+                    det[2], det[3] = det[3], det[2]
+            elif current_rotation == -90:
+                for det in dets:
+                    x_rot = det[0]
+                    y_rot = det[1]
+                    # Image was rotated, so width and height swapped
+                    det[0] = detect_width - (y_rot + det[3])
+                    det[1] = x_rot
+                    det[2], det[3] = det[3], det[2]
+            elif current_rotation == 180:
+                for det in dets:
+                    x_rot = det[0]
+                    y_rot = det[1]
+                    det[0] = detect_width - (x_rot + det[2])
+                    det[1] = detect_height - (y_rot + det[3])
+
+        if padding &gt; 0:
+            # Adjust to original coordinates
+            dets[:, 0] -= padding
+            dets[:, 1] -= padding
+
+            keep = np.where(np.bitwise_and(dets[:, 2] &gt; min_face_size,
+                                           dets[:, 3] &gt; min_face_size))
+            dets = dets[keep]
+        else:
+            keep = np.where(np.bitwise_and(dets[:, 2] &gt; min_face_size,
+                                           dets[:, 3] &gt; min_face_size))
+            dets = dets[keep]
+        det_lists.append(dets)
+        # Exit the list if we&#39;ve done all the rotations we need
+        if len(rotation_angles) == 0:
+            break
+        current_rotation = rotation_angles[0]
+        rotation_angles = rotation_angles[1:]
+        log_info(&#39;Rotating to %d&#39; % current_rotation)
+        if current_rotation == 90:
+            im_rotated = img.transpose(1,0,2)
+            im_rotated = np.flipud(im_rotated)
+        elif current_rotation == -90:
+            im_rotated = img.transpose(1,0,2)
+            im_rotated = np.fliplr(im_rotated)
+        else:
+            # Must be 180
+            im_rotated = np.fliplr(np.flipud(img))
+
+            # Now have 1, 3 (0, 90, -90), or 4 (0, 90, -90, 180) elements of det_lists.
+    if len(det_lists) &gt; 1:
+        return self.select_from_rotated(det_lists, start_time)
+    else:
+        dets = det_lists[0]
+        log_info(&#39;Found %d faces&#39; % dets.shape[0])
+        log_info(&#39;===elapsed %.6f===&#39; % ((time.time() - start_time) * 1000))
+        return dets if not self.as_scene else self.dets_to_scene(img, dets)  # [[x,y,w,h,conf], ...]</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.face.detection.FaceRCNN.dets_to_scene"><code class="name flex">
+<span>def <span class="ident">dets_to_scene</span></span>(<span>img, dets)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Convert detections returned from this object to a vipy.image.Scene object</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/face/detection.py#L109-L111" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def dets_to_scene(img, dets):
+    &#34;&#34;&#34;Convert detections returned from this object to a vipy.image.Scene object&#34;&#34;&#34;
+    return vipy.image.Scene(array=img, colorspace=&#39;rgb&#39;, objects=[vipy.object.Detection(&#39;face&#39;, xmin=bb[0], ymin=bb[1], width=bb[2], height=bb[3], confidence=bb[4]) for bb in dets])</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.face.detection.FaceRCNN.im_detect"><code class="name flex">
+<span>def <span class="ident">im_detect</span></span>(<span>self, net, im, boxes=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Detect object classes in an image given object proposals.</p>
+<p>Arguments:
+net (pytorch): Fast R-CNN network to use
+im (ndarray): color image to test (in BGR order, as (H, W, C)
+boxes (ndarray): R x 4 array of object proposals or None (for RPN)</p>
+<p>Returns:
+scores (ndarray): R x K array of object class scores (K includes
+background as object category 0)
+boxes (ndarray): R x (4*K) array of predicted bounding boxes</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/face/detection.py#L412-L480" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def im_detect(self, net, im, boxes=None):
+    &#34;&#34;&#34;Detect object classes in an image given object proposals.
+    
+    Arguments:
+    net (pytorch): Fast R-CNN network to use
+    im (ndarray): color image to test (in BGR order, as (H, W, C)
+    boxes (ndarray): R x 4 array of object proposals or None (for RPN)
+    
+    Returns:
+    scores (ndarray): R x K array of object class scores (K includes
+    background as object category 0)
+    boxes (ndarray): R x (4*K) array of predicted bounding boxes
+    &#34;&#34;&#34;
+    im_blob, im_scales = self._get_image_blob(im)
+
+    im_info = torch.Tensor(np.array([[im_blob.shape[2], im_blob.shape[3], im_scales[0]]], dtype=np.float32))
+
+    # We think these are already the right shape?
+    # # Now ready to supply inputs to network.
+    # # reshape network inputs
+    # net.blobs[&#39;data&#39;].reshape(*(blobs[&#39;data&#39;].shape))
+    # if self.cfg.TEST.HAS_RPN:
+    #     net.blobs[&#39;im_info&#39;].reshape(*(blobs[&#39;im_info&#39;].shape))
+    # else:
+    #     net.blobs[&#39;rois&#39;].reshape(*(blobs[&#39;rois&#39;].shape))
+    
+    # do forward
+    # Returns are all on CPU
+    (rois, bbox_pred, cls_prob, cls_score) = net(im_blob, im_info)
+    del im_blob
+    del im_info
+    # gc.collect(2)
+    # torch.cuda.empty_cache()
+
+    if self.cfg[&#39;TEST&#39;][&#39;HAS_RPN&#39;]:
+        assert len(im_scales) == 1, &#34;Only single-image batch implemented&#34;
+        rois = rois.detach().numpy()
+        # unscale back to raw image space
+        boxes = rois[:, 1:5] / im_scales[0]
+
+    if self.cfg[&#39;TEST&#39;][&#39;SVM&#39;]:
+        # use the raw scores before softmax under the assumption they
+        # were trained as linear SVMs
+        scores = cls_score.detach().numpy()
+    else:
+        # use softmax estimated probabilities
+        scores = cls_prob.detach().numpy()
+
+    if self.cfg[&#39;TEST&#39;][&#39;BBOX_REG&#39;]:
+        # Apply bounding-box regression deltas
+        box_deltas = bbox_pred.detach().numpy()
+        pred_boxes = self.bbox_transform_inv(boxes, box_deltas)
+        pred_boxes = self.clip_boxes(pred_boxes, im.shape)
+    else:
+        # Simply repeat the boxes, once for each class
+        pred_boxes = np.tile(boxes, (1, scores.shape[1]))
+
+    if self.cfg[&#39;DEDUP_BOXES&#39;] &gt; 0 and not self.cfg[&#39;TEST&#39;][&#39;HAS_RPN&#39;]:
+        # Map scores and predictions back to the original set of boxes
+        raise ValueError(&#39;unsupported configuration option&#39;)
+        #scores = scores[inv_index, :]
+        #pred_boxes = pred_boxes[inv_index, :]
+
+    del rois
+    del bbox_pred
+    del cls_prob
+    del cls_score
+
+    return scores, pred_boxes</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.face.detection.FaceRCNN.select_from_rotated"><code class="name flex">
+<span>def <span class="ident">select_from_rotated</span></span>(<span>self, det_lists, start_time)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Given that we tried rotating the image, select the best rotation to use</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/face/detection.py#L274-L320" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def select_from_rotated(self, det_lists, start_time):
+    &#34;Given that we tried rotating the image, select the best rotation to use&#34;
+    dets = det_lists[0]
+    original_dets = dets.shape[0]
+    i = 0
+    for rot_dets in det_lists[1:]:
+        i = i + 1
+        log_info(&#39;Processing rotated detections from slot %d&#39; % (i))
+        # Now iterate over the rows, 1/detection
+        for rot_det in rot_dets:
+            rot_xmin = rot_det[0]
+            rot_ymin = rot_det[1]
+            rot_xmax = rot_xmin + rot_det[2]
+            rot_ymax = rot_ymin + rot_det[3]
+            rot_area = rot_det[2] * rot_det[3]
+            matched = False
+            best_iou = 0.0
+            for det in dets:
+                xmin = det[0]
+                ymin = det[1]
+                xmax = xmin + det[2]
+                ymax = ymin + det[3]
+                intersection_width = min(xmax, rot_xmax) - max(xmin, rot_xmin)
+                intersection_height = min(ymax, rot_ymax) - max(ymin, rot_ymin)
+                if intersection_width &gt; 0 and intersection_height &gt; 0:
+                    intersection_area = intersection_width * intersection_height
+                    union_area = rot_area + det[2] * det[3] - intersection_area
+                    iou = intersection_area / union_area
+                    if iou &gt; best_iou:
+                        best_iou = iou
+                    if iou &gt; self.fusion_thresh:
+                        matched = True
+                        if rot_det[4] &gt; det[4]:
+                            # Rotated detection was better
+                            det[0] = rot_det[0]
+                            det[1] = rot_det[1]
+                            det[2] = rot_det[2]
+                            det[3] = rot_det[3]
+                            det[4] = rot_det[4]
+                        break
+            if not matched:
+                # Add this guy, since he had no matches
+                dets = np.vstack((dets, rot_det))
+    log_info(&#39;Found %d face%s (orig %d)&#39; %
+             (dets.shape[0], &#39;&#39; if dets.shape[0] == 0 else &#39;s&#39;, original_dets))
+    log_info(&#39;===elapsed %.6f===&#39; % ((time.time() - start_time) * 1000))
+    return dets</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<header>
+<a class="homelink" rel="home" title="Visym Collector" href="https://github.com/visym/collector/">
+<img src="https://www.visym.com/labs/images/visym_logo_black_notext.png" alt="" width="150"> <p> </p>
+</a>
+</header>
+<form>
+<input id="lunr-search" name="q" placeholder="🔎 Search ..." aria-label="Search"
+disabled minlength="2">
+</form>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/tingle/0.15.3/tingle.min.css" integrity="sha512-j1u8eUJ4f23xPPxwOrLUPQaCD2dwzNqqmDDcWS4deWsMv2ohLqmXXuP3hU7g8TyzbMSakP/mMqoNBYWj8AEIFg==" crossorigin>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tingle/0.15.3/tingle.min.js" integrity="sha512-plGUER9JkeEWPPqQBE4sdLqBoQug5Ap+BCGMc7bJ8BXkm+VVj6QzkpBz5Yv2yPkkq+cqg9IpkBaGCas6uDbW8g==" crossorigin></script>
+<style>
+.modal-dialog iframe {
+width: 100vw;
+height: calc(100vh - 80px);
+}
+@media screen and (min-width: 700px) {
+.modal-dialog iframe {
+width: 70vw;
+height: 80vh;
+}
+}
+.modal-dialog .tingle-modal-box {width: auto;}
+.modal-dialog .tingle-modal-box__content {padding: 0;}
+</style>
+<script>
+const input = document.getElementById('lunr-search');
+input.disabled = false;
+input.form.addEventListener('submit', (ev) => {
+ev.preventDefault();
+const url = new URL(window.location);
+url.searchParams.set('q', input.value);
+history.replaceState({}, null, url.toString());
+search(input.value);
+});
+const query = new URL(window.location).searchParams.get('q');
+if (query)
+search(query);
+function search(query) {
+const url = '../../../doc-search.html#' + encodeURIComponent(query);
+new tingle.modal({
+cssClass: ['modal-dialog'],
+onClose: () => {
+const url = new URL(window.location);
+url.searchParams.delete('q');
+history.replaceState({}, null, url.toString());
+setTimeout(() => input.focus(), 100);
+}
+}).setContent('<iframe src="' + url + '"></iframe>').open();
+}
+</script>
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pycollector.model.face" href="index.html">pycollector.model.face</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="pycollector.model.face.detection.log_info" href="#pycollector.model.face.detection.log_info">log_info</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="pycollector.model.face.detection.FaceRCNN" href="#pycollector.model.face.detection.FaceRCNN">FaceRCNN</a></code></h4>
+<ul class="two-column">
+<li><code><a title="pycollector.model.face.detection.FaceRCNN.bbox_transform" href="#pycollector.model.face.detection.FaceRCNN.bbox_transform">bbox_transform</a></code></li>
+<li><code><a title="pycollector.model.face.detection.FaceRCNN.bbox_transform_inv" href="#pycollector.model.face.detection.FaceRCNN.bbox_transform_inv">bbox_transform_inv</a></code></li>
+<li><code><a title="pycollector.model.face.detection.FaceRCNN.clip_boxes" href="#pycollector.model.face.detection.FaceRCNN.clip_boxes">clip_boxes</a></code></li>
+<li><code><a title="pycollector.model.face.detection.FaceRCNN.detect" href="#pycollector.model.face.detection.FaceRCNN.detect">detect</a></code></li>
+<li><code><a title="pycollector.model.face.detection.FaceRCNN.dets_to_scene" href="#pycollector.model.face.detection.FaceRCNN.dets_to_scene">dets_to_scene</a></code></li>
+<li><code><a title="pycollector.model.face.detection.FaceRCNN.im_detect" href="#pycollector.model.face.detection.FaceRCNN.im_detect">im_detect</a></code></li>
+<li><code><a title="pycollector.model.face.detection.FaceRCNN.select_from_rotated" href="#pycollector.model.face.detection.FaceRCNN.select_from_rotated">select_from_rotated</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

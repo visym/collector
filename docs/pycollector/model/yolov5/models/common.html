@@ -1,0 +1,1399 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>pycollector.model.yolov5.models.common API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}#lunr-search{width:100%;font-size:1em;padding:6px 9px 5px 9px;border:1px solid silver}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pycollector.model.yolov5.models.common</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/common.py#L0-L194" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python"># This file contains modules common to various models
+
+import math
+
+import numpy as np
+import torch
+import torch.nn as nn
+from PIL import Image, ImageDraw
+
+#from pycollector.model.yolov5.utils.datasets import letterbox
+from pycollector.model.yolov5.utils.general import non_max_suppression, make_divisible, scale_coords, xyxy2xywh
+#from pycollector.model.yolov5.utils.plots import color_list
+
+
+def autopad(k, p=None):  # kernel, padding
+    # Pad to &#39;same&#39;
+    if p is None:
+        p = k // 2 if isinstance(k, int) else [x // 2 for x in k]  # auto-pad
+    return p
+
+
+def DWConv(c1, c2, k=1, s=1, act=True):
+    # Depthwise convolution
+    return Conv(c1, c2, k, s, g=math.gcd(c1, c2), act=act)
+
+
+class Conv(nn.Module):
+    # Standard convolution
+    def __init__(self, c1, c2, k=1, s=1, p=None, g=1, act=True):  # ch_in, ch_out, kernel, stride, padding, groups
+        super(Conv, self).__init__()
+        self.conv = nn.Conv2d(c1, c2, k, s, autopad(k, p), groups=g, bias=False)
+        self.bn = nn.BatchNorm2d(c2)
+        self.act = nn.Hardswish() if act else nn.Identity()
+
+    def forward(self, x):
+        return self.act(self.bn(self.conv(x)))
+
+    def fuseforward(self, x):
+        return self.act(self.conv(x))
+
+
+class Bottleneck(nn.Module):
+    # Standard bottleneck
+    def __init__(self, c1, c2, shortcut=True, g=1, e=0.5):  # ch_in, ch_out, shortcut, groups, expansion
+        super(Bottleneck, self).__init__()
+        c_ = int(c2 * e)  # hidden channels
+        self.cv1 = Conv(c1, c_, 1, 1)
+        self.cv2 = Conv(c_, c2, 3, 1, g=g)
+        self.add = shortcut and c1 == c2
+
+    def forward(self, x):
+        return x + self.cv2(self.cv1(x)) if self.add else self.cv2(self.cv1(x))
+
+
+class BottleneckCSP(nn.Module):
+    # CSP Bottleneck https://github.com/WongKinYiu/CrossStagePartialNetworks
+    def __init__(self, c1, c2, n=1, shortcut=True, g=1, e=0.5):  # ch_in, ch_out, number, shortcut, groups, expansion
+        super(BottleneckCSP, self).__init__()
+        c_ = int(c2 * e)  # hidden channels
+        self.cv1 = Conv(c1, c_, 1, 1)
+        self.cv2 = nn.Conv2d(c1, c_, 1, 1, bias=False)
+        self.cv3 = nn.Conv2d(c_, c_, 1, 1, bias=False)
+        self.cv4 = Conv(2 * c_, c2, 1, 1)
+        self.bn = nn.BatchNorm2d(2 * c_)  # applied to cat(cv2, cv3)
+        self.act = nn.LeakyReLU(0.1, inplace=True)
+        self.m = nn.Sequential(*[Bottleneck(c_, c_, shortcut, g, e=1.0) for _ in range(n)])
+
+    def forward(self, x):
+        y1 = self.cv3(self.m(self.cv1(x)))
+        y2 = self.cv2(x)
+        return self.cv4(self.act(self.bn(torch.cat((y1, y2), dim=1))))
+
+
+class SPP(nn.Module):
+    # Spatial pyramid pooling layer used in YOLOv3-SPP
+    def __init__(self, c1, c2, k=(5, 9, 13)):
+        super(SPP, self).__init__()
+        c_ = c1 // 2  # hidden channels
+        self.cv1 = Conv(c1, c_, 1, 1)
+        self.cv2 = Conv(c_ * (len(k) + 1), c2, 1, 1)
+        self.m = nn.ModuleList([nn.MaxPool2d(kernel_size=x, stride=1, padding=x // 2) for x in k])
+
+    def forward(self, x):
+        x = self.cv1(x)
+        return self.cv2(torch.cat([x] + [m(x) for m in self.m], 1))
+
+
+class Focus(nn.Module):
+    # Focus wh information into c-space
+    def __init__(self, c1, c2, k=1, s=1, p=None, g=1, act=True):  # ch_in, ch_out, kernel, stride, padding, groups
+        super(Focus, self).__init__()
+        self.conv = Conv(c1 * 4, c2, k, s, p, g, act)
+
+    def forward(self, x):  # x(b,c,w,h) -&gt; y(b,4c,w/2,h/2)
+        return self.conv(torch.cat([x[..., ::2, ::2], x[..., 1::2, ::2], x[..., ::2, 1::2], x[..., 1::2, 1::2]], 1))
+
+
+class Concat(nn.Module):
+    # Concatenate a list of tensors along dimension
+    def __init__(self, dimension=1):
+        super(Concat, self).__init__()
+        self.d = dimension
+
+    def forward(self, x):
+        return torch.cat(x, self.d)
+
+
+class NMS(nn.Module):
+    # Non-Maximum Suppression (NMS) module
+    conf = 0.25  # confidence threshold
+    iou = 0.45  # IoU threshold
+    classes = None  # (optional list) filter by class
+
+    def __init__(self):
+        super(NMS, self).__init__()
+
+    def forward(self, x):
+        return non_max_suppression(x[0], conf_thres=self.conf, iou_thres=self.iou, classes=self.classes)
+
+
+
+class Detections:
+    # detections class for YOLOv5 inference results
+    def __init__(self, imgs, pred, names=None):
+        super(Detections, self).__init__()
+        self.imgs = imgs  # list of images as numpy arrays
+        self.pred = pred  # list of tensors pred[0] = (xyxy, conf, cls)
+        self.names = names  # class names
+        self.xyxy = pred  # xyxy pixels
+        self.xywh = [xyxy2xywh(x) for x in pred]  # xywh pixels
+        d = pred[0].device  # device
+        gn = [torch.tensor([*[im.shape[i] for i in [1, 0, 1, 0]], 1., 1.], device=d) for im in imgs]  # normalizations
+        self.xyxyn = [x / g for x, g in zip(self.xyxy, gn)]  # xyxy normalized
+        self.xywhn = [x / g for x, g in zip(self.xywh, gn)]  # xywh normalized
+        self.n = len(self.pred)
+
+
+    def display(self, pprint=False, show=False, save=False):
+        for i, (img, pred) in enumerate(zip(self.imgs, self.pred)):
+            str = f&#39;Image {i + 1}/{len(self.pred)}: {img.shape[0]}x{img.shape[1]} &#39;
+            if pred is not None:
+                for c in pred[:, -1].unique():
+                    n = (pred[:, -1] == c).sum()  # detections per class
+                    str += f&#39;{n} {self.names[int(c)]}s, &#39;  # add to string
+                if show or save:
+                    raise
+            if save:
+                f = f&#39;results{i}.jpg&#39;
+                str += f&#34;saved to &#39;{f}&#39;&#34;
+                img.save(f)  # save
+            if show:
+                img.show(f&#39;Image {i}&#39;)  # show
+            if pprint:
+                print(str)
+
+
+    def print(self):
+        self.display(pprint=True)  # print results
+
+    def show(self):
+        self.display(show=True)  # show results
+
+    def save(self):
+        self.display(save=True)  # save results
+
+    def __len__(self):
+        return self.n
+
+    def tolist(self):
+        # return a list of Detections objects, i.e. &#39;for result in results.tolist():&#39;
+        x = [Detections([self.imgs[i]], [self.pred[i]], self.names) for i in range(self.n)]
+        for d in x:
+            for k in [&#39;imgs&#39;, &#39;pred&#39;, &#39;xyxy&#39;, &#39;xyxyn&#39;, &#39;xywh&#39;, &#39;xywhn&#39;]:
+                setattr(d, k, getattr(d, k)[0])  # pop out of list
+        return x
+
+
+class Flatten(nn.Module):
+    # Use after nn.AdaptiveAvgPool2d(1) to remove last 2 dimensions
+    @staticmethod
+    def forward(x):
+        return x.view(x.size(0), -1)
+
+
+class Classify(nn.Module):
+    # Classification head, i.e. x(b,c1,20,20) to x(b,c2)
+    def __init__(self, c1, c2, k=1, s=1, p=None, g=1):  # ch_in, ch_out, kernel, stride, padding, groups
+        super(Classify, self).__init__()
+        self.aap = nn.AdaptiveAvgPool2d(1)  # to x(b,c1,1,1)
+        self.conv = nn.Conv2d(c1, c2, k, s, autopad(k, p), groups=g, bias=False)  # to x(b,c2,1,1)
+        self.flat = Flatten()
+
+    def forward(self, x):
+        z = torch.cat([self.aap(y) for y in (x if isinstance(x, list) else [x])], 1)  # cat if list
+        return self.flat(self.conv(z))  # flatten to x(b,c2)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="pycollector.model.yolov5.models.common.DWConv"><code class="name flex">
+<span>def <span class="ident">DWConv</span></span>(<span>c1, c2, k=1, s=1, act=True)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/common.py#L22-L24" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def DWConv(c1, c2, k=1, s=1, act=True):
+    # Depthwise convolution
+    return Conv(c1, c2, k, s, g=math.gcd(c1, c2), act=act)</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.models.common.autopad"><code class="name flex">
+<span>def <span class="ident">autopad</span></span>(<span>k, p=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/common.py#L15-L19" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def autopad(k, p=None):  # kernel, padding
+    # Pad to &#39;same&#39;
+    if p is None:
+        p = k // 2 if isinstance(k, int) else [x // 2 for x in k]  # auto-pad
+    return p</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="pycollector.model.yolov5.models.common.Bottleneck"><code class="flex name class">
+<span>class <span class="ident">Bottleneck</span></span>
+<span>(</span><span>c1, c2, shortcut=True, g=1, e=0.5)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Base class for all neural network modules.</p>
+<p>Your models should also subclass this class.</p>
+<p>Modules can also contain other Modules, allowing to nest them in
+a tree structure. You can assign the submodules as regular attributes::</p>
+<pre><code>import torch.nn as nn
+import torch.nn.functional as F
+
+class Model(nn.Module):
+    def __init__(self):
+        super(Model, self).__init__()
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        self.conv2 = nn.Conv2d(20, 20, 5)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        return F.relu(self.conv2(x))
+</code></pre>
+<p>Submodules assigned in this way will be registered, and will have their
+parameters converted too when you call :meth:<code>to</code>, etc.</p>
+<p>:ivar training: Boolean represents whether this module is in training or
+evaluation mode.
+:vartype training: bool</p>
+<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/common.py#L42-L52" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class Bottleneck(nn.Module):
+    # Standard bottleneck
+    def __init__(self, c1, c2, shortcut=True, g=1, e=0.5):  # ch_in, ch_out, shortcut, groups, expansion
+        super(Bottleneck, self).__init__()
+        c_ = int(c2 * e)  # hidden channels
+        self.cv1 = Conv(c1, c_, 1, 1)
+        self.cv2 = Conv(c_, c2, 3, 1, g=g)
+        self.add = shortcut and c1 == c2
+
+    def forward(self, x):
+        return x + self.cv2(self.cv1(x)) if self.add else self.cv2(self.cv1(x))</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>torch.nn.modules.module.Module</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pycollector.model.yolov5.models.common.Bottleneck.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pycollector.model.yolov5.models.common.Bottleneck.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="pycollector.model.yolov5.models.common.Bottleneck.forward"><code class="name flex">
+<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the :class:<code>Module</code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/common.py#L51-L52" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def forward(self, x):
+    return x + self.cv2(self.cv1(x)) if self.add else self.cv2(self.cv1(x))</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="pycollector.model.yolov5.models.common.BottleneckCSP"><code class="flex name class">
+<span>class <span class="ident">BottleneckCSP</span></span>
+<span>(</span><span>c1, c2, n=1, shortcut=True, g=1, e=0.5)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Base class for all neural network modules.</p>
+<p>Your models should also subclass this class.</p>
+<p>Modules can also contain other Modules, allowing to nest them in
+a tree structure. You can assign the submodules as regular attributes::</p>
+<pre><code>import torch.nn as nn
+import torch.nn.functional as F
+
+class Model(nn.Module):
+    def __init__(self):
+        super(Model, self).__init__()
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        self.conv2 = nn.Conv2d(20, 20, 5)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        return F.relu(self.conv2(x))
+</code></pre>
+<p>Submodules assigned in this way will be registered, and will have their
+parameters converted too when you call :meth:<code>to</code>, etc.</p>
+<p>:ivar training: Boolean represents whether this module is in training or
+evaluation mode.
+:vartype training: bool</p>
+<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/common.py#L55-L71" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class BottleneckCSP(nn.Module):
+    # CSP Bottleneck https://github.com/WongKinYiu/CrossStagePartialNetworks
+    def __init__(self, c1, c2, n=1, shortcut=True, g=1, e=0.5):  # ch_in, ch_out, number, shortcut, groups, expansion
+        super(BottleneckCSP, self).__init__()
+        c_ = int(c2 * e)  # hidden channels
+        self.cv1 = Conv(c1, c_, 1, 1)
+        self.cv2 = nn.Conv2d(c1, c_, 1, 1, bias=False)
+        self.cv3 = nn.Conv2d(c_, c_, 1, 1, bias=False)
+        self.cv4 = Conv(2 * c_, c2, 1, 1)
+        self.bn = nn.BatchNorm2d(2 * c_)  # applied to cat(cv2, cv3)
+        self.act = nn.LeakyReLU(0.1, inplace=True)
+        self.m = nn.Sequential(*[Bottleneck(c_, c_, shortcut, g, e=1.0) for _ in range(n)])
+
+    def forward(self, x):
+        y1 = self.cv3(self.m(self.cv1(x)))
+        y2 = self.cv2(x)
+        return self.cv4(self.act(self.bn(torch.cat((y1, y2), dim=1))))</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>torch.nn.modules.module.Module</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pycollector.model.yolov5.models.common.BottleneckCSP.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pycollector.model.yolov5.models.common.BottleneckCSP.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="pycollector.model.yolov5.models.common.BottleneckCSP.forward"><code class="name flex">
+<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the :class:<code>Module</code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/common.py#L68-L71" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def forward(self, x):
+    y1 = self.cv3(self.m(self.cv1(x)))
+    y2 = self.cv2(x)
+    return self.cv4(self.act(self.bn(torch.cat((y1, y2), dim=1))))</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="pycollector.model.yolov5.models.common.Classify"><code class="flex name class">
+<span>class <span class="ident">Classify</span></span>
+<span>(</span><span>c1, c2, k=1, s=1, p=None, g=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Base class for all neural network modules.</p>
+<p>Your models should also subclass this class.</p>
+<p>Modules can also contain other Modules, allowing to nest them in
+a tree structure. You can assign the submodules as regular attributes::</p>
+<pre><code>import torch.nn as nn
+import torch.nn.functional as F
+
+class Model(nn.Module):
+    def __init__(self):
+        super(Model, self).__init__()
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        self.conv2 = nn.Conv2d(20, 20, 5)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        return F.relu(self.conv2(x))
+</code></pre>
+<p>Submodules assigned in this way will be registered, and will have their
+parameters converted too when you call :meth:<code>to</code>, etc.</p>
+<p>:ivar training: Boolean represents whether this module is in training or
+evaluation mode.
+:vartype training: bool</p>
+<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/common.py#L185-L195" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class Classify(nn.Module):
+    # Classification head, i.e. x(b,c1,20,20) to x(b,c2)
+    def __init__(self, c1, c2, k=1, s=1, p=None, g=1):  # ch_in, ch_out, kernel, stride, padding, groups
+        super(Classify, self).__init__()
+        self.aap = nn.AdaptiveAvgPool2d(1)  # to x(b,c1,1,1)
+        self.conv = nn.Conv2d(c1, c2, k, s, autopad(k, p), groups=g, bias=False)  # to x(b,c2,1,1)
+        self.flat = Flatten()
+
+    def forward(self, x):
+        z = torch.cat([self.aap(y) for y in (x if isinstance(x, list) else [x])], 1)  # cat if list
+        return self.flat(self.conv(z))  # flatten to x(b,c2)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>torch.nn.modules.module.Module</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pycollector.model.yolov5.models.common.Classify.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pycollector.model.yolov5.models.common.Classify.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="pycollector.model.yolov5.models.common.Classify.forward"><code class="name flex">
+<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the :class:<code>Module</code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/common.py#L193-L195" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def forward(self, x):
+    z = torch.cat([self.aap(y) for y in (x if isinstance(x, list) else [x])], 1)  # cat if list
+    return self.flat(self.conv(z))  # flatten to x(b,c2)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="pycollector.model.yolov5.models.common.Concat"><code class="flex name class">
+<span>class <span class="ident">Concat</span></span>
+<span>(</span><span>dimension=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Base class for all neural network modules.</p>
+<p>Your models should also subclass this class.</p>
+<p>Modules can also contain other Modules, allowing to nest them in
+a tree structure. You can assign the submodules as regular attributes::</p>
+<pre><code>import torch.nn as nn
+import torch.nn.functional as F
+
+class Model(nn.Module):
+    def __init__(self):
+        super(Model, self).__init__()
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        self.conv2 = nn.Conv2d(20, 20, 5)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        return F.relu(self.conv2(x))
+</code></pre>
+<p>Submodules assigned in this way will be registered, and will have their
+parameters converted too when you call :meth:<code>to</code>, etc.</p>
+<p>:ivar training: Boolean represents whether this module is in training or
+evaluation mode.
+:vartype training: bool</p>
+<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/common.py#L98-L105" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class Concat(nn.Module):
+    # Concatenate a list of tensors along dimension
+    def __init__(self, dimension=1):
+        super(Concat, self).__init__()
+        self.d = dimension
+
+    def forward(self, x):
+        return torch.cat(x, self.d)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>torch.nn.modules.module.Module</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pycollector.model.yolov5.models.common.Concat.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pycollector.model.yolov5.models.common.Concat.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="pycollector.model.yolov5.models.common.Concat.forward"><code class="name flex">
+<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the :class:<code>Module</code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/common.py#L104-L105" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def forward(self, x):
+    return torch.cat(x, self.d)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="pycollector.model.yolov5.models.common.Conv"><code class="flex name class">
+<span>class <span class="ident">Conv</span></span>
+<span>(</span><span>c1, c2, k=1, s=1, p=None, g=1, act=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Base class for all neural network modules.</p>
+<p>Your models should also subclass this class.</p>
+<p>Modules can also contain other Modules, allowing to nest them in
+a tree structure. You can assign the submodules as regular attributes::</p>
+<pre><code>import torch.nn as nn
+import torch.nn.functional as F
+
+class Model(nn.Module):
+    def __init__(self):
+        super(Model, self).__init__()
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        self.conv2 = nn.Conv2d(20, 20, 5)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        return F.relu(self.conv2(x))
+</code></pre>
+<p>Submodules assigned in this way will be registered, and will have their
+parameters converted too when you call :meth:<code>to</code>, etc.</p>
+<p>:ivar training: Boolean represents whether this module is in training or
+evaluation mode.
+:vartype training: bool</p>
+<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/common.py#L27-L39" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class Conv(nn.Module):
+    # Standard convolution
+    def __init__(self, c1, c2, k=1, s=1, p=None, g=1, act=True):  # ch_in, ch_out, kernel, stride, padding, groups
+        super(Conv, self).__init__()
+        self.conv = nn.Conv2d(c1, c2, k, s, autopad(k, p), groups=g, bias=False)
+        self.bn = nn.BatchNorm2d(c2)
+        self.act = nn.Hardswish() if act else nn.Identity()
+
+    def forward(self, x):
+        return self.act(self.bn(self.conv(x)))
+
+    def fuseforward(self, x):
+        return self.act(self.conv(x))</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>torch.nn.modules.module.Module</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pycollector.model.yolov5.models.common.Conv.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pycollector.model.yolov5.models.common.Conv.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="pycollector.model.yolov5.models.common.Conv.forward"><code class="name flex">
+<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the :class:<code>Module</code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/common.py#L35-L36" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def forward(self, x):
+    return self.act(self.bn(self.conv(x)))</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.models.common.Conv.fuseforward"><code class="name flex">
+<span>def <span class="ident">fuseforward</span></span>(<span>self, x)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/common.py#L38-L39" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def fuseforward(self, x):
+    return self.act(self.conv(x))</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="pycollector.model.yolov5.models.common.Detections"><code class="flex name class">
+<span>class <span class="ident">Detections</span></span>
+<span>(</span><span>imgs, pred, names=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/common.py#L122-L175" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class Detections:
+    # detections class for YOLOv5 inference results
+    def __init__(self, imgs, pred, names=None):
+        super(Detections, self).__init__()
+        self.imgs = imgs  # list of images as numpy arrays
+        self.pred = pred  # list of tensors pred[0] = (xyxy, conf, cls)
+        self.names = names  # class names
+        self.xyxy = pred  # xyxy pixels
+        self.xywh = [xyxy2xywh(x) for x in pred]  # xywh pixels
+        d = pred[0].device  # device
+        gn = [torch.tensor([*[im.shape[i] for i in [1, 0, 1, 0]], 1., 1.], device=d) for im in imgs]  # normalizations
+        self.xyxyn = [x / g for x, g in zip(self.xyxy, gn)]  # xyxy normalized
+        self.xywhn = [x / g for x, g in zip(self.xywh, gn)]  # xywh normalized
+        self.n = len(self.pred)
+
+
+    def display(self, pprint=False, show=False, save=False):
+        for i, (img, pred) in enumerate(zip(self.imgs, self.pred)):
+            str = f&#39;Image {i + 1}/{len(self.pred)}: {img.shape[0]}x{img.shape[1]} &#39;
+            if pred is not None:
+                for c in pred[:, -1].unique():
+                    n = (pred[:, -1] == c).sum()  # detections per class
+                    str += f&#39;{n} {self.names[int(c)]}s, &#39;  # add to string
+                if show or save:
+                    raise
+            if save:
+                f = f&#39;results{i}.jpg&#39;
+                str += f&#34;saved to &#39;{f}&#39;&#34;
+                img.save(f)  # save
+            if show:
+                img.show(f&#39;Image {i}&#39;)  # show
+            if pprint:
+                print(str)
+
+
+    def print(self):
+        self.display(pprint=True)  # print results
+
+    def show(self):
+        self.display(show=True)  # show results
+
+    def save(self):
+        self.display(save=True)  # save results
+
+    def __len__(self):
+        return self.n
+
+    def tolist(self):
+        # return a list of Detections objects, i.e. &#39;for result in results.tolist():&#39;
+        x = [Detections([self.imgs[i]], [self.pred[i]], self.names) for i in range(self.n)]
+        for d in x:
+            for k in [&#39;imgs&#39;, &#39;pred&#39;, &#39;xyxy&#39;, &#39;xyxyn&#39;, &#39;xywh&#39;, &#39;xywhn&#39;]:
+                setattr(d, k, getattr(d, k)[0])  # pop out of list
+        return x</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="pycollector.model.yolov5.models.common.Detections.display"><code class="name flex">
+<span>def <span class="ident">display</span></span>(<span>self, pprint=False, show=False, save=False)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/common.py#L138-L154" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def display(self, pprint=False, show=False, save=False):
+    for i, (img, pred) in enumerate(zip(self.imgs, self.pred)):
+        str = f&#39;Image {i + 1}/{len(self.pred)}: {img.shape[0]}x{img.shape[1]} &#39;
+        if pred is not None:
+            for c in pred[:, -1].unique():
+                n = (pred[:, -1] == c).sum()  # detections per class
+                str += f&#39;{n} {self.names[int(c)]}s, &#39;  # add to string
+            if show or save:
+                raise
+        if save:
+            f = f&#39;results{i}.jpg&#39;
+            str += f&#34;saved to &#39;{f}&#39;&#34;
+            img.save(f)  # save
+        if show:
+            img.show(f&#39;Image {i}&#39;)  # show
+        if pprint:
+            print(str)</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.models.common.Detections.print"><code class="name flex">
+<span>def <span class="ident">print</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/common.py#L157-L158" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def print(self):
+    self.display(pprint=True)  # print results</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.models.common.Detections.save"><code class="name flex">
+<span>def <span class="ident">save</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/common.py#L163-L164" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def save(self):
+    self.display(save=True)  # save results</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.models.common.Detections.show"><code class="name flex">
+<span>def <span class="ident">show</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/common.py#L160-L161" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def show(self):
+    self.display(show=True)  # show results</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.models.common.Detections.tolist"><code class="name flex">
+<span>def <span class="ident">tolist</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/common.py#L169-L175" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def tolist(self):
+    # return a list of Detections objects, i.e. &#39;for result in results.tolist():&#39;
+    x = [Detections([self.imgs[i]], [self.pred[i]], self.names) for i in range(self.n)]
+    for d in x:
+        for k in [&#39;imgs&#39;, &#39;pred&#39;, &#39;xyxy&#39;, &#39;xyxyn&#39;, &#39;xywh&#39;, &#39;xywhn&#39;]:
+            setattr(d, k, getattr(d, k)[0])  # pop out of list
+    return x</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="pycollector.model.yolov5.models.common.Flatten"><code class="flex name class">
+<span>class <span class="ident">Flatten</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Base class for all neural network modules.</p>
+<p>Your models should also subclass this class.</p>
+<p>Modules can also contain other Modules, allowing to nest them in
+a tree structure. You can assign the submodules as regular attributes::</p>
+<pre><code>import torch.nn as nn
+import torch.nn.functional as F
+
+class Model(nn.Module):
+    def __init__(self):
+        super(Model, self).__init__()
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        self.conv2 = nn.Conv2d(20, 20, 5)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        return F.relu(self.conv2(x))
+</code></pre>
+<p>Submodules assigned in this way will be registered, and will have their
+parameters converted too when you call :meth:<code>to</code>, etc.</p>
+<p>:ivar training: Boolean represents whether this module is in training or
+evaluation mode.
+:vartype training: bool</p>
+<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/common.py#L178-L182" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class Flatten(nn.Module):
+    # Use after nn.AdaptiveAvgPool2d(1) to remove last 2 dimensions
+    @staticmethod
+    def forward(x):
+        return x.view(x.size(0), -1)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>torch.nn.modules.module.Module</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pycollector.model.yolov5.models.common.Flatten.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pycollector.model.yolov5.models.common.Flatten.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="pycollector.model.yolov5.models.common.Flatten.forward"><code class="name flex">
+<span>def <span class="ident">forward</span></span>(<span>x) ‑> Callable[..., Any]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the :class:<code>Module</code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/common.py#L180-L182" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">@staticmethod
+def forward(x):
+    return x.view(x.size(0), -1)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="pycollector.model.yolov5.models.common.Focus"><code class="flex name class">
+<span>class <span class="ident">Focus</span></span>
+<span>(</span><span>c1, c2, k=1, s=1, p=None, g=1, act=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Base class for all neural network modules.</p>
+<p>Your models should also subclass this class.</p>
+<p>Modules can also contain other Modules, allowing to nest them in
+a tree structure. You can assign the submodules as regular attributes::</p>
+<pre><code>import torch.nn as nn
+import torch.nn.functional as F
+
+class Model(nn.Module):
+    def __init__(self):
+        super(Model, self).__init__()
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        self.conv2 = nn.Conv2d(20, 20, 5)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        return F.relu(self.conv2(x))
+</code></pre>
+<p>Submodules assigned in this way will be registered, and will have their
+parameters converted too when you call :meth:<code>to</code>, etc.</p>
+<p>:ivar training: Boolean represents whether this module is in training or
+evaluation mode.
+:vartype training: bool</p>
+<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/common.py#L88-L95" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class Focus(nn.Module):
+    # Focus wh information into c-space
+    def __init__(self, c1, c2, k=1, s=1, p=None, g=1, act=True):  # ch_in, ch_out, kernel, stride, padding, groups
+        super(Focus, self).__init__()
+        self.conv = Conv(c1 * 4, c2, k, s, p, g, act)
+
+    def forward(self, x):  # x(b,c,w,h) -&gt; y(b,4c,w/2,h/2)
+        return self.conv(torch.cat([x[..., ::2, ::2], x[..., 1::2, ::2], x[..., ::2, 1::2], x[..., 1::2, 1::2]], 1))</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>torch.nn.modules.module.Module</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pycollector.model.yolov5.models.common.Focus.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pycollector.model.yolov5.models.common.Focus.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="pycollector.model.yolov5.models.common.Focus.forward"><code class="name flex">
+<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the :class:<code>Module</code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/common.py#L94-L95" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def forward(self, x):  # x(b,c,w,h) -&gt; y(b,4c,w/2,h/2)
+    return self.conv(torch.cat([x[..., ::2, ::2], x[..., 1::2, ::2], x[..., ::2, 1::2], x[..., 1::2, 1::2]], 1))</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="pycollector.model.yolov5.models.common.NMS"><code class="flex name class">
+<span>class <span class="ident">NMS</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Base class for all neural network modules.</p>
+<p>Your models should also subclass this class.</p>
+<p>Modules can also contain other Modules, allowing to nest them in
+a tree structure. You can assign the submodules as regular attributes::</p>
+<pre><code>import torch.nn as nn
+import torch.nn.functional as F
+
+class Model(nn.Module):
+    def __init__(self):
+        super(Model, self).__init__()
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        self.conv2 = nn.Conv2d(20, 20, 5)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        return F.relu(self.conv2(x))
+</code></pre>
+<p>Submodules assigned in this way will be registered, and will have their
+parameters converted too when you call :meth:<code>to</code>, etc.</p>
+<p>:ivar training: Boolean represents whether this module is in training or
+evaluation mode.
+:vartype training: bool</p>
+<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/common.py#L108-L118" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class NMS(nn.Module):
+    # Non-Maximum Suppression (NMS) module
+    conf = 0.25  # confidence threshold
+    iou = 0.45  # IoU threshold
+    classes = None  # (optional list) filter by class
+
+    def __init__(self):
+        super(NMS, self).__init__()
+
+    def forward(self, x):
+        return non_max_suppression(x[0], conf_thres=self.conf, iou_thres=self.iou, classes=self.classes)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>torch.nn.modules.module.Module</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pycollector.model.yolov5.models.common.NMS.classes"><code class="name">var <span class="ident">classes</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pycollector.model.yolov5.models.common.NMS.conf"><code class="name">var <span class="ident">conf</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pycollector.model.yolov5.models.common.NMS.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pycollector.model.yolov5.models.common.NMS.iou"><code class="name">var <span class="ident">iou</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pycollector.model.yolov5.models.common.NMS.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="pycollector.model.yolov5.models.common.NMS.forward"><code class="name flex">
+<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the :class:<code>Module</code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/common.py#L117-L118" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def forward(self, x):
+    return non_max_suppression(x[0], conf_thres=self.conf, iou_thres=self.iou, classes=self.classes)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="pycollector.model.yolov5.models.common.SPP"><code class="flex name class">
+<span>class <span class="ident">SPP</span></span>
+<span>(</span><span>c1, c2, k=(5, 9, 13))</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Base class for all neural network modules.</p>
+<p>Your models should also subclass this class.</p>
+<p>Modules can also contain other Modules, allowing to nest them in
+a tree structure. You can assign the submodules as regular attributes::</p>
+<pre><code>import torch.nn as nn
+import torch.nn.functional as F
+
+class Model(nn.Module):
+    def __init__(self):
+        super(Model, self).__init__()
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        self.conv2 = nn.Conv2d(20, 20, 5)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        return F.relu(self.conv2(x))
+</code></pre>
+<p>Submodules assigned in this way will be registered, and will have their
+parameters converted too when you call :meth:<code>to</code>, etc.</p>
+<p>:ivar training: Boolean represents whether this module is in training or
+evaluation mode.
+:vartype training: bool</p>
+<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/common.py#L74-L85" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class SPP(nn.Module):
+    # Spatial pyramid pooling layer used in YOLOv3-SPP
+    def __init__(self, c1, c2, k=(5, 9, 13)):
+        super(SPP, self).__init__()
+        c_ = c1 // 2  # hidden channels
+        self.cv1 = Conv(c1, c_, 1, 1)
+        self.cv2 = Conv(c_ * (len(k) + 1), c2, 1, 1)
+        self.m = nn.ModuleList([nn.MaxPool2d(kernel_size=x, stride=1, padding=x // 2) for x in k])
+
+    def forward(self, x):
+        x = self.cv1(x)
+        return self.cv2(torch.cat([x] + [m(x) for m in self.m], 1))</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>torch.nn.modules.module.Module</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pycollector.model.yolov5.models.common.SPP.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pycollector.model.yolov5.models.common.SPP.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="pycollector.model.yolov5.models.common.SPP.forward"><code class="name flex">
+<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the :class:<code>Module</code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/models/common.py#L83-L85" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def forward(self, x):
+    x = self.cv1(x)
+    return self.cv2(torch.cat([x] + [m(x) for m in self.m], 1))</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<header>
+<a class="homelink" rel="home" title="Visym Collector" href="https://github.com/visym/collector/">
+<img src="https://www.visym.com/labs/images/visym_logo_black_notext.png" alt="" width="150"> <p> </p>
+</a>
+</header>
+<form>
+<input id="lunr-search" name="q" placeholder="🔎 Search ..." aria-label="Search"
+disabled minlength="2">
+</form>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/tingle/0.15.3/tingle.min.css" integrity="sha512-j1u8eUJ4f23xPPxwOrLUPQaCD2dwzNqqmDDcWS4deWsMv2ohLqmXXuP3hU7g8TyzbMSakP/mMqoNBYWj8AEIFg==" crossorigin>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tingle/0.15.3/tingle.min.js" integrity="sha512-plGUER9JkeEWPPqQBE4sdLqBoQug5Ap+BCGMc7bJ8BXkm+VVj6QzkpBz5Yv2yPkkq+cqg9IpkBaGCas6uDbW8g==" crossorigin></script>
+<style>
+.modal-dialog iframe {
+width: 100vw;
+height: calc(100vh - 80px);
+}
+@media screen and (min-width: 700px) {
+.modal-dialog iframe {
+width: 70vw;
+height: 80vh;
+}
+}
+.modal-dialog .tingle-modal-box {width: auto;}
+.modal-dialog .tingle-modal-box__content {padding: 0;}
+</style>
+<script>
+const input = document.getElementById('lunr-search');
+input.disabled = false;
+input.form.addEventListener('submit', (ev) => {
+ev.preventDefault();
+const url = new URL(window.location);
+url.searchParams.set('q', input.value);
+history.replaceState({}, null, url.toString());
+search(input.value);
+});
+const query = new URL(window.location).searchParams.get('q');
+if (query)
+search(query);
+function search(query) {
+const url = '../../../../doc-search.html#' + encodeURIComponent(query);
+new tingle.modal({
+cssClass: ['modal-dialog'],
+onClose: () => {
+const url = new URL(window.location);
+url.searchParams.delete('q');
+history.replaceState({}, null, url.toString());
+setTimeout(() => input.focus(), 100);
+}
+}).setContent('<iframe src="' + url + '"></iframe>').open();
+}
+</script>
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pycollector.model.yolov5.models" href="index.html">pycollector.model.yolov5.models</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="pycollector.model.yolov5.models.common.DWConv" href="#pycollector.model.yolov5.models.common.DWConv">DWConv</a></code></li>
+<li><code><a title="pycollector.model.yolov5.models.common.autopad" href="#pycollector.model.yolov5.models.common.autopad">autopad</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="pycollector.model.yolov5.models.common.Bottleneck" href="#pycollector.model.yolov5.models.common.Bottleneck">Bottleneck</a></code></h4>
+<ul class="">
+<li><code><a title="pycollector.model.yolov5.models.common.Bottleneck.dump_patches" href="#pycollector.model.yolov5.models.common.Bottleneck.dump_patches">dump_patches</a></code></li>
+<li><code><a title="pycollector.model.yolov5.models.common.Bottleneck.forward" href="#pycollector.model.yolov5.models.common.Bottleneck.forward">forward</a></code></li>
+<li><code><a title="pycollector.model.yolov5.models.common.Bottleneck.training" href="#pycollector.model.yolov5.models.common.Bottleneck.training">training</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pycollector.model.yolov5.models.common.BottleneckCSP" href="#pycollector.model.yolov5.models.common.BottleneckCSP">BottleneckCSP</a></code></h4>
+<ul class="">
+<li><code><a title="pycollector.model.yolov5.models.common.BottleneckCSP.dump_patches" href="#pycollector.model.yolov5.models.common.BottleneckCSP.dump_patches">dump_patches</a></code></li>
+<li><code><a title="pycollector.model.yolov5.models.common.BottleneckCSP.forward" href="#pycollector.model.yolov5.models.common.BottleneckCSP.forward">forward</a></code></li>
+<li><code><a title="pycollector.model.yolov5.models.common.BottleneckCSP.training" href="#pycollector.model.yolov5.models.common.BottleneckCSP.training">training</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pycollector.model.yolov5.models.common.Classify" href="#pycollector.model.yolov5.models.common.Classify">Classify</a></code></h4>
+<ul class="">
+<li><code><a title="pycollector.model.yolov5.models.common.Classify.dump_patches" href="#pycollector.model.yolov5.models.common.Classify.dump_patches">dump_patches</a></code></li>
+<li><code><a title="pycollector.model.yolov5.models.common.Classify.forward" href="#pycollector.model.yolov5.models.common.Classify.forward">forward</a></code></li>
+<li><code><a title="pycollector.model.yolov5.models.common.Classify.training" href="#pycollector.model.yolov5.models.common.Classify.training">training</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pycollector.model.yolov5.models.common.Concat" href="#pycollector.model.yolov5.models.common.Concat">Concat</a></code></h4>
+<ul class="">
+<li><code><a title="pycollector.model.yolov5.models.common.Concat.dump_patches" href="#pycollector.model.yolov5.models.common.Concat.dump_patches">dump_patches</a></code></li>
+<li><code><a title="pycollector.model.yolov5.models.common.Concat.forward" href="#pycollector.model.yolov5.models.common.Concat.forward">forward</a></code></li>
+<li><code><a title="pycollector.model.yolov5.models.common.Concat.training" href="#pycollector.model.yolov5.models.common.Concat.training">training</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pycollector.model.yolov5.models.common.Conv" href="#pycollector.model.yolov5.models.common.Conv">Conv</a></code></h4>
+<ul class="">
+<li><code><a title="pycollector.model.yolov5.models.common.Conv.dump_patches" href="#pycollector.model.yolov5.models.common.Conv.dump_patches">dump_patches</a></code></li>
+<li><code><a title="pycollector.model.yolov5.models.common.Conv.forward" href="#pycollector.model.yolov5.models.common.Conv.forward">forward</a></code></li>
+<li><code><a title="pycollector.model.yolov5.models.common.Conv.fuseforward" href="#pycollector.model.yolov5.models.common.Conv.fuseforward">fuseforward</a></code></li>
+<li><code><a title="pycollector.model.yolov5.models.common.Conv.training" href="#pycollector.model.yolov5.models.common.Conv.training">training</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pycollector.model.yolov5.models.common.Detections" href="#pycollector.model.yolov5.models.common.Detections">Detections</a></code></h4>
+<ul class="">
+<li><code><a title="pycollector.model.yolov5.models.common.Detections.display" href="#pycollector.model.yolov5.models.common.Detections.display">display</a></code></li>
+<li><code><a title="pycollector.model.yolov5.models.common.Detections.print" href="#pycollector.model.yolov5.models.common.Detections.print">print</a></code></li>
+<li><code><a title="pycollector.model.yolov5.models.common.Detections.save" href="#pycollector.model.yolov5.models.common.Detections.save">save</a></code></li>
+<li><code><a title="pycollector.model.yolov5.models.common.Detections.show" href="#pycollector.model.yolov5.models.common.Detections.show">show</a></code></li>
+<li><code><a title="pycollector.model.yolov5.models.common.Detections.tolist" href="#pycollector.model.yolov5.models.common.Detections.tolist">tolist</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pycollector.model.yolov5.models.common.Flatten" href="#pycollector.model.yolov5.models.common.Flatten">Flatten</a></code></h4>
+<ul class="">
+<li><code><a title="pycollector.model.yolov5.models.common.Flatten.dump_patches" href="#pycollector.model.yolov5.models.common.Flatten.dump_patches">dump_patches</a></code></li>
+<li><code><a title="pycollector.model.yolov5.models.common.Flatten.forward" href="#pycollector.model.yolov5.models.common.Flatten.forward">forward</a></code></li>
+<li><code><a title="pycollector.model.yolov5.models.common.Flatten.training" href="#pycollector.model.yolov5.models.common.Flatten.training">training</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pycollector.model.yolov5.models.common.Focus" href="#pycollector.model.yolov5.models.common.Focus">Focus</a></code></h4>
+<ul class="">
+<li><code><a title="pycollector.model.yolov5.models.common.Focus.dump_patches" href="#pycollector.model.yolov5.models.common.Focus.dump_patches">dump_patches</a></code></li>
+<li><code><a title="pycollector.model.yolov5.models.common.Focus.forward" href="#pycollector.model.yolov5.models.common.Focus.forward">forward</a></code></li>
+<li><code><a title="pycollector.model.yolov5.models.common.Focus.training" href="#pycollector.model.yolov5.models.common.Focus.training">training</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pycollector.model.yolov5.models.common.NMS" href="#pycollector.model.yolov5.models.common.NMS">NMS</a></code></h4>
+<ul class="two-column">
+<li><code><a title="pycollector.model.yolov5.models.common.NMS.classes" href="#pycollector.model.yolov5.models.common.NMS.classes">classes</a></code></li>
+<li><code><a title="pycollector.model.yolov5.models.common.NMS.conf" href="#pycollector.model.yolov5.models.common.NMS.conf">conf</a></code></li>
+<li><code><a title="pycollector.model.yolov5.models.common.NMS.dump_patches" href="#pycollector.model.yolov5.models.common.NMS.dump_patches">dump_patches</a></code></li>
+<li><code><a title="pycollector.model.yolov5.models.common.NMS.forward" href="#pycollector.model.yolov5.models.common.NMS.forward">forward</a></code></li>
+<li><code><a title="pycollector.model.yolov5.models.common.NMS.iou" href="#pycollector.model.yolov5.models.common.NMS.iou">iou</a></code></li>
+<li><code><a title="pycollector.model.yolov5.models.common.NMS.training" href="#pycollector.model.yolov5.models.common.NMS.training">training</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pycollector.model.yolov5.models.common.SPP" href="#pycollector.model.yolov5.models.common.SPP">SPP</a></code></h4>
+<ul class="">
+<li><code><a title="pycollector.model.yolov5.models.common.SPP.dump_patches" href="#pycollector.model.yolov5.models.common.SPP.dump_patches">dump_patches</a></code></li>
+<li><code><a title="pycollector.model.yolov5.models.common.SPP.forward" href="#pycollector.model.yolov5.models.common.SPP.forward">forward</a></code></li>
+<li><code><a title="pycollector.model.yolov5.models.common.SPP.training" href="#pycollector.model.yolov5.models.common.SPP.training">training</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

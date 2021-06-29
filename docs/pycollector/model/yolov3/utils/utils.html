@@ -1,0 +1,905 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>pycollector.model.yolov3.utils.utils API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}#lunr-search{width:100%;font-size:1em;padding:6px 9px 5px 9px;border:1px solid silver}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pycollector.model.yolov3.utils.utils</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov3/utils/utils.py#L0-L322" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">from __future__ import division
+import math
+import time
+from vipy.util import try_import
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torch.autograd import Variable
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+
+
+def to_cpu(tensor):
+    return tensor.detach().cpu()
+
+
+def load_classes(path):
+    &#34;&#34;&#34;
+    Loads class labels at &#39;path&#39;
+    &#34;&#34;&#34;
+    fp = open(path, &#34;r&#34;)
+    names = fp.read().split(&#34;\n&#34;)[:-1]
+    return names
+
+
+def weights_init_normal(m):
+    classname = m.__class__.__name__
+    if classname.find(&#34;Conv&#34;) != -1:
+        torch.nn.init.normal_(m.weight.data, 0.0, 0.02)
+    elif classname.find(&#34;BatchNorm2d&#34;) != -1:
+        torch.nn.init.normal_(m.weight.data, 1.0, 0.02)
+        torch.nn.init.constant_(m.bias.data, 0.0)
+
+
+def rescale_boxes(boxes, current_dim, original_shape):
+    &#34;&#34;&#34; Rescales bounding boxes to the original shape &#34;&#34;&#34;
+    orig_h, orig_w = original_shape
+    # The amount of padding that was added
+    pad_x = max(orig_h - orig_w, 0) * (current_dim / max(original_shape))
+    pad_y = max(orig_w - orig_h, 0) * (current_dim / max(original_shape))
+    # Image height and width after padding is removed
+    unpad_h = current_dim - pad_y
+    unpad_w = current_dim - pad_x
+    # Rescale bounding boxes to dimension of original image
+    boxes[:, 0] = ((boxes[:, 0] - pad_x // 2) / unpad_w) * orig_w
+    boxes[:, 1] = ((boxes[:, 1] - pad_y // 2) / unpad_h) * orig_h
+    boxes[:, 2] = ((boxes[:, 2] - pad_x // 2) / unpad_w) * orig_w
+    boxes[:, 3] = ((boxes[:, 3] - pad_y // 2) / unpad_h) * orig_h
+    return boxes
+
+
+def xywh2xyxy(x):
+    y = x.new(x.shape)
+    y[..., 0] = x[..., 0] - x[..., 2] / 2
+    y[..., 1] = x[..., 1] - x[..., 3] / 2
+    y[..., 2] = x[..., 0] + x[..., 2] / 2
+    y[..., 3] = x[..., 1] + x[..., 3] / 2
+    return y
+
+
+def ap_per_class(tp, conf, pred_cls, target_cls):
+    &#34;&#34;&#34; Compute the average precision, given the recall and precision curves.
+    Source: https://github.com/rafaelpadilla/Object-Detection-Metrics.
+    # Arguments
+        tp:    True positives (list).
+        conf:  Objectness value from 0-1 (list).
+        pred_cls: Predicted object classes (list).
+        target_cls: True object classes (list).
+    # Returns
+        The average precision as computed in py-faster-rcnn.
+    &#34;&#34;&#34;
+    try_import(&#39;tqdm&#39;, &#39;tqdm&#39;)
+    import tqdm
+    
+    # Sort by objectness
+    i = np.argsort(-conf)
+    tp, conf, pred_cls = tp[i], conf[i], pred_cls[i]
+
+    # Find unique classes
+    unique_classes = np.unique(target_cls)
+
+    # Create Precision-Recall curve and compute AP for each class
+    ap, p, r = [], [], []
+    for c in tqdm.tqdm(unique_classes, desc=&#34;Computing AP&#34;):
+        i = pred_cls == c
+        n_gt = (target_cls == c).sum()  # Number of ground truth objects
+        n_p = i.sum()  # Number of predicted objects
+
+        if n_p == 0 and n_gt == 0:
+            continue
+        elif n_p == 0 or n_gt == 0:
+            ap.append(0)
+            r.append(0)
+            p.append(0)
+        else:
+            # Accumulate FPs and TPs
+            fpc = (1 - tp[i]).cumsum()
+            tpc = (tp[i]).cumsum()
+
+            # Recall
+            recall_curve = tpc / (n_gt + 1e-16)
+            r.append(recall_curve[-1])
+
+            # Precision
+            precision_curve = tpc / (tpc + fpc)
+            p.append(precision_curve[-1])
+
+            # AP from recall-precision curve
+            ap.append(compute_ap(recall_curve, precision_curve))
+
+    # Compute F1 score (harmonic mean of precision and recall)
+    p, r, ap = np.array(p), np.array(r), np.array(ap)
+    f1 = 2 * p * r / (p + r + 1e-16)
+
+    return p, r, ap, f1, unique_classes.astype(&#34;int32&#34;)
+
+
+def compute_ap(recall, precision):
+    &#34;&#34;&#34; Compute the average precision, given the recall and precision curves.
+    Code originally from https://github.com/rbgirshick/py-faster-rcnn.
+
+    # Arguments
+        recall:    The recall curve (list).
+        precision: The precision curve (list).
+    # Returns
+        The average precision as computed in py-faster-rcnn.
+    &#34;&#34;&#34;
+    # correct AP calculation
+    # first append sentinel values at the end
+    mrec = np.concatenate(([0.0], recall, [1.0]))
+    mpre = np.concatenate(([0.0], precision, [0.0]))
+
+    # compute the precision envelope
+    for i in range(mpre.size - 1, 0, -1):
+        mpre[i - 1] = np.maximum(mpre[i - 1], mpre[i])
+
+    # to calculate area under PR curve, look for points
+    # where X axis (recall) changes value
+    i = np.where(mrec[1:] != mrec[:-1])[0]
+
+    # and sum (\Delta recall) * prec
+    ap = np.sum((mrec[i + 1] - mrec[i]) * mpre[i + 1])
+    return ap
+
+
+def get_batch_statistics(outputs, targets, iou_threshold):
+    &#34;&#34;&#34; Compute true positives, predicted scores and predicted labels per sample &#34;&#34;&#34;
+    batch_metrics = []
+    for sample_i in range(len(outputs)):
+
+        if outputs[sample_i] is None:
+            continue
+
+        output = outputs[sample_i]
+        pred_boxes = output[:, :4]
+        pred_scores = output[:, 4]
+        pred_labels = output[:, -1]
+
+        true_positives = np.zeros(pred_boxes.shape[0])
+
+        annotations = targets[targets[:, 0] == sample_i][:, 1:]
+        target_labels = annotations[:, 0] if len(annotations) else []
+        if len(annotations):
+            detected_boxes = []
+            target_boxes = annotations[:, 1:]
+
+            for pred_i, (pred_box, pred_label) in enumerate(zip(pred_boxes, pred_labels)):
+
+                # If targets are found break
+                if len(detected_boxes) == len(annotations):
+                    break
+
+                # Ignore if label is not one of the target labels
+                if pred_label not in target_labels:
+                    continue
+
+                iou, box_index = bbox_iou(pred_box.unsqueeze(0), target_boxes).max(0)
+                if iou &gt;= iou_threshold and box_index not in detected_boxes:
+                    true_positives[pred_i] = 1
+                    detected_boxes += [box_index]
+        batch_metrics.append([true_positives, pred_scores, pred_labels])
+    return batch_metrics
+
+
+def bbox_wh_iou(wh1, wh2):
+    wh2 = wh2.t()
+    w1, h1 = wh1[0], wh1[1]
+    w2, h2 = wh2[0], wh2[1]
+    inter_area = torch.min(w1, w2) * torch.min(h1, h2)
+    union_area = (w1 * h1 + 1e-16) + w2 * h2 - inter_area
+    return inter_area / union_area
+
+
+def bbox_iou(box1, box2, x1y1x2y2=True):
+    &#34;&#34;&#34;
+    Returns the IoU of two bounding boxes
+    &#34;&#34;&#34;
+    if not x1y1x2y2:
+        # Transform from center and width to exact coordinates
+        b1_x1, b1_x2 = box1[:, 0] - box1[:, 2] / 2, box1[:, 0] + box1[:, 2] / 2
+        b1_y1, b1_y2 = box1[:, 1] - box1[:, 3] / 2, box1[:, 1] + box1[:, 3] / 2
+        b2_x1, b2_x2 = box2[:, 0] - box2[:, 2] / 2, box2[:, 0] + box2[:, 2] / 2
+        b2_y1, b2_y2 = box2[:, 1] - box2[:, 3] / 2, box2[:, 1] + box2[:, 3] / 2
+    else:
+        # Get the coordinates of bounding boxes
+        b1_x1, b1_y1, b1_x2, b1_y2 = box1[:, 0], box1[:, 1], box1[:, 2], box1[:, 3]
+        b2_x1, b2_y1, b2_x2, b2_y2 = box2[:, 0], box2[:, 1], box2[:, 2], box2[:, 3]
+
+    # get the corrdinates of the intersection rectangle
+    inter_rect_x1 = torch.max(b1_x1, b2_x1)
+    inter_rect_y1 = torch.max(b1_y1, b2_y1)
+    inter_rect_x2 = torch.min(b1_x2, b2_x2)
+    inter_rect_y2 = torch.min(b1_y2, b2_y2)
+    # Intersection area
+    inter_area = torch.clamp(inter_rect_x2 - inter_rect_x1 + 1, min=0) * torch.clamp(
+        inter_rect_y2 - inter_rect_y1 + 1, min=0
+    )
+    # Union Area
+    b1_area = (b1_x2 - b1_x1 + 1) * (b1_y2 - b1_y1 + 1)
+    b2_area = (b2_x2 - b2_x1 + 1) * (b2_y2 - b2_y1 + 1)
+
+    iou = inter_area / (b1_area + b2_area - inter_area + 1e-16)
+
+    return iou
+
+
+def non_max_suppression(prediction, conf_thres=0.5, nms_thres=0.4):
+    &#34;&#34;&#34;
+    Removes detections with lower object confidence score than &#39;conf_thres&#39; and performs
+    Non-Maximum Suppression to further filter detections.
+    Returns detections with shape:
+        (x1, y1, x2, y2, object_conf, class_score, class_pred)
+    &#34;&#34;&#34;
+
+    # From (center x, center y, width, height) to (x1, y1, x2, y2)
+    prediction[..., :4] = xywh2xyxy(prediction[..., :4])
+    output = [None for _ in range(len(prediction))]
+    for image_i, image_pred in enumerate(prediction):
+        # Filter out confidence scores below threshold
+        image_pred = image_pred[image_pred[:, 4] &gt;= conf_thres]
+        # If none are remaining =&gt; process next image
+        if not image_pred.size(0):
+            continue
+        # Object confidence times class confidence
+        score = image_pred[:, 4] * image_pred[:, 5:].max(1)[0]
+        # Sort by it
+        image_pred = image_pred[(-score).argsort()]
+        class_confs, class_preds = image_pred[:, 5:].max(1, keepdim=True)
+        detections = torch.cat((image_pred[:, :5], class_confs.float(), class_preds.float()), 1)
+        # Perform non-maximum suppression
+        keep_boxes = []
+        while detections.size(0):
+            large_overlap = bbox_iou(detections[0, :4].unsqueeze(0), detections[:, :4]) &gt; nms_thres
+            label_match = detections[0, -1] == detections[:, -1]
+            # Indices of boxes with lower confidence scores, large IOUs and matching labels
+            invalid = large_overlap &amp; label_match
+            weights = detections[invalid, 4:5]
+            # Merge overlapping bboxes by order of confidence
+            detections[0, :4] = (weights * detections[invalid, :4]).sum(0) / weights.sum()
+            keep_boxes += [detections[0]]
+            detections = detections[~invalid]
+        if keep_boxes:
+            output[image_i] = torch.stack(keep_boxes)
+
+    return output
+
+
+def build_targets(pred_boxes, pred_cls, target, anchors, ignore_thres):
+
+    ByteTensor = torch.cuda.ByteTensor if pred_boxes.is_cuda else torch.ByteTensor
+    FloatTensor = torch.cuda.FloatTensor if pred_boxes.is_cuda else torch.FloatTensor
+
+    nB = pred_boxes.size(0)
+    nA = pred_boxes.size(1)
+    nC = pred_cls.size(-1)
+    nG = pred_boxes.size(2)
+
+    # Output tensors
+    obj_mask = ByteTensor(nB, nA, nG, nG).fill_(0)
+    noobj_mask = ByteTensor(nB, nA, nG, nG).fill_(1)
+    class_mask = FloatTensor(nB, nA, nG, nG).fill_(0)
+    iou_scores = FloatTensor(nB, nA, nG, nG).fill_(0)
+    tx = FloatTensor(nB, nA, nG, nG).fill_(0)
+    ty = FloatTensor(nB, nA, nG, nG).fill_(0)
+    tw = FloatTensor(nB, nA, nG, nG).fill_(0)
+    th = FloatTensor(nB, nA, nG, nG).fill_(0)
+    tcls = FloatTensor(nB, nA, nG, nG, nC).fill_(0)
+
+    # Convert to position relative to box
+    target_boxes = target[:, 2:6] * nG
+    gxy = target_boxes[:, :2]
+    gwh = target_boxes[:, 2:]
+    # Get anchors with best iou
+    ious = torch.stack([bbox_wh_iou(anchor, gwh) for anchor in anchors])
+    best_ious, best_n = ious.max(0)
+    # Separate target values
+    b, target_labels = target[:, :2].long().t()
+    gx, gy = gxy.t()
+    gw, gh = gwh.t()
+    gi, gj = gxy.long().t()
+    # Set masks
+    obj_mask[b, best_n, gj, gi] = 1
+    noobj_mask[b, best_n, gj, gi] = 0
+
+    # Set noobj mask to zero where iou exceeds ignore threshold
+    for i, anchor_ious in enumerate(ious.t()):
+        noobj_mask[b[i], anchor_ious &gt; ignore_thres, gj[i], gi[i]] = 0
+
+    # Coordinates
+    tx[b, best_n, gj, gi] = gx - gx.floor()
+    ty[b, best_n, gj, gi] = gy - gy.floor()
+    # Width and height
+    tw[b, best_n, gj, gi] = torch.log(gw / anchors[best_n][:, 0] + 1e-16)
+    th[b, best_n, gj, gi] = torch.log(gh / anchors[best_n][:, 1] + 1e-16)
+    # One-hot encoding of label
+    tcls[b, best_n, gj, gi, target_labels] = 1
+    # Compute label correctness and iou at best anchor
+    class_mask[b, best_n, gj, gi] = (pred_cls[b, best_n, gj, gi].argmax(-1) == target_labels).float()
+    iou_scores[b, best_n, gj, gi] = bbox_iou(pred_boxes[b, best_n, gj, gi], target_boxes, x1y1x2y2=False)
+
+    tconf = obj_mask.float()
+    return iou_scores, class_mask, obj_mask, noobj_mask, tx, ty, tw, th, tcls, tconf</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="pycollector.model.yolov3.utils.utils.ap_per_class"><code class="name flex">
+<span>def <span class="ident">ap_per_class</span></span>(<span>tp, conf, pred_cls, target_cls)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Compute the average precision, given the recall and precision curves.
+Source: <a href="https://github.com/rafaelpadilla/Object-Detection-Metrics.">https://github.com/rafaelpadilla/Object-Detection-Metrics.</a></p>
+<h1 id="arguments">Arguments</h1>
+<pre><code>tp:    True positives (list).
+conf:  Objectness value from 0-1 (list).
+pred_cls: Predicted object classes (list).
+target_cls: True object classes (list).
+</code></pre>
+<h1 id="returns">Returns</h1>
+<pre><code>The average precision as computed in py-faster-rcnn.
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov3/utils/utils.py#L62-L116" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def ap_per_class(tp, conf, pred_cls, target_cls):
+    &#34;&#34;&#34; Compute the average precision, given the recall and precision curves.
+    Source: https://github.com/rafaelpadilla/Object-Detection-Metrics.
+    # Arguments
+        tp:    True positives (list).
+        conf:  Objectness value from 0-1 (list).
+        pred_cls: Predicted object classes (list).
+        target_cls: True object classes (list).
+    # Returns
+        The average precision as computed in py-faster-rcnn.
+    &#34;&#34;&#34;
+    try_import(&#39;tqdm&#39;, &#39;tqdm&#39;)
+    import tqdm
+    
+    # Sort by objectness
+    i = np.argsort(-conf)
+    tp, conf, pred_cls = tp[i], conf[i], pred_cls[i]
+
+    # Find unique classes
+    unique_classes = np.unique(target_cls)
+
+    # Create Precision-Recall curve and compute AP for each class
+    ap, p, r = [], [], []
+    for c in tqdm.tqdm(unique_classes, desc=&#34;Computing AP&#34;):
+        i = pred_cls == c
+        n_gt = (target_cls == c).sum()  # Number of ground truth objects
+        n_p = i.sum()  # Number of predicted objects
+
+        if n_p == 0 and n_gt == 0:
+            continue
+        elif n_p == 0 or n_gt == 0:
+            ap.append(0)
+            r.append(0)
+            p.append(0)
+        else:
+            # Accumulate FPs and TPs
+            fpc = (1 - tp[i]).cumsum()
+            tpc = (tp[i]).cumsum()
+
+            # Recall
+            recall_curve = tpc / (n_gt + 1e-16)
+            r.append(recall_curve[-1])
+
+            # Precision
+            precision_curve = tpc / (tpc + fpc)
+            p.append(precision_curve[-1])
+
+            # AP from recall-precision curve
+            ap.append(compute_ap(recall_curve, precision_curve))
+
+    # Compute F1 score (harmonic mean of precision and recall)
+    p, r, ap = np.array(p), np.array(r), np.array(ap)
+    f1 = 2 * p * r / (p + r + 1e-16)
+
+    return p, r, ap, f1, unique_classes.astype(&#34;int32&#34;)</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov3.utils.utils.bbox_iou"><code class="name flex">
+<span>def <span class="ident">bbox_iou</span></span>(<span>box1, box2, x1y1x2y2=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns the IoU of two bounding boxes</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov3/utils/utils.py#L195-L225" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def bbox_iou(box1, box2, x1y1x2y2=True):
+    &#34;&#34;&#34;
+    Returns the IoU of two bounding boxes
+    &#34;&#34;&#34;
+    if not x1y1x2y2:
+        # Transform from center and width to exact coordinates
+        b1_x1, b1_x2 = box1[:, 0] - box1[:, 2] / 2, box1[:, 0] + box1[:, 2] / 2
+        b1_y1, b1_y2 = box1[:, 1] - box1[:, 3] / 2, box1[:, 1] + box1[:, 3] / 2
+        b2_x1, b2_x2 = box2[:, 0] - box2[:, 2] / 2, box2[:, 0] + box2[:, 2] / 2
+        b2_y1, b2_y2 = box2[:, 1] - box2[:, 3] / 2, box2[:, 1] + box2[:, 3] / 2
+    else:
+        # Get the coordinates of bounding boxes
+        b1_x1, b1_y1, b1_x2, b1_y2 = box1[:, 0], box1[:, 1], box1[:, 2], box1[:, 3]
+        b2_x1, b2_y1, b2_x2, b2_y2 = box2[:, 0], box2[:, 1], box2[:, 2], box2[:, 3]
+
+    # get the corrdinates of the intersection rectangle
+    inter_rect_x1 = torch.max(b1_x1, b2_x1)
+    inter_rect_y1 = torch.max(b1_y1, b2_y1)
+    inter_rect_x2 = torch.min(b1_x2, b2_x2)
+    inter_rect_y2 = torch.min(b1_y2, b2_y2)
+    # Intersection area
+    inter_area = torch.clamp(inter_rect_x2 - inter_rect_x1 + 1, min=0) * torch.clamp(
+        inter_rect_y2 - inter_rect_y1 + 1, min=0
+    )
+    # Union Area
+    b1_area = (b1_x2 - b1_x1 + 1) * (b1_y2 - b1_y1 + 1)
+    b2_area = (b2_x2 - b2_x1 + 1) * (b2_y2 - b2_y1 + 1)
+
+    iou = inter_area / (b1_area + b2_area - inter_area + 1e-16)
+
+    return iou</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov3.utils.utils.bbox_wh_iou"><code class="name flex">
+<span>def <span class="ident">bbox_wh_iou</span></span>(<span>wh1, wh2)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov3/utils/utils.py#L186-L192" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def bbox_wh_iou(wh1, wh2):
+    wh2 = wh2.t()
+    w1, h1 = wh1[0], wh1[1]
+    w2, h2 = wh2[0], wh2[1]
+    inter_area = torch.min(w1, w2) * torch.min(h1, h2)
+    union_area = (w1 * h1 + 1e-16) + w2 * h2 - inter_area
+    return inter_area / union_area</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov3.utils.utils.build_targets"><code class="name flex">
+<span>def <span class="ident">build_targets</span></span>(<span>pred_boxes, pred_cls, target, anchors, ignore_thres)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov3/utils/utils.py#L269-L323" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def build_targets(pred_boxes, pred_cls, target, anchors, ignore_thres):
+
+    ByteTensor = torch.cuda.ByteTensor if pred_boxes.is_cuda else torch.ByteTensor
+    FloatTensor = torch.cuda.FloatTensor if pred_boxes.is_cuda else torch.FloatTensor
+
+    nB = pred_boxes.size(0)
+    nA = pred_boxes.size(1)
+    nC = pred_cls.size(-1)
+    nG = pred_boxes.size(2)
+
+    # Output tensors
+    obj_mask = ByteTensor(nB, nA, nG, nG).fill_(0)
+    noobj_mask = ByteTensor(nB, nA, nG, nG).fill_(1)
+    class_mask = FloatTensor(nB, nA, nG, nG).fill_(0)
+    iou_scores = FloatTensor(nB, nA, nG, nG).fill_(0)
+    tx = FloatTensor(nB, nA, nG, nG).fill_(0)
+    ty = FloatTensor(nB, nA, nG, nG).fill_(0)
+    tw = FloatTensor(nB, nA, nG, nG).fill_(0)
+    th = FloatTensor(nB, nA, nG, nG).fill_(0)
+    tcls = FloatTensor(nB, nA, nG, nG, nC).fill_(0)
+
+    # Convert to position relative to box
+    target_boxes = target[:, 2:6] * nG
+    gxy = target_boxes[:, :2]
+    gwh = target_boxes[:, 2:]
+    # Get anchors with best iou
+    ious = torch.stack([bbox_wh_iou(anchor, gwh) for anchor in anchors])
+    best_ious, best_n = ious.max(0)
+    # Separate target values
+    b, target_labels = target[:, :2].long().t()
+    gx, gy = gxy.t()
+    gw, gh = gwh.t()
+    gi, gj = gxy.long().t()
+    # Set masks
+    obj_mask[b, best_n, gj, gi] = 1
+    noobj_mask[b, best_n, gj, gi] = 0
+
+    # Set noobj mask to zero where iou exceeds ignore threshold
+    for i, anchor_ious in enumerate(ious.t()):
+        noobj_mask[b[i], anchor_ious &gt; ignore_thres, gj[i], gi[i]] = 0
+
+    # Coordinates
+    tx[b, best_n, gj, gi] = gx - gx.floor()
+    ty[b, best_n, gj, gi] = gy - gy.floor()
+    # Width and height
+    tw[b, best_n, gj, gi] = torch.log(gw / anchors[best_n][:, 0] + 1e-16)
+    th[b, best_n, gj, gi] = torch.log(gh / anchors[best_n][:, 1] + 1e-16)
+    # One-hot encoding of label
+    tcls[b, best_n, gj, gi, target_labels] = 1
+    # Compute label correctness and iou at best anchor
+    class_mask[b, best_n, gj, gi] = (pred_cls[b, best_n, gj, gi].argmax(-1) == target_labels).float()
+    iou_scores[b, best_n, gj, gi] = bbox_iou(pred_boxes[b, best_n, gj, gi], target_boxes, x1y1x2y2=False)
+
+    tconf = obj_mask.float()
+    return iou_scores, class_mask, obj_mask, noobj_mask, tx, ty, tw, th, tcls, tconf</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov3.utils.utils.compute_ap"><code class="name flex">
+<span>def <span class="ident">compute_ap</span></span>(<span>recall, precision)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Compute the average precision, given the recall and precision curves.
+Code originally from <a href="https://github.com/rbgirshick/py-faster-rcnn.">https://github.com/rbgirshick/py-faster-rcnn.</a></p>
+<h1 id="arguments">Arguments</h1>
+<pre><code>recall:    The recall curve (list).
+precision: The precision curve (list).
+</code></pre>
+<h1 id="returns">Returns</h1>
+<pre><code>The average precision as computed in py-faster-rcnn.
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov3/utils/utils.py#L119-L144" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def compute_ap(recall, precision):
+    &#34;&#34;&#34; Compute the average precision, given the recall and precision curves.
+    Code originally from https://github.com/rbgirshick/py-faster-rcnn.
+
+    # Arguments
+        recall:    The recall curve (list).
+        precision: The precision curve (list).
+    # Returns
+        The average precision as computed in py-faster-rcnn.
+    &#34;&#34;&#34;
+    # correct AP calculation
+    # first append sentinel values at the end
+    mrec = np.concatenate(([0.0], recall, [1.0]))
+    mpre = np.concatenate(([0.0], precision, [0.0]))
+
+    # compute the precision envelope
+    for i in range(mpre.size - 1, 0, -1):
+        mpre[i - 1] = np.maximum(mpre[i - 1], mpre[i])
+
+    # to calculate area under PR curve, look for points
+    # where X axis (recall) changes value
+    i = np.where(mrec[1:] != mrec[:-1])[0]
+
+    # and sum (\Delta recall) * prec
+    ap = np.sum((mrec[i + 1] - mrec[i]) * mpre[i + 1])
+    return ap</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov3.utils.utils.get_batch_statistics"><code class="name flex">
+<span>def <span class="ident">get_batch_statistics</span></span>(<span>outputs, targets, iou_threshold)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Compute true positives, predicted scores and predicted labels per sample</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov3/utils/utils.py#L147-L183" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def get_batch_statistics(outputs, targets, iou_threshold):
+    &#34;&#34;&#34; Compute true positives, predicted scores and predicted labels per sample &#34;&#34;&#34;
+    batch_metrics = []
+    for sample_i in range(len(outputs)):
+
+        if outputs[sample_i] is None:
+            continue
+
+        output = outputs[sample_i]
+        pred_boxes = output[:, :4]
+        pred_scores = output[:, 4]
+        pred_labels = output[:, -1]
+
+        true_positives = np.zeros(pred_boxes.shape[0])
+
+        annotations = targets[targets[:, 0] == sample_i][:, 1:]
+        target_labels = annotations[:, 0] if len(annotations) else []
+        if len(annotations):
+            detected_boxes = []
+            target_boxes = annotations[:, 1:]
+
+            for pred_i, (pred_box, pred_label) in enumerate(zip(pred_boxes, pred_labels)):
+
+                # If targets are found break
+                if len(detected_boxes) == len(annotations):
+                    break
+
+                # Ignore if label is not one of the target labels
+                if pred_label not in target_labels:
+                    continue
+
+                iou, box_index = bbox_iou(pred_box.unsqueeze(0), target_boxes).max(0)
+                if iou &gt;= iou_threshold and box_index not in detected_boxes:
+                    true_positives[pred_i] = 1
+                    detected_boxes += [box_index]
+        batch_metrics.append([true_positives, pred_scores, pred_labels])
+    return batch_metrics</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov3.utils.utils.load_classes"><code class="name flex">
+<span>def <span class="ident">load_classes</span></span>(<span>path)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Loads class labels at 'path'</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov3/utils/utils.py#L18-L24" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def load_classes(path):
+    &#34;&#34;&#34;
+    Loads class labels at &#39;path&#39;
+    &#34;&#34;&#34;
+    fp = open(path, &#34;r&#34;)
+    names = fp.read().split(&#34;\n&#34;)[:-1]
+    return names</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov3.utils.utils.non_max_suppression"><code class="name flex">
+<span>def <span class="ident">non_max_suppression</span></span>(<span>prediction, conf_thres=0.5, nms_thres=0.4)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Removes detections with lower object confidence score than 'conf_thres' and performs
+Non-Maximum Suppression to further filter detections.
+Returns detections with shape:
+(x1, y1, x2, y2, object_conf, class_score, class_pred)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov3/utils/utils.py#L228-L266" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def non_max_suppression(prediction, conf_thres=0.5, nms_thres=0.4):
+    &#34;&#34;&#34;
+    Removes detections with lower object confidence score than &#39;conf_thres&#39; and performs
+    Non-Maximum Suppression to further filter detections.
+    Returns detections with shape:
+        (x1, y1, x2, y2, object_conf, class_score, class_pred)
+    &#34;&#34;&#34;
+
+    # From (center x, center y, width, height) to (x1, y1, x2, y2)
+    prediction[..., :4] = xywh2xyxy(prediction[..., :4])
+    output = [None for _ in range(len(prediction))]
+    for image_i, image_pred in enumerate(prediction):
+        # Filter out confidence scores below threshold
+        image_pred = image_pred[image_pred[:, 4] &gt;= conf_thres]
+        # If none are remaining =&gt; process next image
+        if not image_pred.size(0):
+            continue
+        # Object confidence times class confidence
+        score = image_pred[:, 4] * image_pred[:, 5:].max(1)[0]
+        # Sort by it
+        image_pred = image_pred[(-score).argsort()]
+        class_confs, class_preds = image_pred[:, 5:].max(1, keepdim=True)
+        detections = torch.cat((image_pred[:, :5], class_confs.float(), class_preds.float()), 1)
+        # Perform non-maximum suppression
+        keep_boxes = []
+        while detections.size(0):
+            large_overlap = bbox_iou(detections[0, :4].unsqueeze(0), detections[:, :4]) &gt; nms_thres
+            label_match = detections[0, -1] == detections[:, -1]
+            # Indices of boxes with lower confidence scores, large IOUs and matching labels
+            invalid = large_overlap &amp; label_match
+            weights = detections[invalid, 4:5]
+            # Merge overlapping bboxes by order of confidence
+            detections[0, :4] = (weights * detections[invalid, :4]).sum(0) / weights.sum()
+            keep_boxes += [detections[0]]
+            detections = detections[~invalid]
+        if keep_boxes:
+            output[image_i] = torch.stack(keep_boxes)
+
+    return output</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov3.utils.utils.rescale_boxes"><code class="name flex">
+<span>def <span class="ident">rescale_boxes</span></span>(<span>boxes, current_dim, original_shape)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Rescales bounding boxes to the original shape</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov3/utils/utils.py#L36-L50" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def rescale_boxes(boxes, current_dim, original_shape):
+    &#34;&#34;&#34; Rescales bounding boxes to the original shape &#34;&#34;&#34;
+    orig_h, orig_w = original_shape
+    # The amount of padding that was added
+    pad_x = max(orig_h - orig_w, 0) * (current_dim / max(original_shape))
+    pad_y = max(orig_w - orig_h, 0) * (current_dim / max(original_shape))
+    # Image height and width after padding is removed
+    unpad_h = current_dim - pad_y
+    unpad_w = current_dim - pad_x
+    # Rescale bounding boxes to dimension of original image
+    boxes[:, 0] = ((boxes[:, 0] - pad_x // 2) / unpad_w) * orig_w
+    boxes[:, 1] = ((boxes[:, 1] - pad_y // 2) / unpad_h) * orig_h
+    boxes[:, 2] = ((boxes[:, 2] - pad_x // 2) / unpad_w) * orig_w
+    boxes[:, 3] = ((boxes[:, 3] - pad_y // 2) / unpad_h) * orig_h
+    return boxes</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov3.utils.utils.to_cpu"><code class="name flex">
+<span>def <span class="ident">to_cpu</span></span>(<span>tensor)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov3/utils/utils.py#L14-L15" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def to_cpu(tensor):
+    return tensor.detach().cpu()</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov3.utils.utils.weights_init_normal"><code class="name flex">
+<span>def <span class="ident">weights_init_normal</span></span>(<span>m)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov3/utils/utils.py#L27-L33" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def weights_init_normal(m):
+    classname = m.__class__.__name__
+    if classname.find(&#34;Conv&#34;) != -1:
+        torch.nn.init.normal_(m.weight.data, 0.0, 0.02)
+    elif classname.find(&#34;BatchNorm2d&#34;) != -1:
+        torch.nn.init.normal_(m.weight.data, 1.0, 0.02)
+        torch.nn.init.constant_(m.bias.data, 0.0)</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov3.utils.utils.xywh2xyxy"><code class="name flex">
+<span>def <span class="ident">xywh2xyxy</span></span>(<span>x)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov3/utils/utils.py#L53-L59" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def xywh2xyxy(x):
+    y = x.new(x.shape)
+    y[..., 0] = x[..., 0] - x[..., 2] / 2
+    y[..., 1] = x[..., 1] - x[..., 3] / 2
+    y[..., 2] = x[..., 0] + x[..., 2] / 2
+    y[..., 3] = x[..., 1] + x[..., 3] / 2
+    return y</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<header>
+<a class="homelink" rel="home" title="Visym Collector" href="https://github.com/visym/collector/">
+<img src="https://www.visym.com/labs/images/visym_logo_black_notext.png" alt="" width="150"> <p> </p>
+</a>
+</header>
+<form>
+<input id="lunr-search" name="q" placeholder="🔎 Search ..." aria-label="Search"
+disabled minlength="2">
+</form>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/tingle/0.15.3/tingle.min.css" integrity="sha512-j1u8eUJ4f23xPPxwOrLUPQaCD2dwzNqqmDDcWS4deWsMv2ohLqmXXuP3hU7g8TyzbMSakP/mMqoNBYWj8AEIFg==" crossorigin>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tingle/0.15.3/tingle.min.js" integrity="sha512-plGUER9JkeEWPPqQBE4sdLqBoQug5Ap+BCGMc7bJ8BXkm+VVj6QzkpBz5Yv2yPkkq+cqg9IpkBaGCas6uDbW8g==" crossorigin></script>
+<style>
+.modal-dialog iframe {
+width: 100vw;
+height: calc(100vh - 80px);
+}
+@media screen and (min-width: 700px) {
+.modal-dialog iframe {
+width: 70vw;
+height: 80vh;
+}
+}
+.modal-dialog .tingle-modal-box {width: auto;}
+.modal-dialog .tingle-modal-box__content {padding: 0;}
+</style>
+<script>
+const input = document.getElementById('lunr-search');
+input.disabled = false;
+input.form.addEventListener('submit', (ev) => {
+ev.preventDefault();
+const url = new URL(window.location);
+url.searchParams.set('q', input.value);
+history.replaceState({}, null, url.toString());
+search(input.value);
+});
+const query = new URL(window.location).searchParams.get('q');
+if (query)
+search(query);
+function search(query) {
+const url = '../../../../doc-search.html#' + encodeURIComponent(query);
+new tingle.modal({
+cssClass: ['modal-dialog'],
+onClose: () => {
+const url = new URL(window.location);
+url.searchParams.delete('q');
+history.replaceState({}, null, url.toString());
+setTimeout(() => input.focus(), 100);
+}
+}).setContent('<iframe src="' + url + '"></iframe>').open();
+}
+</script>
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pycollector.model.yolov3.utils" href="index.html">pycollector.model.yolov3.utils</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="pycollector.model.yolov3.utils.utils.ap_per_class" href="#pycollector.model.yolov3.utils.utils.ap_per_class">ap_per_class</a></code></li>
+<li><code><a title="pycollector.model.yolov3.utils.utils.bbox_iou" href="#pycollector.model.yolov3.utils.utils.bbox_iou">bbox_iou</a></code></li>
+<li><code><a title="pycollector.model.yolov3.utils.utils.bbox_wh_iou" href="#pycollector.model.yolov3.utils.utils.bbox_wh_iou">bbox_wh_iou</a></code></li>
+<li><code><a title="pycollector.model.yolov3.utils.utils.build_targets" href="#pycollector.model.yolov3.utils.utils.build_targets">build_targets</a></code></li>
+<li><code><a title="pycollector.model.yolov3.utils.utils.compute_ap" href="#pycollector.model.yolov3.utils.utils.compute_ap">compute_ap</a></code></li>
+<li><code><a title="pycollector.model.yolov3.utils.utils.get_batch_statistics" href="#pycollector.model.yolov3.utils.utils.get_batch_statistics">get_batch_statistics</a></code></li>
+<li><code><a title="pycollector.model.yolov3.utils.utils.load_classes" href="#pycollector.model.yolov3.utils.utils.load_classes">load_classes</a></code></li>
+<li><code><a title="pycollector.model.yolov3.utils.utils.non_max_suppression" href="#pycollector.model.yolov3.utils.utils.non_max_suppression">non_max_suppression</a></code></li>
+<li><code><a title="pycollector.model.yolov3.utils.utils.rescale_boxes" href="#pycollector.model.yolov3.utils.utils.rescale_boxes">rescale_boxes</a></code></li>
+<li><code><a title="pycollector.model.yolov3.utils.utils.to_cpu" href="#pycollector.model.yolov3.utils.utils.to_cpu">to_cpu</a></code></li>
+<li><code><a title="pycollector.model.yolov3.utils.utils.weights_init_normal" href="#pycollector.model.yolov3.utils.utils.weights_init_normal">weights_init_normal</a></code></li>
+<li><code><a title="pycollector.model.yolov3.utils.utils.xywh2xyxy" href="#pycollector.model.yolov3.utils.utils.xywh2xyxy">xywh2xyxy</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

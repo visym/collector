@@ -1,0 +1,837 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>pycollector.model.yolov5.utils.loss API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}#lunr-search{width:100%;font-size:1em;padding:6px 9px 5px 9px;border:1px solid silver}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pycollector.model.yolov5.utils.loss</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/loss.py#L0-L204" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python"># Loss functions
+
+import torch
+import torch.nn as nn
+
+from pycollector.model.yolov5.utils.general import bbox_iou
+from pycollector.model.yolov5.utils.torch_utils import is_parallel
+
+
+def smooth_BCE(eps=0.1):  # https://github.com/ultralytics/yolov3/issues/238#issuecomment-598028441
+    # return positive, negative label smoothing BCE targets
+    return 1.0 - 0.5 * eps, 0.5 * eps
+
+
+class BCEBlurWithLogitsLoss(nn.Module):
+    # BCEwithLogitLoss() with reduced missing label effects.
+    def __init__(self, alpha=0.05):
+        super(BCEBlurWithLogitsLoss, self).__init__()
+        self.loss_fcn = nn.BCEWithLogitsLoss(reduction=&#39;none&#39;)  # must be nn.BCEWithLogitsLoss()
+        self.alpha = alpha
+
+    def forward(self, pred, true):
+        loss = self.loss_fcn(pred, true)
+        pred = torch.sigmoid(pred)  # prob from logits
+        dx = pred - true  # reduce only missing label effects
+        # dx = (pred - true).abs()  # reduce missing label and false label effects
+        alpha_factor = 1 - torch.exp((dx - 1) / (self.alpha + 1e-4))
+        loss *= alpha_factor
+        return loss.mean()
+
+
+class FocalLoss(nn.Module):
+    # Wraps focal loss around existing loss_fcn(), i.e. criteria = FocalLoss(nn.BCEWithLogitsLoss(), gamma=1.5)
+    def __init__(self, loss_fcn, gamma=1.5, alpha=0.25):
+        super(FocalLoss, self).__init__()
+        self.loss_fcn = loss_fcn  # must be nn.BCEWithLogitsLoss()
+        self.gamma = gamma
+        self.alpha = alpha
+        self.reduction = loss_fcn.reduction
+        self.loss_fcn.reduction = &#39;none&#39;  # required to apply FL to each element
+
+    def forward(self, pred, true):
+        loss = self.loss_fcn(pred, true)
+        # p_t = torch.exp(-loss)
+        # loss *= self.alpha * (1.000001 - p_t) ** self.gamma  # non-zero power for gradient stability
+
+        # TF implementation https://github.com/tensorflow/addons/blob/v0.7.1/tensorflow_addons/losses/focal_loss.py
+        pred_prob = torch.sigmoid(pred)  # prob from logits
+        p_t = true * pred_prob + (1 - true) * (1 - pred_prob)
+        alpha_factor = true * self.alpha + (1 - true) * (1 - self.alpha)
+        modulating_factor = (1.0 - p_t) ** self.gamma
+        loss *= alpha_factor * modulating_factor
+
+        if self.reduction == &#39;mean&#39;:
+            return loss.mean()
+        elif self.reduction == &#39;sum&#39;:
+            return loss.sum()
+        else:  # &#39;none&#39;
+            return loss
+        
+        
+class QFocalLoss(nn.Module):
+    # Wraps Quality focal loss around existing loss_fcn(), i.e. criteria = FocalLoss(nn.BCEWithLogitsLoss(), gamma=1.5)
+    def __init__(self, loss_fcn, gamma=1.5, alpha=0.25):
+        super(QFocalLoss, self).__init__()
+        self.loss_fcn = loss_fcn  # must be nn.BCEWithLogitsLoss()
+        self.gamma = gamma
+        self.alpha = alpha
+        self.reduction = loss_fcn.reduction
+        self.loss_fcn.reduction = &#39;none&#39;  # required to apply FL to each element
+
+    def forward(self, pred, true):
+        loss = self.loss_fcn(pred, true)
+        
+        pred_prob = torch.sigmoid(pred)  # prob from logits
+        alpha_factor = true * self.alpha + (1 - true) * (1 - self.alpha)
+        modulating_factor = torch.abs(true - pred_prob) ** self.gamma
+        loss *= alpha_factor * modulating_factor
+
+        if self.reduction == &#39;mean&#39;:
+            return loss.mean()
+        elif self.reduction == &#39;sum&#39;:
+            return loss.sum()
+        else:  # &#39;none&#39;
+            return loss
+
+
+def compute_loss(p, targets, model):  # predictions, targets, model
+    device = targets.device
+    lcls, lbox, lobj = torch.zeros(1, device=device), torch.zeros(1, device=device), torch.zeros(1, device=device)
+    tcls, tbox, indices, anchors = build_targets(p, targets, model)  # targets
+    h = model.hyp  # hyperparameters
+
+    # Define criteria
+    BCEcls = nn.BCEWithLogitsLoss(pos_weight=torch.Tensor([h[&#39;cls_pw&#39;]])).to(device)
+    BCEobj = nn.BCEWithLogitsLoss(pos_weight=torch.Tensor([h[&#39;obj_pw&#39;]])).to(device)
+
+    # Class label smoothing https://arxiv.org/pdf/1902.04103.pdf eqn 3
+    cp, cn = smooth_BCE(eps=0.0)
+
+    # Focal loss
+    g = h[&#39;fl_gamma&#39;]  # focal loss gamma
+    if g &gt; 0:
+        BCEcls, BCEobj = FocalLoss(BCEcls, g), FocalLoss(BCEobj, g)
+
+    # Losses
+    nt = 0  # number of targets
+    no = len(p)  # number of outputs
+    balance = [4.0, 1.0, 0.4] if no == 3 else [4.0, 1.0, 0.4, 0.1]  # P3-5 or P3-6
+    for i, pi in enumerate(p):  # layer index, layer predictions
+        b, a, gj, gi = indices[i]  # image, anchor, gridy, gridx
+        tobj = torch.zeros_like(pi[..., 0], device=device)  # target obj
+
+        n = b.shape[0]  # number of targets
+        if n:
+            nt += n  # cumulative targets
+            ps = pi[b, a, gj, gi]  # prediction subset corresponding to targets
+
+            # Regression
+            pxy = ps[:, :2].sigmoid() * 2. - 0.5
+            pwh = (ps[:, 2:4].sigmoid() * 2) ** 2 * anchors[i]
+            pbox = torch.cat((pxy, pwh), 1).to(device)  # predicted box
+            iou = bbox_iou(pbox.T, tbox[i], x1y1x2y2=False, CIoU=True)  # iou(prediction, target)
+            lbox += (1.0 - iou).mean()  # iou loss
+
+            # Objectness
+            tobj[b, a, gj, gi] = (1.0 - model.gr) + model.gr * iou.detach().clamp(0).type(tobj.dtype)  # iou ratio
+
+            # Classification
+            if model.nc &gt; 1:  # cls loss (only if multiple classes)
+                t = torch.full_like(ps[:, 5:], cn, device=device)  # targets
+                t[range(n), tcls[i]] = cp
+                lcls += BCEcls(ps[:, 5:], t)  # BCE
+
+            # Append targets to text file
+            # with open(&#39;targets.txt&#39;, &#39;a&#39;) as file:
+            #     [file.write(&#39;%11.5g &#39; * 4 % tuple(x) + &#39;\n&#39;) for x in torch.cat((txy[i], twh[i]), 1)]
+
+        lobj += BCEobj(pi[..., 4], tobj) * balance[i]  # obj loss
+
+    s = 3 / no  # output count scaling
+    lbox *= h[&#39;box&#39;] * s
+    lobj *= h[&#39;obj&#39;] * s * (1.4 if no == 4 else 1.)
+    lcls *= h[&#39;cls&#39;] * s
+    bs = tobj.shape[0]  # batch size
+
+    loss = lbox + lobj + lcls
+    return loss * bs, torch.cat((lbox, lobj, lcls, loss)).detach()
+
+
+def build_targets(p, targets, model):
+    # Build targets for compute_loss(), input targets(image,class,x,y,w,h)
+    det = model.module.model[-1] if is_parallel(model) else model.model[-1]  # Detect() module
+    na, nt = det.na, targets.shape[0]  # number of anchors, targets
+    tcls, tbox, indices, anch = [], [], [], []
+    gain = torch.ones(7, device=targets.device)  # normalized to gridspace gain
+    ai = torch.arange(na, device=targets.device).float().view(na, 1).repeat(1, nt)  # same as .repeat_interleave(nt)
+    targets = torch.cat((targets.repeat(na, 1, 1), ai[:, :, None]), 2)  # append anchor indices
+
+    g = 0.5  # bias
+    off = torch.tensor([[0, 0],
+                        [1, 0], [0, 1], [-1, 0], [0, -1],  # j,k,l,m
+                        # [1, 1], [1, -1], [-1, 1], [-1, -1],  # jk,jm,lk,lm
+                        ], device=targets.device).float() * g  # offsets
+
+    for i in range(det.nl):
+        anchors = det.anchors[i]
+        gain[2:6] = torch.tensor(p[i].shape)[[3, 2, 3, 2]]  # xyxy gain
+
+        # Match targets to anchors
+        t = targets * gain
+        if nt:
+            # Matches
+            r = t[:, :, 4:6] / anchors[:, None]  # wh ratio
+            j = torch.max(r, 1. / r).max(2)[0] &lt; model.hyp[&#39;anchor_t&#39;]  # compare
+            # j = wh_iou(anchors, t[:, 4:6]) &gt; model.hyp[&#39;iou_t&#39;]  # iou(3,n)=wh_iou(anchors(3,2), gwh(n,2))
+            t = t[j]  # filter
+
+            # Offsets
+            gxy = t[:, 2:4]  # grid xy
+            gxi = gain[[2, 3]] - gxy  # inverse
+            j, k = ((gxy % 1. &lt; g) &amp; (gxy &gt; 1.)).T
+            l, m = ((gxi % 1. &lt; g) &amp; (gxi &gt; 1.)).T
+            j = torch.stack((torch.ones_like(j), j, k, l, m))
+            t = t.repeat((5, 1, 1))[j]
+            offsets = (torch.zeros_like(gxy)[None] + off[:, None])[j]
+        else:
+            t = targets[0]
+            offsets = 0
+
+        # Define
+        b, c = t[:, :2].long().T  # image, class
+        gxy = t[:, 2:4]  # grid xy
+        gwh = t[:, 4:6]  # grid wh
+        gij = (gxy - offsets).long()
+        gi, gj = gij.T  # grid xy indices
+
+        # Append
+        a = t[:, 6].long()  # anchor indices
+        indices.append((b, a, gj.clamp_(0, gain[3] - 1), gi.clamp_(0, gain[2] - 1)))  # image, anchor, grid indices
+        tbox.append(torch.cat((gxy - gij, gwh), 1))  # box
+        anch.append(anchors[a])  # anchors
+        tcls.append(c)  # class
+
+    return tcls, tbox, indices, anch</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="pycollector.model.yolov5.utils.loss.build_targets"><code class="name flex">
+<span>def <span class="ident">build_targets</span></span>(<span>p, targets, model)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/loss.py#L151-L205" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def build_targets(p, targets, model):
+    # Build targets for compute_loss(), input targets(image,class,x,y,w,h)
+    det = model.module.model[-1] if is_parallel(model) else model.model[-1]  # Detect() module
+    na, nt = det.na, targets.shape[0]  # number of anchors, targets
+    tcls, tbox, indices, anch = [], [], [], []
+    gain = torch.ones(7, device=targets.device)  # normalized to gridspace gain
+    ai = torch.arange(na, device=targets.device).float().view(na, 1).repeat(1, nt)  # same as .repeat_interleave(nt)
+    targets = torch.cat((targets.repeat(na, 1, 1), ai[:, :, None]), 2)  # append anchor indices
+
+    g = 0.5  # bias
+    off = torch.tensor([[0, 0],
+                        [1, 0], [0, 1], [-1, 0], [0, -1],  # j,k,l,m
+                        # [1, 1], [1, -1], [-1, 1], [-1, -1],  # jk,jm,lk,lm
+                        ], device=targets.device).float() * g  # offsets
+
+    for i in range(det.nl):
+        anchors = det.anchors[i]
+        gain[2:6] = torch.tensor(p[i].shape)[[3, 2, 3, 2]]  # xyxy gain
+
+        # Match targets to anchors
+        t = targets * gain
+        if nt:
+            # Matches
+            r = t[:, :, 4:6] / anchors[:, None]  # wh ratio
+            j = torch.max(r, 1. / r).max(2)[0] &lt; model.hyp[&#39;anchor_t&#39;]  # compare
+            # j = wh_iou(anchors, t[:, 4:6]) &gt; model.hyp[&#39;iou_t&#39;]  # iou(3,n)=wh_iou(anchors(3,2), gwh(n,2))
+            t = t[j]  # filter
+
+            # Offsets
+            gxy = t[:, 2:4]  # grid xy
+            gxi = gain[[2, 3]] - gxy  # inverse
+            j, k = ((gxy % 1. &lt; g) &amp; (gxy &gt; 1.)).T
+            l, m = ((gxi % 1. &lt; g) &amp; (gxi &gt; 1.)).T
+            j = torch.stack((torch.ones_like(j), j, k, l, m))
+            t = t.repeat((5, 1, 1))[j]
+            offsets = (torch.zeros_like(gxy)[None] + off[:, None])[j]
+        else:
+            t = targets[0]
+            offsets = 0
+
+        # Define
+        b, c = t[:, :2].long().T  # image, class
+        gxy = t[:, 2:4]  # grid xy
+        gwh = t[:, 4:6]  # grid wh
+        gij = (gxy - offsets).long()
+        gi, gj = gij.T  # grid xy indices
+
+        # Append
+        a = t[:, 6].long()  # anchor indices
+        indices.append((b, a, gj.clamp_(0, gain[3] - 1), gi.clamp_(0, gain[2] - 1)))  # image, anchor, grid indices
+        tbox.append(torch.cat((gxy - gij, gwh), 1))  # box
+        anch.append(anchors[a])  # anchors
+        tcls.append(c)  # class
+
+    return tcls, tbox, indices, anch</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.loss.compute_loss"><code class="name flex">
+<span>def <span class="ident">compute_loss</span></span>(<span>p, targets, model)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/loss.py#L88-L148" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def compute_loss(p, targets, model):  # predictions, targets, model
+    device = targets.device
+    lcls, lbox, lobj = torch.zeros(1, device=device), torch.zeros(1, device=device), torch.zeros(1, device=device)
+    tcls, tbox, indices, anchors = build_targets(p, targets, model)  # targets
+    h = model.hyp  # hyperparameters
+
+    # Define criteria
+    BCEcls = nn.BCEWithLogitsLoss(pos_weight=torch.Tensor([h[&#39;cls_pw&#39;]])).to(device)
+    BCEobj = nn.BCEWithLogitsLoss(pos_weight=torch.Tensor([h[&#39;obj_pw&#39;]])).to(device)
+
+    # Class label smoothing https://arxiv.org/pdf/1902.04103.pdf eqn 3
+    cp, cn = smooth_BCE(eps=0.0)
+
+    # Focal loss
+    g = h[&#39;fl_gamma&#39;]  # focal loss gamma
+    if g &gt; 0:
+        BCEcls, BCEobj = FocalLoss(BCEcls, g), FocalLoss(BCEobj, g)
+
+    # Losses
+    nt = 0  # number of targets
+    no = len(p)  # number of outputs
+    balance = [4.0, 1.0, 0.4] if no == 3 else [4.0, 1.0, 0.4, 0.1]  # P3-5 or P3-6
+    for i, pi in enumerate(p):  # layer index, layer predictions
+        b, a, gj, gi = indices[i]  # image, anchor, gridy, gridx
+        tobj = torch.zeros_like(pi[..., 0], device=device)  # target obj
+
+        n = b.shape[0]  # number of targets
+        if n:
+            nt += n  # cumulative targets
+            ps = pi[b, a, gj, gi]  # prediction subset corresponding to targets
+
+            # Regression
+            pxy = ps[:, :2].sigmoid() * 2. - 0.5
+            pwh = (ps[:, 2:4].sigmoid() * 2) ** 2 * anchors[i]
+            pbox = torch.cat((pxy, pwh), 1).to(device)  # predicted box
+            iou = bbox_iou(pbox.T, tbox[i], x1y1x2y2=False, CIoU=True)  # iou(prediction, target)
+            lbox += (1.0 - iou).mean()  # iou loss
+
+            # Objectness
+            tobj[b, a, gj, gi] = (1.0 - model.gr) + model.gr * iou.detach().clamp(0).type(tobj.dtype)  # iou ratio
+
+            # Classification
+            if model.nc &gt; 1:  # cls loss (only if multiple classes)
+                t = torch.full_like(ps[:, 5:], cn, device=device)  # targets
+                t[range(n), tcls[i]] = cp
+                lcls += BCEcls(ps[:, 5:], t)  # BCE
+
+            # Append targets to text file
+            # with open(&#39;targets.txt&#39;, &#39;a&#39;) as file:
+            #     [file.write(&#39;%11.5g &#39; * 4 % tuple(x) + &#39;\n&#39;) for x in torch.cat((txy[i], twh[i]), 1)]
+
+        lobj += BCEobj(pi[..., 4], tobj) * balance[i]  # obj loss
+
+    s = 3 / no  # output count scaling
+    lbox *= h[&#39;box&#39;] * s
+    lobj *= h[&#39;obj&#39;] * s * (1.4 if no == 4 else 1.)
+    lcls *= h[&#39;cls&#39;] * s
+    bs = tobj.shape[0]  # batch size
+
+    loss = lbox + lobj + lcls
+    return loss * bs, torch.cat((lbox, lobj, lcls, loss)).detach()</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.loss.smooth_BCE"><code class="name flex">
+<span>def <span class="ident">smooth_BCE</span></span>(<span>eps=0.1)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/loss.py#L10-L12" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def smooth_BCE(eps=0.1):  # https://github.com/ultralytics/yolov3/issues/238#issuecomment-598028441
+    # return positive, negative label smoothing BCE targets
+    return 1.0 - 0.5 * eps, 0.5 * eps</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="pycollector.model.yolov5.utils.loss.BCEBlurWithLogitsLoss"><code class="flex name class">
+<span>class <span class="ident">BCEBlurWithLogitsLoss</span></span>
+<span>(</span><span>alpha=0.05)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Base class for all neural network modules.</p>
+<p>Your models should also subclass this class.</p>
+<p>Modules can also contain other Modules, allowing to nest them in
+a tree structure. You can assign the submodules as regular attributes::</p>
+<pre><code>import torch.nn as nn
+import torch.nn.functional as F
+
+class Model(nn.Module):
+    def __init__(self):
+        super(Model, self).__init__()
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        self.conv2 = nn.Conv2d(20, 20, 5)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        return F.relu(self.conv2(x))
+</code></pre>
+<p>Submodules assigned in this way will be registered, and will have their
+parameters converted too when you call :meth:<code>to</code>, etc.</p>
+<p>:ivar training: Boolean represents whether this module is in training or
+evaluation mode.
+:vartype training: bool</p>
+<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/loss.py#L15-L29" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class BCEBlurWithLogitsLoss(nn.Module):
+    # BCEwithLogitLoss() with reduced missing label effects.
+    def __init__(self, alpha=0.05):
+        super(BCEBlurWithLogitsLoss, self).__init__()
+        self.loss_fcn = nn.BCEWithLogitsLoss(reduction=&#39;none&#39;)  # must be nn.BCEWithLogitsLoss()
+        self.alpha = alpha
+
+    def forward(self, pred, true):
+        loss = self.loss_fcn(pred, true)
+        pred = torch.sigmoid(pred)  # prob from logits
+        dx = pred - true  # reduce only missing label effects
+        # dx = (pred - true).abs()  # reduce missing label and false label effects
+        alpha_factor = 1 - torch.exp((dx - 1) / (self.alpha + 1e-4))
+        loss *= alpha_factor
+        return loss.mean()</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>torch.nn.modules.module.Module</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pycollector.model.yolov5.utils.loss.BCEBlurWithLogitsLoss.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pycollector.model.yolov5.utils.loss.BCEBlurWithLogitsLoss.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="pycollector.model.yolov5.utils.loss.BCEBlurWithLogitsLoss.forward"><code class="name flex">
+<span>def <span class="ident">forward</span></span>(<span>self, pred, true) ‑> Callable[..., Any]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the :class:<code>Module</code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/loss.py#L22-L29" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def forward(self, pred, true):
+    loss = self.loss_fcn(pred, true)
+    pred = torch.sigmoid(pred)  # prob from logits
+    dx = pred - true  # reduce only missing label effects
+    # dx = (pred - true).abs()  # reduce missing label and false label effects
+    alpha_factor = 1 - torch.exp((dx - 1) / (self.alpha + 1e-4))
+    loss *= alpha_factor
+    return loss.mean()</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="pycollector.model.yolov5.utils.loss.FocalLoss"><code class="flex name class">
+<span>class <span class="ident">FocalLoss</span></span>
+<span>(</span><span>loss_fcn, gamma=1.5, alpha=0.25)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Base class for all neural network modules.</p>
+<p>Your models should also subclass this class.</p>
+<p>Modules can also contain other Modules, allowing to nest them in
+a tree structure. You can assign the submodules as regular attributes::</p>
+<pre><code>import torch.nn as nn
+import torch.nn.functional as F
+
+class Model(nn.Module):
+    def __init__(self):
+        super(Model, self).__init__()
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        self.conv2 = nn.Conv2d(20, 20, 5)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        return F.relu(self.conv2(x))
+</code></pre>
+<p>Submodules assigned in this way will be registered, and will have their
+parameters converted too when you call :meth:<code>to</code>, etc.</p>
+<p>:ivar training: Boolean represents whether this module is in training or
+evaluation mode.
+:vartype training: bool</p>
+<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/loss.py#L32-L59" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class FocalLoss(nn.Module):
+    # Wraps focal loss around existing loss_fcn(), i.e. criteria = FocalLoss(nn.BCEWithLogitsLoss(), gamma=1.5)
+    def __init__(self, loss_fcn, gamma=1.5, alpha=0.25):
+        super(FocalLoss, self).__init__()
+        self.loss_fcn = loss_fcn  # must be nn.BCEWithLogitsLoss()
+        self.gamma = gamma
+        self.alpha = alpha
+        self.reduction = loss_fcn.reduction
+        self.loss_fcn.reduction = &#39;none&#39;  # required to apply FL to each element
+
+    def forward(self, pred, true):
+        loss = self.loss_fcn(pred, true)
+        # p_t = torch.exp(-loss)
+        # loss *= self.alpha * (1.000001 - p_t) ** self.gamma  # non-zero power for gradient stability
+
+        # TF implementation https://github.com/tensorflow/addons/blob/v0.7.1/tensorflow_addons/losses/focal_loss.py
+        pred_prob = torch.sigmoid(pred)  # prob from logits
+        p_t = true * pred_prob + (1 - true) * (1 - pred_prob)
+        alpha_factor = true * self.alpha + (1 - true) * (1 - self.alpha)
+        modulating_factor = (1.0 - p_t) ** self.gamma
+        loss *= alpha_factor * modulating_factor
+
+        if self.reduction == &#39;mean&#39;:
+            return loss.mean()
+        elif self.reduction == &#39;sum&#39;:
+            return loss.sum()
+        else:  # &#39;none&#39;
+            return loss</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>torch.nn.modules.module.Module</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pycollector.model.yolov5.utils.loss.FocalLoss.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pycollector.model.yolov5.utils.loss.FocalLoss.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="pycollector.model.yolov5.utils.loss.FocalLoss.forward"><code class="name flex">
+<span>def <span class="ident">forward</span></span>(<span>self, pred, true) ‑> Callable[..., Any]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the :class:<code>Module</code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/loss.py#L42-L59" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def forward(self, pred, true):
+    loss = self.loss_fcn(pred, true)
+    # p_t = torch.exp(-loss)
+    # loss *= self.alpha * (1.000001 - p_t) ** self.gamma  # non-zero power for gradient stability
+
+    # TF implementation https://github.com/tensorflow/addons/blob/v0.7.1/tensorflow_addons/losses/focal_loss.py
+    pred_prob = torch.sigmoid(pred)  # prob from logits
+    p_t = true * pred_prob + (1 - true) * (1 - pred_prob)
+    alpha_factor = true * self.alpha + (1 - true) * (1 - self.alpha)
+    modulating_factor = (1.0 - p_t) ** self.gamma
+    loss *= alpha_factor * modulating_factor
+
+    if self.reduction == &#39;mean&#39;:
+        return loss.mean()
+    elif self.reduction == &#39;sum&#39;:
+        return loss.sum()
+    else:  # &#39;none&#39;
+        return loss</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="pycollector.model.yolov5.utils.loss.QFocalLoss"><code class="flex name class">
+<span>class <span class="ident">QFocalLoss</span></span>
+<span>(</span><span>loss_fcn, gamma=1.5, alpha=0.25)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Base class for all neural network modules.</p>
+<p>Your models should also subclass this class.</p>
+<p>Modules can also contain other Modules, allowing to nest them in
+a tree structure. You can assign the submodules as regular attributes::</p>
+<pre><code>import torch.nn as nn
+import torch.nn.functional as F
+
+class Model(nn.Module):
+    def __init__(self):
+        super(Model, self).__init__()
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        self.conv2 = nn.Conv2d(20, 20, 5)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        return F.relu(self.conv2(x))
+</code></pre>
+<p>Submodules assigned in this way will be registered, and will have their
+parameters converted too when you call :meth:<code>to</code>, etc.</p>
+<p>:ivar training: Boolean represents whether this module is in training or
+evaluation mode.
+:vartype training: bool</p>
+<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/loss.py#L62-L85" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class QFocalLoss(nn.Module):
+    # Wraps Quality focal loss around existing loss_fcn(), i.e. criteria = FocalLoss(nn.BCEWithLogitsLoss(), gamma=1.5)
+    def __init__(self, loss_fcn, gamma=1.5, alpha=0.25):
+        super(QFocalLoss, self).__init__()
+        self.loss_fcn = loss_fcn  # must be nn.BCEWithLogitsLoss()
+        self.gamma = gamma
+        self.alpha = alpha
+        self.reduction = loss_fcn.reduction
+        self.loss_fcn.reduction = &#39;none&#39;  # required to apply FL to each element
+
+    def forward(self, pred, true):
+        loss = self.loss_fcn(pred, true)
+        
+        pred_prob = torch.sigmoid(pred)  # prob from logits
+        alpha_factor = true * self.alpha + (1 - true) * (1 - self.alpha)
+        modulating_factor = torch.abs(true - pred_prob) ** self.gamma
+        loss *= alpha_factor * modulating_factor
+
+        if self.reduction == &#39;mean&#39;:
+            return loss.mean()
+        elif self.reduction == &#39;sum&#39;:
+            return loss.sum()
+        else:  # &#39;none&#39;
+            return loss</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>torch.nn.modules.module.Module</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pycollector.model.yolov5.utils.loss.QFocalLoss.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pycollector.model.yolov5.utils.loss.QFocalLoss.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="pycollector.model.yolov5.utils.loss.QFocalLoss.forward"><code class="name flex">
+<span>def <span class="ident">forward</span></span>(<span>self, pred, true) ‑> Callable[..., Any]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the :class:<code>Module</code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/loss.py#L72-L85" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def forward(self, pred, true):
+    loss = self.loss_fcn(pred, true)
+    
+    pred_prob = torch.sigmoid(pred)  # prob from logits
+    alpha_factor = true * self.alpha + (1 - true) * (1 - self.alpha)
+    modulating_factor = torch.abs(true - pred_prob) ** self.gamma
+    loss *= alpha_factor * modulating_factor
+
+    if self.reduction == &#39;mean&#39;:
+        return loss.mean()
+    elif self.reduction == &#39;sum&#39;:
+        return loss.sum()
+    else:  # &#39;none&#39;
+        return loss</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<header>
+<a class="homelink" rel="home" title="Visym Collector" href="https://github.com/visym/collector/">
+<img src="https://www.visym.com/labs/images/visym_logo_black_notext.png" alt="" width="150"> <p> </p>
+</a>
+</header>
+<form>
+<input id="lunr-search" name="q" placeholder="🔎 Search ..." aria-label="Search"
+disabled minlength="2">
+</form>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/tingle/0.15.3/tingle.min.css" integrity="sha512-j1u8eUJ4f23xPPxwOrLUPQaCD2dwzNqqmDDcWS4deWsMv2ohLqmXXuP3hU7g8TyzbMSakP/mMqoNBYWj8AEIFg==" crossorigin>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tingle/0.15.3/tingle.min.js" integrity="sha512-plGUER9JkeEWPPqQBE4sdLqBoQug5Ap+BCGMc7bJ8BXkm+VVj6QzkpBz5Yv2yPkkq+cqg9IpkBaGCas6uDbW8g==" crossorigin></script>
+<style>
+.modal-dialog iframe {
+width: 100vw;
+height: calc(100vh - 80px);
+}
+@media screen and (min-width: 700px) {
+.modal-dialog iframe {
+width: 70vw;
+height: 80vh;
+}
+}
+.modal-dialog .tingle-modal-box {width: auto;}
+.modal-dialog .tingle-modal-box__content {padding: 0;}
+</style>
+<script>
+const input = document.getElementById('lunr-search');
+input.disabled = false;
+input.form.addEventListener('submit', (ev) => {
+ev.preventDefault();
+const url = new URL(window.location);
+url.searchParams.set('q', input.value);
+history.replaceState({}, null, url.toString());
+search(input.value);
+});
+const query = new URL(window.location).searchParams.get('q');
+if (query)
+search(query);
+function search(query) {
+const url = '../../../../doc-search.html#' + encodeURIComponent(query);
+new tingle.modal({
+cssClass: ['modal-dialog'],
+onClose: () => {
+const url = new URL(window.location);
+url.searchParams.delete('q');
+history.replaceState({}, null, url.toString());
+setTimeout(() => input.focus(), 100);
+}
+}).setContent('<iframe src="' + url + '"></iframe>').open();
+}
+</script>
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pycollector.model.yolov5.utils" href="index.html">pycollector.model.yolov5.utils</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="pycollector.model.yolov5.utils.loss.build_targets" href="#pycollector.model.yolov5.utils.loss.build_targets">build_targets</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.loss.compute_loss" href="#pycollector.model.yolov5.utils.loss.compute_loss">compute_loss</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.loss.smooth_BCE" href="#pycollector.model.yolov5.utils.loss.smooth_BCE">smooth_BCE</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="pycollector.model.yolov5.utils.loss.BCEBlurWithLogitsLoss" href="#pycollector.model.yolov5.utils.loss.BCEBlurWithLogitsLoss">BCEBlurWithLogitsLoss</a></code></h4>
+<ul class="">
+<li><code><a title="pycollector.model.yolov5.utils.loss.BCEBlurWithLogitsLoss.dump_patches" href="#pycollector.model.yolov5.utils.loss.BCEBlurWithLogitsLoss.dump_patches">dump_patches</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.loss.BCEBlurWithLogitsLoss.forward" href="#pycollector.model.yolov5.utils.loss.BCEBlurWithLogitsLoss.forward">forward</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.loss.BCEBlurWithLogitsLoss.training" href="#pycollector.model.yolov5.utils.loss.BCEBlurWithLogitsLoss.training">training</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pycollector.model.yolov5.utils.loss.FocalLoss" href="#pycollector.model.yolov5.utils.loss.FocalLoss">FocalLoss</a></code></h4>
+<ul class="">
+<li><code><a title="pycollector.model.yolov5.utils.loss.FocalLoss.dump_patches" href="#pycollector.model.yolov5.utils.loss.FocalLoss.dump_patches">dump_patches</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.loss.FocalLoss.forward" href="#pycollector.model.yolov5.utils.loss.FocalLoss.forward">forward</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.loss.FocalLoss.training" href="#pycollector.model.yolov5.utils.loss.FocalLoss.training">training</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pycollector.model.yolov5.utils.loss.QFocalLoss" href="#pycollector.model.yolov5.utils.loss.QFocalLoss">QFocalLoss</a></code></h4>
+<ul class="">
+<li><code><a title="pycollector.model.yolov5.utils.loss.QFocalLoss.dump_patches" href="#pycollector.model.yolov5.utils.loss.QFocalLoss.dump_patches">dump_patches</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.loss.QFocalLoss.forward" href="#pycollector.model.yolov5.utils.loss.QFocalLoss.forward">forward</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.loss.QFocalLoss.training" href="#pycollector.model.yolov5.utils.loss.QFocalLoss.training">training</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

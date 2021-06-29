@@ -1,0 +1,1045 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>pycollector.label API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}#lunr-search{width:100%;font-size:1em;padding:6px 9px 5px 9px;border:1px solid silver}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pycollector.label</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/label.py#L0-L545" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class Label(object):
+    def __init__(self, labeldict):
+        pass
+
+    
+def _v1_applabel_to_piplabel(k=None):
+    d = {&#34;P002_P002C001_Closing&#34;: &#34;person_closes_car_door&#34;,
+         &#34;P002_P002C001_Entering&#34;: &#34;person_enters_car&#34;,
+         &#34;P002_P002C001_Exiting&#34;: &#34;person_exits_car&#34;,
+         &#34;P002_P002C001_Opening&#34;: &#34;person_opens_car_door&#34;,
+         &#34;P002_P002C002_Closing&#34;: &#34;person_closes_car_trunk&#34;,
+         &#34;P002_P002C002_Loading&#34;: &#34;person_loads_car&#34;,
+         &#34;P002_P002C002_Opening&#34;: &#34;person_opens_car_trunk&#34;,
+         &#34;P002_P002C002_Unloading&#34;: &#34;person_unloads_car&#34;,
+         &#34;P002_P002C003_Turning left&#34;: &#34;car_turns_left&#34;,
+         &#34;P002_P002C003_Turning right&#34;: &#34;car_turns_right&#34;,
+         &#34;P002_P002C003_U-turn&#34;: &#34;car_makes_u_turn&#34;,
+         &#34;P002_P002C004_Picking up&#34;: &#34;car_picks_up_person&#34;,
+         &#34;P002_P002C004_Starting&#34;: &#34;car_starts&#34;,
+         &#34;P002_P002C004_Stopping&#34;: &#34;car_stops&#34;,
+         &#34;P002_P002C005_Dropping off&#34;: &#34;car_drops_off_person&#34;,
+         &#34;P002_P002C005_Starting&#34;: &#34;car_starts&#34;,
+         &#34;P002_P002C005_Stopping&#34;: &#34;car_stops&#34;,
+         &#34;P002_P002C006_Transferring&#34;: &#34;person_transfers_object_to_car&#34;,
+         &#34;P002_P002C007_Reversing&#34;: &#34;car_reverses&#34;,
+         &#34;P003_P003C001_Closing&#34;: &#34;person_closes_motorcycle_door&#34;,  # remove me, meaningless
+         &#34;P003_P003C001_Entering&#34;: &#34;person_enters_motorcycle&#34;,
+         &#34;P003_P003C001_Exiting&#34;: &#34;person_exits_motorcycle&#34;,
+         &#34;P003_P003C001_Opening&#34;: &#34;person_opens_motorcycle_door&#34;,  # remove me, meaningless
+         &#34;P003_P003C002_Closing&#34;: &#34;person_closes_motorcycle_trunk&#34;,
+         &#34;P003_P003C002_Loading&#34;: &#34;person_loads_motorcycle&#34;,
+         &#34;P003_P003C002_Opening&#34;: &#34;person_opens_motorcycle_trunk&#34;,
+         &#34;P003_P003C002_Unloading&#34;: &#34;person_unloads_motorcycle&#34;,
+         &#34;P003_P003C003_Turning left&#34;: &#34;motorcycle_turns_left&#34;,
+         &#34;P003_P003C003_Turning right&#34;: &#34;motorcycle_turns_right&#34;,
+         &#34;P003_P003C003_U-turn&#34;: &#34;motorcycle_makes_u_turn&#34;,
+         &#34;P003_P003C004_Picking up&#34;: &#34;motorcycle_picks_up_person&#34;,
+         &#34;P003_P003C004_Starting&#34;: &#34;motorcycle_starts&#34;,
+         &#34;P003_P003C004_Stopping&#34;: &#34;motorcycle_stops&#34;,
+         &#34;P003_P003C005_Dropping off&#34;: &#34;motorcycle_drops_off_person&#34;,
+         &#34;P003_P003C005_Starting&#34;: &#34;motorcycle_starts&#34;,
+         &#34;P003_P003C005_Stopping&#34;: &#34;motorcycle_stops&#34;,
+         &#34;P003_P003C006_Transferring&#34;: &#34;person_transfers_object_to_motorcycle&#34;,
+         &#34;P003_P003C007_Reversing&#34;: &#34;motorcycle_reverses&#34;,
+         &#34;P004_P004C001_Closing&#34;: &#34;person_closes_facility_door&#34;,
+         &#34;P004_P004C001_Entering&#34;: &#34;person_enters_scene_through_structure&#34;,
+         &#34;P004_P004C001_Exiting&#34;: &#34;person_exits_scene_through_structure&#34;,
+         &#34;P004_P004C001_Opening&#34;: &#34;person_opens_facility_door&#34;,
+         &#34;P004_P004C002_Entering&#34;: &#34;person_enters_scene_through_structure&#34;,
+         &#34;P004_P004C002_Exiting&#34;: &#34;person_exits_scene_through_structure&#34;,
+         &#34;P004_P004C003_Reading&#34;: &#34;person_reads_document&#34;,
+         &#34;P004_P004C003_Sitting&#34;: &#34;person_sits_down&#34;,
+         &#34;P004_P004C003_Standing&#34;: &#34;person_stands_up&#34;,
+         &#34;P004_P004C004_Dropping off&#34;: &#34;person_puts_down_object&#34;,
+         &#34;P004_P004C004_Picking up&#34;: &#34;person_picks_up_object&#34;,
+         &#34;P004_P004C005_Abandoning&#34;: &#34;person_abandons_package&#34;,
+         &#34;P004_P004C005_Sets down&#34;: &#34;person_puts_down_object&#34;,
+         &#34;P004_P004C006_Carrying&#34;: &#34;person_carries_heavy_object&#34;,
+         &#34;P004_P004C007_Talking on&#34;: &#34;person_talks_on_phone&#34;,
+         &#34;P004_P004C007_Texting on&#34;: &#34;person_texts_on_phone&#34;,
+         &#34;P004_P004C008_Sitting&#34;: &#34;person_sits_down&#34;,
+         &#34;P004_P004C008_Standing&#34;: &#34;person_stands_up&#34;,
+         &#34;P004_P004C008_Using laptop&#34;: &#34;person_interacts_with_laptop&#34;,
+         &#34;P004_P004C009_Purchasing&#34;: &#34;person_purchases_from_machine&#34;,
+         &#34;P004_P004C010_Dropping off&#34;: &#34;person_puts_down_object&#34;,
+         &#34;P004_P004C010_Picking up&#34;: &#34;person_picks_up_object&#34;,
+         &#34;P004_P004C010_Riding&#34;: &#34;person_rides_bicycle&#34;,
+         &#34;P005_P005C001_Talking to&#34;: &#34;person_talks_to_person&#34;,
+         &#34;P005_P005C001_Touching hands&#34;: &#34;hand_interacts_with_person_highfive&#34;,
+         &#34;P005_P005C002_Stealing&#34;: &#34;person_steals_object&#34;,
+         &#34;P005_P005C003_Purchasing&#34;: &#34;person_purchases_from_cashier&#34;,  # Remove me
+         &#34;P005_P005C004_Transferring&#34;: &#34;person_transfers_object_to_person&#34;,
+         &#34;P005_P005C005_Hugging&#34;: &#34;person_embraces_person&#34;,
+         &#34;P005_P005C005_Touching hands&#34;: &#34;hand_interacts_with_person_holdhands&#34;,
+         &#34;P005_P005C006_Talking to&#34;: &#34;person_talks_to_person&#34;,
+         &#34;P005_P005C006_Touching hands&#34;: &#34;hand_interacts_with_person_shakehands&#34;,
+    }
+    return d[k] if k is not None else d
+
+
+def piplabel_to_mevalabel():
+    d = {v: v for (k, v) in _v1_applabel_to_piplabel().items()}
+
+    d = {k: &#34;hand_interacts_with_person&#34; if &#34;hand&#34; in v else v for (k, v) in d.items()}
+    d = {
+        k: v.replace(&#34;car&#34;, &#34;vehicle&#34;)
+        if ((&#34;_car&#34; in v or &#34;car_&#34; in v) and (&#34;carries&#34; not in v))
+        else v
+        for (k, v) in d.items()
+    }
+    d = {
+        k: v.replace(&#34;motorcycle&#34;, &#34;vehicle&#34;) if &#34;motorcycle&#34; in v else v
+        for (k, v) in d.items()
+    }
+    d = {
+        k: v.replace(&#34;vehicle_trunk&#34;, &#34;trunk&#34;) if &#34;vehicle_trunk&#34; in v else v
+        for (k, v) in d.items()
+    }
+    d[&#34;person_transfers_object_to_car&#34;] = &#34;person_transfers_object&#34;
+    d[&#34;person_transfers_object_to_motorcycle&#34;] = &#34;person_transfers_object&#34;
+    d[&#34;person_transfers_object_to_person&#34;] = &#34;person_transfers_object&#34;
+    d[&#34;person_purchases_from_machine&#34;] = &#34;person_purchases&#34;
+    d[&#34;person_purchases_from_cashier&#34;] = &#34;person_purchases&#34;
+    d = {
+        k: v
+        for (k, v) in d.items()
+        if k
+        not in set([&#34;person_closes_motorcycle_door&#34;, &#34;person_opens_motorcycle_door&#34;])
+    }
+    return d
+
+
+def mevalabel_to_index():
+
+    return {
+        &#34;hand_interacts_with_person&#34;: 0,
+        &#34;person_abandons_package&#34;: 1,
+        &#34;person_carries_heavy_object&#34;: 2,
+        &#34;person_closes_facility_door&#34;: 3,
+        &#34;person_closes_trunk&#34;: 4,
+        &#34;person_closes_vehicle_door&#34;: 5,
+        &#34;person_embraces_person&#34;: 6,
+        &#34;person_enters_scene_through_structure&#34;: 7,
+        &#34;person_enters_vehicle&#34;: 8,
+        &#34;person_exits_scene_through_structure&#34;: 9,
+        &#34;person_exits_vehicle&#34;: 10,
+        &#34;person_interacts_with_laptop&#34;: 11,
+        &#34;person_loads_vehicle&#34;: 12,
+        &#34;person_opens_facility_door&#34;: 13,
+        &#34;person_opens_trunk&#34;: 14,
+        &#34;person_opens_vehicle_door&#34;: 15,
+        &#34;person_picks_up_object&#34;: 16,
+        &#34;person_purchases&#34;: 17,
+        &#34;person_puts_down_object&#34;: 18,
+        &#34;person_reads_document&#34;: 19,
+        &#34;person_rides_bicycle&#34;: 20,
+        &#34;person_sits_down&#34;: 21,
+        &#34;person_stands_up&#34;: 22,
+        &#34;person_steals_object&#34;: 23,
+        &#34;person_talks_on_phone&#34;: 24,
+        &#34;person_talks_to_person&#34;: 25,
+        &#34;person_texts_on_phone&#34;: 26,
+        &#34;person_transfers_object&#34;: 27,
+        &#34;person_unloads_vehicle&#34;: 28,
+        &#34;vehicle_drops_off_person&#34;: 29,
+        &#34;vehicle_makes_u_turn&#34;: 30,
+        &#34;vehicle_picks_up_person&#34;: 31,
+        &#34;vehicle_reverses&#34;: 32,
+        &#34;vehicle_starts&#34;: 33,
+        &#34;vehicle_stops&#34;: 34,
+        &#34;vehicle_turns_left&#34;: 35,
+        &#34;vehicle_turns_right&#34;: 36,
+    }
+
+
+def piplabel_to_index():
+    return {
+        &#34;car_drops_off_person&#34;: 0,
+        &#34;car_makes_u_turn&#34;: 1,
+        &#34;car_picks_up_person&#34;: 2,
+        &#34;car_reverses&#34;: 3,
+        &#34;car_starts&#34;: 4,
+        &#34;car_stops&#34;: 5,
+        &#34;car_turns_left&#34;: 6,
+        &#34;car_turns_right&#34;: 7,
+        &#34;hand_interacts_with_person_highfive&#34;: 8,
+        &#34;hand_interacts_with_person_holdhands&#34;: 9,
+        &#34;hand_interacts_with_person_shakehands&#34;: 10,
+        &#34;motorcycle_drops_off_person&#34;: 11,
+        &#34;motorcycle_makes_u_turn&#34;: 12,
+        &#34;motorcycle_picks_up_person&#34;: 13,
+        &#34;motorcycle_reverses&#34;: 14,
+        &#34;motorcycle_starts&#34;: 15,
+        &#34;motorcycle_stops&#34;: 16,
+        &#34;motorcycle_turns_left&#34;: 17,
+        &#34;motorcycle_turns_right&#34;: 18,
+        &#34;person_abandons_package&#34;: 19,
+        &#34;person_carries_heavy_object&#34;: 20,
+        &#34;person_closes_car_door&#34;: 21,
+        &#34;person_closes_car_trunk&#34;: 22,
+        &#34;person_closes_facility_door&#34;: 23,
+        &#34;person_closes_motorcycle_trunk&#34;: 24,
+        &#34;person_embraces_person&#34;: 25,
+        &#34;person_enters_car&#34;: 26,
+        &#34;person_enters_scene_through_structure&#34;: 27,
+        &#34;person_exits_car&#34;: 28,
+        &#34;person_exits_scene_through_structure&#34;: 29,
+        &#34;person_interacts_with_laptop&#34;: 30,
+        &#34;person_loads_car&#34;: 31,
+        &#34;person_loads_motorcycle&#34;: 32,
+        &#34;person_opens_car_door&#34;: 33,
+        &#34;person_opens_car_trunk&#34;: 34,
+        &#34;person_opens_facility_door&#34;: 35,
+        &#34;person_opens_motorcycle_trunk&#34;: 36,
+        &#34;person_picks_up_object&#34;: 37,
+        &#34;person_purchases_from_machine&#34;: 38,
+        &#34;person_puts_down_object&#34;: 39,
+        &#34;person_reads_document&#34;: 40,
+        &#34;person_rides_bicycle&#34;: 41,
+        &#34;person_sits_down&#34;: 42,
+        &#34;person_stands_up&#34;: 43,
+        &#34;person_steals_object&#34;: 44,
+        &#34;person_talks_on_phone&#34;: 45,
+        &#34;person_talks_to_person&#34;: 46,
+        &#34;person_texts_on_phone&#34;: 47,
+        &#34;person_transfers_object_to_car&#34;: 48,
+        &#34;person_transfers_object_to_motorcycle&#34;: 49,
+        &#34;person_transfers_object_to_person&#34;: 50,
+        &#34;person_unloads_car&#34;: 51,
+        &#34;person_unloads_motorcycle&#34;: 52,
+    }
+
+
+
+def pip_250k_powerset():
+    return {(&#39;car_drops_off_person&#39;,): 0,
+            (&#39;car_drops_off_person&#39;, &#39;car_starts&#39;): 1,
+            (&#39;car_drops_off_person&#39;, &#39;car_starts&#39;, &#39;car_stops&#39;): 2,
+            (&#39;car_drops_off_person&#39;, &#39;car_stops&#39;): 3,
+            (&#39;car_makes_u_turn&#39;,): 4,
+            (&#39;car_makes_u_turn&#39;, &#39;car_turns_left&#39;): 5,
+            (&#39;car_makes_u_turn&#39;, &#39;car_turns_left&#39;, &#39;car_turns_right&#39;): 6,
+            (&#39;car_makes_u_turn&#39;, &#39;car_turns_right&#39;): 7,
+            (&#39;car_picks_up_person&#39;,): 8,
+            (&#39;car_picks_up_person&#39;, &#39;car_starts&#39;): 9,
+            (&#39;car_picks_up_person&#39;, &#39;car_starts&#39;, &#39;car_stops&#39;): 10,
+            (&#39;car_picks_up_person&#39;, &#39;car_stops&#39;): 11,
+            (&#39;car_reverses&#39;,): 12,
+            (&#39;car_reverses&#39;, &#39;car_turns_left&#39;): 13,
+            (&#39;car_reverses&#39;, &#39;car_turns_right&#39;): 14,
+            (&#39;car_starts&#39;,): 15,
+            (&#39;car_starts&#39;, &#39;car_stops&#39;): 16,
+            (&#39;car_starts&#39;, &#39;car_turns_left&#39;): 17,
+            (&#39;car_starts&#39;, &#39;car_turns_right&#39;): 18,
+            (&#39;car_stops&#39;,): 19,
+            (&#39;car_stops&#39;, &#39;car_turns_left&#39;): 20,
+            (&#39;car_stops&#39;, &#39;car_turns_right&#39;): 21,
+            (&#39;car_turns_left&#39;,): 22,
+            (&#39;car_turns_left&#39;, &#39;car_turns_right&#39;): 23,
+            (&#39;car_turns_right&#39;,): 24,
+            (&#39;hand_interacts_with_person_highfive&#39;,): 25,
+            (&#39;hand_interacts_with_person_highfive&#39;, &#39;person_talks_to_person&#39;): 26,
+            (&#39;motorcycle_drops_off_person&#39;,): 27,
+            (&#39;motorcycle_drops_off_person&#39;, &#39;motorcycle_starts&#39;): 28,
+            (&#39;motorcycle_drops_off_person&#39;, &#39;motorcycle_starts&#39;, &#39;motorcycle_stops&#39;): 29,
+            (&#39;motorcycle_drops_off_person&#39;, &#39;motorcycle_stops&#39;): 30,
+            (&#39;motorcycle_makes_u_turn&#39;,): 31,
+            (&#39;motorcycle_makes_u_turn&#39;, &#39;motorcycle_turns_left&#39;): 32,
+            (&#39;motorcycle_makes_u_turn&#39;,
+             &#39;motorcycle_turns_left&#39;,
+             &#39;motorcycle_turns_right&#39;): 33,
+            (&#39;motorcycle_makes_u_turn&#39;, &#39;motorcycle_turns_right&#39;): 34,
+            (&#39;motorcycle_picks_up_person&#39;,): 35,
+            (&#39;motorcycle_picks_up_person&#39;, &#39;motorcycle_starts&#39;): 36,
+            (&#39;motorcycle_picks_up_person&#39;, &#39;motorcycle_starts&#39;, &#39;motorcycle_stops&#39;): 37,
+            (&#39;motorcycle_picks_up_person&#39;, &#39;motorcycle_stops&#39;): 38,
+            (&#39;motorcycle_reverses&#39;,): 39,
+            (&#39;motorcycle_starts&#39;,): 40,
+            (&#39;motorcycle_starts&#39;, &#39;motorcycle_stops&#39;): 41,
+            (&#39;motorcycle_stops&#39;,): 42,
+            (&#39;motorcycle_turns_left&#39;,): 43,
+            (&#39;motorcycle_turns_left&#39;, &#39;motorcycle_turns_right&#39;): 44,
+            (&#39;motorcycle_turns_right&#39;,): 45,
+            (&#39;person&#39;,): 46,
+            (&#39;person_abandons_object&#39;,): 47,
+            (&#39;person_abandons_object&#39;, &#39;person_puts_down_object_on_floor&#39;): 48,
+            (&#39;person_carries_heavy_object&#39;,): 49,
+            (&#39;person_closes_car_door&#39;,): 50,
+            (&#39;person_closes_car_door&#39;, &#39;person_enters_car&#39;): 51,
+            (&#39;person_closes_car_door&#39;,
+             &#39;person_enters_car&#39;,
+             &#39;person_exits_car&#39;,
+             &#39;person_opens_car_door&#39;): 52,
+            (&#39;person_closes_car_door&#39;, &#39;person_enters_car&#39;, &#39;person_opens_car_door&#39;): 53,
+            (&#39;person_closes_car_door&#39;, &#39;person_exits_car&#39;): 54,
+            (&#39;person_closes_car_door&#39;, &#39;person_exits_car&#39;, &#39;person_opens_car_door&#39;): 55,
+            (&#39;person_closes_car_door&#39;, &#39;person_loads_car&#39;): 56,
+            (&#39;person_closes_car_door&#39;, &#39;person_opens_car_door&#39;): 57,
+            (&#39;person_closes_car_door&#39;, &#39;person_unloads_car&#39;): 58,
+            (&#39;person_closes_car_trunk&#39;,): 59,
+            (&#39;person_closes_car_trunk&#39;, &#39;person_loads_car&#39;): 60,
+            (&#39;person_closes_car_trunk&#39;, &#39;person_loads_car&#39;, &#39;person_opens_car_trunk&#39;): 61,
+            (&#39;person_closes_car_trunk&#39;, &#39;person_opens_car_trunk&#39;): 62,
+            (&#39;person_closes_car_trunk&#39;,
+             &#39;person_opens_car_trunk&#39;,
+             &#39;person_unloads_car&#39;): 63,
+            (&#39;person_closes_car_trunk&#39;, &#39;person_unloads_car&#39;): 64,
+            (&#39;person_closes_facility_door&#39;,): 65,
+            (&#39;person_closes_facility_door&#39;, &#39;person_enters_scene_through_structure&#39;): 66,
+            (&#39;person_closes_facility_door&#39;,
+             &#39;person_enters_scene_through_structure&#39;,
+             &#39;person_exits_scene_through_structure&#39;,
+             &#39;person_opens_facility_door&#39;): 67,
+            (&#39;person_closes_facility_door&#39;,
+             &#39;person_enters_scene_through_structure&#39;,
+             &#39;person_opens_facility_door&#39;): 68,
+            (&#39;person_closes_facility_door&#39;,
+             &#39;person_enters_scene_through_structure&#39;,
+             &#39;person_opens_facility_door&#39;,
+             &#39;person_talks_on_phone&#39;): 69,
+            (&#39;person_closes_facility_door&#39;,
+             &#39;person_enters_scene_through_structure&#39;,
+             &#39;person_talks_on_phone&#39;): 70,
+            (&#39;person_closes_facility_door&#39;, &#39;person_exits_scene_through_structure&#39;): 71,
+            (&#39;person_closes_facility_door&#39;,
+             &#39;person_exits_scene_through_structure&#39;,
+             &#39;person_opens_facility_door&#39;): 72,
+            (&#39;person_closes_facility_door&#39;,
+             &#39;person_exits_scene_through_structure&#39;,
+             &#39;person_opens_facility_door&#39;,
+             &#39;person_talks_on_phone&#39;): 73,
+            (&#39;person_closes_facility_door&#39;,
+             &#39;person_exits_scene_through_structure&#39;,
+             &#39;person_talks_on_phone&#39;): 74,
+            (&#39;person_closes_facility_door&#39;, &#39;person_opens_facility_door&#39;): 75,
+            (&#39;person_closes_facility_door&#39;,
+             &#39;person_opens_facility_door&#39;,
+             &#39;person_talks_on_phone&#39;): 76,
+            (&#39;person_closes_facility_door&#39;, &#39;person_talks_on_phone&#39;): 77,
+            (&#39;person_closes_motorcycle_trunk&#39;,): 78,
+            (&#39;person_closes_motorcycle_trunk&#39;, &#39;person_loads_motorcycle&#39;): 79,
+            (&#39;person_closes_motorcycle_trunk&#39;,
+             &#39;person_loads_motorcycle&#39;,
+             &#39;person_opens_motorcycle_trunk&#39;): 80,
+            (&#39;person_closes_motorcycle_trunk&#39;, &#39;person_opens_motorcycle_trunk&#39;): 81,
+            (&#39;person_closes_motorcycle_trunk&#39;,
+             &#39;person_opens_motorcycle_trunk&#39;,
+             &#39;person_unloads_motorcycle&#39;): 82,
+            (&#39;person_closes_motorcycle_trunk&#39;, &#39;person_unloads_motorcycle&#39;): 83,
+            (&#39;person_embraces_person&#39;,): 84,
+            (&#39;person_embraces_person&#39;, &#39;person_holds_hand&#39;): 85,
+            (&#39;person_embraces_person&#39;, &#39;person_talks_to_person&#39;): 86,
+            (&#39;person_enters_car&#39;,): 87,
+            (&#39;person_enters_car&#39;, &#39;person_opens_car_door&#39;): 88,
+            (&#39;person_enters_scene_through_structure&#39;,): 89,
+            (&#39;person_enters_scene_through_structure&#39;,
+             &#39;person_exits_scene_through_structure&#39;): 90,
+            (&#39;person_enters_scene_through_structure&#39;,
+             &#39;person_exits_scene_through_structure&#39;,
+             &#39;person_opens_facility_door&#39;): 91,
+            (&#39;person_enters_scene_through_structure&#39;, &#39;person_opens_facility_door&#39;): 92,
+            (&#39;person_enters_scene_through_structure&#39;, &#39;person_talks_on_phone&#39;): 93,
+            (&#39;person_exits_car&#39;,): 94,
+            (&#39;person_exits_car&#39;, &#39;person_opens_car_door&#39;): 95,
+            (&#39;person_exits_scene_through_structure&#39;,): 96,
+            (&#39;person_exits_scene_through_structure&#39;, &#39;person_opens_facility_door&#39;): 97,
+            (&#39;person_exits_scene_through_structure&#39;, &#39;person_talks_on_phone&#39;): 98,
+            (&#39;person_holds_hand&#39;,): 99,
+            (&#39;person_holds_hand&#39;, &#39;person_talks_to_person&#39;): 100,
+            (&#39;person_interacts_with_laptop&#39;,): 101,
+            (&#39;person_interacts_with_laptop&#39;, &#39;person_sits_down&#39;): 102,
+            (&#39;person_interacts_with_laptop&#39;, &#39;person_stands_up&#39;): 103,
+            (&#39;person_loads_car&#39;,): 104,
+            (&#39;person_loads_car&#39;, &#39;person_opens_car_trunk&#39;): 105,
+            (&#39;person_loads_motorcycle&#39;,): 106,
+            (&#39;person_loads_motorcycle&#39;, &#39;person_opens_motorcycle_trunk&#39;): 107,
+            (&#39;person_opens_car_door&#39;,): 108,
+            (&#39;person_opens_car_trunk&#39;,): 109,
+            (&#39;person_opens_facility_door&#39;,): 110,
+            (&#39;person_opens_facility_door&#39;, &#39;person_talks_on_phone&#39;): 111,
+            (&#39;person_opens_motorcycle_trunk&#39;,): 112,
+            (&#39;person_opens_motorcycle_trunk&#39;, &#39;person_unloads_motorcycle&#39;): 113,
+            (&#39;person_picks_up_object_from_floor&#39;,): 114,
+            (&#39;person_picks_up_object_from_shelf&#39;,): 115,
+            (&#39;person_picks_up_object_from_table&#39;,): 116,
+            (&#39;person_picks_up_object_from_table&#39;,
+             &#39;person_puts_down_object_on_table&#39;,
+             &#39;person_reads_document&#39;): 117,
+            (&#39;person_picks_up_object_from_table&#39;, &#39;person_reads_document&#39;): 118,
+            (&#39;person_purchases_from_cashier&#39;,): 119,
+            (&#39;person_purchases_from_machine&#39;,): 120,
+            (&#39;person_puts_down_object_on_floor&#39;,): 121,
+            (&#39;person_puts_down_object_on_shelf&#39;,): 122,
+            (&#39;person_puts_down_object_on_table&#39;,): 123,
+            (&#39;person_puts_down_object_on_table&#39;, &#39;person_reads_document&#39;): 124,
+            (&#39;person_reads_document&#39;,): 125,
+            (&#39;person_reads_document&#39;, &#39;person_sits_down&#39;): 126,
+            (&#39;person_reads_document&#39;, &#39;person_sits_down&#39;, &#39;person_stands_up&#39;): 127,
+            (&#39;person_reads_document&#39;, &#39;person_stands_up&#39;): 128,
+            (&#39;person_rides_bicycle&#39;,): 129,
+            (&#39;person_shakes_hand&#39;,): 130,
+            (&#39;person_shakes_hand&#39;, &#39;person_talks_to_person&#39;): 131,
+            (&#39;person_sits_down&#39;,): 132,
+            (&#39;person_stands_up&#39;,): 133,
+            (&#39;person_steals_object_from_person&#39;,): 134,
+            (&#39;person_talks_on_phone&#39;,): 135,
+            (&#39;person_talks_to_person&#39;,): 136,
+            (&#39;person_texts_on_phone&#39;,): 137,
+            (&#39;person_transfers_object_to_car&#39;,): 138,
+            (&#39;person_transfers_object_to_motorcycle&#39;,): 139,
+            (&#39;person_transfers_object_to_person&#39;,): 140,
+            (&#39;person_unloads_car&#39;,): 141,
+            (&#39;person_unloads_motorcycle&#39;,): 142}
+
+
+
+
+pip_to_meva = {&#39;person_enters_motorcycle&#39;: &#39;person_enters_vehicle&#39;,
+               &#39;person_exits_motorcycle&#39;: &#39;person_exits_vehicle&#39;,
+               &#39;person_closes_motorcycle_trunk&#39;: &#39;person_closes_trunk&#39;,
+               &#39;person_loads_motorcycle&#39;: &#39;person_loads_vehicle&#39;,
+               &#39;person_opens_motorcycle_trunk&#39;: &#39;person_opens_trunk&#39;,
+               &#39;person_unloads_motorcycle&#39;: &#39;person_unloads_vehicle&#39;,
+               &#39;motorcycle_turns_left&#39;: &#39;vehicle_turns_left&#39;,
+               &#39;motorcycle_turns_right&#39;: &#39;vehicle_turns_right&#39;,
+               &#39;motorcycle_makes_u_turn&#39;: &#39;vehicle_makes_u_turn&#39;,
+               &#39;motorcycle_picks_up_person&#39;: &#39;vehicle_picks_up_person&#39;,
+               &#39;motorcycle_starts&#39;: &#39;vehicle_starts&#39;,
+               &#39;motorcycle_stops&#39;: &#39;vehicle_stops&#39;,
+               &#39;motorcycle_drops_off_person&#39;: &#39;vehicle_drops_off_person&#39;,
+               &#39;person_transfers_object_to_motorcycle&#39;: &#39;person_transfers_object&#39;,
+               &#39;motorcycle_reverses&#39;: &#39;vehicle_reverses&#39;,
+               &#39;person_closes_car_door&#39;: &#39;person_closes_vehicle_door&#39;,
+               &#39;person_enters_car&#39;: &#39;person_enters_vehicle&#39;,
+               &#39;person_exits_car&#39;: &#39;person_exits_vehicle&#39;,
+               &#39;person_opens_car_door&#39;: &#39;person_opens_vehicle_door&#39;,
+               &#39;person_closes_car_trunk&#39;: &#39;person_closes_trunk&#39;,
+               &#39;person_loads_car&#39;: &#39;person_loads_vehicle&#39;,
+               &#39;person_opens_car_trunk&#39;: &#39;person_opens_trunk&#39;,
+               &#39;person_unloads_car&#39;: &#39;person_unloads_vehicle&#39;,
+               &#39;car_turns_left&#39;: &#39;vehicle_turns_left&#39;,
+               &#39;car_turns_right&#39;: &#39;vehicle_turns_right&#39;,
+               &#39;car_makes_u_turn&#39;: &#39;vehicle_makes_u_turn&#39;,
+               &#39;car_picks_up_person&#39;: &#39;vehicle_picks_up_person&#39;,
+               &#39;car_starts&#39;: &#39;vehicle_starts&#39;,
+               &#39;car_stops&#39;: &#39;vehicle_stops&#39;,
+               &#39;car_drops_off_person&#39;: &#39;vehicle_drops_off_person&#39;,
+               &#39;person_transfers_object_to_car&#39;: &#39;person_transfers_object&#39;,
+               &#39;car_reverses&#39;: &#39;vehicle_reverses&#39;,
+               &#39;person_closes_facility_door&#39;: &#39;person_closes_facility_door&#39;,
+               &#39;person_enters_scene_through_structure&#39;: &#39;person_enters_scene_through_structure&#39;,
+               &#39;person_comes_into_scene_through_structure&#39;: &#39;person_enters_scene_through_structure&#39;,
+               &#39;person_exits_scene_through_structure&#39;: &#39;person_exits_scene_through_structure&#39;,
+               &#39;person_leaves_scene_through_structure&#39;: &#39;person_exits_scene_through_structure&#39;,
+               &#39;person_opens_facility_door&#39;: &#39;person_opens_facility_door&#39;,
+               &#39;person_reads_document&#39;: &#39;person_reads_document&#39;,
+               &#39;person_sits_down&#39;: &#39;person_sits_down&#39;,
+               &#39;person_stands_up&#39;: &#39;person_stands_up&#39;,
+               &#39;person_picks_up_object_from_table&#39;: &#39;person_picks_up_object&#39;,
+               &#39;person_picks_up_object_from_floor&#39;: &#39;person_picks_up_object&#39;,
+               &#39;person_picks_up_object_from_shelf&#39;: &#39;person_picks_up_object&#39;,
+               &#39;person_puts_down_object_on_table&#39;: &#39;person_puts_down_object&#39;,
+               &#39;person_puts_down_object_on_floor&#39;: &#39;person_puts_down_object&#39;,
+               &#39;person_puts_down_object_on_shelf&#39;: &#39;person_puts_down_object&#39;,
+               &#39;person_puts_down_object&#39;: &#39;person_puts_down_object&#39;,
+               &#39;person_picks_up_object&#39;: &#39;person_picks_up_object&#39;,               
+               &#39;person_abandons_object&#39;: &#39;person_abandons_package&#39;,
+               &#39;person_abandons_bag&#39;: &#39;person_abandons_package&#39;,               
+               &#39;person_abandons_package&#39;: &#39;person_abandons_package&#39;,
+               &#39;person_carries_heavy_object&#39;: &#39;person_carries_heavy_object&#39;,
+               &#39;person_talks_on_phone&#39;: &#39;person_talks_on_phone&#39;,
+               &#39;person_texts_on_phone&#39;: &#39;person_texts_on_phone&#39;,
+               &#39;person_interacts_with_laptop&#39;: &#39;person_interacts_with_laptop&#39;,
+               &#39;person_purchases_from_machine&#39;: &#39;person_purchases&#39;,
+               &#39;person_purchases_from_cashier&#39;: &#39;person_purchases&#39;,               
+               &#39;person_rides_bicycle&#39;: &#39;person_rides_bicycle&#39;,
+               &#39;person_talks_to_person&#39;: &#39;person_talks_to_person&#39;,
+               &#39;hand_interacts_with_person_highfive&#39;: &#39;hand_interacts_with_person&#39;,
+               &#39;person_steals_object&#39;: &#39;person_steals_object&#39;,
+               &#39;person_steals_object_from_person&#39;: &#39;person_steals_object&#39;,
+               &#39;person_transfers_object_to_person&#39;: &#39;person_transfers_object&#39;,
+               &#39;person_embraces_person&#39;: &#39;person_embraces_person&#39;,
+               &#39;hand_interacts_with_person_holdhands&#39;: &#39;hand_interacts_with_person&#39;,
+               &#39;hand_interacts_with_person_shakehands&#39;: &#39;hand_interacts_with_person&#39;,
+               &#39;person_shakes_hand&#39;: &#39;hand_interacts_with_person&#39;,
+               &#39;person_holds_hand&#39;: &#39;hand_interacts_with_person&#39;}
+    
+
+pip_to_shortlabel = {&#39;car_drops_off_person&#39;: &#39;drops-off person&#39;,
+                     &#39;car_makes_u_turn&#39;: &#39;u-turn&#39;,
+                     &#39;car_picks_up_person&#39;: &#39;picks-up person&#39;,
+                     &#39;car_reverses&#39;: &#39;reverses&#39;,
+                     &#39;car_starts&#39;: &#39;starts&#39;,
+                     &#39;car_stops&#39;: &#39;stops&#39;,
+                     &#39;car_turns_left&#39;: &#39;turns left&#39;,
+                     &#39;car_turns_right&#39;: &#39;turns right&#39;,
+                     &#39;hand_interacts_with_person_highfive&#39;: &#39;high five&#39;,
+                     &#39;hand_interacts_with_person_holdhands&#39;: &#39;hold hands&#39;,
+                     &#39;hand_interacts_with_person_shakehands&#39;: &#39;shake hands&#39;,
+                     &#39;motorcycle_drops_off_person&#39;: &#39;drops-off person&#39;,
+                     &#39;motorcycle_makes_u_turn&#39;: &#39;u-turn&#39;,
+                     &#39;motorcycle_picks_up_person&#39;: &#39;picks-up person&#39;,
+                     &#39;motorcycle_reverses&#39;: &#39;reverses&#39;,
+                     &#39;motorcycle_starts&#39;: &#39;starts&#39;,
+                     &#39;motorcycle_stops&#39;: &#39;stops&#39;,
+                     &#39;motorcycle_turns_left&#39;: &#39;turns left&#39;,
+                     &#39;motorcycle_turns_right&#39;: &#39;turns right&#39;,
+                     &#39;person_abandons_object&#39;: &#39;abandons&#39;,                     
+                     &#39;person_abandons_bag&#39;: &#39;abandons&#39;,
+                     &#39;person_abandons_package&#39;: &#39;abandons&#39;,
+                     &#39;person_carries_heavy_object&#39;: &#39;carries&#39;,
+                     &#39;person_closes_car_door&#39;: &#39;closes car door&#39;,
+                     &#39;person_closes_car_trunk&#39;: &#39;closes trunk&#39;,
+                     &#39;person_closes_facility_door&#39;: &#39;closes door&#39;,
+                     &#39;person_closes_motorcycle_trunk&#39;: &#39;closes trunk&#39;,
+                     &#39;person_comes_into_scene_through_structure&#39;: &#39;enters scene&#39;,
+                     &#39;person_embraces_person&#39;: &#39;hugs&#39;,
+                     &#39;person_enters_car&#39;: &#39;enters car&#39;,
+                     &#39;person_enters_motorcycle&#39;: &#39;enters motorcycle&#39;,
+                     &#39;person_enters_scene_through_structure&#39;: &#39;enters scene&#39;,
+                     &#39;person_exits_car&#39;: &#39;exits car&#39;,
+                     &#39;person_exits_motorcycle&#39;: &#39;exits motorcycle&#39;,
+                     &#39;person_exits_scene_through_structure&#39;: &#39;exits scene&#39;,
+                     &#39;person_holds_hand&#39;: &#39;hold hands&#39;,
+                     &#39;person_interacts_with_laptop&#39;: &#39;uses laptop&#39;,
+                     &#39;person_leaves_scene_through_structure&#39;: &#39;exits scene&#39;,
+                     &#39;person_loads_car&#39;: &#39;loads&#39;,
+                     &#39;person_loads_motorcycle&#39;: &#39;loads&#39;,
+                     &#39;person_opens_car_door&#39;: &#39;opens car door&#39;,
+                     &#39;person_opens_car_trunk&#39;: &#39;opens trunk&#39;,
+                     &#39;person_opens_facility_door&#39;: &#39;opens door&#39;,
+                     &#39;person_opens_motorcycle_trunk&#39;: &#39;opens trunk&#39;,
+                     &#39;person_picks_up_object&#39;: &#39;picks up&#39;,
+                     &#39;person_picks_up_object_from_floor&#39;: &#39;picks up&#39;,
+                     &#39;person_picks_up_object_from_shelf&#39;: &#39;picks up&#39;,
+                     &#39;person_picks_up_object_from_table&#39;: &#39;picks up&#39;,
+                     &#39;person_purchases_from_cashier&#39;: &#39;purchases (cashier)&#39;,
+                     &#39;person_purchases_from_machine&#39;: &#39;purchases (machine)&#39;,
+                     &#39;person_puts_down_object&#39;: &#39;puts down&#39;,
+                     &#39;person_puts_down_object_on_floor&#39;: &#39;puts down&#39;,
+                     &#39;person_puts_down_object_on_shelf&#39;: &#39;puts down&#39;,
+                     &#39;person_puts_down_object_on_table&#39;: &#39;puts down&#39;,
+                     &#39;person_reads_document&#39;: &#39;reads&#39;,
+                     &#39;person_rides_bicycle&#39;: &#39;rides&#39;,
+                     &#39;person_shakes_hand&#39;: &#39;shake hands&#39;,
+                     &#39;person_sits_down&#39;: &#39;sits&#39;,
+                     &#39;person_stands_up&#39;: &#39;stands&#39;,
+                     &#39;person_steals_object&#39;: &#39;steals&#39;,
+                     &#39;person_steals_object_from_person&#39;: &#39;steals&#39;,
+                     &#39;person_talks_on_phone&#39;: &#39;talks on phone&#39;,
+                     &#39;person_talks_to_person&#39;: &#39;talks to&#39;,
+                     &#39;person_texts_on_phone&#39;: &#39;texts&#39;,
+                     &#39;person_transfers_object_to_car&#39;: &#39;transfers&#39;,
+                     &#39;person_transfers_object_to_motorcycle&#39;: &#39;transfers&#39;,
+                     &#39;person_transfers_object_to_person&#39;: &#39;transfers&#39;,
+                     &#39;person_unloads_car&#39;: &#39;unloads&#39;,
+                     &#39;person_unloads_motorcycle&#39;: &#39;unloads&#39;,
+                     &#39;person_walks&#39;: &#39;walks&#39;,
+                     &#39;person&#39;:&#39;person&#39;,
+                     &#39;vehicle&#39;:&#39;vehicle&#39;,
+                     &#39;car_moves&#39;:&#39;moves&#39;}
+
+
+pip_plus_meva_to_meva = {k:v for (k,v) in list(pip_to_meva.items()) + [(k,k) for k in set(list(pip_to_meva.values()))]}</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="pycollector.label.mevalabel_to_index"><code class="name flex">
+<span>def <span class="ident">mevalabel_to_index</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/label.py#L114-L154" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def mevalabel_to_index():
+
+    return {
+        &#34;hand_interacts_with_person&#34;: 0,
+        &#34;person_abandons_package&#34;: 1,
+        &#34;person_carries_heavy_object&#34;: 2,
+        &#34;person_closes_facility_door&#34;: 3,
+        &#34;person_closes_trunk&#34;: 4,
+        &#34;person_closes_vehicle_door&#34;: 5,
+        &#34;person_embraces_person&#34;: 6,
+        &#34;person_enters_scene_through_structure&#34;: 7,
+        &#34;person_enters_vehicle&#34;: 8,
+        &#34;person_exits_scene_through_structure&#34;: 9,
+        &#34;person_exits_vehicle&#34;: 10,
+        &#34;person_interacts_with_laptop&#34;: 11,
+        &#34;person_loads_vehicle&#34;: 12,
+        &#34;person_opens_facility_door&#34;: 13,
+        &#34;person_opens_trunk&#34;: 14,
+        &#34;person_opens_vehicle_door&#34;: 15,
+        &#34;person_picks_up_object&#34;: 16,
+        &#34;person_purchases&#34;: 17,
+        &#34;person_puts_down_object&#34;: 18,
+        &#34;person_reads_document&#34;: 19,
+        &#34;person_rides_bicycle&#34;: 20,
+        &#34;person_sits_down&#34;: 21,
+        &#34;person_stands_up&#34;: 22,
+        &#34;person_steals_object&#34;: 23,
+        &#34;person_talks_on_phone&#34;: 24,
+        &#34;person_talks_to_person&#34;: 25,
+        &#34;person_texts_on_phone&#34;: 26,
+        &#34;person_transfers_object&#34;: 27,
+        &#34;person_unloads_vehicle&#34;: 28,
+        &#34;vehicle_drops_off_person&#34;: 29,
+        &#34;vehicle_makes_u_turn&#34;: 30,
+        &#34;vehicle_picks_up_person&#34;: 31,
+        &#34;vehicle_reverses&#34;: 32,
+        &#34;vehicle_starts&#34;: 33,
+        &#34;vehicle_stops&#34;: 34,
+        &#34;vehicle_turns_left&#34;: 35,
+        &#34;vehicle_turns_right&#34;: 36,
+    }</code></pre>
+</details>
+</dd>
+<dt id="pycollector.label.pip_250k_powerset"><code class="name flex">
+<span>def <span class="ident">pip_250k_powerset</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/label.py#L216-L394" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def pip_250k_powerset():
+    return {(&#39;car_drops_off_person&#39;,): 0,
+            (&#39;car_drops_off_person&#39;, &#39;car_starts&#39;): 1,
+            (&#39;car_drops_off_person&#39;, &#39;car_starts&#39;, &#39;car_stops&#39;): 2,
+            (&#39;car_drops_off_person&#39;, &#39;car_stops&#39;): 3,
+            (&#39;car_makes_u_turn&#39;,): 4,
+            (&#39;car_makes_u_turn&#39;, &#39;car_turns_left&#39;): 5,
+            (&#39;car_makes_u_turn&#39;, &#39;car_turns_left&#39;, &#39;car_turns_right&#39;): 6,
+            (&#39;car_makes_u_turn&#39;, &#39;car_turns_right&#39;): 7,
+            (&#39;car_picks_up_person&#39;,): 8,
+            (&#39;car_picks_up_person&#39;, &#39;car_starts&#39;): 9,
+            (&#39;car_picks_up_person&#39;, &#39;car_starts&#39;, &#39;car_stops&#39;): 10,
+            (&#39;car_picks_up_person&#39;, &#39;car_stops&#39;): 11,
+            (&#39;car_reverses&#39;,): 12,
+            (&#39;car_reverses&#39;, &#39;car_turns_left&#39;): 13,
+            (&#39;car_reverses&#39;, &#39;car_turns_right&#39;): 14,
+            (&#39;car_starts&#39;,): 15,
+            (&#39;car_starts&#39;, &#39;car_stops&#39;): 16,
+            (&#39;car_starts&#39;, &#39;car_turns_left&#39;): 17,
+            (&#39;car_starts&#39;, &#39;car_turns_right&#39;): 18,
+            (&#39;car_stops&#39;,): 19,
+            (&#39;car_stops&#39;, &#39;car_turns_left&#39;): 20,
+            (&#39;car_stops&#39;, &#39;car_turns_right&#39;): 21,
+            (&#39;car_turns_left&#39;,): 22,
+            (&#39;car_turns_left&#39;, &#39;car_turns_right&#39;): 23,
+            (&#39;car_turns_right&#39;,): 24,
+            (&#39;hand_interacts_with_person_highfive&#39;,): 25,
+            (&#39;hand_interacts_with_person_highfive&#39;, &#39;person_talks_to_person&#39;): 26,
+            (&#39;motorcycle_drops_off_person&#39;,): 27,
+            (&#39;motorcycle_drops_off_person&#39;, &#39;motorcycle_starts&#39;): 28,
+            (&#39;motorcycle_drops_off_person&#39;, &#39;motorcycle_starts&#39;, &#39;motorcycle_stops&#39;): 29,
+            (&#39;motorcycle_drops_off_person&#39;, &#39;motorcycle_stops&#39;): 30,
+            (&#39;motorcycle_makes_u_turn&#39;,): 31,
+            (&#39;motorcycle_makes_u_turn&#39;, &#39;motorcycle_turns_left&#39;): 32,
+            (&#39;motorcycle_makes_u_turn&#39;,
+             &#39;motorcycle_turns_left&#39;,
+             &#39;motorcycle_turns_right&#39;): 33,
+            (&#39;motorcycle_makes_u_turn&#39;, &#39;motorcycle_turns_right&#39;): 34,
+            (&#39;motorcycle_picks_up_person&#39;,): 35,
+            (&#39;motorcycle_picks_up_person&#39;, &#39;motorcycle_starts&#39;): 36,
+            (&#39;motorcycle_picks_up_person&#39;, &#39;motorcycle_starts&#39;, &#39;motorcycle_stops&#39;): 37,
+            (&#39;motorcycle_picks_up_person&#39;, &#39;motorcycle_stops&#39;): 38,
+            (&#39;motorcycle_reverses&#39;,): 39,
+            (&#39;motorcycle_starts&#39;,): 40,
+            (&#39;motorcycle_starts&#39;, &#39;motorcycle_stops&#39;): 41,
+            (&#39;motorcycle_stops&#39;,): 42,
+            (&#39;motorcycle_turns_left&#39;,): 43,
+            (&#39;motorcycle_turns_left&#39;, &#39;motorcycle_turns_right&#39;): 44,
+            (&#39;motorcycle_turns_right&#39;,): 45,
+            (&#39;person&#39;,): 46,
+            (&#39;person_abandons_object&#39;,): 47,
+            (&#39;person_abandons_object&#39;, &#39;person_puts_down_object_on_floor&#39;): 48,
+            (&#39;person_carries_heavy_object&#39;,): 49,
+            (&#39;person_closes_car_door&#39;,): 50,
+            (&#39;person_closes_car_door&#39;, &#39;person_enters_car&#39;): 51,
+            (&#39;person_closes_car_door&#39;,
+             &#39;person_enters_car&#39;,
+             &#39;person_exits_car&#39;,
+             &#39;person_opens_car_door&#39;): 52,
+            (&#39;person_closes_car_door&#39;, &#39;person_enters_car&#39;, &#39;person_opens_car_door&#39;): 53,
+            (&#39;person_closes_car_door&#39;, &#39;person_exits_car&#39;): 54,
+            (&#39;person_closes_car_door&#39;, &#39;person_exits_car&#39;, &#39;person_opens_car_door&#39;): 55,
+            (&#39;person_closes_car_door&#39;, &#39;person_loads_car&#39;): 56,
+            (&#39;person_closes_car_door&#39;, &#39;person_opens_car_door&#39;): 57,
+            (&#39;person_closes_car_door&#39;, &#39;person_unloads_car&#39;): 58,
+            (&#39;person_closes_car_trunk&#39;,): 59,
+            (&#39;person_closes_car_trunk&#39;, &#39;person_loads_car&#39;): 60,
+            (&#39;person_closes_car_trunk&#39;, &#39;person_loads_car&#39;, &#39;person_opens_car_trunk&#39;): 61,
+            (&#39;person_closes_car_trunk&#39;, &#39;person_opens_car_trunk&#39;): 62,
+            (&#39;person_closes_car_trunk&#39;,
+             &#39;person_opens_car_trunk&#39;,
+             &#39;person_unloads_car&#39;): 63,
+            (&#39;person_closes_car_trunk&#39;, &#39;person_unloads_car&#39;): 64,
+            (&#39;person_closes_facility_door&#39;,): 65,
+            (&#39;person_closes_facility_door&#39;, &#39;person_enters_scene_through_structure&#39;): 66,
+            (&#39;person_closes_facility_door&#39;,
+             &#39;person_enters_scene_through_structure&#39;,
+             &#39;person_exits_scene_through_structure&#39;,
+             &#39;person_opens_facility_door&#39;): 67,
+            (&#39;person_closes_facility_door&#39;,
+             &#39;person_enters_scene_through_structure&#39;,
+             &#39;person_opens_facility_door&#39;): 68,
+            (&#39;person_closes_facility_door&#39;,
+             &#39;person_enters_scene_through_structure&#39;,
+             &#39;person_opens_facility_door&#39;,
+             &#39;person_talks_on_phone&#39;): 69,
+            (&#39;person_closes_facility_door&#39;,
+             &#39;person_enters_scene_through_structure&#39;,
+             &#39;person_talks_on_phone&#39;): 70,
+            (&#39;person_closes_facility_door&#39;, &#39;person_exits_scene_through_structure&#39;): 71,
+            (&#39;person_closes_facility_door&#39;,
+             &#39;person_exits_scene_through_structure&#39;,
+             &#39;person_opens_facility_door&#39;): 72,
+            (&#39;person_closes_facility_door&#39;,
+             &#39;person_exits_scene_through_structure&#39;,
+             &#39;person_opens_facility_door&#39;,
+             &#39;person_talks_on_phone&#39;): 73,
+            (&#39;person_closes_facility_door&#39;,
+             &#39;person_exits_scene_through_structure&#39;,
+             &#39;person_talks_on_phone&#39;): 74,
+            (&#39;person_closes_facility_door&#39;, &#39;person_opens_facility_door&#39;): 75,
+            (&#39;person_closes_facility_door&#39;,
+             &#39;person_opens_facility_door&#39;,
+             &#39;person_talks_on_phone&#39;): 76,
+            (&#39;person_closes_facility_door&#39;, &#39;person_talks_on_phone&#39;): 77,
+            (&#39;person_closes_motorcycle_trunk&#39;,): 78,
+            (&#39;person_closes_motorcycle_trunk&#39;, &#39;person_loads_motorcycle&#39;): 79,
+            (&#39;person_closes_motorcycle_trunk&#39;,
+             &#39;person_loads_motorcycle&#39;,
+             &#39;person_opens_motorcycle_trunk&#39;): 80,
+            (&#39;person_closes_motorcycle_trunk&#39;, &#39;person_opens_motorcycle_trunk&#39;): 81,
+            (&#39;person_closes_motorcycle_trunk&#39;,
+             &#39;person_opens_motorcycle_trunk&#39;,
+             &#39;person_unloads_motorcycle&#39;): 82,
+            (&#39;person_closes_motorcycle_trunk&#39;, &#39;person_unloads_motorcycle&#39;): 83,
+            (&#39;person_embraces_person&#39;,): 84,
+            (&#39;person_embraces_person&#39;, &#39;person_holds_hand&#39;): 85,
+            (&#39;person_embraces_person&#39;, &#39;person_talks_to_person&#39;): 86,
+            (&#39;person_enters_car&#39;,): 87,
+            (&#39;person_enters_car&#39;, &#39;person_opens_car_door&#39;): 88,
+            (&#39;person_enters_scene_through_structure&#39;,): 89,
+            (&#39;person_enters_scene_through_structure&#39;,
+             &#39;person_exits_scene_through_structure&#39;): 90,
+            (&#39;person_enters_scene_through_structure&#39;,
+             &#39;person_exits_scene_through_structure&#39;,
+             &#39;person_opens_facility_door&#39;): 91,
+            (&#39;person_enters_scene_through_structure&#39;, &#39;person_opens_facility_door&#39;): 92,
+            (&#39;person_enters_scene_through_structure&#39;, &#39;person_talks_on_phone&#39;): 93,
+            (&#39;person_exits_car&#39;,): 94,
+            (&#39;person_exits_car&#39;, &#39;person_opens_car_door&#39;): 95,
+            (&#39;person_exits_scene_through_structure&#39;,): 96,
+            (&#39;person_exits_scene_through_structure&#39;, &#39;person_opens_facility_door&#39;): 97,
+            (&#39;person_exits_scene_through_structure&#39;, &#39;person_talks_on_phone&#39;): 98,
+            (&#39;person_holds_hand&#39;,): 99,
+            (&#39;person_holds_hand&#39;, &#39;person_talks_to_person&#39;): 100,
+            (&#39;person_interacts_with_laptop&#39;,): 101,
+            (&#39;person_interacts_with_laptop&#39;, &#39;person_sits_down&#39;): 102,
+            (&#39;person_interacts_with_laptop&#39;, &#39;person_stands_up&#39;): 103,
+            (&#39;person_loads_car&#39;,): 104,
+            (&#39;person_loads_car&#39;, &#39;person_opens_car_trunk&#39;): 105,
+            (&#39;person_loads_motorcycle&#39;,): 106,
+            (&#39;person_loads_motorcycle&#39;, &#39;person_opens_motorcycle_trunk&#39;): 107,
+            (&#39;person_opens_car_door&#39;,): 108,
+            (&#39;person_opens_car_trunk&#39;,): 109,
+            (&#39;person_opens_facility_door&#39;,): 110,
+            (&#39;person_opens_facility_door&#39;, &#39;person_talks_on_phone&#39;): 111,
+            (&#39;person_opens_motorcycle_trunk&#39;,): 112,
+            (&#39;person_opens_motorcycle_trunk&#39;, &#39;person_unloads_motorcycle&#39;): 113,
+            (&#39;person_picks_up_object_from_floor&#39;,): 114,
+            (&#39;person_picks_up_object_from_shelf&#39;,): 115,
+            (&#39;person_picks_up_object_from_table&#39;,): 116,
+            (&#39;person_picks_up_object_from_table&#39;,
+             &#39;person_puts_down_object_on_table&#39;,
+             &#39;person_reads_document&#39;): 117,
+            (&#39;person_picks_up_object_from_table&#39;, &#39;person_reads_document&#39;): 118,
+            (&#39;person_purchases_from_cashier&#39;,): 119,
+            (&#39;person_purchases_from_machine&#39;,): 120,
+            (&#39;person_puts_down_object_on_floor&#39;,): 121,
+            (&#39;person_puts_down_object_on_shelf&#39;,): 122,
+            (&#39;person_puts_down_object_on_table&#39;,): 123,
+            (&#39;person_puts_down_object_on_table&#39;, &#39;person_reads_document&#39;): 124,
+            (&#39;person_reads_document&#39;,): 125,
+            (&#39;person_reads_document&#39;, &#39;person_sits_down&#39;): 126,
+            (&#39;person_reads_document&#39;, &#39;person_sits_down&#39;, &#39;person_stands_up&#39;): 127,
+            (&#39;person_reads_document&#39;, &#39;person_stands_up&#39;): 128,
+            (&#39;person_rides_bicycle&#39;,): 129,
+            (&#39;person_shakes_hand&#39;,): 130,
+            (&#39;person_shakes_hand&#39;, &#39;person_talks_to_person&#39;): 131,
+            (&#39;person_sits_down&#39;,): 132,
+            (&#39;person_stands_up&#39;,): 133,
+            (&#39;person_steals_object_from_person&#39;,): 134,
+            (&#39;person_talks_on_phone&#39;,): 135,
+            (&#39;person_talks_to_person&#39;,): 136,
+            (&#39;person_texts_on_phone&#39;,): 137,
+            (&#39;person_transfers_object_to_car&#39;,): 138,
+            (&#39;person_transfers_object_to_motorcycle&#39;,): 139,
+            (&#39;person_transfers_object_to_person&#39;,): 140,
+            (&#39;person_unloads_car&#39;,): 141,
+            (&#39;person_unloads_motorcycle&#39;,): 142}</code></pre>
+</details>
+</dd>
+<dt id="pycollector.label.piplabel_to_index"><code class="name flex">
+<span>def <span class="ident">piplabel_to_index</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/label.py#L157-L212" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def piplabel_to_index():
+    return {
+        &#34;car_drops_off_person&#34;: 0,
+        &#34;car_makes_u_turn&#34;: 1,
+        &#34;car_picks_up_person&#34;: 2,
+        &#34;car_reverses&#34;: 3,
+        &#34;car_starts&#34;: 4,
+        &#34;car_stops&#34;: 5,
+        &#34;car_turns_left&#34;: 6,
+        &#34;car_turns_right&#34;: 7,
+        &#34;hand_interacts_with_person_highfive&#34;: 8,
+        &#34;hand_interacts_with_person_holdhands&#34;: 9,
+        &#34;hand_interacts_with_person_shakehands&#34;: 10,
+        &#34;motorcycle_drops_off_person&#34;: 11,
+        &#34;motorcycle_makes_u_turn&#34;: 12,
+        &#34;motorcycle_picks_up_person&#34;: 13,
+        &#34;motorcycle_reverses&#34;: 14,
+        &#34;motorcycle_starts&#34;: 15,
+        &#34;motorcycle_stops&#34;: 16,
+        &#34;motorcycle_turns_left&#34;: 17,
+        &#34;motorcycle_turns_right&#34;: 18,
+        &#34;person_abandons_package&#34;: 19,
+        &#34;person_carries_heavy_object&#34;: 20,
+        &#34;person_closes_car_door&#34;: 21,
+        &#34;person_closes_car_trunk&#34;: 22,
+        &#34;person_closes_facility_door&#34;: 23,
+        &#34;person_closes_motorcycle_trunk&#34;: 24,
+        &#34;person_embraces_person&#34;: 25,
+        &#34;person_enters_car&#34;: 26,
+        &#34;person_enters_scene_through_structure&#34;: 27,
+        &#34;person_exits_car&#34;: 28,
+        &#34;person_exits_scene_through_structure&#34;: 29,
+        &#34;person_interacts_with_laptop&#34;: 30,
+        &#34;person_loads_car&#34;: 31,
+        &#34;person_loads_motorcycle&#34;: 32,
+        &#34;person_opens_car_door&#34;: 33,
+        &#34;person_opens_car_trunk&#34;: 34,
+        &#34;person_opens_facility_door&#34;: 35,
+        &#34;person_opens_motorcycle_trunk&#34;: 36,
+        &#34;person_picks_up_object&#34;: 37,
+        &#34;person_purchases_from_machine&#34;: 38,
+        &#34;person_puts_down_object&#34;: 39,
+        &#34;person_reads_document&#34;: 40,
+        &#34;person_rides_bicycle&#34;: 41,
+        &#34;person_sits_down&#34;: 42,
+        &#34;person_stands_up&#34;: 43,
+        &#34;person_steals_object&#34;: 44,
+        &#34;person_talks_on_phone&#34;: 45,
+        &#34;person_talks_to_person&#34;: 46,
+        &#34;person_texts_on_phone&#34;: 47,
+        &#34;person_transfers_object_to_car&#34;: 48,
+        &#34;person_transfers_object_to_motorcycle&#34;: 49,
+        &#34;person_transfers_object_to_person&#34;: 50,
+        &#34;person_unloads_car&#34;: 51,
+        &#34;person_unloads_motorcycle&#34;: 52,
+    }</code></pre>
+</details>
+</dd>
+<dt id="pycollector.label.piplabel_to_mevalabel"><code class="name flex">
+<span>def <span class="ident">piplabel_to_mevalabel</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/label.py#L82-L111" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def piplabel_to_mevalabel():
+    d = {v: v for (k, v) in _v1_applabel_to_piplabel().items()}
+
+    d = {k: &#34;hand_interacts_with_person&#34; if &#34;hand&#34; in v else v for (k, v) in d.items()}
+    d = {
+        k: v.replace(&#34;car&#34;, &#34;vehicle&#34;)
+        if ((&#34;_car&#34; in v or &#34;car_&#34; in v) and (&#34;carries&#34; not in v))
+        else v
+        for (k, v) in d.items()
+    }
+    d = {
+        k: v.replace(&#34;motorcycle&#34;, &#34;vehicle&#34;) if &#34;motorcycle&#34; in v else v
+        for (k, v) in d.items()
+    }
+    d = {
+        k: v.replace(&#34;vehicle_trunk&#34;, &#34;trunk&#34;) if &#34;vehicle_trunk&#34; in v else v
+        for (k, v) in d.items()
+    }
+    d[&#34;person_transfers_object_to_car&#34;] = &#34;person_transfers_object&#34;
+    d[&#34;person_transfers_object_to_motorcycle&#34;] = &#34;person_transfers_object&#34;
+    d[&#34;person_transfers_object_to_person&#34;] = &#34;person_transfers_object&#34;
+    d[&#34;person_purchases_from_machine&#34;] = &#34;person_purchases&#34;
+    d[&#34;person_purchases_from_cashier&#34;] = &#34;person_purchases&#34;
+    d = {
+        k: v
+        for (k, v) in d.items()
+        if k
+        not in set([&#34;person_closes_motorcycle_door&#34;, &#34;person_opens_motorcycle_door&#34;])
+    }
+    return d</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="pycollector.label.Label"><code class="flex name class">
+<span>class <span class="ident">Label</span></span>
+<span>(</span><span>labeldict)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/label.py#L2-L4" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class Label(object):
+    def __init__(self, labeldict):
+        pass</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<header>
+<a class="homelink" rel="home" title="Visym Collector" href="https://github.com/visym/collector/">
+<img src="https://www.visym.com/labs/images/visym_logo_black_notext.png" alt="" width="150"> <p> </p>
+</a>
+</header>
+<form>
+<input id="lunr-search" name="q" placeholder="🔎 Search ..." aria-label="Search"
+disabled minlength="2">
+</form>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/tingle/0.15.3/tingle.min.css" integrity="sha512-j1u8eUJ4f23xPPxwOrLUPQaCD2dwzNqqmDDcWS4deWsMv2ohLqmXXuP3hU7g8TyzbMSakP/mMqoNBYWj8AEIFg==" crossorigin>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tingle/0.15.3/tingle.min.js" integrity="sha512-plGUER9JkeEWPPqQBE4sdLqBoQug5Ap+BCGMc7bJ8BXkm+VVj6QzkpBz5Yv2yPkkq+cqg9IpkBaGCas6uDbW8g==" crossorigin></script>
+<style>
+.modal-dialog iframe {
+width: 100vw;
+height: calc(100vh - 80px);
+}
+@media screen and (min-width: 700px) {
+.modal-dialog iframe {
+width: 70vw;
+height: 80vh;
+}
+}
+.modal-dialog .tingle-modal-box {width: auto;}
+.modal-dialog .tingle-modal-box__content {padding: 0;}
+</style>
+<script>
+const input = document.getElementById('lunr-search');
+input.disabled = false;
+input.form.addEventListener('submit', (ev) => {
+ev.preventDefault();
+const url = new URL(window.location);
+url.searchParams.set('q', input.value);
+history.replaceState({}, null, url.toString());
+search(input.value);
+});
+const query = new URL(window.location).searchParams.get('q');
+if (query)
+search(query);
+function search(query) {
+const url = '../doc-search.html#' + encodeURIComponent(query);
+new tingle.modal({
+cssClass: ['modal-dialog'],
+onClose: () => {
+const url = new URL(window.location);
+url.searchParams.delete('q');
+history.replaceState({}, null, url.toString());
+setTimeout(() => input.focus(), 100);
+}
+}).setContent('<iframe src="' + url + '"></iframe>').open();
+}
+</script>
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pycollector" href="index.html">pycollector</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="pycollector.label.mevalabel_to_index" href="#pycollector.label.mevalabel_to_index">mevalabel_to_index</a></code></li>
+<li><code><a title="pycollector.label.pip_250k_powerset" href="#pycollector.label.pip_250k_powerset">pip_250k_powerset</a></code></li>
+<li><code><a title="pycollector.label.piplabel_to_index" href="#pycollector.label.piplabel_to_index">piplabel_to_index</a></code></li>
+<li><code><a title="pycollector.label.piplabel_to_mevalabel" href="#pycollector.label.piplabel_to_mevalabel">piplabel_to_mevalabel</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="pycollector.label.Label" href="#pycollector.label.Label">Label</a></code></h4>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

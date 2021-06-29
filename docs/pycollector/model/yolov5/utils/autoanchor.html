@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>pycollector.model.yolov5.utils.autoanchor API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}#lunr-search{width:100%;font-size:1em;padding:6px 9px 5px 9px;border:1px solid silver}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pycollector.model.yolov5.utils.autoanchor</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/autoanchor.py#L0-L154" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python"># Auto-anchor utils
+
+import numpy as np
+import torch
+import yaml
+
+
+
+
+def check_anchor_order(m):
+    # Check anchor order against stride order for YOLOv5 Detect() module m, and correct if necessary
+    a = m.anchor_grid.prod(-1).view(-1)  # anchor area
+    da = a[-1] - a[0]  # delta a
+    ds = m.stride[-1] - m.stride[0]  # delta s
+    if da.sign() != ds.sign():  # same order
+        print(&#39;Reversing anchor order&#39;)
+        m.anchors[:] = m.anchors.flip(0)
+        m.anchor_grid[:] = m.anchor_grid.flip(0)
+
+
+def check_anchors(dataset, model, thr=4.0, imgsz=640):
+    # Check anchor fit to data, recompute if necessary
+    print(&#39;\nAnalyzing anchors... &#39;, end=&#39;&#39;)
+    m = model.module.model[-1] if hasattr(model, &#39;module&#39;) else model.model[-1]  # Detect()
+    shapes = imgsz * dataset.shapes / dataset.shapes.max(1, keepdims=True)
+    scale = np.random.uniform(0.9, 1.1, size=(shapes.shape[0], 1))  # augment scale
+    wh = torch.tensor(np.concatenate([l[:, 3:5] * s for s, l in zip(shapes * scale, dataset.labels)])).float()  # wh
+
+    def metric(k):  # compute metric
+        r = wh[:, None] / k[None]
+        x = torch.min(r, 1. / r).min(2)[0]  # ratio metric
+        best = x.max(1)[0]  # best_x
+        aat = (x &gt; 1. / thr).float().sum(1).mean()  # anchors above threshold
+        bpr = (best &gt; 1. / thr).float().mean()  # best possible recall
+        return bpr, aat
+
+    bpr, aat = metric(m.anchor_grid.clone().cpu().view(-1, 2))
+    print(&#39;anchors/target = %.2f, Best Possible Recall (BPR) = %.4f&#39; % (aat, bpr), end=&#39;&#39;)
+    if bpr &lt; 0.98:  # threshold to recompute
+        print(&#39;. Attempting to improve anchors, please wait...&#39;)
+        na = m.anchor_grid.numel() // 2  # number of anchors
+        new_anchors = kmean_anchors(dataset, n=na, img_size=imgsz, thr=thr, gen=1000, verbose=False)
+        new_bpr = metric(new_anchors.reshape(-1, 2))[0]
+        if new_bpr &gt; bpr:  # replace anchors
+            new_anchors = torch.tensor(new_anchors, device=m.anchors.device).type_as(m.anchors)
+            m.anchor_grid[:] = new_anchors.clone().view_as(m.anchor_grid)  # for inference
+            m.anchors[:] = new_anchors.clone().view_as(m.anchors) / m.stride.to(m.anchors.device).view(-1, 1, 1)  # loss
+            check_anchor_order(m)
+            print(&#39;New anchors saved to model. Update model *.yaml to use these anchors in the future.&#39;)
+        else:
+            print(&#39;Original anchors better than new anchors. Proceeding with original anchors.&#39;)
+    print(&#39;&#39;)  # newline
+
+
+def kmean_anchors(path=&#39;./data/coco128.yaml&#39;, n=9, img_size=640, thr=4.0, gen=1000, verbose=True):
+    &#34;&#34;&#34; Creates kmeans-evolved anchors from training dataset
+
+        Arguments:
+            path: path to dataset *.yaml, or a loaded dataset
+            n: number of anchors
+            img_size: image size used for training
+            thr: anchor-label wh ratio threshold hyperparameter hyp[&#39;anchor_t&#39;] used for training, default=4.0
+            gen: generations to evolve anchors using genetic algorithm
+            verbose: print all results
+
+        Return:
+            k: kmeans evolved anchors
+
+        Usage:
+            from utils.autoanchor import *; _ = kmean_anchors()
+    &#34;&#34;&#34;
+    from tqdm import tqdm
+    from scipy.cluster.vq import kmeans
+
+    thr = 1. / thr
+
+    def metric(k, wh):  # compute metrics
+        r = wh[:, None] / k[None]
+        x = torch.min(r, 1. / r).min(2)[0]  # ratio metric
+        # x = wh_iou(wh, torch.tensor(k))  # iou metric
+        return x, x.max(1)[0]  # x, best_x
+
+    def anchor_fitness(k):  # mutation fitness
+        _, best = metric(torch.tensor(k, dtype=torch.float32), wh)
+        return (best * (best &gt; thr).float()).mean()  # fitness
+
+    def print_results(k):
+        k = k[np.argsort(k.prod(1))]  # sort small to large
+        x, best = metric(k, wh0)
+        bpr, aat = (best &gt; thr).float().mean(), (x &gt; thr).float().mean() * n  # best possible recall, anch &gt; thr
+        print(&#39;thr=%.2f: %.4f best possible recall, %.2f anchors past thr&#39; % (thr, bpr, aat))
+        print(&#39;n=%g, img_size=%s, metric_all=%.3f/%.3f-mean/best, past_thr=%.3f-mean: &#39; %
+              (n, img_size, x.mean(), best.mean(), x[x &gt; thr].mean()), end=&#39;&#39;)
+        for i, x in enumerate(k):
+            print(&#39;%i,%i&#39; % (round(x[0]), round(x[1])), end=&#39;,  &#39; if i &lt; len(k) - 1 else &#39;\n&#39;)  # use in *.cfg
+        return k
+
+    if isinstance(path, str):  # *.yaml file
+        with open(path) as f:
+            data_dict = yaml.load(f, Loader=yaml.FullLoader)  # model dict
+        from utils.datasets import LoadImagesAndLabels
+        dataset = LoadImagesAndLabels(data_dict[&#39;train&#39;], augment=True, rect=True)
+    else:
+        dataset = path  # dataset
+
+    # Get label wh
+    shapes = img_size * dataset.shapes / dataset.shapes.max(1, keepdims=True)
+    wh0 = np.concatenate([l[:, 3:5] * s for s, l in zip(shapes, dataset.labels)])  # wh
+
+    # Filter
+    i = (wh0 &lt; 3.0).any(1).sum()
+    if i:
+        print(&#39;WARNING: Extremely small objects found. &#39;
+              &#39;%g of %g labels are &lt; 3 pixels in width or height.&#39; % (i, len(wh0)))
+    wh = wh0[(wh0 &gt;= 2.0).any(1)]  # filter &gt; 2 pixels
+
+    # Kmeans calculation
+    print(&#39;Running kmeans for %g anchors on %g points...&#39; % (n, len(wh)))
+    s = wh.std(0)  # sigmas for whitening
+    k, dist = kmeans(wh / s, n, iter=30)  # points, mean distance
+    k *= s
+    wh = torch.tensor(wh, dtype=torch.float32)  # filtered
+    wh0 = torch.tensor(wh0, dtype=torch.float32)  # unfiltered
+    k = print_results(k)
+
+    # Plot
+    # k, d = [None] * 20, [None] * 20
+    # for i in tqdm(range(1, 21)):
+    #     k[i-1], d[i-1] = kmeans(wh / s, i)  # points, mean distance
+    # fig, ax = plt.subplots(1, 2, figsize=(14, 7))
+    # ax = ax.ravel()
+    # ax[0].plot(np.arange(1, 21), np.array(d) ** 2, marker=&#39;.&#39;)
+    # fig, ax = plt.subplots(1, 2, figsize=(14, 7))  # plot wh
+    # ax[0].hist(wh[wh[:, 0]&lt;100, 0],400)
+    # ax[1].hist(wh[wh[:, 1]&lt;100, 1],400)
+    # fig.tight_layout()
+    # fig.savefig(&#39;wh.png&#39;, dpi=200)
+
+    # Evolve
+    npr = np.random
+    f, sh, mp, s = anchor_fitness(k), k.shape, 0.9, 0.1  # fitness, generations, mutation prob, sigma
+    pbar = tqdm(range(gen), desc=&#39;Evolving anchors with Genetic Algorithm&#39;)  # progress bar
+    for _ in pbar:
+        v = np.ones(sh)
+        while (v == 1).all():  # mutate until a change occurs (prevent duplicates)
+            v = ((npr.random(sh) &lt; mp) * npr.random() * npr.randn(*sh) * s + 1).clip(0.3, 3.0)
+        kg = (k.copy() * v).clip(min=2.0)
+        fg = anchor_fitness(kg)
+        if fg &gt; f:
+            f, k = fg, kg.copy()
+            pbar.desc = &#39;Evolving anchors with Genetic Algorithm: fitness = %.4f&#39; % f
+            if verbose:
+                print_results(k)
+
+    return print_results(k)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="pycollector.model.yolov5.utils.autoanchor.check_anchor_order"><code class="name flex">
+<span>def <span class="ident">check_anchor_order</span></span>(<span>m)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/autoanchor.py#L10-L18" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def check_anchor_order(m):
+    # Check anchor order against stride order for YOLOv5 Detect() module m, and correct if necessary
+    a = m.anchor_grid.prod(-1).view(-1)  # anchor area
+    da = a[-1] - a[0]  # delta a
+    ds = m.stride[-1] - m.stride[0]  # delta s
+    if da.sign() != ds.sign():  # same order
+        print(&#39;Reversing anchor order&#39;)
+        m.anchors[:] = m.anchors.flip(0)
+        m.anchor_grid[:] = m.anchor_grid.flip(0)</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.autoanchor.check_anchors"><code class="name flex">
+<span>def <span class="ident">check_anchors</span></span>(<span>dataset, model, thr=4.0, imgsz=640)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/autoanchor.py#L21-L52" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def check_anchors(dataset, model, thr=4.0, imgsz=640):
+    # Check anchor fit to data, recompute if necessary
+    print(&#39;\nAnalyzing anchors... &#39;, end=&#39;&#39;)
+    m = model.module.model[-1] if hasattr(model, &#39;module&#39;) else model.model[-1]  # Detect()
+    shapes = imgsz * dataset.shapes / dataset.shapes.max(1, keepdims=True)
+    scale = np.random.uniform(0.9, 1.1, size=(shapes.shape[0], 1))  # augment scale
+    wh = torch.tensor(np.concatenate([l[:, 3:5] * s for s, l in zip(shapes * scale, dataset.labels)])).float()  # wh
+
+    def metric(k):  # compute metric
+        r = wh[:, None] / k[None]
+        x = torch.min(r, 1. / r).min(2)[0]  # ratio metric
+        best = x.max(1)[0]  # best_x
+        aat = (x &gt; 1. / thr).float().sum(1).mean()  # anchors above threshold
+        bpr = (best &gt; 1. / thr).float().mean()  # best possible recall
+        return bpr, aat
+
+    bpr, aat = metric(m.anchor_grid.clone().cpu().view(-1, 2))
+    print(&#39;anchors/target = %.2f, Best Possible Recall (BPR) = %.4f&#39; % (aat, bpr), end=&#39;&#39;)
+    if bpr &lt; 0.98:  # threshold to recompute
+        print(&#39;. Attempting to improve anchors, please wait...&#39;)
+        na = m.anchor_grid.numel() // 2  # number of anchors
+        new_anchors = kmean_anchors(dataset, n=na, img_size=imgsz, thr=thr, gen=1000, verbose=False)
+        new_bpr = metric(new_anchors.reshape(-1, 2))[0]
+        if new_bpr &gt; bpr:  # replace anchors
+            new_anchors = torch.tensor(new_anchors, device=m.anchors.device).type_as(m.anchors)
+            m.anchor_grid[:] = new_anchors.clone().view_as(m.anchor_grid)  # for inference
+            m.anchors[:] = new_anchors.clone().view_as(m.anchors) / m.stride.to(m.anchors.device).view(-1, 1, 1)  # loss
+            check_anchor_order(m)
+            print(&#39;New anchors saved to model. Update model *.yaml to use these anchors in the future.&#39;)
+        else:
+            print(&#39;Original anchors better than new anchors. Proceeding with original anchors.&#39;)
+    print(&#39;&#39;)  # newline</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.autoanchor.kmean_anchors"><code class="name flex">
+<span>def <span class="ident">kmean_anchors</span></span>(<span>path='./data/coco128.yaml', n=9, img_size=640, thr=4.0, gen=1000, verbose=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Creates kmeans-evolved anchors from training dataset</p>
+<h2 id="arguments">Arguments</h2>
+<p>path: path to dataset *.yaml, or a loaded dataset
+n: number of anchors
+img_size: image size used for training
+thr: anchor-label wh ratio threshold hyperparameter hyp['anchor_t'] used for training, default=4.0
+gen: generations to evolve anchors using genetic algorithm
+verbose: print all results</p>
+<h2 id="return">Return</h2>
+<p>k: kmeans evolved anchors</p>
+<h2 id="usage">Usage</h2>
+<p>from utils.autoanchor import *; _ = kmean_anchors()</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/autoanchor.py#L55-L155" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def kmean_anchors(path=&#39;./data/coco128.yaml&#39;, n=9, img_size=640, thr=4.0, gen=1000, verbose=True):
+    &#34;&#34;&#34; Creates kmeans-evolved anchors from training dataset
+
+        Arguments:
+            path: path to dataset *.yaml, or a loaded dataset
+            n: number of anchors
+            img_size: image size used for training
+            thr: anchor-label wh ratio threshold hyperparameter hyp[&#39;anchor_t&#39;] used for training, default=4.0
+            gen: generations to evolve anchors using genetic algorithm
+            verbose: print all results
+
+        Return:
+            k: kmeans evolved anchors
+
+        Usage:
+            from utils.autoanchor import *; _ = kmean_anchors()
+    &#34;&#34;&#34;
+    from tqdm import tqdm
+    from scipy.cluster.vq import kmeans
+
+    thr = 1. / thr
+
+    def metric(k, wh):  # compute metrics
+        r = wh[:, None] / k[None]
+        x = torch.min(r, 1. / r).min(2)[0]  # ratio metric
+        # x = wh_iou(wh, torch.tensor(k))  # iou metric
+        return x, x.max(1)[0]  # x, best_x
+
+    def anchor_fitness(k):  # mutation fitness
+        _, best = metric(torch.tensor(k, dtype=torch.float32), wh)
+        return (best * (best &gt; thr).float()).mean()  # fitness
+
+    def print_results(k):
+        k = k[np.argsort(k.prod(1))]  # sort small to large
+        x, best = metric(k, wh0)
+        bpr, aat = (best &gt; thr).float().mean(), (x &gt; thr).float().mean() * n  # best possible recall, anch &gt; thr
+        print(&#39;thr=%.2f: %.4f best possible recall, %.2f anchors past thr&#39; % (thr, bpr, aat))
+        print(&#39;n=%g, img_size=%s, metric_all=%.3f/%.3f-mean/best, past_thr=%.3f-mean: &#39; %
+              (n, img_size, x.mean(), best.mean(), x[x &gt; thr].mean()), end=&#39;&#39;)
+        for i, x in enumerate(k):
+            print(&#39;%i,%i&#39; % (round(x[0]), round(x[1])), end=&#39;,  &#39; if i &lt; len(k) - 1 else &#39;\n&#39;)  # use in *.cfg
+        return k
+
+    if isinstance(path, str):  # *.yaml file
+        with open(path) as f:
+            data_dict = yaml.load(f, Loader=yaml.FullLoader)  # model dict
+        from utils.datasets import LoadImagesAndLabels
+        dataset = LoadImagesAndLabels(data_dict[&#39;train&#39;], augment=True, rect=True)
+    else:
+        dataset = path  # dataset
+
+    # Get label wh
+    shapes = img_size * dataset.shapes / dataset.shapes.max(1, keepdims=True)
+    wh0 = np.concatenate([l[:, 3:5] * s for s, l in zip(shapes, dataset.labels)])  # wh
+
+    # Filter
+    i = (wh0 &lt; 3.0).any(1).sum()
+    if i:
+        print(&#39;WARNING: Extremely small objects found. &#39;
+              &#39;%g of %g labels are &lt; 3 pixels in width or height.&#39; % (i, len(wh0)))
+    wh = wh0[(wh0 &gt;= 2.0).any(1)]  # filter &gt; 2 pixels
+
+    # Kmeans calculation
+    print(&#39;Running kmeans for %g anchors on %g points...&#39; % (n, len(wh)))
+    s = wh.std(0)  # sigmas for whitening
+    k, dist = kmeans(wh / s, n, iter=30)  # points, mean distance
+    k *= s
+    wh = torch.tensor(wh, dtype=torch.float32)  # filtered
+    wh0 = torch.tensor(wh0, dtype=torch.float32)  # unfiltered
+    k = print_results(k)
+
+    # Plot
+    # k, d = [None] * 20, [None] * 20
+    # for i in tqdm(range(1, 21)):
+    #     k[i-1], d[i-1] = kmeans(wh / s, i)  # points, mean distance
+    # fig, ax = plt.subplots(1, 2, figsize=(14, 7))
+    # ax = ax.ravel()
+    # ax[0].plot(np.arange(1, 21), np.array(d) ** 2, marker=&#39;.&#39;)
+    # fig, ax = plt.subplots(1, 2, figsize=(14, 7))  # plot wh
+    # ax[0].hist(wh[wh[:, 0]&lt;100, 0],400)
+    # ax[1].hist(wh[wh[:, 1]&lt;100, 1],400)
+    # fig.tight_layout()
+    # fig.savefig(&#39;wh.png&#39;, dpi=200)
+
+    # Evolve
+    npr = np.random
+    f, sh, mp, s = anchor_fitness(k), k.shape, 0.9, 0.1  # fitness, generations, mutation prob, sigma
+    pbar = tqdm(range(gen), desc=&#39;Evolving anchors with Genetic Algorithm&#39;)  # progress bar
+    for _ in pbar:
+        v = np.ones(sh)
+        while (v == 1).all():  # mutate until a change occurs (prevent duplicates)
+            v = ((npr.random(sh) &lt; mp) * npr.random() * npr.randn(*sh) * s + 1).clip(0.3, 3.0)
+        kg = (k.copy() * v).clip(min=2.0)
+        fg = anchor_fitness(kg)
+        if fg &gt; f:
+            f, k = fg, kg.copy()
+            pbar.desc = &#39;Evolving anchors with Genetic Algorithm: fitness = %.4f&#39; % f
+            if verbose:
+                print_results(k)
+
+    return print_results(k)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<header>
+<a class="homelink" rel="home" title="Visym Collector" href="https://github.com/visym/collector/">
+<img src="https://www.visym.com/labs/images/visym_logo_black_notext.png" alt="" width="150"> <p> </p>
+</a>
+</header>
+<form>
+<input id="lunr-search" name="q" placeholder="🔎 Search ..." aria-label="Search"
+disabled minlength="2">
+</form>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/tingle/0.15.3/tingle.min.css" integrity="sha512-j1u8eUJ4f23xPPxwOrLUPQaCD2dwzNqqmDDcWS4deWsMv2ohLqmXXuP3hU7g8TyzbMSakP/mMqoNBYWj8AEIFg==" crossorigin>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tingle/0.15.3/tingle.min.js" integrity="sha512-plGUER9JkeEWPPqQBE4sdLqBoQug5Ap+BCGMc7bJ8BXkm+VVj6QzkpBz5Yv2yPkkq+cqg9IpkBaGCas6uDbW8g==" crossorigin></script>
+<style>
+.modal-dialog iframe {
+width: 100vw;
+height: calc(100vh - 80px);
+}
+@media screen and (min-width: 700px) {
+.modal-dialog iframe {
+width: 70vw;
+height: 80vh;
+}
+}
+.modal-dialog .tingle-modal-box {width: auto;}
+.modal-dialog .tingle-modal-box__content {padding: 0;}
+</style>
+<script>
+const input = document.getElementById('lunr-search');
+input.disabled = false;
+input.form.addEventListener('submit', (ev) => {
+ev.preventDefault();
+const url = new URL(window.location);
+url.searchParams.set('q', input.value);
+history.replaceState({}, null, url.toString());
+search(input.value);
+});
+const query = new URL(window.location).searchParams.get('q');
+if (query)
+search(query);
+function search(query) {
+const url = '../../../../doc-search.html#' + encodeURIComponent(query);
+new tingle.modal({
+cssClass: ['modal-dialog'],
+onClose: () => {
+const url = new URL(window.location);
+url.searchParams.delete('q');
+history.replaceState({}, null, url.toString());
+setTimeout(() => input.focus(), 100);
+}
+}).setContent('<iframe src="' + url + '"></iframe>').open();
+}
+</script>
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pycollector.model.yolov5.utils" href="index.html">pycollector.model.yolov5.utils</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="pycollector.model.yolov5.utils.autoanchor.check_anchor_order" href="#pycollector.model.yolov5.utils.autoanchor.check_anchor_order">check_anchor_order</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.autoanchor.check_anchors" href="#pycollector.model.yolov5.utils.autoanchor.check_anchors">check_anchors</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.autoanchor.kmean_anchors" href="#pycollector.model.yolov5.utils.autoanchor.kmean_anchors">kmean_anchors</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

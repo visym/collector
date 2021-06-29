@@ -1,0 +1,1978 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>pycollector.video API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}#lunr-search{width:100%;font-size:1em;padding:6px 9px 5px 9px;border:1px solid silver}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pycollector.video</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/video.py#L0-L598" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">import os
+import random
+import warnings
+from datetime import datetime, timedelta
+import numpy as np
+import pandas as pd
+import copy
+import decimal
+from decimal import Decimal
+import calendar
+import pytz
+import hashlib
+import uuid
+import urllib
+import xmltodict
+from boto3.dynamodb.conditions import Key, Attr
+import webbrowser
+
+import vipy
+
+assert vipy.version.is_at_least(&#34;1.8.24&#34;)
+from vipy.util import readjson, isS3url, tempjson, tempdir, totempdir, remkdir
+from vipy.util import flatlist, tolist, groupbyasdict, writecsv, filebase, filetail, filepath, fileext, isurl, tolist
+from vipy.object import Track
+import vipy.version
+import vipy.activity
+from vipy.video import Scene
+from vipy.geometry import BoundingBox
+import vipy.downloader
+import vipy.version
+
+from pycollector.util import allmondays_since, yyyymmdd_to_date, is_email_address, isday, is_more_recent_than, nextday, lastmonday
+from pycollector.util import lowerif, timestamp, fromdate, ismonday
+from pycollector.globals import print
+
+try:
+    import ujson as json  # faster
+except ImportError:
+    import json
+
+
+class Video(Scene):
+    &#34;&#34;&#34;pycollector.video.Video class&#34;&#34;&#34;
+
+    def __init__(
+        self,
+        mp4file=None,
+        mp4url=None,
+        jsonurl=None,
+        jsonfile=None,
+        mindim=512,
+        dt=1,
+        fetch=True,
+        attributes=None,
+    ):
+        assert mp4file is not None or mp4url is not None, &#34;Invalid input - Must provide either mp4file or mp4url&#34;
+        assert jsonurl is not None or jsonfile is not None, &#34;Invalid input - Must provide either jsonurl or jsonfile&#34;
+        assert mp4url is None or isS3url(mp4url), &#34;Invalid input - mp4url must be of the form returned from pycollector.project&#34;
+        assert jsonurl is None or isS3url(jsonurl), &#34;Invalid input - jsonurl must be of the form returned from pycollector.project&#34;
+
+        # AWS credentials (if needed) must be set by pycollector.user
+        if (jsonurl is not None and (jsonfile is None or not os.path.exists(jsonfile))) or (
+            mp4url is not None and (mp4file is None or not os.path.exists(mp4file))
+        ):
+            assert (
+                &#34;VIPY_AWS_ACCESS_KEY_ID&#34; in os.environ and &#34;VIPY_AWS_SECRET_ACCESS_KEY&#34; in os.environ
+            ), &#34;AWS access keys not found - Log in using pycollector.user&#34;
+
+        # Vipy video constructor
+        super().__init__(url=mp4url, filename=mp4file, attributes=attributes)
+
+        # Video attributes
+        # self._quicklook_url = &#34;https://%s.s3.amazonaws.com/Quicklooks/%%s_quicklook_%%s_%%d.jpg&#34; % (backend().s3_bucket())   # FIXME: pycollector.admin.video
+        self._mp4url = mp4url
+        self._mp4file = mp4file
+        self._jsonurl = jsonurl
+        self._jsonfile = os.path.abspath(os.path.expanduser(jsonfile)) if jsonfile is not None else jsonfile
+        self._dt = dt
+        self._is_json_loaded = None
+        self._mindim = mindim
+        self._verbose = False  # FIXME
+        if fetch:
+            self._load_json()
+
+    @classmethod
+    def cast(self, v):
+        assert isinstance(v, vipy.video.Scene), &#34;Invalid input - must be derived from vipy.video.Scene&#34;
+        v.__class__ = Video
+        v._is_json_loaded = True
+        return v
+
+    @classmethod
+    def from_json(obj, s):
+        d = json.loads(s) if not isinstance(s, dict) else s
+        v = Scene.from_json(d)
+        v._is_json_loaded = d[&#34;_is_json_loaded&#34;]
+        v._dt = d[&#34;_dt&#34;]
+        v._mindim = d[&#34;_mindim&#34;]
+        v._verbose = d[&#34;_verbose&#34;]
+        v._jsonfile = d[&#34;_jsonfile&#34;]
+        v._jsonurl = d[&#34;_jsonurl&#34;]
+        v._mp4file = d[&#34;_mp4file&#34;]
+        v._mp4url = d[&#34;_mp4url&#34;]
+        v.__class__ = Video
+        return v
+
+    def json(self, encode=True):
+        d = super().json(encode=False)
+        d[&#34;_is_json_loaded&#34;] = self._is_json_loaded
+        d[&#34;_dt&#34;] = self._dt
+        d[&#34;_mindim&#34;] = self._mindim
+        d[&#34;_verbose&#34;] = self._verbose
+        d[&#34;_jsonfile&#34;] = self._jsonfile
+        d[&#34;_jsonurl&#34;] = self._jsonurl
+        d[&#34;_mp4file&#34;] = self._mp4file
+        d[&#34;_mp4url&#34;] = self._mp4url
+        return json.dumps(d) if encode else d
+
+    def __repr__(self):
+        return str(
+            &#34;&lt;pycollector.video: uploaded=%s, activities=%s, scene=%s&gt;&#34;
+            % (
+                self.timestamp().strftime(&#34;%Y-%m-%d %H:%M&#34;) if self.timestamp() is not None else str(None),
+                self.activity_categories(),
+                str(super().__repr__()),
+            )
+        )
+
+    def _load_json(self):
+        &#34;&#34;&#34;Lazy JSON download, parse, and import&#34;&#34;&#34;
+
+        # Already loaded?  Call once
+        if self._is_json_loaded is not None:
+            return self
+
+        # Not downloaded?
+        if not self.hasjson():
+            self.fetchjson()
+
+        # Parse JSON (with version error handling)
+        jsonfile = self._jsonfile
+        if jsonfile is not None and os.path.getsize(jsonfile) != 0:
+            if self._verbose:
+                print(&#39;[pycollector.video]:  Parsing &#34;%s&#34;&#39; % jsonfile)
+
+            d = readjson(jsonfile)
+            if &#34;collection_id&#34; not in d[&#34;metadata&#34;]:
+                d[&#34;metadata&#34;][&#34;collection_id&#34;] = d[&#34;metadata&#34;][&#34;video_id&#34;]  # android 1.1.1(3) bug
+
+            for obj in d[&#34;object&#34;]:
+                if &#34;label&#34; not in obj:
+                    obj[&#34;label&#34;] = &#34;person&#34;  # android 1.1.1(3) bug
+                if &#34;label&#34; in obj and obj[&#34;label&#34;] == &#34;vehicle&#34;:
+                    # obj[&#39;label&#39;] = &#39;person&#39;  # all bug
+                    pass
+                for bb in obj[&#34;bounding_box&#34;]:
+                    if &#34;frame_index&#34; not in bb and &#34;frameIndex&#34; in bb:
+                        bb[&#34;frame_index&#34;] = bb[&#34;frameIndex&#34;]  # android 1.1.1(3) bug
+
+            d[&#34;metadata&#34;][&#34;rotate&#34;] = None
+            if d[&#34;metadata&#34;][&#34;orientation&#34;] == &#34;landscape&#34;:
+                # d[&#39;metadata&#39;][&#39;rotate&#39;] = &#39;rot90cw&#39;
+                pass
+            elif d[&#34;metadata&#34;][&#34;orientation&#34;] == &#34;portrait&#34;:
+                # d[&#39;metadata&#39;][&#39;rotate&#39;] = &#39;rot90ccw&#39;
+                pass
+            else:
+                pass
+
+            if &#34;device_type&#34; in d[&#34;metadata&#34;] and &#34;device_identifier&#34; == &#34;ios&#34;:
+                d[&#34;metadata&#34;][&#34;rotate&#34;] = &#34;rot90ccw&#34;  # iOS (7) bug, different than iOS (6)
+
+            # FIXME: &#34;collected_date&#34;:&#34;2020-06-19T18:34:33+0000&#34; on both now
+            try:
+                uploaded = datetime.strptime(d[&#34;metadata&#34;][&#34;collected_date&#34;], &#34;%Y-%m-%d %H:%M:%S %z&#34;)  # iOS 1.0 (6)
+            except:
+                try:
+                    uploaded = datetime.strptime(d[&#34;metadata&#34;][&#34;collected_date&#34;], &#34;%Y-%m-%d %I:%M:%S %p %z&#34;)  # bug number 55
+                except:
+                    uploaded = datetime.strptime(d[&#34;metadata&#34;][&#34;collected_date&#34;], &#34;%Y-%m-%dT%H:%M:%S%z&#34;)  # android 1.1.1 (3)
+
+            # if isapi(&#39;v1&#39;):
+            #    d[&#34;metadata&#34;][&#34;collected_date&#34;] = uploaded.strftime(
+            #        &#34;%Y-%m-%d %H:%M:%S&#34;
+            #    )
+            # else:
+            #    et = pytz.timezone(&#34;US/Eastern&#34;)
+            #    d[&#34;metadata&#34;][&#34;collected_date&#34;] = uploaded.astimezone(et).strftime(&#34;%Y-%m-%d %H:%M:%S&#34;)
+
+            et = pytz.timezone(&#34;US/Eastern&#34;)
+            d[&#34;metadata&#34;][&#34;collected_date&#34;] = uploaded.astimezone(et).strftime(&#34;%Y-%m-%d %H:%M:%S&#34;)
+
+        else:
+            print(&#39;[pycollector.video]: empty JSON &#34;%s&#34;&#39; % jsonfile)
+            d = None
+
+        # Backwards compatible video import: should not be necessary with new app release
+        if d is not None and not &#34;category&#34; in d[&#34;metadata&#34;]:
+            vipy.util.try_import(&#34;pycollector.admin.globals&#34;, message=&#34;Not authorized - Old style JSON requires admin access&#34;)
+            from pycollector.admin.globals import backend, isapi
+            from pycollector.admin.legacy import applabel_to_longlabel, shortname_synonyms, applabel_to_piplabel
+
+            # V1 - old collection name pattern
+            if any([d[&#34;metadata&#34;][&#34;collection_id&#34;] in k for k in applabel_to_piplabel().keys()]):
+                try:
+                    d[&#34;metadata&#34;][&#34;collection_name&#34;] = d[&#34;metadata&#34;][&#34;collection_id&#34;]
+                    applabel = [&#34;%s_%s_%s&#34; % (d[&#34;metadata&#34;][&#34;project_id&#34;], d[&#34;metadata&#34;][&#34;collection_id&#34;], a[&#34;label&#34;]) for a in d[&#34;activity&#34;]]
+                    synonyms = shortname_synonyms()
+                    applabel = [
+                        a
+                        if (a in applabel_to_piplabel() or a in applabel_to_longlabel())
+                        else &#34;%s_%s_%s&#34; % (d[&#34;metadata&#34;][&#34;project_id&#34;], d[&#34;metadata&#34;][&#34;collection_id&#34;], synonyms[a.split(&#34;_&#34;)[2]])
+                        for a in applabel
+                    ]
+                    d[&#34;metadata&#34;][&#34;category&#34;] = &#34;,&#34;.join(
+                        [applabel_to_piplabel()[a] if a in applabel_to_piplabel() else applabel_to_longlabel()[a] for a in applabel]
+                    )
+                    d[&#34;metadata&#34;][&#34;shortname&#34;] = &#34;,&#34;.join([a.split(&#34;_&#34;)[2] for a in applabel])
+                except Exception as e:
+                    print(&#39;[pycollector.video]: legacy json import failed for v1 JSON &#34;%s&#34; with error &#34;%s&#34;&#39; % (str(d[&#34;metadata&#34;]), str(e)))
+                    d = None
+
+            # V2 - new collection names, but activity names not in JSON
+            elif isapi(&#34;v1&#34;) or isapi(&#34;v2&#34;):
+                version = &#34;v1&#34; if isapi(&#34;v1&#34;) else &#34;v2&#34;
+                if version == &#34;v1&#34;:
+                    backend(org=&#34;str&#34;, env=&#34;prod&#34;, version=&#34;v2&#34;)  # temporary switch
+
+                if not backend().collections().iscollectionid(d[&#34;metadata&#34;][&#34;collection_id&#34;]):
+                    print(&#39;[pycollector.video]: invalid collection ID &#34;%s&#34;&#39; % d[&#34;metadata&#34;][&#34;collection_id&#34;])
+                    d = None
+                elif len(d[&#34;activity&#34;]) == 1 and len(d[&#34;activity&#34;][0][&#34;label&#34;]) == 0:
+                    d[&#34;activity&#34;] = []
+                    d[&#34;metadata&#34;][&#34;category&#34;] = &#34;&#34;
+                    d[&#34;metadata&#34;][&#34;shortname&#34;] = &#34;&#34;
+                else:
+                    try:
+                        # Fetch labels from backend (with legacy shortname translation)
+                        C = backend().collections()[d[&#34;metadata&#34;][&#34;collection_id&#34;]]
+                        d[&#34;metadata&#34;][&#34;collection_name&#34;] = backend().collections().id_to_name(d[&#34;metadata&#34;][&#34;collection_id&#34;])
+                        shortnames = []
+                        for a in d[&#34;activity&#34;]:
+                            if not (a[&#34;label&#34;] in C.shortnames() or a[&#34;label&#34;] in shortname_synonyms()):
+                                raise ValueError(
+                                    &#34;Invalid shortname &#39;%s&#39; for collection shortnames &#39;%s&#39; and not in legacy synonyms &#39;%s&#39;&#34;
+                                    % (a[&#34;label&#34;], str(C.shortnames()), str(shortname_synonyms()))
+                                )
+                            shortnames.append(a[&#34;label&#34;] if a[&#34;label&#34;] in C.shortnames() else shortname_synonyms()[a[&#34;label&#34;]])
+                        d[&#34;metadata&#34;][&#34;category&#34;] = &#34;,&#34;.join([C.shortname_to_activity(s, strict=False) for s in shortnames])
+                        d[&#34;metadata&#34;][&#34;shortname&#34;] = &#34;,&#34;.join([s for s in shortnames])
+                    except Exception as e:
+                        print(&#34;[pycollector.video]: label fetch failed for %s with exception %s&#34; % (str(d[&#34;activity&#34;]), str(e)))
+                        d = None
+
+                if version == &#34;v1&#34;:
+                    backend(org=&#34;str&#34;, env=&#34;prod&#34;, version=&#34;v1&#34;)  # switch back
+            else:
+                print(&#39;[pycollector.video]: Legacy JSON import failed for JSON with metadata - &#34;%s&#34;&#39; % str(d[&#34;metadata&#34;]))
+                d = None
+
+        else:
+            # New style JSON: use labels stored directly in JSON
+            pass
+
+        # Import JSON into scene
+        if d is not None:
+
+            # TODO - Replace with video_data
+            collection_name = d[&#34;metadata&#34;][&#34;collection_name&#34;]
+
+            self.category(collection_name)
+            self.attributes = {} if self.attributes is None else self.attributes
+            self.attributes.update(d[&#34;metadata&#34;])
+            self.framerate(float(d[&#34;metadata&#34;][&#34;frame_rate&#34;]))
+
+            # FIXME: this videoID &#39;20200421_1500081666724286&#39; has low framerate.  Parsing is correct, but load() and show() is too fast
+            # This requires explicitly setting output framerate in vipy.video
+
+            # Import tracks
+            d_trackid_to_track = {}
+            for obj in d[&#34;object&#34;]:
+
+                keyboxes = [
+                    BoundingBox(
+                        xmin=bb[&#34;frame&#34;][&#34;x&#34;],
+                        ymin=bb[&#34;frame&#34;][&#34;y&#34;],
+                        width=bb[&#34;frame&#34;][&#34;width&#34;],
+                        height=bb[&#34;frame&#34;][&#34;height&#34;],
+                    )
+                    for bb in sorted(obj[&#34;bounding_box&#34;], key=lambda x: x[&#34;frame_index&#34;])
+                ]
+                keyframes = [bb[&#34;frame_index&#34;] for bb in sorted(obj[&#34;bounding_box&#34;], key=lambda x: x[&#34;frame_index&#34;])]
+
+                badboxes = [bb for bb in keyboxes if not bb.isvalid()]
+                if len(badboxes) &gt; 0:
+                    print(
+                        &#39;[pycollector.video]: Removing %d bad keyboxes &#34;%s&#34; for videoid=%s&#39;
+                        % (len(badboxes), str(badboxes), d[&#34;metadata&#34;][&#34;video_id&#34;])
+                    )
+                if len(badboxes) == len(keyboxes):
+                    raise ValueError(&#34;all keyboxes in track are invalid&#34;)
+
+                t = Track(
+                    category=obj[&#34;label&#34;],
+                    framerate=float(d[&#34;metadata&#34;][&#34;frame_rate&#34;]),
+                    keyframes=[int(f) for (f, bb) in zip(keyframes, keyboxes) if bb.isvalid()],
+                    boxes=[bb for (f, bb) in zip(keyframes, keyboxes) if bb.isvalid()],
+                    boundary=&#34;strict&#34;,
+                )
+                if vipy.version.is_at_least(&#34;0.8.3&#34;):
+                    self.add(t, rangecheck=False)  # no rangecheck since all tracks are guarnanteed to be within image rectangle
+                else:
+                    self.add(t)
+                d_trackid_to_track[t.id()] = t
+
+            # Category variants:  a_category_name#Variant1=A&amp;Joint=a_joint_label:Short Label&amp;Variant2=B
+            variant = {}
+            d_shortname_to_category = {s: c for (s, c) in zip(d[&#34;metadata&#34;][&#34;shortname&#34;].split(&#34;,&#34;), d[&#34;metadata&#34;][&#34;category&#34;].split(&#34;,&#34;))}
+            if &#34;#&#34; in d[&#34;metadata&#34;][&#34;category&#34;]:
+                d_shortname_to_category = {s: c.split(&#34;#&#34;)[0] for (s, c) in d_shortname_to_category.items()}  # shortname and category may be empty
+                variantlist = list(set([c.split(&#34;#&#34;)[1] if &#34;#&#34; in c else None for c in d[&#34;metadata&#34;][&#34;category&#34;].split(&#34;,&#34;)]))
+                if len(variantlist) != 1:
+                    print(&#39;[pycollector.video]: WARNING - Ignoring mixed variant &#34;%s&#34;&#39; % str(variantlist))
+                elif all([len(v) == 0 for v in variantlist]):
+                    pass  # empty variant
+                elif any([&#34;=&#34; not in v or v.count(&#34;&amp;&#34;) != (v.count(&#34;=&#34;) - 1) for v in variantlist]):
+                    print(&#39;[pycollector.video]: WARNING - Ignoring invalid variant &#34;%s&#34;&#39; % str(variantlist))
+                else:
+                    variant = {k.split(&#34;=&#34;)[0]: k.split(&#34;=&#34;)[1] for k in variantlist[0].split(&#34;&amp;&#34;)}
+            self.attributes[&#34;variant&#34;] = variant
+
+            # Import activities
+            for a in d[&#34;activity&#34;]:
+                try:
+                    # Legacy shortname display
+                    if a[&#34;label&#34;] not in d_shortname_to_category:
+                        if a[&#34;label&#34;] not in shortname_synonyms():
+                            raise ValueError(
+                                &#34;Invalid shortname &#39;%s&#39; for collection shortnames &#39;%s&#39; and not in legacy synonyms &#39;%s&#39;&#34;
+                                % (a[&#34;label&#34;], d_shortname_to_category, str(shortname_synonyms()))
+                            )
+                        a[&#34;label&#34;] = a[&#34;label&#34;] if a[&#34;label&#34;] in d_shortname_to_category else shortname_synonyms()[a[&#34;label&#34;]]  # legacy translation
+                    if d[&#34;metadata&#34;][&#34;collection_id&#34;] == &#34;P004C009&#34; and d[&#34;metadata&#34;][&#34;device_identifier&#34;] == &#34;android&#34;:
+                        shortlabel = &#34;Buying (Machine)&#34;
+                    elif d[&#34;metadata&#34;][&#34;collection_id&#34;] == &#34;P004C008&#34; and d[&#34;metadata&#34;][&#34;device_identifier&#34;] == &#34;ios&#34; and &#34;Purchasing&#34; in a[&#34;label&#34;]:
+                        # BUG: iOS (11) reports wrong collection id for &#34;purchase something from a machine&#34; as P004C008 instead of P004C009
+                        shortlabel = &#34;Buying (Machine)&#34;
+                    elif d[&#34;metadata&#34;][&#34;collection_id&#34;] == &#34;P004C009&#34; and d[&#34;metadata&#34;][&#34;device_identifier&#34;] == &#34;ios&#34;:
+                        # BUG: iOS (11) reports wrong collection id for &#34;pickup and dropoff with bike messenger&#34; as P004C009 instead of P004C010
+                        shortlabel = a[&#34;label&#34;]  # unchanged
+                    elif d[&#34;metadata&#34;][&#34;collection_id&#34;] == &#34;P005C003&#34;:
+                        shortlabel = &#34;Buying (Cashier)&#34;
+                    else:
+                        shortlabel = a[&#34;label&#34;]
+
+                    # category = backend().collection()[d[&#34;metadata&#34;][&#34;collection_id&#34;]].shortname_to_activity(a[&#34;label&#34;])
+                    category = d_shortname_to_category[a[&#34;label&#34;]]
+                    self.add(
+                        vipy.activity.Activity(
+                            category=category,
+                            shortlabel=shortlabel,
+                            startframe=int(a[&#34;start_frame&#34;]),
+                            endframe=int(a[&#34;end_frame&#34;]),
+                            tracks=d_trackid_to_track,
+                            framerate=d[&#34;metadata&#34;][&#34;frame_rate&#34;],
+                        )
+                    )
+
+                except Exception as e:
+                    print(
+                        &#39;[pycollector.video]: Filtering invalid activity JSON &#34;%s&#34; with error &#34;%s&#34; for videoid=%s&#39;
+                        % (str(a), str(e), d[&#34;metadata&#34;][&#34;video_id&#34;])
+                    )
+
+            # Joint activity?  Occurs simultaneously with any JSON defined activities
+            if &#34;Joint&#34; in variant:
+                self.add(
+                    vipy.activity.Activity(
+                        category=variant[&#34;Joint&#34;].split(&#34;:&#34;)[0],
+                        shortlabel=variant[&#34;Joint&#34;].split(&#34;:&#34;)[1] if &#34;:&#34; in variant[&#34;Joint&#34;] else None,
+                        startframe=min([int(a[&#34;start_frame&#34;]) for a in d[&#34;activity&#34;]]) if len(d[&#34;activity&#34;]) &gt; 0 else 0,
+                        endframe=max([int(a[&#34;end_frame&#34;]) for a in d[&#34;activity&#34;]])
+                        if len(d[&#34;activity&#34;]) &gt; 0
+                        else int(np.round(float(d[&#34;metadata&#34;][&#34;duration&#34;]) * float(d[&#34;metadata&#34;][&#34;frame_rate&#34;]))),
+                        tracks=d_trackid_to_track,
+                        framerate=d[&#34;metadata&#34;][&#34;frame_rate&#34;],
+                    )
+                )
+
+            if d[&#34;metadata&#34;][&#34;rotate&#34;] == &#34;rot90ccw&#34;:
+                self.rot90ccw()
+            elif d[&#34;metadata&#34;][&#34;rotate&#34;] == &#34;rot90cw&#34;:
+                self.rot90cw()
+
+            self._is_json_loaded = True
+
+            # Minimum dimension of video for reasonably fast interactions (must happen after JSON load to get frame size from JSON)
+            if self._mindim is not None:
+                if &#34;frame_width&#34; in self.metadata() and &#34;frame_height&#34; in self.metadata():  # older JSON bug
+                    s = float(min(int(self.metadata()[&#34;frame_width&#34;]), int(self.metadata()[&#34;frame_height&#34;])))
+                    if s &gt; 256:
+                        newrows = int(np.round(self.metadata()[&#34;frame_height&#34;]) * (self._mindim / float(s)))
+                        newcols = int(np.round(self.metadata()[&#34;frame_width&#34;]) * (self._mindim / float(s)))
+                        self.resize(rows=newrows, cols=newcols)  # does not require load
+                    else:
+                        print(&#34;[pycollector.video]: Filtering Invalid JSON (height, width)&#34;)
+                        self._is_json_loaded = False
+                else:
+                    assert vipy.version.is_at_least(&#34;0.8.0&#34;)
+                    self.clear()  # remove this old video from consideration
+                    self._is_json_loaded = False
+        else:
+            print(&#34;[pycollector.video]: JSON load failed - SKIPPING&#34;)
+            self._is_json_loaded = False
+
+        # Resample tracks
+        if self._dt &gt; 1 and self._is_json_loaded:
+            self.trackmap(lambda t: t.resample(self._dt).significant_digits(2))
+
+        assert vipy.version.is_at_least(&#34;1.8.34&#34;)
+        self.trackmap(lambda t: t.significant_digits(2))
+        return self
+
+    def isedited(self):
+        return (
+            &#34;_&#34; in self._jsonfile and filebase(self._jsonfile).split(&#34;_&#34;)[0] == self.videoid()
+        )  # edited JSON has the structure $VIDEOID_TIMESTAMP.json
+
+    def editedat(self):
+        &#34;&#34;&#34;Android appends an &#39;_&lt;int&gt;&#39;  timestamp as milliseconds since epoch (POSIX timestamp), iOS will replace the first &#39;_datetimestr&#39; with a new datetimest&#34;&#34;&#34;
+        return filebase(self._jsonfile).split(&#34;_&#34;)[-1] if self.isedited() else None
+
+    def edited(self):
+        &#34;&#34;&#34;Return the datetime representation of the editedat() string&#34;&#34;&#34;
+        try:
+            # iOS uses a UTC formatted datetime string
+            return datetime.strptime(self.editedat(), &#34;%Y-%m-%dT%H:%M:%S%z&#34;).astimezone(tz=None)  # iOS
+        except:
+            # Android appends milliseconds since epoch 
+            # https://github.com/visym/collector-app/blob/5dd0b649efde6166b65d4d270b3077e764cfa421/Android/strvideocapture/app/src/main/java/com/visym/collector/utils/FileUtil.java#L117
+            return datetime.fromtimestamp(int(self.editedat())//1000)
+ 
+    def variant(self):
+        &#34;&#34;&#34;Category variant&#34;&#34;&#34;
+        return self.attributes[&#34;variant&#34;] if &#34;variant&#34; in self.attributes else None
+
+    def geolocation(self):
+        assert &#34;ipAddress&#34; in self.metadata(), &#34;Invalid JSON&#34;
+        url = &#34;http://api.geoiplookup.net/?query=%s&#34; % self.metadata()[&#34;ipAddress&#34;]
+        with urllib.request.urlopen(url) as f:
+            response = f.read().decode(&#34;utf-8&#34;)
+        d = xmltodict.parse(response)
+        return dict(d[&#34;ip&#34;][&#34;results&#34;][&#34;result&#34;])
+
+    def fetch(self, ignoreErrors=False):
+        &#34;&#34;&#34;Download JSON and MP4 if not already downloaded&#34;&#34;&#34;
+        self.fetchjson()  # Do we need this?
+        return self.fetchvideo()
+
+    def fetchvideo(self, ignoreErrors=False):
+        super().fetch()
+        return self
+
+    def fetchjson(self):
+        &#34;&#34;&#34;Download JSON if not already downloaded&#34;&#34;&#34;
+
+        if self._jsonfile is None:
+            self._jsonfile = os.path.join(
+                remkdir(os.environ[&#34;VIPY_CACHE&#34;] if &#34;VIPY_CACHE&#34; in os.environ else tempdir()),
+                filetail(self._jsonurl),
+            )
+            if not os.path.exists(self._jsonfile):
+                print(&#39;[pycollector.video]:  Fetching &#34;%s&#34;&#39; % self._jsonurl)
+                try:
+                    vipy.downloader.s3(
+                        self._jsonurl, self._jsonfile
+                    )  # TODO - this is a problem to assume vipy user also has access to S3. We should decouple this dependency of using vipy
+
+                except KeyboardInterrupt:
+                    raise
+                except Exception as e:
+                    print(&#39;[pycollector.video]: S3 download error &#34;%s&#34; - SKIPPING&#39; % str(e))
+                    jsonfile = None
+        return self
+
+    def is_json_loaded(self):
+        return self._is_json_loaded
+
+    def hasjson(self):
+        self.fetchjson()
+        return os.path.exists(self._jsonfile)
+
+    def hasMP4(self):
+        return self.fetch().hasfilename()
+
+    def activity_categories(self):
+        &#34;&#34;&#34;Return a set of unique activity categories in the video, not including object categories&#34;&#34;&#34;
+        self._load_json()
+        return set([a.category() for a in self._load_json().activities().values()])
+
+    def quicklooks(self, n=9, dilate=1.5, mindim=256, fontsize=10, context=True):
+        &#34;&#34;&#34;Return a vipy.image.Image object containing a montage quicklook for each of the activities in this video.
+
+        Usage:
+
+        &gt;&gt;&gt; filenames = [im.saveas(&#39;/path/to/quicklook.jpg&#39;) for im in self.quicklooks()]
+
+        &#34;&#34;&#34;
+        assert vipy.version.is_at_least(&#34;0.8.2&#34;)
+        print(&#39;[pycollector.video]: Generating quicklooks for video &#34;%s&#34;&#39; % self.videoid())
+        return [a.quicklook(n=n, dilate=dilate, mindim=mindim, fontsize=fontsize, context=context) for a in self.fetch().activityclip()]
+
+    def trim(self, padframes=0):
+        &#34;&#34;&#34;Temporally clip the video so that the video start is the beginning of the first activity, and the end of the video is the end of the last activity.
+        Optionally add a temporal pad of padframes before and after the clip&#34;&#34;&#34;
+        startframe = max(0, min([a.startframe() for (k, a) in self.fetch().activities().items()]))
+        endframe = max([a.endframe() for (k, a) in self.activities().items()])
+        self.clip(startframe - padframes, endframe + padframes)
+        return self
+
+    def timestamp(self):
+        &#34;&#34;&#34;Return collected_date from json as a datetime object,
+        WARNING:  older veresion of the app do not include timezone info in this string, so this datetime is not offset aware
+        &#34;&#34;&#34;
+        et = pytz.timezone(&#34;US/Eastern&#34;)
+        return datetime.strptime(self.attributes[&#34;collected_date&#34;], &#34;%Y-%m-%d %H:%M:%S&#34;).astimezone(et)
+
+    def uploaded(self):
+        # print(&#34;[pycollector.video]: WARNING - Reporting timestamp in the JSON, which may differ from the actual time the backend processed the video&#34;)
+        return self.timestamp()
+
+    def metadata(self):
+        return self._load_json().attributes
+
+    def videoid(self):
+        return self.attributes[&#34;video_id&#34;] if &#34;video_id&#34; in self._load_json().attributes else None
+
+    def collectorid(self):
+        return self.attributes[&#34;collector_id&#34;] if &#34;collector_id&#34; in self._load_json().attributes else None
+
+    def subjectid(self):
+        return self.attributes[&#34;subject_id&#34;][0] if &#34;subject_id&#34; in self._load_json().attributes else None
+
+    def collectionid(self):
+        return self.attributes[&#34;collection_id&#34;] if &#34;collection_id&#34; in self._load_json().attributes else None
+
+    def collection_name(self):
+        return self.attributes[&#34;collection_name&#34;] if &#34;collection_name&#34; in self._load_json().attributes else None
+
+    def collection(self):
+        return self.collection_name()
+
+    def duration(self):
+        &#34;&#34;&#34;Video length in seconds&#34;&#34;&#34;
+        return float(self.attributes[&#34;duration&#34;]) if &#34;duration&#34; in self._load_json().attributes else 0.0
+
+    def quickshow(self, framerate=10, nocaption=False):
+        print(&#34;[pycollector.video]: setting quickshow input framerate=%d&#34; % framerate)
+        return self.fetch().clone().framerate(framerate).mindim(256).show(nocaption=nocaption)
+
+    def downcast(self):
+        &#34;&#34;&#34;Convert from pycollector.video to vipy.video.Scene by downcasting class&#34;&#34;&#34;
+        v = self.clone()
+        v.__class__ = Scene
+        return v
+
+    def upcast(self):
+        &#34;&#34;&#34;Convert from pycollector.video to pycollector.admin.video by upcasting class, available to admins only&#34;&#34;&#34;
+        vipy.util.try_import(&#34;pycollector.admin.video&#34;, message=&#34;Access denied - upcast() is limited to Visym Collector admins only&#34;)
+        import pycollector.admin.video
+
+        v = self.clone()
+        v.__class__ = pycollector.admin.video.Video
+        return v
+
+    def project(self):
+        return self.attributes[&#34;project_name&#34;]
+
+    def program(self):
+        return self.attributes[&#34;program_name&#34;]
+
+    def object_detection(self, frame=1):
+        &#34;&#34;&#34;Run an object detector on a given frame of video.  It is more efficient to construct an ObjectDetector() object once and reuse it.&#34;&#34;&#34;
+        from pycollector.detection import ObjectDetector
+        return ObjectDetector()(self.frame(frame))
+
+    def face_detection(self, frame=1):
+        &#34;&#34;&#34;Run face detection on a given frame of video.  It is more efficient to construct a FaceDetector() object once and reuse it.&#34;&#34;&#34;
+        from pycollector.detection import FaceDetector
+        return FaceDetector()(self.frame(frame))
+
+    def faces(self, frame=1):
+        &#34;&#34;&#34;Alias for face_detection&#34;&#34;&#34;
+        return self.face_detection(frame=frame)
+
+    
+def last(n=1, program=None):
+    import pycollector.project
+    return pycollector.project.Project(program=program, since=&#34;2020-09-01&#34;, last=n).last(n)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="pycollector.video.last"><code class="name flex">
+<span>def <span class="ident">last</span></span>(<span>n=1, program=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/video.py#L597-L599" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def last(n=1, program=None):
+    import pycollector.project
+    return pycollector.project.Project(program=program, since=&#34;2020-09-01&#34;, last=n).last(n)</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="pycollector.video.Video"><code class="flex name class">
+<span>class <span class="ident">Video</span></span>
+<span>(</span><span>mp4file=None, mp4url=None, jsonurl=None, jsonfile=None, mindim=512, dt=1, fetch=True, attributes=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>pycollector.video.Video class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/video.py#L42-L594" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class Video(Scene):
+    &#34;&#34;&#34;pycollector.video.Video class&#34;&#34;&#34;
+
+    def __init__(
+        self,
+        mp4file=None,
+        mp4url=None,
+        jsonurl=None,
+        jsonfile=None,
+        mindim=512,
+        dt=1,
+        fetch=True,
+        attributes=None,
+    ):
+        assert mp4file is not None or mp4url is not None, &#34;Invalid input - Must provide either mp4file or mp4url&#34;
+        assert jsonurl is not None or jsonfile is not None, &#34;Invalid input - Must provide either jsonurl or jsonfile&#34;
+        assert mp4url is None or isS3url(mp4url), &#34;Invalid input - mp4url must be of the form returned from pycollector.project&#34;
+        assert jsonurl is None or isS3url(jsonurl), &#34;Invalid input - jsonurl must be of the form returned from pycollector.project&#34;
+
+        # AWS credentials (if needed) must be set by pycollector.user
+        if (jsonurl is not None and (jsonfile is None or not os.path.exists(jsonfile))) or (
+            mp4url is not None and (mp4file is None or not os.path.exists(mp4file))
+        ):
+            assert (
+                &#34;VIPY_AWS_ACCESS_KEY_ID&#34; in os.environ and &#34;VIPY_AWS_SECRET_ACCESS_KEY&#34; in os.environ
+            ), &#34;AWS access keys not found - Log in using pycollector.user&#34;
+
+        # Vipy video constructor
+        super().__init__(url=mp4url, filename=mp4file, attributes=attributes)
+
+        # Video attributes
+        # self._quicklook_url = &#34;https://%s.s3.amazonaws.com/Quicklooks/%%s_quicklook_%%s_%%d.jpg&#34; % (backend().s3_bucket())   # FIXME: pycollector.admin.video
+        self._mp4url = mp4url
+        self._mp4file = mp4file
+        self._jsonurl = jsonurl
+        self._jsonfile = os.path.abspath(os.path.expanduser(jsonfile)) if jsonfile is not None else jsonfile
+        self._dt = dt
+        self._is_json_loaded = None
+        self._mindim = mindim
+        self._verbose = False  # FIXME
+        if fetch:
+            self._load_json()
+
+    @classmethod
+    def cast(self, v):
+        assert isinstance(v, vipy.video.Scene), &#34;Invalid input - must be derived from vipy.video.Scene&#34;
+        v.__class__ = Video
+        v._is_json_loaded = True
+        return v
+
+    @classmethod
+    def from_json(obj, s):
+        d = json.loads(s) if not isinstance(s, dict) else s
+        v = Scene.from_json(d)
+        v._is_json_loaded = d[&#34;_is_json_loaded&#34;]
+        v._dt = d[&#34;_dt&#34;]
+        v._mindim = d[&#34;_mindim&#34;]
+        v._verbose = d[&#34;_verbose&#34;]
+        v._jsonfile = d[&#34;_jsonfile&#34;]
+        v._jsonurl = d[&#34;_jsonurl&#34;]
+        v._mp4file = d[&#34;_mp4file&#34;]
+        v._mp4url = d[&#34;_mp4url&#34;]
+        v.__class__ = Video
+        return v
+
+    def json(self, encode=True):
+        d = super().json(encode=False)
+        d[&#34;_is_json_loaded&#34;] = self._is_json_loaded
+        d[&#34;_dt&#34;] = self._dt
+        d[&#34;_mindim&#34;] = self._mindim
+        d[&#34;_verbose&#34;] = self._verbose
+        d[&#34;_jsonfile&#34;] = self._jsonfile
+        d[&#34;_jsonurl&#34;] = self._jsonurl
+        d[&#34;_mp4file&#34;] = self._mp4file
+        d[&#34;_mp4url&#34;] = self._mp4url
+        return json.dumps(d) if encode else d
+
+    def __repr__(self):
+        return str(
+            &#34;&lt;pycollector.video: uploaded=%s, activities=%s, scene=%s&gt;&#34;
+            % (
+                self.timestamp().strftime(&#34;%Y-%m-%d %H:%M&#34;) if self.timestamp() is not None else str(None),
+                self.activity_categories(),
+                str(super().__repr__()),
+            )
+        )
+
+    def _load_json(self):
+        &#34;&#34;&#34;Lazy JSON download, parse, and import&#34;&#34;&#34;
+
+        # Already loaded?  Call once
+        if self._is_json_loaded is not None:
+            return self
+
+        # Not downloaded?
+        if not self.hasjson():
+            self.fetchjson()
+
+        # Parse JSON (with version error handling)
+        jsonfile = self._jsonfile
+        if jsonfile is not None and os.path.getsize(jsonfile) != 0:
+            if self._verbose:
+                print(&#39;[pycollector.video]:  Parsing &#34;%s&#34;&#39; % jsonfile)
+
+            d = readjson(jsonfile)
+            if &#34;collection_id&#34; not in d[&#34;metadata&#34;]:
+                d[&#34;metadata&#34;][&#34;collection_id&#34;] = d[&#34;metadata&#34;][&#34;video_id&#34;]  # android 1.1.1(3) bug
+
+            for obj in d[&#34;object&#34;]:
+                if &#34;label&#34; not in obj:
+                    obj[&#34;label&#34;] = &#34;person&#34;  # android 1.1.1(3) bug
+                if &#34;label&#34; in obj and obj[&#34;label&#34;] == &#34;vehicle&#34;:
+                    # obj[&#39;label&#39;] = &#39;person&#39;  # all bug
+                    pass
+                for bb in obj[&#34;bounding_box&#34;]:
+                    if &#34;frame_index&#34; not in bb and &#34;frameIndex&#34; in bb:
+                        bb[&#34;frame_index&#34;] = bb[&#34;frameIndex&#34;]  # android 1.1.1(3) bug
+
+            d[&#34;metadata&#34;][&#34;rotate&#34;] = None
+            if d[&#34;metadata&#34;][&#34;orientation&#34;] == &#34;landscape&#34;:
+                # d[&#39;metadata&#39;][&#39;rotate&#39;] = &#39;rot90cw&#39;
+                pass
+            elif d[&#34;metadata&#34;][&#34;orientation&#34;] == &#34;portrait&#34;:
+                # d[&#39;metadata&#39;][&#39;rotate&#39;] = &#39;rot90ccw&#39;
+                pass
+            else:
+                pass
+
+            if &#34;device_type&#34; in d[&#34;metadata&#34;] and &#34;device_identifier&#34; == &#34;ios&#34;:
+                d[&#34;metadata&#34;][&#34;rotate&#34;] = &#34;rot90ccw&#34;  # iOS (7) bug, different than iOS (6)
+
+            # FIXME: &#34;collected_date&#34;:&#34;2020-06-19T18:34:33+0000&#34; on both now
+            try:
+                uploaded = datetime.strptime(d[&#34;metadata&#34;][&#34;collected_date&#34;], &#34;%Y-%m-%d %H:%M:%S %z&#34;)  # iOS 1.0 (6)
+            except:
+                try:
+                    uploaded = datetime.strptime(d[&#34;metadata&#34;][&#34;collected_date&#34;], &#34;%Y-%m-%d %I:%M:%S %p %z&#34;)  # bug number 55
+                except:
+                    uploaded = datetime.strptime(d[&#34;metadata&#34;][&#34;collected_date&#34;], &#34;%Y-%m-%dT%H:%M:%S%z&#34;)  # android 1.1.1 (3)
+
+            # if isapi(&#39;v1&#39;):
+            #    d[&#34;metadata&#34;][&#34;collected_date&#34;] = uploaded.strftime(
+            #        &#34;%Y-%m-%d %H:%M:%S&#34;
+            #    )
+            # else:
+            #    et = pytz.timezone(&#34;US/Eastern&#34;)
+            #    d[&#34;metadata&#34;][&#34;collected_date&#34;] = uploaded.astimezone(et).strftime(&#34;%Y-%m-%d %H:%M:%S&#34;)
+
+            et = pytz.timezone(&#34;US/Eastern&#34;)
+            d[&#34;metadata&#34;][&#34;collected_date&#34;] = uploaded.astimezone(et).strftime(&#34;%Y-%m-%d %H:%M:%S&#34;)
+
+        else:
+            print(&#39;[pycollector.video]: empty JSON &#34;%s&#34;&#39; % jsonfile)
+            d = None
+
+        # Backwards compatible video import: should not be necessary with new app release
+        if d is not None and not &#34;category&#34; in d[&#34;metadata&#34;]:
+            vipy.util.try_import(&#34;pycollector.admin.globals&#34;, message=&#34;Not authorized - Old style JSON requires admin access&#34;)
+            from pycollector.admin.globals import backend, isapi
+            from pycollector.admin.legacy import applabel_to_longlabel, shortname_synonyms, applabel_to_piplabel
+
+            # V1 - old collection name pattern
+            if any([d[&#34;metadata&#34;][&#34;collection_id&#34;] in k for k in applabel_to_piplabel().keys()]):
+                try:
+                    d[&#34;metadata&#34;][&#34;collection_name&#34;] = d[&#34;metadata&#34;][&#34;collection_id&#34;]
+                    applabel = [&#34;%s_%s_%s&#34; % (d[&#34;metadata&#34;][&#34;project_id&#34;], d[&#34;metadata&#34;][&#34;collection_id&#34;], a[&#34;label&#34;]) for a in d[&#34;activity&#34;]]
+                    synonyms = shortname_synonyms()
+                    applabel = [
+                        a
+                        if (a in applabel_to_piplabel() or a in applabel_to_longlabel())
+                        else &#34;%s_%s_%s&#34; % (d[&#34;metadata&#34;][&#34;project_id&#34;], d[&#34;metadata&#34;][&#34;collection_id&#34;], synonyms[a.split(&#34;_&#34;)[2]])
+                        for a in applabel
+                    ]
+                    d[&#34;metadata&#34;][&#34;category&#34;] = &#34;,&#34;.join(
+                        [applabel_to_piplabel()[a] if a in applabel_to_piplabel() else applabel_to_longlabel()[a] for a in applabel]
+                    )
+                    d[&#34;metadata&#34;][&#34;shortname&#34;] = &#34;,&#34;.join([a.split(&#34;_&#34;)[2] for a in applabel])
+                except Exception as e:
+                    print(&#39;[pycollector.video]: legacy json import failed for v1 JSON &#34;%s&#34; with error &#34;%s&#34;&#39; % (str(d[&#34;metadata&#34;]), str(e)))
+                    d = None
+
+            # V2 - new collection names, but activity names not in JSON
+            elif isapi(&#34;v1&#34;) or isapi(&#34;v2&#34;):
+                version = &#34;v1&#34; if isapi(&#34;v1&#34;) else &#34;v2&#34;
+                if version == &#34;v1&#34;:
+                    backend(org=&#34;str&#34;, env=&#34;prod&#34;, version=&#34;v2&#34;)  # temporary switch
+
+                if not backend().collections().iscollectionid(d[&#34;metadata&#34;][&#34;collection_id&#34;]):
+                    print(&#39;[pycollector.video]: invalid collection ID &#34;%s&#34;&#39; % d[&#34;metadata&#34;][&#34;collection_id&#34;])
+                    d = None
+                elif len(d[&#34;activity&#34;]) == 1 and len(d[&#34;activity&#34;][0][&#34;label&#34;]) == 0:
+                    d[&#34;activity&#34;] = []
+                    d[&#34;metadata&#34;][&#34;category&#34;] = &#34;&#34;
+                    d[&#34;metadata&#34;][&#34;shortname&#34;] = &#34;&#34;
+                else:
+                    try:
+                        # Fetch labels from backend (with legacy shortname translation)
+                        C = backend().collections()[d[&#34;metadata&#34;][&#34;collection_id&#34;]]
+                        d[&#34;metadata&#34;][&#34;collection_name&#34;] = backend().collections().id_to_name(d[&#34;metadata&#34;][&#34;collection_id&#34;])
+                        shortnames = []
+                        for a in d[&#34;activity&#34;]:
+                            if not (a[&#34;label&#34;] in C.shortnames() or a[&#34;label&#34;] in shortname_synonyms()):
+                                raise ValueError(
+                                    &#34;Invalid shortname &#39;%s&#39; for collection shortnames &#39;%s&#39; and not in legacy synonyms &#39;%s&#39;&#34;
+                                    % (a[&#34;label&#34;], str(C.shortnames()), str(shortname_synonyms()))
+                                )
+                            shortnames.append(a[&#34;label&#34;] if a[&#34;label&#34;] in C.shortnames() else shortname_synonyms()[a[&#34;label&#34;]])
+                        d[&#34;metadata&#34;][&#34;category&#34;] = &#34;,&#34;.join([C.shortname_to_activity(s, strict=False) for s in shortnames])
+                        d[&#34;metadata&#34;][&#34;shortname&#34;] = &#34;,&#34;.join([s for s in shortnames])
+                    except Exception as e:
+                        print(&#34;[pycollector.video]: label fetch failed for %s with exception %s&#34; % (str(d[&#34;activity&#34;]), str(e)))
+                        d = None
+
+                if version == &#34;v1&#34;:
+                    backend(org=&#34;str&#34;, env=&#34;prod&#34;, version=&#34;v1&#34;)  # switch back
+            else:
+                print(&#39;[pycollector.video]: Legacy JSON import failed for JSON with metadata - &#34;%s&#34;&#39; % str(d[&#34;metadata&#34;]))
+                d = None
+
+        else:
+            # New style JSON: use labels stored directly in JSON
+            pass
+
+        # Import JSON into scene
+        if d is not None:
+
+            # TODO - Replace with video_data
+            collection_name = d[&#34;metadata&#34;][&#34;collection_name&#34;]
+
+            self.category(collection_name)
+            self.attributes = {} if self.attributes is None else self.attributes
+            self.attributes.update(d[&#34;metadata&#34;])
+            self.framerate(float(d[&#34;metadata&#34;][&#34;frame_rate&#34;]))
+
+            # FIXME: this videoID &#39;20200421_1500081666724286&#39; has low framerate.  Parsing is correct, but load() and show() is too fast
+            # This requires explicitly setting output framerate in vipy.video
+
+            # Import tracks
+            d_trackid_to_track = {}
+            for obj in d[&#34;object&#34;]:
+
+                keyboxes = [
+                    BoundingBox(
+                        xmin=bb[&#34;frame&#34;][&#34;x&#34;],
+                        ymin=bb[&#34;frame&#34;][&#34;y&#34;],
+                        width=bb[&#34;frame&#34;][&#34;width&#34;],
+                        height=bb[&#34;frame&#34;][&#34;height&#34;],
+                    )
+                    for bb in sorted(obj[&#34;bounding_box&#34;], key=lambda x: x[&#34;frame_index&#34;])
+                ]
+                keyframes = [bb[&#34;frame_index&#34;] for bb in sorted(obj[&#34;bounding_box&#34;], key=lambda x: x[&#34;frame_index&#34;])]
+
+                badboxes = [bb for bb in keyboxes if not bb.isvalid()]
+                if len(badboxes) &gt; 0:
+                    print(
+                        &#39;[pycollector.video]: Removing %d bad keyboxes &#34;%s&#34; for videoid=%s&#39;
+                        % (len(badboxes), str(badboxes), d[&#34;metadata&#34;][&#34;video_id&#34;])
+                    )
+                if len(badboxes) == len(keyboxes):
+                    raise ValueError(&#34;all keyboxes in track are invalid&#34;)
+
+                t = Track(
+                    category=obj[&#34;label&#34;],
+                    framerate=float(d[&#34;metadata&#34;][&#34;frame_rate&#34;]),
+                    keyframes=[int(f) for (f, bb) in zip(keyframes, keyboxes) if bb.isvalid()],
+                    boxes=[bb for (f, bb) in zip(keyframes, keyboxes) if bb.isvalid()],
+                    boundary=&#34;strict&#34;,
+                )
+                if vipy.version.is_at_least(&#34;0.8.3&#34;):
+                    self.add(t, rangecheck=False)  # no rangecheck since all tracks are guarnanteed to be within image rectangle
+                else:
+                    self.add(t)
+                d_trackid_to_track[t.id()] = t
+
+            # Category variants:  a_category_name#Variant1=A&amp;Joint=a_joint_label:Short Label&amp;Variant2=B
+            variant = {}
+            d_shortname_to_category = {s: c for (s, c) in zip(d[&#34;metadata&#34;][&#34;shortname&#34;].split(&#34;,&#34;), d[&#34;metadata&#34;][&#34;category&#34;].split(&#34;,&#34;))}
+            if &#34;#&#34; in d[&#34;metadata&#34;][&#34;category&#34;]:
+                d_shortname_to_category = {s: c.split(&#34;#&#34;)[0] for (s, c) in d_shortname_to_category.items()}  # shortname and category may be empty
+                variantlist = list(set([c.split(&#34;#&#34;)[1] if &#34;#&#34; in c else None for c in d[&#34;metadata&#34;][&#34;category&#34;].split(&#34;,&#34;)]))
+                if len(variantlist) != 1:
+                    print(&#39;[pycollector.video]: WARNING - Ignoring mixed variant &#34;%s&#34;&#39; % str(variantlist))
+                elif all([len(v) == 0 for v in variantlist]):
+                    pass  # empty variant
+                elif any([&#34;=&#34; not in v or v.count(&#34;&amp;&#34;) != (v.count(&#34;=&#34;) - 1) for v in variantlist]):
+                    print(&#39;[pycollector.video]: WARNING - Ignoring invalid variant &#34;%s&#34;&#39; % str(variantlist))
+                else:
+                    variant = {k.split(&#34;=&#34;)[0]: k.split(&#34;=&#34;)[1] for k in variantlist[0].split(&#34;&amp;&#34;)}
+            self.attributes[&#34;variant&#34;] = variant
+
+            # Import activities
+            for a in d[&#34;activity&#34;]:
+                try:
+                    # Legacy shortname display
+                    if a[&#34;label&#34;] not in d_shortname_to_category:
+                        if a[&#34;label&#34;] not in shortname_synonyms():
+                            raise ValueError(
+                                &#34;Invalid shortname &#39;%s&#39; for collection shortnames &#39;%s&#39; and not in legacy synonyms &#39;%s&#39;&#34;
+                                % (a[&#34;label&#34;], d_shortname_to_category, str(shortname_synonyms()))
+                            )
+                        a[&#34;label&#34;] = a[&#34;label&#34;] if a[&#34;label&#34;] in d_shortname_to_category else shortname_synonyms()[a[&#34;label&#34;]]  # legacy translation
+                    if d[&#34;metadata&#34;][&#34;collection_id&#34;] == &#34;P004C009&#34; and d[&#34;metadata&#34;][&#34;device_identifier&#34;] == &#34;android&#34;:
+                        shortlabel = &#34;Buying (Machine)&#34;
+                    elif d[&#34;metadata&#34;][&#34;collection_id&#34;] == &#34;P004C008&#34; and d[&#34;metadata&#34;][&#34;device_identifier&#34;] == &#34;ios&#34; and &#34;Purchasing&#34; in a[&#34;label&#34;]:
+                        # BUG: iOS (11) reports wrong collection id for &#34;purchase something from a machine&#34; as P004C008 instead of P004C009
+                        shortlabel = &#34;Buying (Machine)&#34;
+                    elif d[&#34;metadata&#34;][&#34;collection_id&#34;] == &#34;P004C009&#34; and d[&#34;metadata&#34;][&#34;device_identifier&#34;] == &#34;ios&#34;:
+                        # BUG: iOS (11) reports wrong collection id for &#34;pickup and dropoff with bike messenger&#34; as P004C009 instead of P004C010
+                        shortlabel = a[&#34;label&#34;]  # unchanged
+                    elif d[&#34;metadata&#34;][&#34;collection_id&#34;] == &#34;P005C003&#34;:
+                        shortlabel = &#34;Buying (Cashier)&#34;
+                    else:
+                        shortlabel = a[&#34;label&#34;]
+
+                    # category = backend().collection()[d[&#34;metadata&#34;][&#34;collection_id&#34;]].shortname_to_activity(a[&#34;label&#34;])
+                    category = d_shortname_to_category[a[&#34;label&#34;]]
+                    self.add(
+                        vipy.activity.Activity(
+                            category=category,
+                            shortlabel=shortlabel,
+                            startframe=int(a[&#34;start_frame&#34;]),
+                            endframe=int(a[&#34;end_frame&#34;]),
+                            tracks=d_trackid_to_track,
+                            framerate=d[&#34;metadata&#34;][&#34;frame_rate&#34;],
+                        )
+                    )
+
+                except Exception as e:
+                    print(
+                        &#39;[pycollector.video]: Filtering invalid activity JSON &#34;%s&#34; with error &#34;%s&#34; for videoid=%s&#39;
+                        % (str(a), str(e), d[&#34;metadata&#34;][&#34;video_id&#34;])
+                    )
+
+            # Joint activity?  Occurs simultaneously with any JSON defined activities
+            if &#34;Joint&#34; in variant:
+                self.add(
+                    vipy.activity.Activity(
+                        category=variant[&#34;Joint&#34;].split(&#34;:&#34;)[0],
+                        shortlabel=variant[&#34;Joint&#34;].split(&#34;:&#34;)[1] if &#34;:&#34; in variant[&#34;Joint&#34;] else None,
+                        startframe=min([int(a[&#34;start_frame&#34;]) for a in d[&#34;activity&#34;]]) if len(d[&#34;activity&#34;]) &gt; 0 else 0,
+                        endframe=max([int(a[&#34;end_frame&#34;]) for a in d[&#34;activity&#34;]])
+                        if len(d[&#34;activity&#34;]) &gt; 0
+                        else int(np.round(float(d[&#34;metadata&#34;][&#34;duration&#34;]) * float(d[&#34;metadata&#34;][&#34;frame_rate&#34;]))),
+                        tracks=d_trackid_to_track,
+                        framerate=d[&#34;metadata&#34;][&#34;frame_rate&#34;],
+                    )
+                )
+
+            if d[&#34;metadata&#34;][&#34;rotate&#34;] == &#34;rot90ccw&#34;:
+                self.rot90ccw()
+            elif d[&#34;metadata&#34;][&#34;rotate&#34;] == &#34;rot90cw&#34;:
+                self.rot90cw()
+
+            self._is_json_loaded = True
+
+            # Minimum dimension of video for reasonably fast interactions (must happen after JSON load to get frame size from JSON)
+            if self._mindim is not None:
+                if &#34;frame_width&#34; in self.metadata() and &#34;frame_height&#34; in self.metadata():  # older JSON bug
+                    s = float(min(int(self.metadata()[&#34;frame_width&#34;]), int(self.metadata()[&#34;frame_height&#34;])))
+                    if s &gt; 256:
+                        newrows = int(np.round(self.metadata()[&#34;frame_height&#34;]) * (self._mindim / float(s)))
+                        newcols = int(np.round(self.metadata()[&#34;frame_width&#34;]) * (self._mindim / float(s)))
+                        self.resize(rows=newrows, cols=newcols)  # does not require load
+                    else:
+                        print(&#34;[pycollector.video]: Filtering Invalid JSON (height, width)&#34;)
+                        self._is_json_loaded = False
+                else:
+                    assert vipy.version.is_at_least(&#34;0.8.0&#34;)
+                    self.clear()  # remove this old video from consideration
+                    self._is_json_loaded = False
+        else:
+            print(&#34;[pycollector.video]: JSON load failed - SKIPPING&#34;)
+            self._is_json_loaded = False
+
+        # Resample tracks
+        if self._dt &gt; 1 and self._is_json_loaded:
+            self.trackmap(lambda t: t.resample(self._dt).significant_digits(2))
+
+        assert vipy.version.is_at_least(&#34;1.8.34&#34;)
+        self.trackmap(lambda t: t.significant_digits(2))
+        return self
+
+    def isedited(self):
+        return (
+            &#34;_&#34; in self._jsonfile and filebase(self._jsonfile).split(&#34;_&#34;)[0] == self.videoid()
+        )  # edited JSON has the structure $VIDEOID_TIMESTAMP.json
+
+    def editedat(self):
+        &#34;&#34;&#34;Android appends an &#39;_&lt;int&gt;&#39;  timestamp as milliseconds since epoch (POSIX timestamp), iOS will replace the first &#39;_datetimestr&#39; with a new datetimest&#34;&#34;&#34;
+        return filebase(self._jsonfile).split(&#34;_&#34;)[-1] if self.isedited() else None
+
+    def edited(self):
+        &#34;&#34;&#34;Return the datetime representation of the editedat() string&#34;&#34;&#34;
+        try:
+            # iOS uses a UTC formatted datetime string
+            return datetime.strptime(self.editedat(), &#34;%Y-%m-%dT%H:%M:%S%z&#34;).astimezone(tz=None)  # iOS
+        except:
+            # Android appends milliseconds since epoch 
+            # https://github.com/visym/collector-app/blob/5dd0b649efde6166b65d4d270b3077e764cfa421/Android/strvideocapture/app/src/main/java/com/visym/collector/utils/FileUtil.java#L117
+            return datetime.fromtimestamp(int(self.editedat())//1000)
+ 
+    def variant(self):
+        &#34;&#34;&#34;Category variant&#34;&#34;&#34;
+        return self.attributes[&#34;variant&#34;] if &#34;variant&#34; in self.attributes else None
+
+    def geolocation(self):
+        assert &#34;ipAddress&#34; in self.metadata(), &#34;Invalid JSON&#34;
+        url = &#34;http://api.geoiplookup.net/?query=%s&#34; % self.metadata()[&#34;ipAddress&#34;]
+        with urllib.request.urlopen(url) as f:
+            response = f.read().decode(&#34;utf-8&#34;)
+        d = xmltodict.parse(response)
+        return dict(d[&#34;ip&#34;][&#34;results&#34;][&#34;result&#34;])
+
+    def fetch(self, ignoreErrors=False):
+        &#34;&#34;&#34;Download JSON and MP4 if not already downloaded&#34;&#34;&#34;
+        self.fetchjson()  # Do we need this?
+        return self.fetchvideo()
+
+    def fetchvideo(self, ignoreErrors=False):
+        super().fetch()
+        return self
+
+    def fetchjson(self):
+        &#34;&#34;&#34;Download JSON if not already downloaded&#34;&#34;&#34;
+
+        if self._jsonfile is None:
+            self._jsonfile = os.path.join(
+                remkdir(os.environ[&#34;VIPY_CACHE&#34;] if &#34;VIPY_CACHE&#34; in os.environ else tempdir()),
+                filetail(self._jsonurl),
+            )
+            if not os.path.exists(self._jsonfile):
+                print(&#39;[pycollector.video]:  Fetching &#34;%s&#34;&#39; % self._jsonurl)
+                try:
+                    vipy.downloader.s3(
+                        self._jsonurl, self._jsonfile
+                    )  # TODO - this is a problem to assume vipy user also has access to S3. We should decouple this dependency of using vipy
+
+                except KeyboardInterrupt:
+                    raise
+                except Exception as e:
+                    print(&#39;[pycollector.video]: S3 download error &#34;%s&#34; - SKIPPING&#39; % str(e))
+                    jsonfile = None
+        return self
+
+    def is_json_loaded(self):
+        return self._is_json_loaded
+
+    def hasjson(self):
+        self.fetchjson()
+        return os.path.exists(self._jsonfile)
+
+    def hasMP4(self):
+        return self.fetch().hasfilename()
+
+    def activity_categories(self):
+        &#34;&#34;&#34;Return a set of unique activity categories in the video, not including object categories&#34;&#34;&#34;
+        self._load_json()
+        return set([a.category() for a in self._load_json().activities().values()])
+
+    def quicklooks(self, n=9, dilate=1.5, mindim=256, fontsize=10, context=True):
+        &#34;&#34;&#34;Return a vipy.image.Image object containing a montage quicklook for each of the activities in this video.
+
+        Usage:
+
+        &gt;&gt;&gt; filenames = [im.saveas(&#39;/path/to/quicklook.jpg&#39;) for im in self.quicklooks()]
+
+        &#34;&#34;&#34;
+        assert vipy.version.is_at_least(&#34;0.8.2&#34;)
+        print(&#39;[pycollector.video]: Generating quicklooks for video &#34;%s&#34;&#39; % self.videoid())
+        return [a.quicklook(n=n, dilate=dilate, mindim=mindim, fontsize=fontsize, context=context) for a in self.fetch().activityclip()]
+
+    def trim(self, padframes=0):
+        &#34;&#34;&#34;Temporally clip the video so that the video start is the beginning of the first activity, and the end of the video is the end of the last activity.
+        Optionally add a temporal pad of padframes before and after the clip&#34;&#34;&#34;
+        startframe = max(0, min([a.startframe() for (k, a) in self.fetch().activities().items()]))
+        endframe = max([a.endframe() for (k, a) in self.activities().items()])
+        self.clip(startframe - padframes, endframe + padframes)
+        return self
+
+    def timestamp(self):
+        &#34;&#34;&#34;Return collected_date from json as a datetime object,
+        WARNING:  older veresion of the app do not include timezone info in this string, so this datetime is not offset aware
+        &#34;&#34;&#34;
+        et = pytz.timezone(&#34;US/Eastern&#34;)
+        return datetime.strptime(self.attributes[&#34;collected_date&#34;], &#34;%Y-%m-%d %H:%M:%S&#34;).astimezone(et)
+
+    def uploaded(self):
+        # print(&#34;[pycollector.video]: WARNING - Reporting timestamp in the JSON, which may differ from the actual time the backend processed the video&#34;)
+        return self.timestamp()
+
+    def metadata(self):
+        return self._load_json().attributes
+
+    def videoid(self):
+        return self.attributes[&#34;video_id&#34;] if &#34;video_id&#34; in self._load_json().attributes else None
+
+    def collectorid(self):
+        return self.attributes[&#34;collector_id&#34;] if &#34;collector_id&#34; in self._load_json().attributes else None
+
+    def subjectid(self):
+        return self.attributes[&#34;subject_id&#34;][0] if &#34;subject_id&#34; in self._load_json().attributes else None
+
+    def collectionid(self):
+        return self.attributes[&#34;collection_id&#34;] if &#34;collection_id&#34; in self._load_json().attributes else None
+
+    def collection_name(self):
+        return self.attributes[&#34;collection_name&#34;] if &#34;collection_name&#34; in self._load_json().attributes else None
+
+    def collection(self):
+        return self.collection_name()
+
+    def duration(self):
+        &#34;&#34;&#34;Video length in seconds&#34;&#34;&#34;
+        return float(self.attributes[&#34;duration&#34;]) if &#34;duration&#34; in self._load_json().attributes else 0.0
+
+    def quickshow(self, framerate=10, nocaption=False):
+        print(&#34;[pycollector.video]: setting quickshow input framerate=%d&#34; % framerate)
+        return self.fetch().clone().framerate(framerate).mindim(256).show(nocaption=nocaption)
+
+    def downcast(self):
+        &#34;&#34;&#34;Convert from pycollector.video to vipy.video.Scene by downcasting class&#34;&#34;&#34;
+        v = self.clone()
+        v.__class__ = Scene
+        return v
+
+    def upcast(self):
+        &#34;&#34;&#34;Convert from pycollector.video to pycollector.admin.video by upcasting class, available to admins only&#34;&#34;&#34;
+        vipy.util.try_import(&#34;pycollector.admin.video&#34;, message=&#34;Access denied - upcast() is limited to Visym Collector admins only&#34;)
+        import pycollector.admin.video
+
+        v = self.clone()
+        v.__class__ = pycollector.admin.video.Video
+        return v
+
+    def project(self):
+        return self.attributes[&#34;project_name&#34;]
+
+    def program(self):
+        return self.attributes[&#34;program_name&#34;]
+
+    def object_detection(self, frame=1):
+        &#34;&#34;&#34;Run an object detector on a given frame of video.  It is more efficient to construct an ObjectDetector() object once and reuse it.&#34;&#34;&#34;
+        from pycollector.detection import ObjectDetector
+        return ObjectDetector()(self.frame(frame))
+
+    def face_detection(self, frame=1):
+        &#34;&#34;&#34;Run face detection on a given frame of video.  It is more efficient to construct a FaceDetector() object once and reuse it.&#34;&#34;&#34;
+        from pycollector.detection import FaceDetector
+        return FaceDetector()(self.frame(frame))
+
+    def faces(self, frame=1):
+        &#34;&#34;&#34;Alias for face_detection&#34;&#34;&#34;
+        return self.face_detection(frame=frame)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>vipy.video.Scene</li>
+<li>vipy.video.VideoCategory</li>
+<li>vipy.video.Video</li>
+</ul>
+<h3>Static methods</h3>
+<dl>
+<dt id="pycollector.video.Video.cast"><code class="name flex">
+<span>def <span class="ident">cast</span></span>(<span>v)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Cast a conformal vipy object to this class.
+This is useful for downcast and upcast conversion of video objects.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/video.py#L85-L90" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">@classmethod
+def cast(self, v):
+    assert isinstance(v, vipy.video.Scene), &#34;Invalid input - must be derived from vipy.video.Scene&#34;
+    v.__class__ = Video
+    v._is_json_loaded = True
+    return v</code></pre>
+</details>
+</dd>
+<dt id="pycollector.video.Video.from_json"><code class="name flex">
+<span>def <span class="ident">from_json</span></span>(<span>s)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Restore an object serialized with self.json()</p>
+<p>Usage:</p>
+<pre><code class="language-python-repl">&gt;&gt;&gt; vs = vipy.video.Scene.from_json(v.json())
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/video.py#L92-L105" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">@classmethod
+def from_json(obj, s):
+    d = json.loads(s) if not isinstance(s, dict) else s
+    v = Scene.from_json(d)
+    v._is_json_loaded = d[&#34;_is_json_loaded&#34;]
+    v._dt = d[&#34;_dt&#34;]
+    v._mindim = d[&#34;_mindim&#34;]
+    v._verbose = d[&#34;_verbose&#34;]
+    v._jsonfile = d[&#34;_jsonfile&#34;]
+    v._jsonurl = d[&#34;_jsonurl&#34;]
+    v._mp4file = d[&#34;_mp4file&#34;]
+    v._mp4url = d[&#34;_mp4url&#34;]
+    v.__class__ = Video
+    return v</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="pycollector.video.Video.activity_categories"><code class="name flex">
+<span>def <span class="ident">activity_categories</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a set of unique activity categories in the video, not including object categories</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/video.py#L496-L499" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def activity_categories(self):
+    &#34;&#34;&#34;Return a set of unique activity categories in the video, not including object categories&#34;&#34;&#34;
+    self._load_json()
+    return set([a.category() for a in self._load_json().activities().values()])</code></pre>
+</details>
+</dd>
+<dt id="pycollector.video.Video.collection"><code class="name flex">
+<span>def <span class="ident">collection</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/video.py#L550-L551" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def collection(self):
+    return self.collection_name()</code></pre>
+</details>
+</dd>
+<dt id="pycollector.video.Video.collection_name"><code class="name flex">
+<span>def <span class="ident">collection_name</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/video.py#L547-L548" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def collection_name(self):
+    return self.attributes[&#34;collection_name&#34;] if &#34;collection_name&#34; in self._load_json().attributes else None</code></pre>
+</details>
+</dd>
+<dt id="pycollector.video.Video.collectionid"><code class="name flex">
+<span>def <span class="ident">collectionid</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/video.py#L544-L545" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def collectionid(self):
+    return self.attributes[&#34;collection_id&#34;] if &#34;collection_id&#34; in self._load_json().attributes else None</code></pre>
+</details>
+</dd>
+<dt id="pycollector.video.Video.collectorid"><code class="name flex">
+<span>def <span class="ident">collectorid</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/video.py#L538-L539" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def collectorid(self):
+    return self.attributes[&#34;collector_id&#34;] if &#34;collector_id&#34; in self._load_json().attributes else None</code></pre>
+</details>
+</dd>
+<dt id="pycollector.video.Video.downcast"><code class="name flex">
+<span>def <span class="ident">downcast</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Convert from pycollector.video to vipy.video.Scene by downcasting class</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/video.py#L561-L565" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def downcast(self):
+    &#34;&#34;&#34;Convert from pycollector.video to vipy.video.Scene by downcasting class&#34;&#34;&#34;
+    v = self.clone()
+    v.__class__ = Scene
+    return v</code></pre>
+</details>
+</dd>
+<dt id="pycollector.video.Video.duration"><code class="name flex">
+<span>def <span class="ident">duration</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Video length in seconds</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/video.py#L553-L555" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def duration(self):
+    &#34;&#34;&#34;Video length in seconds&#34;&#34;&#34;
+    return float(self.attributes[&#34;duration&#34;]) if &#34;duration&#34; in self._load_json().attributes else 0.0</code></pre>
+</details>
+</dd>
+<dt id="pycollector.video.Video.edited"><code class="name flex">
+<span>def <span class="ident">edited</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return the datetime representation of the editedat() string</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/video.py#L433-L441" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def edited(self):
+    &#34;&#34;&#34;Return the datetime representation of the editedat() string&#34;&#34;&#34;
+    try:
+        # iOS uses a UTC formatted datetime string
+        return datetime.strptime(self.editedat(), &#34;%Y-%m-%dT%H:%M:%S%z&#34;).astimezone(tz=None)  # iOS
+    except:
+        # Android appends milliseconds since epoch 
+        # https://github.com/visym/collector-app/blob/5dd0b649efde6166b65d4d270b3077e764cfa421/Android/strvideocapture/app/src/main/java/com/visym/collector/utils/FileUtil.java#L117
+        return datetime.fromtimestamp(int(self.editedat())//1000)</code></pre>
+</details>
+</dd>
+<dt id="pycollector.video.Video.editedat"><code class="name flex">
+<span>def <span class="ident">editedat</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Android appends an '_<int>'
+timestamp as milliseconds since epoch (POSIX timestamp), iOS will replace the first '_datetimestr' with a new datetimest</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/video.py#L429-L431" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def editedat(self):
+    &#34;&#34;&#34;Android appends an &#39;_&lt;int&gt;&#39;  timestamp as milliseconds since epoch (POSIX timestamp), iOS will replace the first &#39;_datetimestr&#39; with a new datetimest&#34;&#34;&#34;
+    return filebase(self._jsonfile).split(&#34;_&#34;)[-1] if self.isedited() else None</code></pre>
+</details>
+</dd>
+<dt id="pycollector.video.Video.face_detection"><code class="name flex">
+<span>def <span class="ident">face_detection</span></span>(<span>self, frame=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Run face detection on a given frame of video.
+It is more efficient to construct a FaceDetector() object once and reuse it.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/video.py#L587-L590" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def face_detection(self, frame=1):
+    &#34;&#34;&#34;Run face detection on a given frame of video.  It is more efficient to construct a FaceDetector() object once and reuse it.&#34;&#34;&#34;
+    from pycollector.detection import FaceDetector
+    return FaceDetector()(self.frame(frame))</code></pre>
+</details>
+</dd>
+<dt id="pycollector.video.Video.faces"><code class="name flex">
+<span>def <span class="ident">faces</span></span>(<span>self, frame=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Alias for face_detection</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/video.py#L592-L594" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def faces(self, frame=1):
+    &#34;&#34;&#34;Alias for face_detection&#34;&#34;&#34;
+    return self.face_detection(frame=frame)</code></pre>
+</details>
+</dd>
+<dt id="pycollector.video.Video.fetch"><code class="name flex">
+<span>def <span class="ident">fetch</span></span>(<span>self, ignoreErrors=False)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Download JSON and MP4 if not already downloaded</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/video.py#L455-L458" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def fetch(self, ignoreErrors=False):
+    &#34;&#34;&#34;Download JSON and MP4 if not already downloaded&#34;&#34;&#34;
+    self.fetchjson()  # Do we need this?
+    return self.fetchvideo()</code></pre>
+</details>
+</dd>
+<dt id="pycollector.video.Video.fetchjson"><code class="name flex">
+<span>def <span class="ident">fetchjson</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Download JSON if not already downloaded</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/video.py#L464-L484" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def fetchjson(self):
+    &#34;&#34;&#34;Download JSON if not already downloaded&#34;&#34;&#34;
+
+    if self._jsonfile is None:
+        self._jsonfile = os.path.join(
+            remkdir(os.environ[&#34;VIPY_CACHE&#34;] if &#34;VIPY_CACHE&#34; in os.environ else tempdir()),
+            filetail(self._jsonurl),
+        )
+        if not os.path.exists(self._jsonfile):
+            print(&#39;[pycollector.video]:  Fetching &#34;%s&#34;&#39; % self._jsonurl)
+            try:
+                vipy.downloader.s3(
+                    self._jsonurl, self._jsonfile
+                )  # TODO - this is a problem to assume vipy user also has access to S3. We should decouple this dependency of using vipy
+
+            except KeyboardInterrupt:
+                raise
+            except Exception as e:
+                print(&#39;[pycollector.video]: S3 download error &#34;%s&#34; - SKIPPING&#39; % str(e))
+                jsonfile = None
+    return self</code></pre>
+</details>
+</dd>
+<dt id="pycollector.video.Video.fetchvideo"><code class="name flex">
+<span>def <span class="ident">fetchvideo</span></span>(<span>self, ignoreErrors=False)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/video.py#L460-L462" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def fetchvideo(self, ignoreErrors=False):
+    super().fetch()
+    return self</code></pre>
+</details>
+</dd>
+<dt id="pycollector.video.Video.geolocation"><code class="name flex">
+<span>def <span class="ident">geolocation</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/video.py#L447-L453" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def geolocation(self):
+    assert &#34;ipAddress&#34; in self.metadata(), &#34;Invalid JSON&#34;
+    url = &#34;http://api.geoiplookup.net/?query=%s&#34; % self.metadata()[&#34;ipAddress&#34;]
+    with urllib.request.urlopen(url) as f:
+        response = f.read().decode(&#34;utf-8&#34;)
+    d = xmltodict.parse(response)
+    return dict(d[&#34;ip&#34;][&#34;results&#34;][&#34;result&#34;])</code></pre>
+</details>
+</dd>
+<dt id="pycollector.video.Video.hasMP4"><code class="name flex">
+<span>def <span class="ident">hasMP4</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/video.py#L493-L494" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def hasMP4(self):
+    return self.fetch().hasfilename()</code></pre>
+</details>
+</dd>
+<dt id="pycollector.video.Video.hasjson"><code class="name flex">
+<span>def <span class="ident">hasjson</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/video.py#L489-L491" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def hasjson(self):
+    self.fetchjson()
+    return os.path.exists(self._jsonfile)</code></pre>
+</details>
+</dd>
+<dt id="pycollector.video.Video.is_json_loaded"><code class="name flex">
+<span>def <span class="ident">is_json_loaded</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/video.py#L486-L487" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def is_json_loaded(self):
+    return self._is_json_loaded</code></pre>
+</details>
+</dd>
+<dt id="pycollector.video.Video.isedited"><code class="name flex">
+<span>def <span class="ident">isedited</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/video.py#L424-L427" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def isedited(self):
+    return (
+        &#34;_&#34; in self._jsonfile and filebase(self._jsonfile).split(&#34;_&#34;)[0] == self.videoid()
+    )  # edited JSON has the structure $VIDEOID_TIMESTAMP.json</code></pre>
+</details>
+</dd>
+<dt id="pycollector.video.Video.json"><code class="name flex">
+<span>def <span class="ident">json</span></span>(<span>self, encode=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return JSON encoded string of this object.
+This may fail if attributes contain non-json encodeable object</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/video.py#L107-L117" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def json(self, encode=True):
+    d = super().json(encode=False)
+    d[&#34;_is_json_loaded&#34;] = self._is_json_loaded
+    d[&#34;_dt&#34;] = self._dt
+    d[&#34;_mindim&#34;] = self._mindim
+    d[&#34;_verbose&#34;] = self._verbose
+    d[&#34;_jsonfile&#34;] = self._jsonfile
+    d[&#34;_jsonurl&#34;] = self._jsonurl
+    d[&#34;_mp4file&#34;] = self._mp4file
+    d[&#34;_mp4url&#34;] = self._mp4url
+    return json.dumps(d) if encode else d</code></pre>
+</details>
+</dd>
+<dt id="pycollector.video.Video.metadata"><code class="name flex">
+<span>def <span class="ident">metadata</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a dictionary of metadata about this video.</p>
+<p>This is an alias for the 'attributes' dictionary.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/video.py#L532-L533" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def metadata(self):
+    return self._load_json().attributes</code></pre>
+</details>
+</dd>
+<dt id="pycollector.video.Video.object_detection"><code class="name flex">
+<span>def <span class="ident">object_detection</span></span>(<span>self, frame=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Run an object detector on a given frame of video.
+It is more efficient to construct an ObjectDetector() object once and reuse it.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/video.py#L582-L585" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def object_detection(self, frame=1):
+    &#34;&#34;&#34;Run an object detector on a given frame of video.  It is more efficient to construct an ObjectDetector() object once and reuse it.&#34;&#34;&#34;
+    from pycollector.detection import ObjectDetector
+    return ObjectDetector()(self.frame(frame))</code></pre>
+</details>
+</dd>
+<dt id="pycollector.video.Video.program"><code class="name flex">
+<span>def <span class="ident">program</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/video.py#L579-L580" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def program(self):
+    return self.attributes[&#34;program_name&#34;]</code></pre>
+</details>
+</dd>
+<dt id="pycollector.video.Video.project"><code class="name flex">
+<span>def <span class="ident">project</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/video.py#L576-L577" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def project(self):
+    return self.attributes[&#34;project_name&#34;]</code></pre>
+</details>
+</dd>
+<dt id="pycollector.video.Video.quicklooks"><code class="name flex">
+<span>def <span class="ident">quicklooks</span></span>(<span>self, n=9, dilate=1.5, mindim=256, fontsize=10, context=True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a vipy.image.Image object containing a montage quicklook for each of the activities in this video.</p>
+<p>Usage:</p>
+<pre><code class="language-python-repl">&gt;&gt;&gt; filenames = [im.saveas('/path/to/quicklook.jpg') for im in self.quicklooks()]
+</code></pre></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/video.py#L501-L511" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def quicklooks(self, n=9, dilate=1.5, mindim=256, fontsize=10, context=True):
+    &#34;&#34;&#34;Return a vipy.image.Image object containing a montage quicklook for each of the activities in this video.
+
+    Usage:
+
+    &gt;&gt;&gt; filenames = [im.saveas(&#39;/path/to/quicklook.jpg&#39;) for im in self.quicklooks()]
+
+    &#34;&#34;&#34;
+    assert vipy.version.is_at_least(&#34;0.8.2&#34;)
+    print(&#39;[pycollector.video]: Generating quicklooks for video &#34;%s&#34;&#39; % self.videoid())
+    return [a.quicklook(n=n, dilate=dilate, mindim=mindim, fontsize=fontsize, context=context) for a in self.fetch().activityclip()]</code></pre>
+</details>
+</dd>
+<dt id="pycollector.video.Video.quickshow"><code class="name flex">
+<span>def <span class="ident">quickshow</span></span>(<span>self, framerate=10, nocaption=False)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/video.py#L557-L559" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def quickshow(self, framerate=10, nocaption=False):
+    print(&#34;[pycollector.video]: setting quickshow input framerate=%d&#34; % framerate)
+    return self.fetch().clone().framerate(framerate).mindim(256).show(nocaption=nocaption)</code></pre>
+</details>
+</dd>
+<dt id="pycollector.video.Video.subjectid"><code class="name flex">
+<span>def <span class="ident">subjectid</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/video.py#L541-L542" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def subjectid(self):
+    return self.attributes[&#34;subject_id&#34;][0] if &#34;subject_id&#34; in self._load_json().attributes else None</code></pre>
+</details>
+</dd>
+<dt id="pycollector.video.Video.timestamp"><code class="name flex">
+<span>def <span class="ident">timestamp</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return collected_date from json as a datetime object,
+WARNING:
+older veresion of the app do not include timezone info in this string, so this datetime is not offset aware</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/video.py#L521-L526" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def timestamp(self):
+    &#34;&#34;&#34;Return collected_date from json as a datetime object,
+    WARNING:  older veresion of the app do not include timezone info in this string, so this datetime is not offset aware
+    &#34;&#34;&#34;
+    et = pytz.timezone(&#34;US/Eastern&#34;)
+    return datetime.strptime(self.attributes[&#34;collected_date&#34;], &#34;%Y-%m-%d %H:%M:%S&#34;).astimezone(et)</code></pre>
+</details>
+</dd>
+<dt id="pycollector.video.Video.trim"><code class="name flex">
+<span>def <span class="ident">trim</span></span>(<span>self, padframes=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Temporally clip the video so that the video start is the beginning of the first activity, and the end of the video is the end of the last activity.
+Optionally add a temporal pad of padframes before and after the clip</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/video.py#L513-L519" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def trim(self, padframes=0):
+    &#34;&#34;&#34;Temporally clip the video so that the video start is the beginning of the first activity, and the end of the video is the end of the last activity.
+    Optionally add a temporal pad of padframes before and after the clip&#34;&#34;&#34;
+    startframe = max(0, min([a.startframe() for (k, a) in self.fetch().activities().items()]))
+    endframe = max([a.endframe() for (k, a) in self.activities().items()])
+    self.clip(startframe - padframes, endframe + padframes)
+    return self</code></pre>
+</details>
+</dd>
+<dt id="pycollector.video.Video.upcast"><code class="name flex">
+<span>def <span class="ident">upcast</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Convert from pycollector.video to pycollector.admin.video by upcasting class, available to admins only</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/video.py#L567-L574" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def upcast(self):
+    &#34;&#34;&#34;Convert from pycollector.video to pycollector.admin.video by upcasting class, available to admins only&#34;&#34;&#34;
+    vipy.util.try_import(&#34;pycollector.admin.video&#34;, message=&#34;Access denied - upcast() is limited to Visym Collector admins only&#34;)
+    import pycollector.admin.video
+
+    v = self.clone()
+    v.__class__ = pycollector.admin.video.Video
+    return v</code></pre>
+</details>
+</dd>
+<dt id="pycollector.video.Video.uploaded"><code class="name flex">
+<span>def <span class="ident">uploaded</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/video.py#L528-L530" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def uploaded(self):
+    # print(&#34;[pycollector.video]: WARNING - Reporting timestamp in the JSON, which may differ from the actual time the backend processed the video&#34;)
+    return self.timestamp()</code></pre>
+</details>
+</dd>
+<dt id="pycollector.video.Video.variant"><code class="name flex">
+<span>def <span class="ident">variant</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Category variant</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/video.py#L443-L445" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def variant(self):
+    &#34;&#34;&#34;Category variant&#34;&#34;&#34;
+    return self.attributes[&#34;variant&#34;] if &#34;variant&#34; in self.attributes else None</code></pre>
+</details>
+</dd>
+<dt id="pycollector.video.Video.videoid"><code class="name flex">
+<span>def <span class="ident">videoid</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a unique video identifier for this video, as specified in the 'video_id' attribute, or by SHA1 hash of the <code>vipy.video.Video.filename</code> and <code>vipy.video.Video.url</code>.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>newid</code></strong></dt>
+<dd>[str] If not None, then update the video_id as newid. </dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>The video ID if newid=None else self</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul>
+<li>If the video filename changes (e.g. from transformation), and video_id is not set in self.attributes, then the video ID will change.</li>
+<li>If a video does not have a filename or URL or a video ID in the attributes, then this will return None</li>
+<li>To preserve a video ID independent of transformations, set self.setattribute('video_id', ${MY_ID}), or pass in newid</li>
+</ul>
+</div></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/video.py#L535-L536" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def videoid(self):
+    return self.attributes[&#34;video_id&#34;] if &#34;video_id&#34; in self._load_json().attributes else None</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<header>
+<a class="homelink" rel="home" title="Visym Collector" href="https://github.com/visym/collector/">
+<img src="https://www.visym.com/labs/images/visym_logo_black_notext.png" alt="" width="150"> <p> </p>
+</a>
+</header>
+<form>
+<input id="lunr-search" name="q" placeholder="🔎 Search ..." aria-label="Search"
+disabled minlength="2">
+</form>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/tingle/0.15.3/tingle.min.css" integrity="sha512-j1u8eUJ4f23xPPxwOrLUPQaCD2dwzNqqmDDcWS4deWsMv2ohLqmXXuP3hU7g8TyzbMSakP/mMqoNBYWj8AEIFg==" crossorigin>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tingle/0.15.3/tingle.min.js" integrity="sha512-plGUER9JkeEWPPqQBE4sdLqBoQug5Ap+BCGMc7bJ8BXkm+VVj6QzkpBz5Yv2yPkkq+cqg9IpkBaGCas6uDbW8g==" crossorigin></script>
+<style>
+.modal-dialog iframe {
+width: 100vw;
+height: calc(100vh - 80px);
+}
+@media screen and (min-width: 700px) {
+.modal-dialog iframe {
+width: 70vw;
+height: 80vh;
+}
+}
+.modal-dialog .tingle-modal-box {width: auto;}
+.modal-dialog .tingle-modal-box__content {padding: 0;}
+</style>
+<script>
+const input = document.getElementById('lunr-search');
+input.disabled = false;
+input.form.addEventListener('submit', (ev) => {
+ev.preventDefault();
+const url = new URL(window.location);
+url.searchParams.set('q', input.value);
+history.replaceState({}, null, url.toString());
+search(input.value);
+});
+const query = new URL(window.location).searchParams.get('q');
+if (query)
+search(query);
+function search(query) {
+const url = '../doc-search.html#' + encodeURIComponent(query);
+new tingle.modal({
+cssClass: ['modal-dialog'],
+onClose: () => {
+const url = new URL(window.location);
+url.searchParams.delete('q');
+history.replaceState({}, null, url.toString());
+setTimeout(() => input.focus(), 100);
+}
+}).setContent('<iframe src="' + url + '"></iframe>').open();
+}
+</script>
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pycollector" href="index.html">pycollector</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="pycollector.video.last" href="#pycollector.video.last">last</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="pycollector.video.Video" href="#pycollector.video.Video">Video</a></code></h4>
+<ul class="two-column">
+<li><code><a title="pycollector.video.Video.activity_categories" href="#pycollector.video.Video.activity_categories">activity_categories</a></code></li>
+<li><code><a title="pycollector.video.Video.cast" href="#pycollector.video.Video.cast">cast</a></code></li>
+<li><code><a title="pycollector.video.Video.collection" href="#pycollector.video.Video.collection">collection</a></code></li>
+<li><code><a title="pycollector.video.Video.collection_name" href="#pycollector.video.Video.collection_name">collection_name</a></code></li>
+<li><code><a title="pycollector.video.Video.collectionid" href="#pycollector.video.Video.collectionid">collectionid</a></code></li>
+<li><code><a title="pycollector.video.Video.collectorid" href="#pycollector.video.Video.collectorid">collectorid</a></code></li>
+<li><code><a title="pycollector.video.Video.downcast" href="#pycollector.video.Video.downcast">downcast</a></code></li>
+<li><code><a title="pycollector.video.Video.duration" href="#pycollector.video.Video.duration">duration</a></code></li>
+<li><code><a title="pycollector.video.Video.edited" href="#pycollector.video.Video.edited">edited</a></code></li>
+<li><code><a title="pycollector.video.Video.editedat" href="#pycollector.video.Video.editedat">editedat</a></code></li>
+<li><code><a title="pycollector.video.Video.face_detection" href="#pycollector.video.Video.face_detection">face_detection</a></code></li>
+<li><code><a title="pycollector.video.Video.faces" href="#pycollector.video.Video.faces">faces</a></code></li>
+<li><code><a title="pycollector.video.Video.fetch" href="#pycollector.video.Video.fetch">fetch</a></code></li>
+<li><code><a title="pycollector.video.Video.fetchjson" href="#pycollector.video.Video.fetchjson">fetchjson</a></code></li>
+<li><code><a title="pycollector.video.Video.fetchvideo" href="#pycollector.video.Video.fetchvideo">fetchvideo</a></code></li>
+<li><code><a title="pycollector.video.Video.from_json" href="#pycollector.video.Video.from_json">from_json</a></code></li>
+<li><code><a title="pycollector.video.Video.geolocation" href="#pycollector.video.Video.geolocation">geolocation</a></code></li>
+<li><code><a title="pycollector.video.Video.hasMP4" href="#pycollector.video.Video.hasMP4">hasMP4</a></code></li>
+<li><code><a title="pycollector.video.Video.hasjson" href="#pycollector.video.Video.hasjson">hasjson</a></code></li>
+<li><code><a title="pycollector.video.Video.is_json_loaded" href="#pycollector.video.Video.is_json_loaded">is_json_loaded</a></code></li>
+<li><code><a title="pycollector.video.Video.isedited" href="#pycollector.video.Video.isedited">isedited</a></code></li>
+<li><code><a title="pycollector.video.Video.json" href="#pycollector.video.Video.json">json</a></code></li>
+<li><code><a title="pycollector.video.Video.metadata" href="#pycollector.video.Video.metadata">metadata</a></code></li>
+<li><code><a title="pycollector.video.Video.object_detection" href="#pycollector.video.Video.object_detection">object_detection</a></code></li>
+<li><code><a title="pycollector.video.Video.program" href="#pycollector.video.Video.program">program</a></code></li>
+<li><code><a title="pycollector.video.Video.project" href="#pycollector.video.Video.project">project</a></code></li>
+<li><code><a title="pycollector.video.Video.quicklooks" href="#pycollector.video.Video.quicklooks">quicklooks</a></code></li>
+<li><code><a title="pycollector.video.Video.quickshow" href="#pycollector.video.Video.quickshow">quickshow</a></code></li>
+<li><code><a title="pycollector.video.Video.subjectid" href="#pycollector.video.Video.subjectid">subjectid</a></code></li>
+<li><code><a title="pycollector.video.Video.timestamp" href="#pycollector.video.Video.timestamp">timestamp</a></code></li>
+<li><code><a title="pycollector.video.Video.trim" href="#pycollector.video.Video.trim">trim</a></code></li>
+<li><code><a title="pycollector.video.Video.upcast" href="#pycollector.video.Video.upcast">upcast</a></code></li>
+<li><code><a title="pycollector.video.Video.uploaded" href="#pycollector.video.Video.uploaded">uploaded</a></code></li>
+<li><code><a title="pycollector.video.Video.variant" href="#pycollector.video.Video.variant">variant</a></code></li>
+<li><code><a title="pycollector.video.Video.videoid" href="#pycollector.video.Video.videoid">videoid</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

@@ -1,0 +1,806 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>pycollector.model.yolov5.utils.activations API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}#lunr-search{width:100%;font-size:1em;padding:6px 9px 5px 9px;border:1px solid silver}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pycollector.model.yolov5.utils.activations</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/activations.py#L0-L71" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python"># Activation functions
+
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+
+# Swish https://arxiv.org/pdf/1905.02244.pdf ---------------------------------------------------------------------------
+class Swish(nn.Module):  #
+    @staticmethod
+    def forward(x):
+        return x * torch.sigmoid(x)
+
+
+class Hardswish(nn.Module):  # export-friendly version of nn.Hardswish()
+    @staticmethod
+    def forward(x):
+        # return x * F.hardsigmoid(x)  # for torchscript and CoreML
+        return x * F.hardtanh(x + 3, 0., 6.) / 6.  # for torchscript, CoreML and ONNX
+
+
+class MemoryEfficientSwish(nn.Module):
+    class F(torch.autograd.Function):
+        @staticmethod
+        def forward(ctx, x):
+            ctx.save_for_backward(x)
+            return x * torch.sigmoid(x)
+
+        @staticmethod
+        def backward(ctx, grad_output):
+            x = ctx.saved_tensors[0]
+            sx = torch.sigmoid(x)
+            return grad_output * (sx * (1 + x * (1 - sx)))
+
+    def forward(self, x):
+        return self.F.apply(x)
+
+
+# Mish https://github.com/digantamisra98/Mish --------------------------------------------------------------------------
+class Mish(nn.Module):
+    @staticmethod
+    def forward(x):
+        return x * F.softplus(x).tanh()
+
+
+class MemoryEfficientMish(nn.Module):
+    class F(torch.autograd.Function):
+        @staticmethod
+        def forward(ctx, x):
+            ctx.save_for_backward(x)
+            return x.mul(torch.tanh(F.softplus(x)))  # x * tanh(ln(1 + exp(x)))
+
+        @staticmethod
+        def backward(ctx, grad_output):
+            x = ctx.saved_tensors[0]
+            sx = torch.sigmoid(x)
+            fx = F.softplus(x).tanh()
+            return grad_output * (fx + x * sx * (1 - fx * fx))
+
+    def forward(self, x):
+        return self.F.apply(x)
+
+
+# FReLU https://arxiv.org/abs/2007.11824 -------------------------------------------------------------------------------
+class FReLU(nn.Module):
+    def __init__(self, c1, k=3):  # ch_in, kernel
+        super().__init__()
+        self.conv = nn.Conv2d(c1, c1, k, 1, 1, groups=c1)
+        self.bn = nn.BatchNorm2d(c1)
+
+    def forward(self, x):
+        return torch.max(x, self.bn(self.conv(x)))</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="pycollector.model.yolov5.utils.activations.FReLU"><code class="flex name class">
+<span>class <span class="ident">FReLU</span></span>
+<span>(</span><span>c1, k=3)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Base class for all neural network modules.</p>
+<p>Your models should also subclass this class.</p>
+<p>Modules can also contain other Modules, allowing to nest them in
+a tree structure. You can assign the submodules as regular attributes::</p>
+<pre><code>import torch.nn as nn
+import torch.nn.functional as F
+
+class Model(nn.Module):
+    def __init__(self):
+        super(Model, self).__init__()
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        self.conv2 = nn.Conv2d(20, 20, 5)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        return F.relu(self.conv2(x))
+</code></pre>
+<p>Submodules assigned in this way will be registered, and will have their
+parameters converted too when you call :meth:<code>to</code>, etc.</p>
+<p>:ivar training: Boolean represents whether this module is in training or
+evaluation mode.
+:vartype training: bool</p>
+<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/activations.py#L65-L72" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class FReLU(nn.Module):
+    def __init__(self, c1, k=3):  # ch_in, kernel
+        super().__init__()
+        self.conv = nn.Conv2d(c1, c1, k, 1, 1, groups=c1)
+        self.bn = nn.BatchNorm2d(c1)
+
+    def forward(self, x):
+        return torch.max(x, self.bn(self.conv(x)))</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>torch.nn.modules.module.Module</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pycollector.model.yolov5.utils.activations.FReLU.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pycollector.model.yolov5.utils.activations.FReLU.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="pycollector.model.yolov5.utils.activations.FReLU.forward"><code class="name flex">
+<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the :class:<code>Module</code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/activations.py#L71-L72" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def forward(self, x):
+    return torch.max(x, self.bn(self.conv(x)))</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="pycollector.model.yolov5.utils.activations.Hardswish"><code class="flex name class">
+<span>class <span class="ident">Hardswish</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Base class for all neural network modules.</p>
+<p>Your models should also subclass this class.</p>
+<p>Modules can also contain other Modules, allowing to nest them in
+a tree structure. You can assign the submodules as regular attributes::</p>
+<pre><code>import torch.nn as nn
+import torch.nn.functional as F
+
+class Model(nn.Module):
+    def __init__(self):
+        super(Model, self).__init__()
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        self.conv2 = nn.Conv2d(20, 20, 5)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        return F.relu(self.conv2(x))
+</code></pre>
+<p>Submodules assigned in this way will be registered, and will have their
+parameters converted too when you call :meth:<code>to</code>, etc.</p>
+<p>:ivar training: Boolean represents whether this module is in training or
+evaluation mode.
+:vartype training: bool</p>
+<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/activations.py#L15-L19" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class Hardswish(nn.Module):  # export-friendly version of nn.Hardswish()
+    @staticmethod
+    def forward(x):
+        # return x * F.hardsigmoid(x)  # for torchscript and CoreML
+        return x * F.hardtanh(x + 3, 0., 6.) / 6.  # for torchscript, CoreML and ONNX</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>torch.nn.modules.module.Module</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pycollector.model.yolov5.utils.activations.Hardswish.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pycollector.model.yolov5.utils.activations.Hardswish.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="pycollector.model.yolov5.utils.activations.Hardswish.forward"><code class="name flex">
+<span>def <span class="ident">forward</span></span>(<span>x) ‑> Callable[..., Any]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the :class:<code>Module</code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/activations.py#L16-L19" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">@staticmethod
+def forward(x):
+    # return x * F.hardsigmoid(x)  # for torchscript and CoreML
+    return x * F.hardtanh(x + 3, 0., 6.) / 6.  # for torchscript, CoreML and ONNX</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="pycollector.model.yolov5.utils.activations.MemoryEfficientMish"><code class="flex name class">
+<span>class <span class="ident">MemoryEfficientMish</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Base class for all neural network modules.</p>
+<p>Your models should also subclass this class.</p>
+<p>Modules can also contain other Modules, allowing to nest them in
+a tree structure. You can assign the submodules as regular attributes::</p>
+<pre><code>import torch.nn as nn
+import torch.nn.functional as F
+
+class Model(nn.Module):
+    def __init__(self):
+        super(Model, self).__init__()
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        self.conv2 = nn.Conv2d(20, 20, 5)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        return F.relu(self.conv2(x))
+</code></pre>
+<p>Submodules assigned in this way will be registered, and will have their
+parameters converted too when you call :meth:<code>to</code>, etc.</p>
+<p>:ivar training: Boolean represents whether this module is in training or
+evaluation mode.
+:vartype training: bool</p>
+<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/activations.py#L46-L61" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class MemoryEfficientMish(nn.Module):
+    class F(torch.autograd.Function):
+        @staticmethod
+        def forward(ctx, x):
+            ctx.save_for_backward(x)
+            return x.mul(torch.tanh(F.softplus(x)))  # x * tanh(ln(1 + exp(x)))
+
+        @staticmethod
+        def backward(ctx, grad_output):
+            x = ctx.saved_tensors[0]
+            sx = torch.sigmoid(x)
+            fx = F.softplus(x).tanh()
+            return grad_output * (fx + x * sx * (1 - fx * fx))
+
+    def forward(self, x):
+        return self.F.apply(x)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>torch.nn.modules.module.Module</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pycollector.model.yolov5.utils.activations.MemoryEfficientMish.F"><code class="name">var <span class="ident">F</span></code></dt>
+<dd>
+<div class="desc"><p>Records operation history and defines formulas for differentiating ops.</p>
+<p>See the Note on extending the autograd engine for more details on how to use
+this class: <a href="https://pytorch.org/docs/stable/notes/extending.html#extending-torch-autograd">https://pytorch.org/docs/stable/notes/extending.html#extending-torch-autograd</a></p>
+<p>Every operation performed on :class:<code>Tensor</code> s creates a new function
+object, that performs the computation, and records that it happened.
+The history is retained in the form of a DAG of functions, with edges
+denoting data dependencies (<code>input &lt;- output</code>). Then, when backward is
+called, the graph is processed in the topological ordering, by calling
+:func:<code>backward</code> methods of each :class:<code>Function</code> object, and passing
+returned gradients on to next :class:<code>Function</code> s.</p>
+<p>Normally, the only way users interact with functions is by creating
+subclasses and defining new operations. This is a recommended way of
+extending torch.autograd.</p>
+<p>Examples::</p>
+<pre><code>&gt;&gt;&gt; class Exp(Function):
+&gt;&gt;&gt;
+&gt;&gt;&gt;     @staticmethod
+&gt;&gt;&gt;     def forward(ctx, i):
+&gt;&gt;&gt;         result = i.exp()
+&gt;&gt;&gt;         ctx.save_for_backward(result)
+&gt;&gt;&gt;         return result
+&gt;&gt;&gt;
+&gt;&gt;&gt;     @staticmethod
+&gt;&gt;&gt;     def backward(ctx, grad_output):
+&gt;&gt;&gt;         result, = ctx.saved_tensors
+&gt;&gt;&gt;         return grad_output * result
+&gt;&gt;&gt;
+&gt;&gt;&gt; #Use it by calling the apply method:
+&gt;&gt;&gt; output = Exp.apply(input)
+</code></pre></div>
+</dd>
+<dt id="pycollector.model.yolov5.utils.activations.MemoryEfficientMish.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pycollector.model.yolov5.utils.activations.MemoryEfficientMish.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="pycollector.model.yolov5.utils.activations.MemoryEfficientMish.forward"><code class="name flex">
+<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the :class:<code>Module</code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/activations.py#L60-L61" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def forward(self, x):
+    return self.F.apply(x)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="pycollector.model.yolov5.utils.activations.MemoryEfficientSwish"><code class="flex name class">
+<span>class <span class="ident">MemoryEfficientSwish</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Base class for all neural network modules.</p>
+<p>Your models should also subclass this class.</p>
+<p>Modules can also contain other Modules, allowing to nest them in
+a tree structure. You can assign the submodules as regular attributes::</p>
+<pre><code>import torch.nn as nn
+import torch.nn.functional as F
+
+class Model(nn.Module):
+    def __init__(self):
+        super(Model, self).__init__()
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        self.conv2 = nn.Conv2d(20, 20, 5)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        return F.relu(self.conv2(x))
+</code></pre>
+<p>Submodules assigned in this way will be registered, and will have their
+parameters converted too when you call :meth:<code>to</code>, etc.</p>
+<p>:ivar training: Boolean represents whether this module is in training or
+evaluation mode.
+:vartype training: bool</p>
+<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/activations.py#L22-L36" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class MemoryEfficientSwish(nn.Module):
+    class F(torch.autograd.Function):
+        @staticmethod
+        def forward(ctx, x):
+            ctx.save_for_backward(x)
+            return x * torch.sigmoid(x)
+
+        @staticmethod
+        def backward(ctx, grad_output):
+            x = ctx.saved_tensors[0]
+            sx = torch.sigmoid(x)
+            return grad_output * (sx * (1 + x * (1 - sx)))
+
+    def forward(self, x):
+        return self.F.apply(x)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>torch.nn.modules.module.Module</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pycollector.model.yolov5.utils.activations.MemoryEfficientSwish.F"><code class="name">var <span class="ident">F</span></code></dt>
+<dd>
+<div class="desc"><p>Records operation history and defines formulas for differentiating ops.</p>
+<p>See the Note on extending the autograd engine for more details on how to use
+this class: <a href="https://pytorch.org/docs/stable/notes/extending.html#extending-torch-autograd">https://pytorch.org/docs/stable/notes/extending.html#extending-torch-autograd</a></p>
+<p>Every operation performed on :class:<code>Tensor</code> s creates a new function
+object, that performs the computation, and records that it happened.
+The history is retained in the form of a DAG of functions, with edges
+denoting data dependencies (<code>input &lt;- output</code>). Then, when backward is
+called, the graph is processed in the topological ordering, by calling
+:func:<code>backward</code> methods of each :class:<code>Function</code> object, and passing
+returned gradients on to next :class:<code>Function</code> s.</p>
+<p>Normally, the only way users interact with functions is by creating
+subclasses and defining new operations. This is a recommended way of
+extending torch.autograd.</p>
+<p>Examples::</p>
+<pre><code>&gt;&gt;&gt; class Exp(Function):
+&gt;&gt;&gt;
+&gt;&gt;&gt;     @staticmethod
+&gt;&gt;&gt;     def forward(ctx, i):
+&gt;&gt;&gt;         result = i.exp()
+&gt;&gt;&gt;         ctx.save_for_backward(result)
+&gt;&gt;&gt;         return result
+&gt;&gt;&gt;
+&gt;&gt;&gt;     @staticmethod
+&gt;&gt;&gt;     def backward(ctx, grad_output):
+&gt;&gt;&gt;         result, = ctx.saved_tensors
+&gt;&gt;&gt;         return grad_output * result
+&gt;&gt;&gt;
+&gt;&gt;&gt; #Use it by calling the apply method:
+&gt;&gt;&gt; output = Exp.apply(input)
+</code></pre></div>
+</dd>
+<dt id="pycollector.model.yolov5.utils.activations.MemoryEfficientSwish.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pycollector.model.yolov5.utils.activations.MemoryEfficientSwish.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="pycollector.model.yolov5.utils.activations.MemoryEfficientSwish.forward"><code class="name flex">
+<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the :class:<code>Module</code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/activations.py#L35-L36" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def forward(self, x):
+    return self.F.apply(x)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="pycollector.model.yolov5.utils.activations.Mish"><code class="flex name class">
+<span>class <span class="ident">Mish</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Base class for all neural network modules.</p>
+<p>Your models should also subclass this class.</p>
+<p>Modules can also contain other Modules, allowing to nest them in
+a tree structure. You can assign the submodules as regular attributes::</p>
+<pre><code>import torch.nn as nn
+import torch.nn.functional as F
+
+class Model(nn.Module):
+    def __init__(self):
+        super(Model, self).__init__()
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        self.conv2 = nn.Conv2d(20, 20, 5)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        return F.relu(self.conv2(x))
+</code></pre>
+<p>Submodules assigned in this way will be registered, and will have their
+parameters converted too when you call :meth:<code>to</code>, etc.</p>
+<p>:ivar training: Boolean represents whether this module is in training or
+evaluation mode.
+:vartype training: bool</p>
+<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/activations.py#L40-L43" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class Mish(nn.Module):
+    @staticmethod
+    def forward(x):
+        return x * F.softplus(x).tanh()</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>torch.nn.modules.module.Module</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pycollector.model.yolov5.utils.activations.Mish.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pycollector.model.yolov5.utils.activations.Mish.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="pycollector.model.yolov5.utils.activations.Mish.forward"><code class="name flex">
+<span>def <span class="ident">forward</span></span>(<span>x) ‑> Callable[..., Any]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the :class:<code>Module</code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/activations.py#L41-L43" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">@staticmethod
+def forward(x):
+    return x * F.softplus(x).tanh()</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="pycollector.model.yolov5.utils.activations.Swish"><code class="flex name class">
+<span>class <span class="ident">Swish</span></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Base class for all neural network modules.</p>
+<p>Your models should also subclass this class.</p>
+<p>Modules can also contain other Modules, allowing to nest them in
+a tree structure. You can assign the submodules as regular attributes::</p>
+<pre><code>import torch.nn as nn
+import torch.nn.functional as F
+
+class Model(nn.Module):
+    def __init__(self):
+        super(Model, self).__init__()
+        self.conv1 = nn.Conv2d(1, 20, 5)
+        self.conv2 = nn.Conv2d(20, 20, 5)
+
+    def forward(self, x):
+        x = F.relu(self.conv1(x))
+        return F.relu(self.conv2(x))
+</code></pre>
+<p>Submodules assigned in this way will be registered, and will have their
+parameters converted too when you call :meth:<code>to</code>, etc.</p>
+<p>:ivar training: Boolean represents whether this module is in training or
+evaluation mode.
+:vartype training: bool</p>
+<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/activations.py#L9-L12" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class Swish(nn.Module):  #
+    @staticmethod
+    def forward(x):
+        return x * torch.sigmoid(x)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>torch.nn.modules.module.Module</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="pycollector.model.yolov5.utils.activations.Swish.dump_patches"><code class="name">var <span class="ident">dump_patches</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="pycollector.model.yolov5.utils.activations.Swish.training"><code class="name">var <span class="ident">training</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="pycollector.model.yolov5.utils.activations.Swish.forward"><code class="name flex">
+<span>def <span class="ident">forward</span></span>(<span>x) ‑> Callable[..., Any]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Defines the computation performed at every call.</p>
+<p>Should be overridden by all subclasses.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Although the recipe for forward pass needs to be defined within
+this function, one should call the :class:<code>Module</code> instance afterwards
+instead of this since the former takes care of running the
+registered hooks while the latter silently ignores them.</p>
+</div></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/activations.py#L10-L12" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">@staticmethod
+def forward(x):
+    return x * torch.sigmoid(x)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<header>
+<a class="homelink" rel="home" title="Visym Collector" href="https://github.com/visym/collector/">
+<img src="https://www.visym.com/labs/images/visym_logo_black_notext.png" alt="" width="150"> <p> </p>
+</a>
+</header>
+<form>
+<input id="lunr-search" name="q" placeholder="🔎 Search ..." aria-label="Search"
+disabled minlength="2">
+</form>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/tingle/0.15.3/tingle.min.css" integrity="sha512-j1u8eUJ4f23xPPxwOrLUPQaCD2dwzNqqmDDcWS4deWsMv2ohLqmXXuP3hU7g8TyzbMSakP/mMqoNBYWj8AEIFg==" crossorigin>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tingle/0.15.3/tingle.min.js" integrity="sha512-plGUER9JkeEWPPqQBE4sdLqBoQug5Ap+BCGMc7bJ8BXkm+VVj6QzkpBz5Yv2yPkkq+cqg9IpkBaGCas6uDbW8g==" crossorigin></script>
+<style>
+.modal-dialog iframe {
+width: 100vw;
+height: calc(100vh - 80px);
+}
+@media screen and (min-width: 700px) {
+.modal-dialog iframe {
+width: 70vw;
+height: 80vh;
+}
+}
+.modal-dialog .tingle-modal-box {width: auto;}
+.modal-dialog .tingle-modal-box__content {padding: 0;}
+</style>
+<script>
+const input = document.getElementById('lunr-search');
+input.disabled = false;
+input.form.addEventListener('submit', (ev) => {
+ev.preventDefault();
+const url = new URL(window.location);
+url.searchParams.set('q', input.value);
+history.replaceState({}, null, url.toString());
+search(input.value);
+});
+const query = new URL(window.location).searchParams.get('q');
+if (query)
+search(query);
+function search(query) {
+const url = '../../../../doc-search.html#' + encodeURIComponent(query);
+new tingle.modal({
+cssClass: ['modal-dialog'],
+onClose: () => {
+const url = new URL(window.location);
+url.searchParams.delete('q');
+history.replaceState({}, null, url.toString());
+setTimeout(() => input.focus(), 100);
+}
+}).setContent('<iframe src="' + url + '"></iframe>').open();
+}
+</script>
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pycollector.model.yolov5.utils" href="index.html">pycollector.model.yolov5.utils</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="pycollector.model.yolov5.utils.activations.FReLU" href="#pycollector.model.yolov5.utils.activations.FReLU">FReLU</a></code></h4>
+<ul class="">
+<li><code><a title="pycollector.model.yolov5.utils.activations.FReLU.dump_patches" href="#pycollector.model.yolov5.utils.activations.FReLU.dump_patches">dump_patches</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.activations.FReLU.forward" href="#pycollector.model.yolov5.utils.activations.FReLU.forward">forward</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.activations.FReLU.training" href="#pycollector.model.yolov5.utils.activations.FReLU.training">training</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pycollector.model.yolov5.utils.activations.Hardswish" href="#pycollector.model.yolov5.utils.activations.Hardswish">Hardswish</a></code></h4>
+<ul class="">
+<li><code><a title="pycollector.model.yolov5.utils.activations.Hardswish.dump_patches" href="#pycollector.model.yolov5.utils.activations.Hardswish.dump_patches">dump_patches</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.activations.Hardswish.forward" href="#pycollector.model.yolov5.utils.activations.Hardswish.forward">forward</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.activations.Hardswish.training" href="#pycollector.model.yolov5.utils.activations.Hardswish.training">training</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pycollector.model.yolov5.utils.activations.MemoryEfficientMish" href="#pycollector.model.yolov5.utils.activations.MemoryEfficientMish">MemoryEfficientMish</a></code></h4>
+<ul class="">
+<li><code><a title="pycollector.model.yolov5.utils.activations.MemoryEfficientMish.F" href="#pycollector.model.yolov5.utils.activations.MemoryEfficientMish.F">F</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.activations.MemoryEfficientMish.dump_patches" href="#pycollector.model.yolov5.utils.activations.MemoryEfficientMish.dump_patches">dump_patches</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.activations.MemoryEfficientMish.forward" href="#pycollector.model.yolov5.utils.activations.MemoryEfficientMish.forward">forward</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.activations.MemoryEfficientMish.training" href="#pycollector.model.yolov5.utils.activations.MemoryEfficientMish.training">training</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pycollector.model.yolov5.utils.activations.MemoryEfficientSwish" href="#pycollector.model.yolov5.utils.activations.MemoryEfficientSwish">MemoryEfficientSwish</a></code></h4>
+<ul class="">
+<li><code><a title="pycollector.model.yolov5.utils.activations.MemoryEfficientSwish.F" href="#pycollector.model.yolov5.utils.activations.MemoryEfficientSwish.F">F</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.activations.MemoryEfficientSwish.dump_patches" href="#pycollector.model.yolov5.utils.activations.MemoryEfficientSwish.dump_patches">dump_patches</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.activations.MemoryEfficientSwish.forward" href="#pycollector.model.yolov5.utils.activations.MemoryEfficientSwish.forward">forward</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.activations.MemoryEfficientSwish.training" href="#pycollector.model.yolov5.utils.activations.MemoryEfficientSwish.training">training</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pycollector.model.yolov5.utils.activations.Mish" href="#pycollector.model.yolov5.utils.activations.Mish">Mish</a></code></h4>
+<ul class="">
+<li><code><a title="pycollector.model.yolov5.utils.activations.Mish.dump_patches" href="#pycollector.model.yolov5.utils.activations.Mish.dump_patches">dump_patches</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.activations.Mish.forward" href="#pycollector.model.yolov5.utils.activations.Mish.forward">forward</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.activations.Mish.training" href="#pycollector.model.yolov5.utils.activations.Mish.training">training</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="pycollector.model.yolov5.utils.activations.Swish" href="#pycollector.model.yolov5.utils.activations.Swish">Swish</a></code></h4>
+<ul class="">
+<li><code><a title="pycollector.model.yolov5.utils.activations.Swish.dump_patches" href="#pycollector.model.yolov5.utils.activations.Swish.dump_patches">dump_patches</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.activations.Swish.forward" href="#pycollector.model.yolov5.utils.activations.Swish.forward">forward</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.activations.Swish.training" href="#pycollector.model.yolov5.utils.activations.Swish.training">training</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

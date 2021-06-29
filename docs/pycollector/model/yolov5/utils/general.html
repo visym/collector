@@ -1,0 +1,1243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>pycollector.model.yolov5.utils.general API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}#lunr-search{width:100%;font-size:1em;padding:6px 9px 5px 9px;border:1px solid silver}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pycollector.model.yolov5.utils.general</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/general.py#L0-L441" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python"># General utils
+
+import glob
+import logging
+import os
+import platform
+import random
+import re
+import subprocess
+import time
+from pathlib import Path
+
+#import cv2
+import math
+import numpy as np
+import torch
+import torchvision
+import yaml
+
+from pycollector.model.yolov5.utils.google_utils import gsutil_getsize
+from pycollector.model.yolov5.utils.metrics import fitness
+from pycollector.model.yolov5.utils.torch_utils import init_torch_seeds
+
+# Settings
+#torch.set_printoptions(linewidth=320, precision=5, profile=&#39;long&#39;)
+#np.set_printoptions(linewidth=320, formatter={&#39;float_kind&#39;: &#39;{:11.5g}&#39;.format})  # format short g, %precision=5
+#cv2.setNumThreads(0)  # prevent OpenCV from multithreading (incompatible with PyTorch DataLoader)
+
+
+def set_logging(rank=-1):
+    logging.basicConfig(
+        format=&#34;%(message)s&#34;,
+        level=logging.INFO if rank in [-1, 0] else logging.WARN)
+
+
+def init_seeds(seed=0):
+    random.seed(seed)
+    np.random.seed(seed)
+    init_torch_seeds(seed)
+
+
+def get_latest_run(search_dir=&#39;.&#39;):
+    # Return path to most recent &#39;last.pt&#39; in /runs (i.e. to --resume from)
+    last_list = glob.glob(f&#39;{search_dir}/**/last*.pt&#39;, recursive=True)
+    return max(last_list, key=os.path.getctime) if last_list else &#39;&#39;
+
+
+def check_git_status():
+    # Suggest &#39;git pull&#39; if repo is out of date
+    if platform.system() in [&#39;Linux&#39;, &#39;Darwin&#39;] and not os.path.isfile(&#39;/.dockerenv&#39;):
+        s = subprocess.check_output(&#39;if [ -d .git ]; then git fetch &amp;&amp; git status -uno; fi&#39;, shell=True).decode(&#39;utf-8&#39;)
+        if &#39;Your branch is behind&#39; in s:
+            print(s[s.find(&#39;Your branch is behind&#39;):s.find(&#39;\n\n&#39;)] + &#39;\n&#39;)
+
+
+def check_img_size(img_size, s=32):
+    # Verify img_size is a multiple of stride s
+    new_size = make_divisible(img_size, int(s))  # ceil gs-multiple
+    if new_size != img_size:
+        print(&#39;WARNING: --img-size %g must be multiple of max stride %g, updating to %g&#39; % (img_size, s, new_size))
+    return new_size
+
+
+def check_file(file):
+    # Search for file if not found
+    if os.path.isfile(file) or file == &#39;&#39;:
+        return file
+    else:
+        files = glob.glob(&#39;./**/&#39; + file, recursive=True)  # find file
+        assert len(files), &#39;File Not Found: %s&#39; % file  # assert file was found
+        assert len(files) == 1, &#34;Multiple files match &#39;%s&#39;, specify exact path: %s&#34; % (file, files)  # assert unique
+        return files[0]  # return file
+
+
+def check_dataset(dict):
+    # Download dataset if not found locally
+    val, s = dict.get(&#39;val&#39;), dict.get(&#39;download&#39;)
+    if val and len(val):
+        val = [Path(x).resolve() for x in (val if isinstance(val, list) else [val])]  # val path
+        if not all(x.exists() for x in val):
+            print(&#39;\nWARNING: Dataset not found, nonexistent paths: %s&#39; % [str(x) for x in val if not x.exists()])
+            if s and len(s):  # download script
+                print(&#39;Downloading %s ...&#39; % s)
+                if s.startswith(&#39;http&#39;) and s.endswith(&#39;.zip&#39;):  # URL
+                    f = Path(s).name  # filename
+                    torch.hub.download_url_to_file(s, f)
+                    r = os.system(&#39;unzip -q %s -d ../ &amp;&amp; rm %s&#39; % (f, f))  # unzip
+                else:  # bash script
+                    r = os.system(s)
+                print(&#39;Dataset autodownload %s\n&#39; % (&#39;success&#39; if r == 0 else &#39;failure&#39;))  # analyze return value
+            else:
+                raise Exception(&#39;Dataset not found.&#39;)
+
+
+def make_divisible(x, divisor):
+    # Returns x evenly divisible by divisor
+    return math.ceil(x / divisor) * divisor
+
+
+def labels_to_class_weights(labels, nc=80):
+    # Get class weights (inverse frequency) from training labels
+    if labels[0] is None:  # no labels loaded
+        return torch.Tensor()
+
+    labels = np.concatenate(labels, 0)  # labels.shape = (866643, 5) for COCO
+    classes = labels[:, 0].astype(np.int)  # labels = [class xywh]
+    weights = np.bincount(classes, minlength=nc)  # occurrences per class
+
+    # Prepend gridpoint count (for uCE training)
+    # gpi = ((320 / 32 * np.array([1, 2, 4])) ** 2 * 3).sum()  # gridpoints per image
+    # weights = np.hstack([gpi * len(labels)  - weights.sum() * 9, weights * 9]) ** 0.5  # prepend gridpoints to start
+
+    weights[weights == 0] = 1  # replace empty bins with 1
+    weights = 1 / weights  # number of targets per class
+    weights /= weights.sum()  # normalize
+    return torch.from_numpy(weights)
+
+
+def labels_to_image_weights(labels, nc=80, class_weights=np.ones(80)):
+    # Produces image weights based on class_weights and image contents
+    class_counts = np.array([np.bincount(x[:, 0].astype(np.int), minlength=nc) for x in labels])
+    image_weights = (class_weights.reshape(1, nc) * class_counts).sum(1)
+    # index = random.choices(range(n), weights=image_weights, k=1)  # weight image sample
+    return image_weights
+
+
+def coco80_to_coco91_class():  # converts 80-index (val2014) to 91-index (paper)
+    # https://tech.amikelive.com/node-718/what-object-categories-labels-are-in-coco-dataset/
+    # a = np.loadtxt(&#39;data/coco.names&#39;, dtype=&#39;str&#39;, delimiter=&#39;\n&#39;)
+    # b = np.loadtxt(&#39;data/coco_paper.names&#39;, dtype=&#39;str&#39;, delimiter=&#39;\n&#39;)
+    # x1 = [list(a[i] == b).index(True) + 1 for i in range(80)]  # darknet to coco
+    # x2 = [list(b[i] == a).index(True) if any(b[i] == a) else None for i in range(91)]  # coco to darknet
+    x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 27, 28, 31, 32, 33, 34,
+         35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
+         64, 65, 67, 70, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 84, 85, 86, 87, 88, 89, 90]
+    return x
+
+
+def xyxy2xywh(x):
+    # Convert nx4 boxes from [x1, y1, x2, y2] to [x, y, w, h] where xy1=top-left, xy2=bottom-right
+    y = x.clone() if isinstance(x, torch.Tensor) else np.copy(x)
+    y[:, 0] = (x[:, 0] + x[:, 2]) / 2  # x center
+    y[:, 1] = (x[:, 1] + x[:, 3]) / 2  # y center
+    y[:, 2] = x[:, 2] - x[:, 0]  # width
+    y[:, 3] = x[:, 3] - x[:, 1]  # height
+    return y
+
+
+def xywh2xyxy(x):
+    # Convert nx4 boxes from [x, y, w, h] to [x1, y1, x2, y2] where xy1=top-left, xy2=bottom-right
+    y = x.clone() if isinstance(x, torch.Tensor) else np.copy(x)
+    y[:, 0] = x[:, 0] - x[:, 2] / 2  # top left x
+    y[:, 1] = x[:, 1] - x[:, 3] / 2  # top left y
+    y[:, 2] = x[:, 0] + x[:, 2] / 2  # bottom right x
+    y[:, 3] = x[:, 1] + x[:, 3] / 2  # bottom right y
+    return y
+
+
+def scale_coords(img1_shape, coords, img0_shape, ratio_pad=None):
+    # Rescale coords (xyxy) from img1_shape to img0_shape
+    if ratio_pad is None:  # calculate from img0_shape
+        gain = min(img1_shape[0] / img0_shape[0], img1_shape[1] / img0_shape[1])  # gain  = old / new
+        pad = (img1_shape[1] - img0_shape[1] * gain) / 2, (img1_shape[0] - img0_shape[0] * gain) / 2  # wh padding
+    else:
+        gain = ratio_pad[0][0]
+        pad = ratio_pad[1]
+
+    coords[:, [0, 2]] -= pad[0]  # x padding
+    coords[:, [1, 3]] -= pad[1]  # y padding
+    coords[:, :4] /= gain
+    clip_coords(coords, img0_shape)
+    return coords
+
+
+def clip_coords(boxes, img_shape):
+    # Clip bounding xyxy bounding boxes to image shape (height, width)
+    boxes[:, 0].clamp_(0, img_shape[1])  # x1
+    boxes[:, 1].clamp_(0, img_shape[0])  # y1
+    boxes[:, 2].clamp_(0, img_shape[1])  # x2
+    boxes[:, 3].clamp_(0, img_shape[0])  # y2
+
+
+def bbox_iou(box1, box2, x1y1x2y2=True, GIoU=False, DIoU=False, CIoU=False, eps=1e-9):
+    # Returns the IoU of box1 to box2. box1 is 4, box2 is nx4
+    box2 = box2.T
+
+    # Get the coordinates of bounding boxes
+    if x1y1x2y2:  # x1, y1, x2, y2 = box1
+        b1_x1, b1_y1, b1_x2, b1_y2 = box1[0], box1[1], box1[2], box1[3]
+        b2_x1, b2_y1, b2_x2, b2_y2 = box2[0], box2[1], box2[2], box2[3]
+    else:  # transform from xywh to xyxy
+        b1_x1, b1_x2 = box1[0] - box1[2] / 2, box1[0] + box1[2] / 2
+        b1_y1, b1_y2 = box1[1] - box1[3] / 2, box1[1] + box1[3] / 2
+        b2_x1, b2_x2 = box2[0] - box2[2] / 2, box2[0] + box2[2] / 2
+        b2_y1, b2_y2 = box2[1] - box2[3] / 2, box2[1] + box2[3] / 2
+
+    # Intersection area
+    inter = (torch.min(b1_x2, b2_x2) - torch.max(b1_x1, b2_x1)).clamp(0) * \
+            (torch.min(b1_y2, b2_y2) - torch.max(b1_y1, b2_y1)).clamp(0)
+
+    # Union Area
+    w1, h1 = b1_x2 - b1_x1, b1_y2 - b1_y1 + eps
+    w2, h2 = b2_x2 - b2_x1, b2_y2 - b2_y1 + eps
+    union = w1 * h1 + w2 * h2 - inter + eps
+
+    iou = inter / union
+    if GIoU or DIoU or CIoU:
+        cw = torch.max(b1_x2, b2_x2) - torch.min(b1_x1, b2_x1)  # convex (smallest enclosing box) width
+        ch = torch.max(b1_y2, b2_y2) - torch.min(b1_y1, b2_y1)  # convex height
+        if CIoU or DIoU:  # Distance or Complete IoU https://arxiv.org/abs/1911.08287v1
+            c2 = cw ** 2 + ch ** 2 + eps  # convex diagonal squared
+            rho2 = ((b2_x1 + b2_x2 - b1_x1 - b1_x2) ** 2 +
+                    (b2_y1 + b2_y2 - b1_y1 - b1_y2) ** 2) / 4  # center distance squared
+            if DIoU:
+                return iou - rho2 / c2  # DIoU
+            elif CIoU:  # https://github.com/Zzh-tju/DIoU-SSD-pytorch/blob/master/utils/box/box_utils.py#L47
+                v = (4 / math.pi ** 2) * torch.pow(torch.atan(w2 / h2) - torch.atan(w1 / h1), 2)
+                with torch.no_grad():
+                    alpha = v / ((1 + eps) - iou + v)
+                return iou - (rho2 / c2 + v * alpha)  # CIoU
+        else:  # GIoU https://arxiv.org/pdf/1902.09630.pdf
+            c_area = cw * ch + eps  # convex area
+            return iou - (c_area - union) / c_area  # GIoU
+    else:
+        return iou  # IoU
+
+
+def box_iou(box1, box2):
+    # https://github.com/pytorch/vision/blob/master/torchvision/ops/boxes.py
+    &#34;&#34;&#34;
+    Return intersection-over-union (Jaccard index) of boxes.
+    Both sets of boxes are expected to be in (x1, y1, x2, y2) format.
+    Arguments:
+        box1 (Tensor[N, 4])
+        box2 (Tensor[M, 4])
+    Returns:
+        iou (Tensor[N, M]): the NxM matrix containing the pairwise
+            IoU values for every element in boxes1 and boxes2
+    &#34;&#34;&#34;
+
+    def box_area(box):
+        # box = 4xn
+        return (box[2] - box[0]) * (box[3] - box[1])
+
+    area1 = box_area(box1.T)
+    area2 = box_area(box2.T)
+
+    # inter(N,M) = (rb(N,M,2) - lt(N,M,2)).clamp(0).prod(2)
+    inter = (torch.min(box1[:, None, 2:], box2[:, 2:]) - torch.max(box1[:, None, :2], box2[:, :2])).clamp(0).prod(2)
+    return inter / (area1[:, None] + area2 - inter)  # iou = inter / (area1 + area2 - inter)
+
+
+def wh_iou(wh1, wh2):
+    # Returns the nxm IoU matrix. wh1 is nx2, wh2 is mx2
+    wh1 = wh1[:, None]  # [N,1,2]
+    wh2 = wh2[None]  # [1,M,2]
+    inter = torch.min(wh1, wh2).prod(2)  # [N,M]
+    return inter / (wh1.prod(2) + wh2.prod(2) - inter)  # iou = inter / (area1 + area2 - inter)
+
+
+def non_max_suppression(prediction, conf_thres=0.1, iou_thres=0.6, classes=None, agnostic=False, labels=()):
+    &#34;&#34;&#34;Performs Non-Maximum Suppression (NMS) on inference results
+
+    Returns:
+         detections with shape: nx6 (x1, y1, x2, y2, conf, cls)
+    &#34;&#34;&#34;
+
+    nc = prediction[0].shape[1] - 5  # number of classes
+    xc = prediction[..., 4] &gt; conf_thres  # candidates
+
+    # Settings
+    min_wh, max_wh = 2, 4096  # (pixels) minimum and maximum box width and height
+    max_det = 300  # maximum number of detections per image
+    time_limit = 10.0  # seconds to quit after
+    redundant = True  # require redundant detections
+    multi_label = nc &gt; 1  # multiple labels per box (adds 0.5ms/img)
+    merge = False  # use merge-NMS
+
+    t = time.time()
+    output = [torch.zeros(0, 6)] * prediction.shape[0]
+    for xi, x in enumerate(prediction):  # image index, image inference
+        # Apply constraints
+        # x[((x[..., 2:4] &lt; min_wh) | (x[..., 2:4] &gt; max_wh)).any(1), 4] = 0  # width-height
+        x = x[xc[xi]]  # confidence
+
+        # Cat apriori labels if autolabelling
+        if labels and len(labels[xi]):
+            l = labels[xi]
+            v = torch.zeros((len(l), nc + 5), device=x.device)
+            v[:, :4] = l[:, 1:5]  # box
+            v[:, 4] = 1.0  # conf
+            v[range(len(l)), l[:, 0].long() + 5] = 1.0  # cls
+            x = torch.cat((x, v), 0)
+
+        # If none remain process next image
+        if not x.shape[0]:
+            continue
+
+        # Compute conf
+        x[:, 5:] *= x[:, 4:5]  # conf = obj_conf * cls_conf
+
+        # Box (center x, center y, width, height) to (x1, y1, x2, y2)
+        box = xywh2xyxy(x[:, :4])
+
+        # Detections matrix nx6 (xyxy, conf, cls)
+        if multi_label:
+            i, j = (x[:, 5:] &gt; conf_thres).nonzero(as_tuple=False).T
+            x = torch.cat((box[i], x[i, j + 5, None], j[:, None].float()), 1)
+        else:  # best class only
+            conf, j = x[:, 5:].max(1, keepdim=True)
+            x = torch.cat((box, conf, j.float()), 1)[conf.view(-1) &gt; conf_thres]
+
+        # Filter by class
+        if classes:
+            x = x[(x[:, 5:6] == torch.tensor(classes, device=x.device)).any(1)]
+
+        # Apply finite constraint
+        # if not torch.isfinite(x).all():
+        #     x = x[torch.isfinite(x).all(1)]
+
+        # If none remain process next image
+        n = x.shape[0]  # number of boxes
+        if not n:
+            continue
+
+        # Sort by confidence
+        # x = x[x[:, 4].argsort(descending=True)]
+
+        # Batched NMS
+        c = x[:, 5:6] * (0 if agnostic else max_wh)  # classes
+        boxes, scores = x[:, :4] + c, x[:, 4]  # boxes (offset by class), scores
+        i = torchvision.ops.nms(boxes, scores, iou_thres)  # NMS
+        if i.shape[0] &gt; max_det:  # limit detections
+            i = i[:max_det]
+        if merge and (1 &lt; n &lt; 3E3):  # Merge NMS (boxes merged using weighted mean)
+            # update boxes as boxes(i,4) = weights(i,n) * boxes(n,4)
+            iou = box_iou(boxes[i], boxes) &gt; iou_thres  # iou matrix
+            weights = iou * scores[None]  # box weights
+            x[i, :4] = torch.mm(weights, x[:, :4]).float() / weights.sum(1, keepdim=True)  # merged boxes
+            if redundant:
+                i = i[iou.sum(1) &gt; 1]  # require redundancy
+
+        output[xi] = x[i]
+        if (time.time() - t) &gt; time_limit:
+            break  # time limit exceeded
+
+    return output
+
+
+def strip_optimizer(f=&#39;weights/best.pt&#39;, s=&#39;&#39;):  # from utils.general import *; strip_optimizer()
+    # Strip optimizer from &#39;f&#39; to finalize training, optionally save as &#39;s&#39;
+    x = torch.load(f, map_location=torch.device(&#39;cpu&#39;))
+    x[&#39;optimizer&#39;] = None
+    x[&#39;training_results&#39;] = None
+    x[&#39;epoch&#39;] = -1
+    x[&#39;model&#39;].half()  # to FP16
+    for p in x[&#39;model&#39;].parameters():
+        p.requires_grad = False
+    torch.save(x, s or f)
+    mb = os.path.getsize(s or f) / 1E6  # filesize
+    print(&#39;Optimizer stripped from %s,%s %.1fMB&#39; % (f, (&#39; saved as %s,&#39; % s) if s else &#39;&#39;, mb))
+
+
+def print_mutation(hyp, results, yaml_file=&#39;hyp_evolved.yaml&#39;, bucket=&#39;&#39;):
+    # Print mutation results to evolve.txt (for use with train.py --evolve)
+    a = &#39;%10s&#39; * len(hyp) % tuple(hyp.keys())  # hyperparam keys
+    b = &#39;%10.3g&#39; * len(hyp) % tuple(hyp.values())  # hyperparam values
+    c = &#39;%10.4g&#39; * len(results) % results  # results (P, R, mAP@0.5, mAP@0.5:0.95, val_losses x 3)
+    print(&#39;\n%s\n%s\nEvolved fitness: %s\n&#39; % (a, b, c))
+
+    if bucket:
+        url = &#39;gs://%s/evolve.txt&#39; % bucket
+        if gsutil_getsize(url) &gt; (os.path.getsize(&#39;evolve.txt&#39;) if os.path.exists(&#39;evolve.txt&#39;) else 0):
+            os.system(&#39;gsutil cp %s .&#39; % url)  # download evolve.txt if larger than local
+
+    with open(&#39;evolve.txt&#39;, &#39;a&#39;) as f:  # append result
+        f.write(c + b + &#39;\n&#39;)
+    x = np.unique(np.loadtxt(&#39;evolve.txt&#39;, ndmin=2), axis=0)  # load unique rows
+    x = x[np.argsort(-fitness(x))]  # sort
+    np.savetxt(&#39;evolve.txt&#39;, x, &#39;%10.3g&#39;)  # save sort by fitness
+
+    # Save yaml
+    for i, k in enumerate(hyp.keys()):
+        hyp[k] = float(x[0, i + 7])
+    with open(yaml_file, &#39;w&#39;) as f:
+        results = tuple(x[0, :7])
+        c = &#39;%10.4g&#39; * len(results) % results  # results (P, R, mAP@0.5, mAP@0.5:0.95, val_losses x 3)
+        f.write(&#39;# Hyperparameter Evolution Results\n# Generations: %g\n# Metrics: &#39; % len(x) + c + &#39;\n\n&#39;)
+        yaml.dump(hyp, f, sort_keys=False)
+
+    if bucket:
+        os.system(&#39;gsutil cp evolve.txt %s gs://%s&#39; % (yaml_file, bucket))  # upload
+
+
+def apply_classifier(x, model, img, im0):
+    import cv2
+
+    # applies a second stage classifier to yolo outputs    
+    im0 = [im0] if isinstance(im0, np.ndarray) else im0
+    for i, d in enumerate(x):  # per image
+        if d is not None and len(d):
+            d = d.clone()
+
+            # Reshape and pad cutouts
+            b = xyxy2xywh(d[:, :4])  # boxes
+            b[:, 2:] = b[:, 2:].max(1)[0].unsqueeze(1)  # rectangle to square
+            b[:, 2:] = b[:, 2:] * 1.3 + 30  # pad
+            d[:, :4] = xywh2xyxy(b).long()
+
+            # Rescale boxes from img_size to im0 size
+            scale_coords(img.shape[2:], d[:, :4], im0[i].shape)
+
+            # Classes
+            pred_cls1 = d[:, 5].long()
+            ims = []
+            for j, a in enumerate(d):  # per item
+                cutout = im0[i][int(a[1]):int(a[3]), int(a[0]):int(a[2])]
+                im = cv2.resize(cutout, (224, 224))  # BGR
+                # cv2.imwrite(&#39;test%i.jpg&#39; % j, cutout)
+
+                im = im[:, :, ::-1].transpose(2, 0, 1)  # BGR to RGB, to 3x416x416
+                im = np.ascontiguousarray(im, dtype=np.float32)  # uint8 to float32
+                im /= 255.0  # 0 - 255 to 0.0 - 1.0
+                ims.append(im)
+
+            pred_cls2 = model(torch.Tensor(ims).to(d.device)).argmax(1)  # classifier prediction
+            x[i] = x[i][pred_cls1 == pred_cls2]  # retain matching class detections
+
+    return x
+
+
+def increment_path(path, exist_ok=True, sep=&#39;&#39;):
+    # Increment path, i.e. runs/exp --&gt; runs/exp{sep}0, runs/exp{sep}1 etc.
+    path = Path(path)  # os-agnostic
+    if (path.exists() and exist_ok) or (not path.exists()):
+        return str(path)
+    else:
+        dirs = glob.glob(f&#34;{path}{sep}*&#34;)  # similar paths
+        matches = [re.search(rf&#34;%s{sep}(\d+)&#34; % path.stem, d) for d in dirs]
+        i = [int(m.groups()[0]) for m in matches if m]  # indices
+        n = max(i) + 1 if i else 2  # increment number
+        return f&#34;{path}{sep}{n}&#34;  # update path</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="pycollector.model.yolov5.utils.general.apply_classifier"><code class="name flex">
+<span>def <span class="ident">apply_classifier</span></span>(<span>x, model, img, im0)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/general.py#L395-L429" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def apply_classifier(x, model, img, im0):
+    import cv2
+
+    # applies a second stage classifier to yolo outputs    
+    im0 = [im0] if isinstance(im0, np.ndarray) else im0
+    for i, d in enumerate(x):  # per image
+        if d is not None and len(d):
+            d = d.clone()
+
+            # Reshape and pad cutouts
+            b = xyxy2xywh(d[:, :4])  # boxes
+            b[:, 2:] = b[:, 2:].max(1)[0].unsqueeze(1)  # rectangle to square
+            b[:, 2:] = b[:, 2:] * 1.3 + 30  # pad
+            d[:, :4] = xywh2xyxy(b).long()
+
+            # Rescale boxes from img_size to im0 size
+            scale_coords(img.shape[2:], d[:, :4], im0[i].shape)
+
+            # Classes
+            pred_cls1 = d[:, 5].long()
+            ims = []
+            for j, a in enumerate(d):  # per item
+                cutout = im0[i][int(a[1]):int(a[3]), int(a[0]):int(a[2])]
+                im = cv2.resize(cutout, (224, 224))  # BGR
+                # cv2.imwrite(&#39;test%i.jpg&#39; % j, cutout)
+
+                im = im[:, :, ::-1].transpose(2, 0, 1)  # BGR to RGB, to 3x416x416
+                im = np.ascontiguousarray(im, dtype=np.float32)  # uint8 to float32
+                im /= 255.0  # 0 - 255 to 0.0 - 1.0
+                ims.append(im)
+
+            pred_cls2 = model(torch.Tensor(ims).to(d.device)).argmax(1)  # classifier prediction
+            x[i] = x[i][pred_cls1 == pred_cls2]  # retain matching class detections
+
+    return x</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.general.bbox_iou"><code class="name flex">
+<span>def <span class="ident">bbox_iou</span></span>(<span>box1, box2, x1y1x2y2=True, GIoU=False, DIoU=False, CIoU=False, eps=1e-09)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/general.py#L183-L225" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def bbox_iou(box1, box2, x1y1x2y2=True, GIoU=False, DIoU=False, CIoU=False, eps=1e-9):
+    # Returns the IoU of box1 to box2. box1 is 4, box2 is nx4
+    box2 = box2.T
+
+    # Get the coordinates of bounding boxes
+    if x1y1x2y2:  # x1, y1, x2, y2 = box1
+        b1_x1, b1_y1, b1_x2, b1_y2 = box1[0], box1[1], box1[2], box1[3]
+        b2_x1, b2_y1, b2_x2, b2_y2 = box2[0], box2[1], box2[2], box2[3]
+    else:  # transform from xywh to xyxy
+        b1_x1, b1_x2 = box1[0] - box1[2] / 2, box1[0] + box1[2] / 2
+        b1_y1, b1_y2 = box1[1] - box1[3] / 2, box1[1] + box1[3] / 2
+        b2_x1, b2_x2 = box2[0] - box2[2] / 2, box2[0] + box2[2] / 2
+        b2_y1, b2_y2 = box2[1] - box2[3] / 2, box2[1] + box2[3] / 2
+
+    # Intersection area
+    inter = (torch.min(b1_x2, b2_x2) - torch.max(b1_x1, b2_x1)).clamp(0) * \
+            (torch.min(b1_y2, b2_y2) - torch.max(b1_y1, b2_y1)).clamp(0)
+
+    # Union Area
+    w1, h1 = b1_x2 - b1_x1, b1_y2 - b1_y1 + eps
+    w2, h2 = b2_x2 - b2_x1, b2_y2 - b2_y1 + eps
+    union = w1 * h1 + w2 * h2 - inter + eps
+
+    iou = inter / union
+    if GIoU or DIoU or CIoU:
+        cw = torch.max(b1_x2, b2_x2) - torch.min(b1_x1, b2_x1)  # convex (smallest enclosing box) width
+        ch = torch.max(b1_y2, b2_y2) - torch.min(b1_y1, b2_y1)  # convex height
+        if CIoU or DIoU:  # Distance or Complete IoU https://arxiv.org/abs/1911.08287v1
+            c2 = cw ** 2 + ch ** 2 + eps  # convex diagonal squared
+            rho2 = ((b2_x1 + b2_x2 - b1_x1 - b1_x2) ** 2 +
+                    (b2_y1 + b2_y2 - b1_y1 - b1_y2) ** 2) / 4  # center distance squared
+            if DIoU:
+                return iou - rho2 / c2  # DIoU
+            elif CIoU:  # https://github.com/Zzh-tju/DIoU-SSD-pytorch/blob/master/utils/box/box_utils.py#L47
+                v = (4 / math.pi ** 2) * torch.pow(torch.atan(w2 / h2) - torch.atan(w1 / h1), 2)
+                with torch.no_grad():
+                    alpha = v / ((1 + eps) - iou + v)
+                return iou - (rho2 / c2 + v * alpha)  # CIoU
+        else:  # GIoU https://arxiv.org/pdf/1902.09630.pdf
+            c_area = cw * ch + eps  # convex area
+            return iou - (c_area - union) / c_area  # GIoU
+    else:
+        return iou  # IoU</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.general.box_iou"><code class="name flex">
+<span>def <span class="ident">box_iou</span></span>(<span>box1, box2)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return intersection-over-union (Jaccard index) of boxes.
+Both sets of boxes are expected to be in (x1, y1, x2, y2) format.</p>
+<h2 id="arguments">Arguments</h2>
+<p>box1 (Tensor[N, 4])
+box2 (Tensor[M, 4])</p>
+<h2 id="returns">Returns</h2>
+<p>iou (Tensor[N, M]): the NxM matrix containing the pairwise
+IoU values for every element in boxes1 and boxes2</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/general.py#L228-L250" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def box_iou(box1, box2):
+    # https://github.com/pytorch/vision/blob/master/torchvision/ops/boxes.py
+    &#34;&#34;&#34;
+    Return intersection-over-union (Jaccard index) of boxes.
+    Both sets of boxes are expected to be in (x1, y1, x2, y2) format.
+    Arguments:
+        box1 (Tensor[N, 4])
+        box2 (Tensor[M, 4])
+    Returns:
+        iou (Tensor[N, M]): the NxM matrix containing the pairwise
+            IoU values for every element in boxes1 and boxes2
+    &#34;&#34;&#34;
+
+    def box_area(box):
+        # box = 4xn
+        return (box[2] - box[0]) * (box[3] - box[1])
+
+    area1 = box_area(box1.T)
+    area2 = box_area(box2.T)
+
+    # inter(N,M) = (rb(N,M,2) - lt(N,M,2)).clamp(0).prod(2)
+    inter = (torch.min(box1[:, None, 2:], box2[:, 2:]) - torch.max(box1[:, None, :2], box2[:, :2])).clamp(0).prod(2)
+    return inter / (area1[:, None] + area2 - inter)  # iou = inter / (area1 + area2 - inter)</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.general.check_dataset"><code class="name flex">
+<span>def <span class="ident">check_dataset</span></span>(<span>dict)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/general.py#L75-L92" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def check_dataset(dict):
+    # Download dataset if not found locally
+    val, s = dict.get(&#39;val&#39;), dict.get(&#39;download&#39;)
+    if val and len(val):
+        val = [Path(x).resolve() for x in (val if isinstance(val, list) else [val])]  # val path
+        if not all(x.exists() for x in val):
+            print(&#39;\nWARNING: Dataset not found, nonexistent paths: %s&#39; % [str(x) for x in val if not x.exists()])
+            if s and len(s):  # download script
+                print(&#39;Downloading %s ...&#39; % s)
+                if s.startswith(&#39;http&#39;) and s.endswith(&#39;.zip&#39;):  # URL
+                    f = Path(s).name  # filename
+                    torch.hub.download_url_to_file(s, f)
+                    r = os.system(&#39;unzip -q %s -d ../ &amp;&amp; rm %s&#39; % (f, f))  # unzip
+                else:  # bash script
+                    r = os.system(s)
+                print(&#39;Dataset autodownload %s\n&#39; % (&#39;success&#39; if r == 0 else &#39;failure&#39;))  # analyze return value
+            else:
+                raise Exception(&#39;Dataset not found.&#39;)</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.general.check_file"><code class="name flex">
+<span>def <span class="ident">check_file</span></span>(<span>file)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/general.py#L64-L72" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def check_file(file):
+    # Search for file if not found
+    if os.path.isfile(file) or file == &#39;&#39;:
+        return file
+    else:
+        files = glob.glob(&#39;./**/&#39; + file, recursive=True)  # find file
+        assert len(files), &#39;File Not Found: %s&#39; % file  # assert file was found
+        assert len(files) == 1, &#34;Multiple files match &#39;%s&#39;, specify exact path: %s&#34; % (file, files)  # assert unique
+        return files[0]  # return file</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.general.check_git_status"><code class="name flex">
+<span>def <span class="ident">check_git_status</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/general.py#L48-L53" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def check_git_status():
+    # Suggest &#39;git pull&#39; if repo is out of date
+    if platform.system() in [&#39;Linux&#39;, &#39;Darwin&#39;] and not os.path.isfile(&#39;/.dockerenv&#39;):
+        s = subprocess.check_output(&#39;if [ -d .git ]; then git fetch &amp;&amp; git status -uno; fi&#39;, shell=True).decode(&#39;utf-8&#39;)
+        if &#39;Your branch is behind&#39; in s:
+            print(s[s.find(&#39;Your branch is behind&#39;):s.find(&#39;\n\n&#39;)] + &#39;\n&#39;)</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.general.check_img_size"><code class="name flex">
+<span>def <span class="ident">check_img_size</span></span>(<span>img_size, s=32)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/general.py#L56-L61" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def check_img_size(img_size, s=32):
+    # Verify img_size is a multiple of stride s
+    new_size = make_divisible(img_size, int(s))  # ceil gs-multiple
+    if new_size != img_size:
+        print(&#39;WARNING: --img-size %g must be multiple of max stride %g, updating to %g&#39; % (img_size, s, new_size))
+    return new_size</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.general.clip_coords"><code class="name flex">
+<span>def <span class="ident">clip_coords</span></span>(<span>boxes, img_shape)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/general.py#L175-L180" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def clip_coords(boxes, img_shape):
+    # Clip bounding xyxy bounding boxes to image shape (height, width)
+    boxes[:, 0].clamp_(0, img_shape[1])  # x1
+    boxes[:, 1].clamp_(0, img_shape[0])  # y1
+    boxes[:, 2].clamp_(0, img_shape[1])  # x2
+    boxes[:, 3].clamp_(0, img_shape[0])  # y2</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.general.coco80_to_coco91_class"><code class="name flex">
+<span>def <span class="ident">coco80_to_coco91_class</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/general.py#L127-L136" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def coco80_to_coco91_class():  # converts 80-index (val2014) to 91-index (paper)
+    # https://tech.amikelive.com/node-718/what-object-categories-labels-are-in-coco-dataset/
+    # a = np.loadtxt(&#39;data/coco.names&#39;, dtype=&#39;str&#39;, delimiter=&#39;\n&#39;)
+    # b = np.loadtxt(&#39;data/coco_paper.names&#39;, dtype=&#39;str&#39;, delimiter=&#39;\n&#39;)
+    # x1 = [list(a[i] == b).index(True) + 1 for i in range(80)]  # darknet to coco
+    # x2 = [list(b[i] == a).index(True) if any(b[i] == a) else None for i in range(91)]  # coco to darknet
+    x = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 27, 28, 31, 32, 33, 34,
+         35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
+         64, 65, 67, 70, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 84, 85, 86, 87, 88, 89, 90]
+    return x</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.general.get_latest_run"><code class="name flex">
+<span>def <span class="ident">get_latest_run</span></span>(<span>search_dir='.')</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/general.py#L42-L45" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def get_latest_run(search_dir=&#39;.&#39;):
+    # Return path to most recent &#39;last.pt&#39; in /runs (i.e. to --resume from)
+    last_list = glob.glob(f&#39;{search_dir}/**/last*.pt&#39;, recursive=True)
+    return max(last_list, key=os.path.getctime) if last_list else &#39;&#39;</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.general.increment_path"><code class="name flex">
+<span>def <span class="ident">increment_path</span></span>(<span>path, exist_ok=True, sep='')</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/general.py#L432-L442" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def increment_path(path, exist_ok=True, sep=&#39;&#39;):
+    # Increment path, i.e. runs/exp --&gt; runs/exp{sep}0, runs/exp{sep}1 etc.
+    path = Path(path)  # os-agnostic
+    if (path.exists() and exist_ok) or (not path.exists()):
+        return str(path)
+    else:
+        dirs = glob.glob(f&#34;{path}{sep}*&#34;)  # similar paths
+        matches = [re.search(rf&#34;%s{sep}(\d+)&#34; % path.stem, d) for d in dirs]
+        i = [int(m.groups()[0]) for m in matches if m]  # indices
+        n = max(i) + 1 if i else 2  # increment number
+        return f&#34;{path}{sep}{n}&#34;  # update path</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.general.init_seeds"><code class="name flex">
+<span>def <span class="ident">init_seeds</span></span>(<span>seed=0)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/general.py#L36-L39" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def init_seeds(seed=0):
+    random.seed(seed)
+    np.random.seed(seed)
+    init_torch_seeds(seed)</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.general.labels_to_class_weights"><code class="name flex">
+<span>def <span class="ident">labels_to_class_weights</span></span>(<span>labels, nc=80)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/general.py#L100-L116" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def labels_to_class_weights(labels, nc=80):
+    # Get class weights (inverse frequency) from training labels
+    if labels[0] is None:  # no labels loaded
+        return torch.Tensor()
+
+    labels = np.concatenate(labels, 0)  # labels.shape = (866643, 5) for COCO
+    classes = labels[:, 0].astype(np.int)  # labels = [class xywh]
+    weights = np.bincount(classes, minlength=nc)  # occurrences per class
+
+    # Prepend gridpoint count (for uCE training)
+    # gpi = ((320 / 32 * np.array([1, 2, 4])) ** 2 * 3).sum()  # gridpoints per image
+    # weights = np.hstack([gpi * len(labels)  - weights.sum() * 9, weights * 9]) ** 0.5  # prepend gridpoints to start
+
+    weights[weights == 0] = 1  # replace empty bins with 1
+    weights = 1 / weights  # number of targets per class
+    weights /= weights.sum()  # normalize
+    return torch.from_numpy(weights)</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.general.labels_to_image_weights"><code class="name flex">
+<span>def <span class="ident">labels_to_image_weights</span></span>(<span>labels, nc=80, class_weights=array([1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,
+1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,
+1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,
+1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.,
+1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1.]))</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/general.py#L119-L124" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def labels_to_image_weights(labels, nc=80, class_weights=np.ones(80)):
+    # Produces image weights based on class_weights and image contents
+    class_counts = np.array([np.bincount(x[:, 0].astype(np.int), minlength=nc) for x in labels])
+    image_weights = (class_weights.reshape(1, nc) * class_counts).sum(1)
+    # index = random.choices(range(n), weights=image_weights, k=1)  # weight image sample
+    return image_weights</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.general.make_divisible"><code class="name flex">
+<span>def <span class="ident">make_divisible</span></span>(<span>x, divisor)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/general.py#L95-L97" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def make_divisible(x, divisor):
+    # Returns x evenly divisible by divisor
+    return math.ceil(x / divisor) * divisor</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.general.non_max_suppression"><code class="name flex">
+<span>def <span class="ident">non_max_suppression</span></span>(<span>prediction, conf_thres=0.1, iou_thres=0.6, classes=None, agnostic=False, labels=())</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Performs Non-Maximum Suppression (NMS) on inference results</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>detections with shape</code></dt>
+<dd>nx6 (x1, y1, x2, y2, conf, cls)</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/general.py#L261-L347" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def non_max_suppression(prediction, conf_thres=0.1, iou_thres=0.6, classes=None, agnostic=False, labels=()):
+    &#34;&#34;&#34;Performs Non-Maximum Suppression (NMS) on inference results
+
+    Returns:
+         detections with shape: nx6 (x1, y1, x2, y2, conf, cls)
+    &#34;&#34;&#34;
+
+    nc = prediction[0].shape[1] - 5  # number of classes
+    xc = prediction[..., 4] &gt; conf_thres  # candidates
+
+    # Settings
+    min_wh, max_wh = 2, 4096  # (pixels) minimum and maximum box width and height
+    max_det = 300  # maximum number of detections per image
+    time_limit = 10.0  # seconds to quit after
+    redundant = True  # require redundant detections
+    multi_label = nc &gt; 1  # multiple labels per box (adds 0.5ms/img)
+    merge = False  # use merge-NMS
+
+    t = time.time()
+    output = [torch.zeros(0, 6)] * prediction.shape[0]
+    for xi, x in enumerate(prediction):  # image index, image inference
+        # Apply constraints
+        # x[((x[..., 2:4] &lt; min_wh) | (x[..., 2:4] &gt; max_wh)).any(1), 4] = 0  # width-height
+        x = x[xc[xi]]  # confidence
+
+        # Cat apriori labels if autolabelling
+        if labels and len(labels[xi]):
+            l = labels[xi]
+            v = torch.zeros((len(l), nc + 5), device=x.device)
+            v[:, :4] = l[:, 1:5]  # box
+            v[:, 4] = 1.0  # conf
+            v[range(len(l)), l[:, 0].long() + 5] = 1.0  # cls
+            x = torch.cat((x, v), 0)
+
+        # If none remain process next image
+        if not x.shape[0]:
+            continue
+
+        # Compute conf
+        x[:, 5:] *= x[:, 4:5]  # conf = obj_conf * cls_conf
+
+        # Box (center x, center y, width, height) to (x1, y1, x2, y2)
+        box = xywh2xyxy(x[:, :4])
+
+        # Detections matrix nx6 (xyxy, conf, cls)
+        if multi_label:
+            i, j = (x[:, 5:] &gt; conf_thres).nonzero(as_tuple=False).T
+            x = torch.cat((box[i], x[i, j + 5, None], j[:, None].float()), 1)
+        else:  # best class only
+            conf, j = x[:, 5:].max(1, keepdim=True)
+            x = torch.cat((box, conf, j.float()), 1)[conf.view(-1) &gt; conf_thres]
+
+        # Filter by class
+        if classes:
+            x = x[(x[:, 5:6] == torch.tensor(classes, device=x.device)).any(1)]
+
+        # Apply finite constraint
+        # if not torch.isfinite(x).all():
+        #     x = x[torch.isfinite(x).all(1)]
+
+        # If none remain process next image
+        n = x.shape[0]  # number of boxes
+        if not n:
+            continue
+
+        # Sort by confidence
+        # x = x[x[:, 4].argsort(descending=True)]
+
+        # Batched NMS
+        c = x[:, 5:6] * (0 if agnostic else max_wh)  # classes
+        boxes, scores = x[:, :4] + c, x[:, 4]  # boxes (offset by class), scores
+        i = torchvision.ops.nms(boxes, scores, iou_thres)  # NMS
+        if i.shape[0] &gt; max_det:  # limit detections
+            i = i[:max_det]
+        if merge and (1 &lt; n &lt; 3E3):  # Merge NMS (boxes merged using weighted mean)
+            # update boxes as boxes(i,4) = weights(i,n) * boxes(n,4)
+            iou = box_iou(boxes[i], boxes) &gt; iou_thres  # iou matrix
+            weights = iou * scores[None]  # box weights
+            x[i, :4] = torch.mm(weights, x[:, :4]).float() / weights.sum(1, keepdim=True)  # merged boxes
+            if redundant:
+                i = i[iou.sum(1) &gt; 1]  # require redundancy
+
+        output[xi] = x[i]
+        if (time.time() - t) &gt; time_limit:
+            break  # time limit exceeded
+
+    return output</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.general.print_mutation"><code class="name flex">
+<span>def <span class="ident">print_mutation</span></span>(<span>hyp, results, yaml_file='hyp_evolved.yaml', bucket='')</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/general.py#L364-L392" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def print_mutation(hyp, results, yaml_file=&#39;hyp_evolved.yaml&#39;, bucket=&#39;&#39;):
+    # Print mutation results to evolve.txt (for use with train.py --evolve)
+    a = &#39;%10s&#39; * len(hyp) % tuple(hyp.keys())  # hyperparam keys
+    b = &#39;%10.3g&#39; * len(hyp) % tuple(hyp.values())  # hyperparam values
+    c = &#39;%10.4g&#39; * len(results) % results  # results (P, R, mAP@0.5, mAP@0.5:0.95, val_losses x 3)
+    print(&#39;\n%s\n%s\nEvolved fitness: %s\n&#39; % (a, b, c))
+
+    if bucket:
+        url = &#39;gs://%s/evolve.txt&#39; % bucket
+        if gsutil_getsize(url) &gt; (os.path.getsize(&#39;evolve.txt&#39;) if os.path.exists(&#39;evolve.txt&#39;) else 0):
+            os.system(&#39;gsutil cp %s .&#39; % url)  # download evolve.txt if larger than local
+
+    with open(&#39;evolve.txt&#39;, &#39;a&#39;) as f:  # append result
+        f.write(c + b + &#39;\n&#39;)
+    x = np.unique(np.loadtxt(&#39;evolve.txt&#39;, ndmin=2), axis=0)  # load unique rows
+    x = x[np.argsort(-fitness(x))]  # sort
+    np.savetxt(&#39;evolve.txt&#39;, x, &#39;%10.3g&#39;)  # save sort by fitness
+
+    # Save yaml
+    for i, k in enumerate(hyp.keys()):
+        hyp[k] = float(x[0, i + 7])
+    with open(yaml_file, &#39;w&#39;) as f:
+        results = tuple(x[0, :7])
+        c = &#39;%10.4g&#39; * len(results) % results  # results (P, R, mAP@0.5, mAP@0.5:0.95, val_losses x 3)
+        f.write(&#39;# Hyperparameter Evolution Results\n# Generations: %g\n# Metrics: &#39; % len(x) + c + &#39;\n\n&#39;)
+        yaml.dump(hyp, f, sort_keys=False)
+
+    if bucket:
+        os.system(&#39;gsutil cp evolve.txt %s gs://%s&#39; % (yaml_file, bucket))  # upload</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.general.scale_coords"><code class="name flex">
+<span>def <span class="ident">scale_coords</span></span>(<span>img1_shape, coords, img0_shape, ratio_pad=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/general.py#L159-L172" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def scale_coords(img1_shape, coords, img0_shape, ratio_pad=None):
+    # Rescale coords (xyxy) from img1_shape to img0_shape
+    if ratio_pad is None:  # calculate from img0_shape
+        gain = min(img1_shape[0] / img0_shape[0], img1_shape[1] / img0_shape[1])  # gain  = old / new
+        pad = (img1_shape[1] - img0_shape[1] * gain) / 2, (img1_shape[0] - img0_shape[0] * gain) / 2  # wh padding
+    else:
+        gain = ratio_pad[0][0]
+        pad = ratio_pad[1]
+
+    coords[:, [0, 2]] -= pad[0]  # x padding
+    coords[:, [1, 3]] -= pad[1]  # y padding
+    coords[:, :4] /= gain
+    clip_coords(coords, img0_shape)
+    return coords</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.general.set_logging"><code class="name flex">
+<span>def <span class="ident">set_logging</span></span>(<span>rank=-1)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/general.py#L30-L33" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def set_logging(rank=-1):
+    logging.basicConfig(
+        format=&#34;%(message)s&#34;,
+        level=logging.INFO if rank in [-1, 0] else logging.WARN)</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.general.strip_optimizer"><code class="name flex">
+<span>def <span class="ident">strip_optimizer</span></span>(<span>f='weights/best.pt', s='')</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/general.py#L350-L361" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def strip_optimizer(f=&#39;weights/best.pt&#39;, s=&#39;&#39;):  # from utils.general import *; strip_optimizer()
+    # Strip optimizer from &#39;f&#39; to finalize training, optionally save as &#39;s&#39;
+    x = torch.load(f, map_location=torch.device(&#39;cpu&#39;))
+    x[&#39;optimizer&#39;] = None
+    x[&#39;training_results&#39;] = None
+    x[&#39;epoch&#39;] = -1
+    x[&#39;model&#39;].half()  # to FP16
+    for p in x[&#39;model&#39;].parameters():
+        p.requires_grad = False
+    torch.save(x, s or f)
+    mb = os.path.getsize(s or f) / 1E6  # filesize
+    print(&#39;Optimizer stripped from %s,%s %.1fMB&#39; % (f, (&#39; saved as %s,&#39; % s) if s else &#39;&#39;, mb))</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.general.wh_iou"><code class="name flex">
+<span>def <span class="ident">wh_iou</span></span>(<span>wh1, wh2)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/general.py#L253-L258" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def wh_iou(wh1, wh2):
+    # Returns the nxm IoU matrix. wh1 is nx2, wh2 is mx2
+    wh1 = wh1[:, None]  # [N,1,2]
+    wh2 = wh2[None]  # [1,M,2]
+    inter = torch.min(wh1, wh2).prod(2)  # [N,M]
+    return inter / (wh1.prod(2) + wh2.prod(2) - inter)  # iou = inter / (area1 + area2 - inter)</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.general.xywh2xyxy"><code class="name flex">
+<span>def <span class="ident">xywh2xyxy</span></span>(<span>x)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/general.py#L149-L156" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def xywh2xyxy(x):
+    # Convert nx4 boxes from [x, y, w, h] to [x1, y1, x2, y2] where xy1=top-left, xy2=bottom-right
+    y = x.clone() if isinstance(x, torch.Tensor) else np.copy(x)
+    y[:, 0] = x[:, 0] - x[:, 2] / 2  # top left x
+    y[:, 1] = x[:, 1] - x[:, 3] / 2  # top left y
+    y[:, 2] = x[:, 0] + x[:, 2] / 2  # bottom right x
+    y[:, 3] = x[:, 1] + x[:, 3] / 2  # bottom right y
+    return y</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.general.xyxy2xywh"><code class="name flex">
+<span>def <span class="ident">xyxy2xywh</span></span>(<span>x)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/general.py#L139-L146" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def xyxy2xywh(x):
+    # Convert nx4 boxes from [x1, y1, x2, y2] to [x, y, w, h] where xy1=top-left, xy2=bottom-right
+    y = x.clone() if isinstance(x, torch.Tensor) else np.copy(x)
+    y[:, 0] = (x[:, 0] + x[:, 2]) / 2  # x center
+    y[:, 1] = (x[:, 1] + x[:, 3]) / 2  # y center
+    y[:, 2] = x[:, 2] - x[:, 0]  # width
+    y[:, 3] = x[:, 3] - x[:, 1]  # height
+    return y</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+</section>
+</article>
+<nav id="sidebar">
+<header>
+<a class="homelink" rel="home" title="Visym Collector" href="https://github.com/visym/collector/">
+<img src="https://www.visym.com/labs/images/visym_logo_black_notext.png" alt="" width="150"> <p> </p>
+</a>
+</header>
+<form>
+<input id="lunr-search" name="q" placeholder="🔎 Search ..." aria-label="Search"
+disabled minlength="2">
+</form>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/tingle/0.15.3/tingle.min.css" integrity="sha512-j1u8eUJ4f23xPPxwOrLUPQaCD2dwzNqqmDDcWS4deWsMv2ohLqmXXuP3hU7g8TyzbMSakP/mMqoNBYWj8AEIFg==" crossorigin>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tingle/0.15.3/tingle.min.js" integrity="sha512-plGUER9JkeEWPPqQBE4sdLqBoQug5Ap+BCGMc7bJ8BXkm+VVj6QzkpBz5Yv2yPkkq+cqg9IpkBaGCas6uDbW8g==" crossorigin></script>
+<style>
+.modal-dialog iframe {
+width: 100vw;
+height: calc(100vh - 80px);
+}
+@media screen and (min-width: 700px) {
+.modal-dialog iframe {
+width: 70vw;
+height: 80vh;
+}
+}
+.modal-dialog .tingle-modal-box {width: auto;}
+.modal-dialog .tingle-modal-box__content {padding: 0;}
+</style>
+<script>
+const input = document.getElementById('lunr-search');
+input.disabled = false;
+input.form.addEventListener('submit', (ev) => {
+ev.preventDefault();
+const url = new URL(window.location);
+url.searchParams.set('q', input.value);
+history.replaceState({}, null, url.toString());
+search(input.value);
+});
+const query = new URL(window.location).searchParams.get('q');
+if (query)
+search(query);
+function search(query) {
+const url = '../../../../doc-search.html#' + encodeURIComponent(query);
+new tingle.modal({
+cssClass: ['modal-dialog'],
+onClose: () => {
+const url = new URL(window.location);
+url.searchParams.delete('q');
+history.replaceState({}, null, url.toString());
+setTimeout(() => input.focus(), 100);
+}
+}).setContent('<iframe src="' + url + '"></iframe>').open();
+}
+</script>
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pycollector.model.yolov5.utils" href="index.html">pycollector.model.yolov5.utils</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="pycollector.model.yolov5.utils.general.apply_classifier" href="#pycollector.model.yolov5.utils.general.apply_classifier">apply_classifier</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.general.bbox_iou" href="#pycollector.model.yolov5.utils.general.bbox_iou">bbox_iou</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.general.box_iou" href="#pycollector.model.yolov5.utils.general.box_iou">box_iou</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.general.check_dataset" href="#pycollector.model.yolov5.utils.general.check_dataset">check_dataset</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.general.check_file" href="#pycollector.model.yolov5.utils.general.check_file">check_file</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.general.check_git_status" href="#pycollector.model.yolov5.utils.general.check_git_status">check_git_status</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.general.check_img_size" href="#pycollector.model.yolov5.utils.general.check_img_size">check_img_size</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.general.clip_coords" href="#pycollector.model.yolov5.utils.general.clip_coords">clip_coords</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.general.coco80_to_coco91_class" href="#pycollector.model.yolov5.utils.general.coco80_to_coco91_class">coco80_to_coco91_class</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.general.get_latest_run" href="#pycollector.model.yolov5.utils.general.get_latest_run">get_latest_run</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.general.increment_path" href="#pycollector.model.yolov5.utils.general.increment_path">increment_path</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.general.init_seeds" href="#pycollector.model.yolov5.utils.general.init_seeds">init_seeds</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.general.labels_to_class_weights" href="#pycollector.model.yolov5.utils.general.labels_to_class_weights">labels_to_class_weights</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.general.labels_to_image_weights" href="#pycollector.model.yolov5.utils.general.labels_to_image_weights">labels_to_image_weights</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.general.make_divisible" href="#pycollector.model.yolov5.utils.general.make_divisible">make_divisible</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.general.non_max_suppression" href="#pycollector.model.yolov5.utils.general.non_max_suppression">non_max_suppression</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.general.print_mutation" href="#pycollector.model.yolov5.utils.general.print_mutation">print_mutation</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.general.scale_coords" href="#pycollector.model.yolov5.utils.general.scale_coords">scale_coords</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.general.set_logging" href="#pycollector.model.yolov5.utils.general.set_logging">set_logging</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.general.strip_optimizer" href="#pycollector.model.yolov5.utils.general.strip_optimizer">strip_optimizer</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.general.wh_iou" href="#pycollector.model.yolov5.utils.general.wh_iou">wh_iou</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.general.xywh2xyxy" href="#pycollector.model.yolov5.utils.general.xywh2xyxy">xywh2xyxy</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.general.xyxy2xywh" href="#pycollector.model.yolov5.utils.general.xyxy2xywh">xyxy2xywh</a></code></li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>

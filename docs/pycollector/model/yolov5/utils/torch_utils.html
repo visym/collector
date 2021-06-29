@@ -1,0 +1,822 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.9.2" />
+<title>pycollector.model.yolov5.utils.torch_utils API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}#lunr-search{width:100%;font-size:1em;padding:6px 9px 5px 9px;border:1px solid silver}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>pycollector.model.yolov5.utils.torch_utils</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/torch_utils.py#L0-L241" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python"># PyTorch utils
+
+import logging
+import math
+import os
+import time
+from contextlib import contextmanager
+from copy import deepcopy
+
+import torch
+import torch.backends.cudnn as cudnn
+import torch.nn as nn
+import torch.nn.functional as F
+import torchvision
+
+logger = logging.getLogger(__name__)
+
+
+@contextmanager
+def torch_distributed_zero_first(local_rank: int):
+    &#34;&#34;&#34;
+    Decorator to make all processes in distributed training wait for each local_master to do something.
+    &#34;&#34;&#34;
+    if local_rank not in [-1, 0]:
+        torch.distributed.barrier()
+    yield
+    if local_rank == 0:
+        torch.distributed.barrier()
+
+
+def init_torch_seeds(seed=0):
+    # Speed-reproducibility tradeoff https://pytorch.org/docs/stable/notes/randomness.html
+    torch.manual_seed(seed)
+    if seed == 0:  # slower, more reproducible
+        cudnn.deterministic = True
+        cudnn.benchmark = False
+    else:  # faster, less reproducible
+        cudnn.deterministic = False
+        cudnn.benchmark = True
+
+
+def select_device(device=&#39;&#39;, batch_size=None):
+    # device = &#39;cpu&#39; or &#39;0&#39; or &#39;0,1,2,3&#39;
+    cpu_request = device.lower() == &#39;cpu&#39;
+    if device and not cpu_request:  # if device requested other than &#39;cpu&#39;
+        os.environ[&#39;CUDA_VISIBLE_DEVICES&#39;] = device  # set environment variable
+        assert torch.cuda.is_available(), &#39;CUDA unavailable, invalid device %s requested&#39; % device  # check availablity
+
+    cuda = False if cpu_request else torch.cuda.is_available()
+    if cuda:
+        c = 1024 ** 2  # bytes to MB
+        ng = torch.cuda.device_count()
+        if ng &gt; 1 and batch_size:  # check that batch_size is compatible with device_count
+            assert batch_size % ng == 0, &#39;batch-size %g not multiple of GPU count %g&#39; % (batch_size, ng)
+        x = [torch.cuda.get_device_properties(i) for i in range(ng)]
+        s = f&#39;Using torch {torch.__version__} &#39;
+        for i in range(0, ng):
+            if i == 1:
+                s = &#39; &#39; * len(s)
+            logger.info(&#34;%sCUDA:%g (%s, %dMB)&#34; % (s, i, x[i].name, x[i].total_memory / c))
+    else:
+        logger.info(f&#39;Using torch {torch.__version__} CPU&#39;)
+
+    logger.info(&#39;&#39;)  # skip a line
+    return torch.device(&#39;cuda:0&#39; if cuda else &#39;cpu&#39;)
+
+
+def time_synchronized():
+    torch.cuda.synchronize() if torch.cuda.is_available() else None
+    return time.time()
+
+
+def is_parallel(model):
+    return type(model) in (nn.parallel.DataParallel, nn.parallel.DistributedDataParallel)
+
+
+def intersect_dicts(da, db, exclude=()):
+    # Dictionary intersection of matching keys and shapes, omitting &#39;exclude&#39; keys, using da values
+    return {k: v for k, v in da.items() if k in db and not any(x in k for x in exclude) and v.shape == db[k].shape}
+
+
+def initialize_weights(model):
+    for m in model.modules():
+        t = type(m)
+        if t is nn.Conv2d:
+            pass  # nn.init.kaiming_normal_(m.weight, mode=&#39;fan_out&#39;, nonlinearity=&#39;relu&#39;)
+        elif t is nn.BatchNorm2d:
+            m.eps = 1e-3
+            m.momentum = 0.03
+        elif t in [nn.Hardswish, nn.LeakyReLU, nn.ReLU, nn.ReLU6]:
+            m.inplace = True
+
+
+def find_modules(model, mclass=nn.Conv2d):
+    # Finds layer indices matching module class &#39;mclass&#39;
+    return [i for i, m in enumerate(model.module_list) if isinstance(m, mclass)]
+
+
+def sparsity(model):
+    # Return global model sparsity
+    a, b = 0., 0.
+    for p in model.parameters():
+        a += p.numel()
+        b += (p == 0).sum()
+    return b / a
+
+
+def prune(model, amount=0.3):
+    # Prune model to requested global sparsity
+    import torch.nn.utils.prune as prune
+    print(&#39;Pruning model... &#39;, end=&#39;&#39;)
+    for name, m in model.named_modules():
+        if isinstance(m, nn.Conv2d):
+            prune.l1_unstructured(m, name=&#39;weight&#39;, amount=amount)  # prune
+            prune.remove(m, &#39;weight&#39;)  # make permanent
+    print(&#39; %.3g global sparsity&#39; % sparsity(model))
+
+
+def fuse_conv_and_bn(conv, bn):
+    # Fuse convolution and batchnorm layers https://tehnokv.com/posts/fusing-batchnorm-and-conv/
+    fusedconv = nn.Conv2d(conv.in_channels,
+                          conv.out_channels,
+                          kernel_size=conv.kernel_size,
+                          stride=conv.stride,
+                          padding=conv.padding,
+                          groups=conv.groups,
+                          bias=True).requires_grad_(False).to(conv.weight.device)
+
+    # prepare filters
+    w_conv = conv.weight.clone().view(conv.out_channels, -1)
+    w_bn = torch.diag(bn.weight.div(torch.sqrt(bn.eps + bn.running_var)))
+    fusedconv.weight.copy_(torch.mm(w_bn, w_conv).view(fusedconv.weight.size()))
+
+    # prepare spatial bias
+    b_conv = torch.zeros(conv.weight.size(0), device=conv.weight.device) if conv.bias is None else conv.bias
+    b_bn = bn.bias - bn.weight.mul(bn.running_mean).div(torch.sqrt(bn.running_var + bn.eps))
+    fusedconv.bias.copy_(torch.mm(w_bn, b_conv.reshape(-1, 1)).reshape(-1) + b_bn)
+
+    return fusedconv
+
+
+def model_info(model, verbose=False, img_size=640):
+    # Model information. img_size may be int or list, i.e. img_size=640 or img_size=[640, 320]
+    n_p = sum(x.numel() for x in model.parameters())  # number parameters
+    n_g = sum(x.numel() for x in model.parameters() if x.requires_grad)  # number gradients
+    if verbose:
+        print(&#39;%5s %40s %9s %12s %20s %10s %10s&#39; % (&#39;layer&#39;, &#39;name&#39;, &#39;gradient&#39;, &#39;parameters&#39;, &#39;shape&#39;, &#39;mu&#39;, &#39;sigma&#39;))
+        for i, (name, p) in enumerate(model.named_parameters()):
+            name = name.replace(&#39;module_list.&#39;, &#39;&#39;)
+            print(&#39;%5g %40s %9s %12g %20s %10.3g %10.3g&#39; %
+                  (i, name, p.requires_grad, p.numel(), list(p.shape), p.mean(), p.std()))
+
+    try:  # FLOPS
+        from thop import profile
+        stride = int(model.stride.max())
+        img = torch.zeros((1, 3, stride, stride), device=next(model.parameters()).device)  # input
+        flops = profile(deepcopy(model), inputs=(img,), verbose=False)[0] / 1E9 * 2  # stride FLOPS
+        img_size = img_size if isinstance(img_size, list) else [img_size, img_size]  # expand if int/float
+        fs = &#39;, %.1f GFLOPS&#39; % (flops * img_size[0] / stride * img_size[1] / stride)  # 640x640 FLOPS
+    except (ImportError, Exception):
+        fs = &#39;&#39;
+
+    logger.info(f&#34;Model Summary: {len(list(model.modules()))} layers, {n_p} parameters, {n_g} gradients{fs}&#34;)
+
+
+def load_classifier(name=&#39;resnet101&#39;, n=2):
+    # Loads a pretrained model reshaped to n-class output
+    model = torchvision.models.__dict__[name](pretrained=True)
+
+    # ResNet model properties
+    # input_size = [3, 224, 224]
+    # input_space = &#39;RGB&#39;
+    # input_range = [0, 1]
+    # mean = [0.485, 0.456, 0.406]
+    # std = [0.229, 0.224, 0.225]
+
+    # Reshape output to n classes
+    filters = model.fc.weight.shape[1]
+    model.fc.bias = nn.Parameter(torch.zeros(n), requires_grad=True)
+    model.fc.weight = nn.Parameter(torch.zeros(n, filters), requires_grad=True)
+    model.fc.out_features = n
+    return model
+
+
+def scale_img(img, ratio=1.0, same_shape=False):  # img(16,3,256,416), r=ratio
+    # scales img(bs,3,y,x) by ratio
+    if ratio == 1.0:
+        return img
+    else:
+        h, w = img.shape[2:]
+        s = (int(h * ratio), int(w * ratio))  # new size
+        img = F.interpolate(img, size=s, mode=&#39;bilinear&#39;, align_corners=False)  # resize
+        if not same_shape:  # pad/crop img
+            gs = 32  # (pixels) grid size
+            h, w = [math.ceil(x * ratio / gs) * gs for x in (h, w)]
+        return F.pad(img, [0, w - s[1], 0, h - s[0]], value=0.447)  # value = imagenet mean
+
+
+def copy_attr(a, b, include=(), exclude=()):
+    # Copy attributes from b to a, options to only include [...] and to exclude [...]
+    for k, v in b.__dict__.items():
+        if (len(include) and k not in include) or k.startswith(&#39;_&#39;) or k in exclude:
+            continue
+        else:
+            setattr(a, k, v)
+
+
+class ModelEMA:
+    &#34;&#34;&#34; Model Exponential Moving Average from https://github.com/rwightman/pytorch-image-models
+    Keep a moving average of everything in the model state_dict (parameters and buffers).
+    This is intended to allow functionality like
+    https://www.tensorflow.org/api_docs/python/tf/train/ExponentialMovingAverage
+    A smoothed version of the weights is necessary for some training schemes to perform well.
+    This class is sensitive where it is initialized in the sequence of model init,
+    GPU assignment and distributed training wrappers.
+    &#34;&#34;&#34;
+
+    def __init__(self, model, decay=0.9999, updates=0):
+        # Create EMA
+        self.ema = deepcopy(model.module if is_parallel(model) else model).eval()  # FP32 EMA
+        # if next(model.parameters()).device.type != &#39;cpu&#39;:
+        #     self.ema.half()  # FP16 EMA
+        self.updates = updates  # number of EMA updates
+        self.decay = lambda x: decay * (1 - math.exp(-x / 2000))  # decay exponential ramp (to help early epochs)
+        for p in self.ema.parameters():
+            p.requires_grad_(False)
+
+    def update(self, model):
+        # Update EMA parameters
+        with torch.no_grad():
+            self.updates += 1
+            d = self.decay(self.updates)
+
+            msd = model.module.state_dict() if is_parallel(model) else model.state_dict()  # model state_dict
+            for k, v in self.ema.state_dict().items():
+                if v.dtype.is_floating_point:
+                    v *= d
+                    v += (1. - d) * msd[k].detach()
+
+    def update_attr(self, model, include=(), exclude=(&#39;process_group&#39;, &#39;reducer&#39;)):
+        # Update EMA attributes
+        copy_attr(self.ema, model, include, exclude)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="pycollector.model.yolov5.utils.torch_utils.copy_attr"><code class="name flex">
+<span>def <span class="ident">copy_attr</span></span>(<span>a, b, include=(), exclude=())</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/torch_utils.py#L199-L205" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def copy_attr(a, b, include=(), exclude=()):
+    # Copy attributes from b to a, options to only include [...] and to exclude [...]
+    for k, v in b.__dict__.items():
+        if (len(include) and k not in include) or k.startswith(&#39;_&#39;) or k in exclude:
+            continue
+        else:
+            setattr(a, k, v)</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.torch_utils.find_modules"><code class="name flex">
+<span>def <span class="ident">find_modules</span></span>(<span>model, mclass=torch.nn.modules.conv.Conv2d)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/torch_utils.py#L94-L96" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def find_modules(model, mclass=nn.Conv2d):
+    # Finds layer indices matching module class &#39;mclass&#39;
+    return [i for i, m in enumerate(model.module_list) if isinstance(m, mclass)]</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.torch_utils.fuse_conv_and_bn"><code class="name flex">
+<span>def <span class="ident">fuse_conv_and_bn</span></span>(<span>conv, bn)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/torch_utils.py#L119-L139" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def fuse_conv_and_bn(conv, bn):
+    # Fuse convolution and batchnorm layers https://tehnokv.com/posts/fusing-batchnorm-and-conv/
+    fusedconv = nn.Conv2d(conv.in_channels,
+                          conv.out_channels,
+                          kernel_size=conv.kernel_size,
+                          stride=conv.stride,
+                          padding=conv.padding,
+                          groups=conv.groups,
+                          bias=True).requires_grad_(False).to(conv.weight.device)
+
+    # prepare filters
+    w_conv = conv.weight.clone().view(conv.out_channels, -1)
+    w_bn = torch.diag(bn.weight.div(torch.sqrt(bn.eps + bn.running_var)))
+    fusedconv.weight.copy_(torch.mm(w_bn, w_conv).view(fusedconv.weight.size()))
+
+    # prepare spatial bias
+    b_conv = torch.zeros(conv.weight.size(0), device=conv.weight.device) if conv.bias is None else conv.bias
+    b_bn = bn.bias - bn.weight.mul(bn.running_mean).div(torch.sqrt(bn.running_var + bn.eps))
+    fusedconv.bias.copy_(torch.mm(w_bn, b_conv.reshape(-1, 1)).reshape(-1) + b_bn)
+
+    return fusedconv</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.torch_utils.init_torch_seeds"><code class="name flex">
+<span>def <span class="ident">init_torch_seeds</span></span>(<span>seed=0)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/torch_utils.py#L31-L39" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def init_torch_seeds(seed=0):
+    # Speed-reproducibility tradeoff https://pytorch.org/docs/stable/notes/randomness.html
+    torch.manual_seed(seed)
+    if seed == 0:  # slower, more reproducible
+        cudnn.deterministic = True
+        cudnn.benchmark = False
+    else:  # faster, less reproducible
+        cudnn.deterministic = False
+        cudnn.benchmark = True</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.torch_utils.initialize_weights"><code class="name flex">
+<span>def <span class="ident">initialize_weights</span></span>(<span>model)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/torch_utils.py#L82-L91" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def initialize_weights(model):
+    for m in model.modules():
+        t = type(m)
+        if t is nn.Conv2d:
+            pass  # nn.init.kaiming_normal_(m.weight, mode=&#39;fan_out&#39;, nonlinearity=&#39;relu&#39;)
+        elif t is nn.BatchNorm2d:
+            m.eps = 1e-3
+            m.momentum = 0.03
+        elif t in [nn.Hardswish, nn.LeakyReLU, nn.ReLU, nn.ReLU6]:
+            m.inplace = True</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.torch_utils.intersect_dicts"><code class="name flex">
+<span>def <span class="ident">intersect_dicts</span></span>(<span>da, db, exclude=())</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/torch_utils.py#L77-L79" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def intersect_dicts(da, db, exclude=()):
+    # Dictionary intersection of matching keys and shapes, omitting &#39;exclude&#39; keys, using da values
+    return {k: v for k, v in da.items() if k in db and not any(x in k for x in exclude) and v.shape == db[k].shape}</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.torch_utils.is_parallel"><code class="name flex">
+<span>def <span class="ident">is_parallel</span></span>(<span>model)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/torch_utils.py#L73-L74" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def is_parallel(model):
+    return type(model) in (nn.parallel.DataParallel, nn.parallel.DistributedDataParallel)</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.torch_utils.load_classifier"><code class="name flex">
+<span>def <span class="ident">load_classifier</span></span>(<span>name='resnet101', n=2)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/torch_utils.py#L166-L182" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def load_classifier(name=&#39;resnet101&#39;, n=2):
+    # Loads a pretrained model reshaped to n-class output
+    model = torchvision.models.__dict__[name](pretrained=True)
+
+    # ResNet model properties
+    # input_size = [3, 224, 224]
+    # input_space = &#39;RGB&#39;
+    # input_range = [0, 1]
+    # mean = [0.485, 0.456, 0.406]
+    # std = [0.229, 0.224, 0.225]
+
+    # Reshape output to n classes
+    filters = model.fc.weight.shape[1]
+    model.fc.bias = nn.Parameter(torch.zeros(n), requires_grad=True)
+    model.fc.weight = nn.Parameter(torch.zeros(n, filters), requires_grad=True)
+    model.fc.out_features = n
+    return model</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.torch_utils.model_info"><code class="name flex">
+<span>def <span class="ident">model_info</span></span>(<span>model, verbose=False, img_size=640)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/torch_utils.py#L142-L163" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def model_info(model, verbose=False, img_size=640):
+    # Model information. img_size may be int or list, i.e. img_size=640 or img_size=[640, 320]
+    n_p = sum(x.numel() for x in model.parameters())  # number parameters
+    n_g = sum(x.numel() for x in model.parameters() if x.requires_grad)  # number gradients
+    if verbose:
+        print(&#39;%5s %40s %9s %12s %20s %10s %10s&#39; % (&#39;layer&#39;, &#39;name&#39;, &#39;gradient&#39;, &#39;parameters&#39;, &#39;shape&#39;, &#39;mu&#39;, &#39;sigma&#39;))
+        for i, (name, p) in enumerate(model.named_parameters()):
+            name = name.replace(&#39;module_list.&#39;, &#39;&#39;)
+            print(&#39;%5g %40s %9s %12g %20s %10.3g %10.3g&#39; %
+                  (i, name, p.requires_grad, p.numel(), list(p.shape), p.mean(), p.std()))
+
+    try:  # FLOPS
+        from thop import profile
+        stride = int(model.stride.max())
+        img = torch.zeros((1, 3, stride, stride), device=next(model.parameters()).device)  # input
+        flops = profile(deepcopy(model), inputs=(img,), verbose=False)[0] / 1E9 * 2  # stride FLOPS
+        img_size = img_size if isinstance(img_size, list) else [img_size, img_size]  # expand if int/float
+        fs = &#39;, %.1f GFLOPS&#39; % (flops * img_size[0] / stride * img_size[1] / stride)  # 640x640 FLOPS
+    except (ImportError, Exception):
+        fs = &#39;&#39;
+
+    logger.info(f&#34;Model Summary: {len(list(model.modules()))} layers, {n_p} parameters, {n_g} gradients{fs}&#34;)</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.torch_utils.prune"><code class="name flex">
+<span>def <span class="ident">prune</span></span>(<span>model, amount=0.3)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/torch_utils.py#L108-L116" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def prune(model, amount=0.3):
+    # Prune model to requested global sparsity
+    import torch.nn.utils.prune as prune
+    print(&#39;Pruning model... &#39;, end=&#39;&#39;)
+    for name, m in model.named_modules():
+        if isinstance(m, nn.Conv2d):
+            prune.l1_unstructured(m, name=&#39;weight&#39;, amount=amount)  # prune
+            prune.remove(m, &#39;weight&#39;)  # make permanent
+    print(&#39; %.3g global sparsity&#39; % sparsity(model))</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.torch_utils.scale_img"><code class="name flex">
+<span>def <span class="ident">scale_img</span></span>(<span>img, ratio=1.0, same_shape=False)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/torch_utils.py#L185-L196" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def scale_img(img, ratio=1.0, same_shape=False):  # img(16,3,256,416), r=ratio
+    # scales img(bs,3,y,x) by ratio
+    if ratio == 1.0:
+        return img
+    else:
+        h, w = img.shape[2:]
+        s = (int(h * ratio), int(w * ratio))  # new size
+        img = F.interpolate(img, size=s, mode=&#39;bilinear&#39;, align_corners=False)  # resize
+        if not same_shape:  # pad/crop img
+            gs = 32  # (pixels) grid size
+            h, w = [math.ceil(x * ratio / gs) * gs for x in (h, w)]
+        return F.pad(img, [0, w - s[1], 0, h - s[0]], value=0.447)  # value = imagenet mean</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.torch_utils.select_device"><code class="name flex">
+<span>def <span class="ident">select_device</span></span>(<span>device='', batch_size=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/torch_utils.py#L42-L65" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def select_device(device=&#39;&#39;, batch_size=None):
+    # device = &#39;cpu&#39; or &#39;0&#39; or &#39;0,1,2,3&#39;
+    cpu_request = device.lower() == &#39;cpu&#39;
+    if device and not cpu_request:  # if device requested other than &#39;cpu&#39;
+        os.environ[&#39;CUDA_VISIBLE_DEVICES&#39;] = device  # set environment variable
+        assert torch.cuda.is_available(), &#39;CUDA unavailable, invalid device %s requested&#39; % device  # check availablity
+
+    cuda = False if cpu_request else torch.cuda.is_available()
+    if cuda:
+        c = 1024 ** 2  # bytes to MB
+        ng = torch.cuda.device_count()
+        if ng &gt; 1 and batch_size:  # check that batch_size is compatible with device_count
+            assert batch_size % ng == 0, &#39;batch-size %g not multiple of GPU count %g&#39; % (batch_size, ng)
+        x = [torch.cuda.get_device_properties(i) for i in range(ng)]
+        s = f&#39;Using torch {torch.__version__} &#39;
+        for i in range(0, ng):
+            if i == 1:
+                s = &#39; &#39; * len(s)
+            logger.info(&#34;%sCUDA:%g (%s, %dMB)&#34; % (s, i, x[i].name, x[i].total_memory / c))
+    else:
+        logger.info(f&#39;Using torch {torch.__version__} CPU&#39;)
+
+    logger.info(&#39;&#39;)  # skip a line
+    return torch.device(&#39;cuda:0&#39; if cuda else &#39;cpu&#39;)</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.torch_utils.sparsity"><code class="name flex">
+<span>def <span class="ident">sparsity</span></span>(<span>model)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/torch_utils.py#L99-L105" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def sparsity(model):
+    # Return global model sparsity
+    a, b = 0., 0.
+    for p in model.parameters():
+        a += p.numel()
+        b += (p == 0).sum()
+    return b / a</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.torch_utils.time_synchronized"><code class="name flex">
+<span>def <span class="ident">time_synchronized</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/torch_utils.py#L68-L70" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def time_synchronized():
+    torch.cuda.synchronize() if torch.cuda.is_available() else None
+    return time.time()</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.torch_utils.torch_distributed_zero_first"><code class="name flex">
+<span>def <span class="ident">torch_distributed_zero_first</span></span>(<span>local_rank: int)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Decorator to make all processes in distributed training wait for each local_master to do something.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/torch_utils.py#L19-L28" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">@contextmanager
+def torch_distributed_zero_first(local_rank: int):
+    &#34;&#34;&#34;
+    Decorator to make all processes in distributed training wait for each local_master to do something.
+    &#34;&#34;&#34;
+    if local_rank not in [-1, 0]:
+        torch.distributed.barrier()
+    yield
+    if local_rank == 0:
+        torch.distributed.barrier()</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="pycollector.model.yolov5.utils.torch_utils.ModelEMA"><code class="flex name class">
+<span>class <span class="ident">ModelEMA</span></span>
+<span>(</span><span>model, decay=0.9999, updates=0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Model Exponential Moving Average from <a href="https://github.com/rwightman/pytorch-image-models">https://github.com/rwightman/pytorch-image-models</a>
+Keep a moving average of everything in the model state_dict (parameters and buffers).
+This is intended to allow functionality like
+<a href="https://www.tensorflow.org/api_docs/python/tf/train/ExponentialMovingAverage">https://www.tensorflow.org/api_docs/python/tf/train/ExponentialMovingAverage</a>
+A smoothed version of the weights is necessary for some training schemes to perform well.
+This class is sensitive where it is initialized in the sequence of model init,
+GPU assignment and distributed training wrappers.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/torch_utils.py#L208-L242" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class ModelEMA:
+    &#34;&#34;&#34; Model Exponential Moving Average from https://github.com/rwightman/pytorch-image-models
+    Keep a moving average of everything in the model state_dict (parameters and buffers).
+    This is intended to allow functionality like
+    https://www.tensorflow.org/api_docs/python/tf/train/ExponentialMovingAverage
+    A smoothed version of the weights is necessary for some training schemes to perform well.
+    This class is sensitive where it is initialized in the sequence of model init,
+    GPU assignment and distributed training wrappers.
+    &#34;&#34;&#34;
+
+    def __init__(self, model, decay=0.9999, updates=0):
+        # Create EMA
+        self.ema = deepcopy(model.module if is_parallel(model) else model).eval()  # FP32 EMA
+        # if next(model.parameters()).device.type != &#39;cpu&#39;:
+        #     self.ema.half()  # FP16 EMA
+        self.updates = updates  # number of EMA updates
+        self.decay = lambda x: decay * (1 - math.exp(-x / 2000))  # decay exponential ramp (to help early epochs)
+        for p in self.ema.parameters():
+            p.requires_grad_(False)
+
+    def update(self, model):
+        # Update EMA parameters
+        with torch.no_grad():
+            self.updates += 1
+            d = self.decay(self.updates)
+
+            msd = model.module.state_dict() if is_parallel(model) else model.state_dict()  # model state_dict
+            for k, v in self.ema.state_dict().items():
+                if v.dtype.is_floating_point:
+                    v *= d
+                    v += (1. - d) * msd[k].detach()
+
+    def update_attr(self, model, include=(), exclude=(&#39;process_group&#39;, &#39;reducer&#39;)):
+        # Update EMA attributes
+        copy_attr(self.ema, model, include, exclude)</code></pre>
+</details>
+<h3>Methods</h3>
+<dl>
+<dt id="pycollector.model.yolov5.utils.torch_utils.ModelEMA.update"><code class="name flex">
+<span>def <span class="ident">update</span></span>(<span>self, model)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/torch_utils.py#L228-L238" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def update(self, model):
+    # Update EMA parameters
+    with torch.no_grad():
+        self.updates += 1
+        d = self.decay(self.updates)
+
+        msd = model.module.state_dict() if is_parallel(model) else model.state_dict()  # model state_dict
+        for k, v in self.ema.state_dict().items():
+            if v.dtype.is_floating_point:
+                v *= d
+                v += (1. - d) * msd[k].detach()</code></pre>
+</details>
+</dd>
+<dt id="pycollector.model.yolov5.utils.torch_utils.ModelEMA.update_attr"><code class="name flex">
+<span>def <span class="ident">update_attr</span></span>(<span>self, model, include=(), exclude=('process_group', 'reducer'))</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/588c5b34d88911bd08ea60cd0b0803824e255f89/pycollector/model/yolov5/utils/torch_utils.py#L240-L242" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def update_attr(self, model, include=(), exclude=(&#39;process_group&#39;, &#39;reducer&#39;)):
+    # Update EMA attributes
+    copy_attr(self.ema, model, include, exclude)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<header>
+<a class="homelink" rel="home" title="Visym Collector" href="https://github.com/visym/collector/">
+<img src="https://www.visym.com/labs/images/visym_logo_black_notext.png" alt="" width="150"> <p> </p>
+</a>
+</header>
+<form>
+<input id="lunr-search" name="q" placeholder="🔎 Search ..." aria-label="Search"
+disabled minlength="2">
+</form>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/tingle/0.15.3/tingle.min.css" integrity="sha512-j1u8eUJ4f23xPPxwOrLUPQaCD2dwzNqqmDDcWS4deWsMv2ohLqmXXuP3hU7g8TyzbMSakP/mMqoNBYWj8AEIFg==" crossorigin>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tingle/0.15.3/tingle.min.js" integrity="sha512-plGUER9JkeEWPPqQBE4sdLqBoQug5Ap+BCGMc7bJ8BXkm+VVj6QzkpBz5Yv2yPkkq+cqg9IpkBaGCas6uDbW8g==" crossorigin></script>
+<style>
+.modal-dialog iframe {
+width: 100vw;
+height: calc(100vh - 80px);
+}
+@media screen and (min-width: 700px) {
+.modal-dialog iframe {
+width: 70vw;
+height: 80vh;
+}
+}
+.modal-dialog .tingle-modal-box {width: auto;}
+.modal-dialog .tingle-modal-box__content {padding: 0;}
+</style>
+<script>
+const input = document.getElementById('lunr-search');
+input.disabled = false;
+input.form.addEventListener('submit', (ev) => {
+ev.preventDefault();
+const url = new URL(window.location);
+url.searchParams.set('q', input.value);
+history.replaceState({}, null, url.toString());
+search(input.value);
+});
+const query = new URL(window.location).searchParams.get('q');
+if (query)
+search(query);
+function search(query) {
+const url = '../../../../doc-search.html#' + encodeURIComponent(query);
+new tingle.modal({
+cssClass: ['modal-dialog'],
+onClose: () => {
+const url = new URL(window.location);
+url.searchParams.delete('q');
+history.replaceState({}, null, url.toString());
+setTimeout(() => input.focus(), 100);
+}
+}).setContent('<iframe src="' + url + '"></iframe>').open();
+}
+</script>
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="pycollector.model.yolov5.utils" href="index.html">pycollector.model.yolov5.utils</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="pycollector.model.yolov5.utils.torch_utils.copy_attr" href="#pycollector.model.yolov5.utils.torch_utils.copy_attr">copy_attr</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.torch_utils.find_modules" href="#pycollector.model.yolov5.utils.torch_utils.find_modules">find_modules</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.torch_utils.fuse_conv_and_bn" href="#pycollector.model.yolov5.utils.torch_utils.fuse_conv_and_bn">fuse_conv_and_bn</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.torch_utils.init_torch_seeds" href="#pycollector.model.yolov5.utils.torch_utils.init_torch_seeds">init_torch_seeds</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.torch_utils.initialize_weights" href="#pycollector.model.yolov5.utils.torch_utils.initialize_weights">initialize_weights</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.torch_utils.intersect_dicts" href="#pycollector.model.yolov5.utils.torch_utils.intersect_dicts">intersect_dicts</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.torch_utils.is_parallel" href="#pycollector.model.yolov5.utils.torch_utils.is_parallel">is_parallel</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.torch_utils.load_classifier" href="#pycollector.model.yolov5.utils.torch_utils.load_classifier">load_classifier</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.torch_utils.model_info" href="#pycollector.model.yolov5.utils.torch_utils.model_info">model_info</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.torch_utils.prune" href="#pycollector.model.yolov5.utils.torch_utils.prune">prune</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.torch_utils.scale_img" href="#pycollector.model.yolov5.utils.torch_utils.scale_img">scale_img</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.torch_utils.select_device" href="#pycollector.model.yolov5.utils.torch_utils.select_device">select_device</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.torch_utils.sparsity" href="#pycollector.model.yolov5.utils.torch_utils.sparsity">sparsity</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.torch_utils.time_synchronized" href="#pycollector.model.yolov5.utils.torch_utils.time_synchronized">time_synchronized</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.torch_utils.torch_distributed_zero_first" href="#pycollector.model.yolov5.utils.torch_utils.torch_distributed_zero_first">torch_distributed_zero_first</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="pycollector.model.yolov5.utils.torch_utils.ModelEMA" href="#pycollector.model.yolov5.utils.torch_utils.ModelEMA">ModelEMA</a></code></h4>
+<ul class="">
+<li><code><a title="pycollector.model.yolov5.utils.torch_utils.ModelEMA.update" href="#pycollector.model.yolov5.utils.torch_utils.ModelEMA.update">update</a></code></li>
+<li><code><a title="pycollector.model.yolov5.utils.torch_utils.ModelEMA.update_attr" href="#pycollector.model.yolov5.utils.torch_utils.ModelEMA.update_attr">update_attr</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.9.2</a>.</p>
+</footer>
+</body>
+</html>
