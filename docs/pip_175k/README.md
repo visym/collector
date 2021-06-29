@@ -2,7 +2,7 @@
 
 # People in Public - 175k
 
-[![Collector visualization](https://i3.ytimg.com/vi/HjNa7_T-Xkc/maxresdefault.jpg)](https://youtu.be/HjNa7_T-Xkc)
+<iframe width="980" height="551" src="https://www.youtube.com/embed/HjNa7_T-Xkc" title="Visym Collector: Consented and On-demand Visual Datasets" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 # Overview
 
