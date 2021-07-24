@@ -462,7 +462,7 @@ class Dataset():
         csv = [v.csv() for v in self.list]        
         return vipy.util.writecsv(csv, csvfile) if csvfile is not None else (csv[0], csv[1:])
 
-    def map(self, f_transform, model=None, dst=None, checkpoint=False, strict=False, ascompleted=True):        
+    def map(self, f_transform, model=None, dst=None, id=None, checkpoint=False, strict=False, ascompleted=True):        
         """Distributed map.
 
         To perform this in parallel across four processes:
@@ -470,12 +470,25 @@ class Dataset():
         >>> with vipy.globals.parallel(4):
         >>>     self.map(lambda v: ...)
 
+        Args:
+            f_transform: [lambda] The lambda function to apply in parallel to all elements in the dataset
+            model: [torch.nn.Module] The model to scatter to all workers
+            dst: [str] The ID to give to the resulting dataset
+            id: [str] The ID to give to the resulting dataset (parameter alias for dst)
+            checkpoint: [bool] If trye, checkpoint the map operation
+            strict: [bool] If true, raise exception on map failures, otherwise the map will return None for failed elements
+            ascompleted: [bool] If true, return elements as they complete
+
+        Returns:
+            A `pycollector.dataset.Dataset` containing the elements f_transform(v).  This operation is order preserving
+
         """
+        assert callable(f_transform)
         B = Batch(self.list(), strict=strict, as_completed=ascompleted, checkpoint=checkpoint, warnme=False, minscatter=1000000)
         V = B.map(f_transform).result() if not model else B.scattermap(f_transform, model).result() 
         if any([v is None for v in V]):
             print('pycollector.datasets][%s->]: %d failed' % (str(self), len([v for v in V if v is None])))
-        return Dataset(V, id=dst)
+        return Dataset(V, id=dst if dst is not None else id)
 
     def localmap(self, f):
         self._objlist = [f(v) for v in self._objlist]

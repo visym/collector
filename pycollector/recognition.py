@@ -313,9 +313,15 @@ class PIP_370k(PIP_250k, pl.LightningModule, ActivityRecognition):
             self.net.fc = nn.Linear(self.net.fc.in_features, self.num_classes())
         elif modelfile is not None:
             self._load_trained(modelfile)
-        
+
+    def topk(self, x, k=None):
+        """Return the top-k classes for a 3 second activity proposal along with framewise ground truth"""        
+        yh = self.forward(x if x.ndim == 5 else x.unsqueeze(0)).detach().cpu().numpy()
+        k = k if k is not None else self.num_classes()
+        return [ [self.index_to_class(int(j)) for j in i[-k:][::-1]] for (s,i) in zip(yh, np.argsort(yh, axis=1))]
+            
     @staticmethod
-    def _totensor(v, training, validation, input_size, num_frames, mean, std, noflip=None, show=False, doflip=False, stride_jitter=3):
+    def _totensor(v, training, validation, input_size, num_frames, mean, std, noflip=None, show=False, doflip=False, stride_jitter=3, asjson=False):
         assert isinstance(v, vipy.video.Scene), "Invalid input"
         
         try:
@@ -374,21 +380,21 @@ class PIP_370k(PIP_250k, pl.LightningModule, ActivityRecognition):
                 raise
 
         if training or validation:
-            return (t, json.dumps(lbl))  # json to use default torch collate_fn
+            return (t, json.dumps(lbl) if not asjson else lbl)  # json to use default torch collate_fn
         else:
             return t
 
-    def totensor(self, v=None, training=False, validation=False, show=False, doflip=False):
+    def totensor(self, v=None, training=False, validation=False, show=False, doflip=False, asjson=False):
         """Return captured lambda function if v=None, else return tensor"""    
         assert v is None or isinstance(v, vipy.video.Scene), "Invalid input"
         f = (lambda v, num_frames=self._num_frames, input_size=self._input_size, mean=self._mean, std=self._std, training=training, validation=validation, show=show:
-             PIP_370k._totensor(v, training, validation, input_size, num_frames, mean, std, noflip=['car_turns_left', 'car_turns_right', 'vehicle_turns_left', 'vehicle_turns_right', 'motorcycle_turns_left', 'motorcycle_turns_right'], show=show, doflip=doflip))
+             PIP_370k._totensor(v, training, validation, input_size, num_frames, mean, std, noflip=['car_turns_left', 'car_turns_right', 'vehicle_turns_left', 'vehicle_turns_right', 'motorcycle_turns_left', 'motorcycle_turns_right'], show=show, doflip=doflip, asjson=asjson))
         return f(v) if v is not None else f
 
 
 class ActivityTracker(PIP_370k): 
     def __init__(self, stride=1, activities=None, gpus=None, batchsize=None, mlbl=False, mlfl=False, modelfile=None):
-        assert modelfile is not None
+        assert modelfile is not None, "Contact <info@visym.com> for access to non-public model files"
 
         super().__init__(pretrained=False, modelfile=modelfile, mlbl=mlbl, mlfl=mlfl)
         self._stride = stride
@@ -503,8 +509,7 @@ class ActivityTracker(PIP_370k):
 
             # Background activities:  Use logistic confidence on logit due to lack of background class "person stands", otherwise every standing person is using a phone
             f_logistic = lambda x,b,s=1.0: float(1.0 / (1.0 + np.exp(-s*(x + b))))
-            #vo.activitymap(lambda a: a.confidence(a.confidence()*f_logistic(a.attributes['logit'], -1.5)) if a.category() in ['person_talks_on_phone', 'person_texts_on_phone', 'person_abandons_package', 'person_steals_object'] else a)
-            vo.activitymap(lambda a: a.confidence(a.confidence()*f_logistic(a.attributes['logit'], -1.5)))  # TESTING
+            vo.activitymap(lambda a: a.confidence(a.confidence()*f_logistic(a.attributes['logit'], -1.5)))  
             
             # Vehicle motion: start and stop must be accompanied by a minimum track acceleration/deceleration
             vo.activitymap(lambda a: a.confidence(0.1*a.confidence()) if (a.category() in ['vehicle_starts', 'vehicle_stops'] and abs(vo.track(a.actorid()).acceleration(a.middleframe(), dt=vo.framerate())) < 1) else a)
