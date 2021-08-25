@@ -304,6 +304,7 @@ class Dataset():
             assert isinstance(significant_digits, int) and significant_digits >= 1, "Invalid input"
             objlist = [o.trackmap(lambda t: t.significant_digits(significant_digits)) if o is not None else o for o in objlist]
         if noemail:
+            print('[pycollector.dataset]: removing emails')            
             for o in objlist:
                 for (k,v) in o.attributes.items():
                     if isinstance(v, str) and is_email_address(v):

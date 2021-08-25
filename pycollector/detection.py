@@ -62,7 +62,7 @@ class FaceDetector(TorchNet):
     
     """
 
-    def __init__(self, weightfile=None):    
+    def __init__(self, weightfile=None, gpu=None):    
         indir = os.path.join(filepath(os.path.abspath(__file__)), 'model', 'face')
 
         weightfile = os.path.join(indir, 'resnet-101_faster_rcnn_ohem_iter_20000.pth') if weightfile is None else weightfile
@@ -73,11 +73,19 @@ class FaceDetector(TorchNet):
         self._model = FaceRCNN(model_path=weightfile)
         #self._model.eval()  # Set in evaluation mode
 
+        #if gpu is not None:
+        #    self.gpu(gpu, batchsize)
+        #else:
+        #    self.cpu()
+        
     def __call__(self, im):
         assert isinstance(im, vipy.image.Image)
         return vipy.image.Scene(array=im.numpy(), colorspace=im.colorspace(), objects=[vipy.object.Detection('face', xmin=bb[0], ymin=bb[1], width=bb[2], height=bb[3], confidence=bb[4]) for bb in self._model(im)]).union(im)
 
+    def batchsize(self):
+        return 1  # FIXME
 
+    
 class Yolov5(TorchNet):
     """Yolov5 based object detector
 
@@ -307,7 +315,7 @@ class VideoDetector(ObjectDetector):
         for im in v.stream():
             yield super().__call__(im, conf=conf, iou=iou)
 
-            
+                        
 class MultiscaleVideoDetector(MultiscaleObjectDetector):
     def __call__(self, v, conf=0.5, iou=0.5):
         assert isinstance(v, vipy.video.Video), "Invalid input"
@@ -332,6 +340,23 @@ class VideoTracker(ObjectDetector):
                 print('[pycollector.detection.VideoTracker][%d]: %s' % (k, str(vt)))  
         return vt
 
+
+class FaceTracker(FaceDetector):
+    def __call__(self, v, minconf=0.001, miniou=0.6, maxhistory=5, smoothing=None, trackconf=0.05):
+        (f) = (super().__call__)
+        assert isinstance(v, vipy.video.Video), "Invalid input"
+        vc = v.clone().clear()  
+        for (k, vb) in enumerate(vc.stream().batch(self.batchsize())):
+            for (j, im) in enumerate([f(im) for im in vb.framelist()]):
+                yield vc.assign(k*self.batchsize()+j, im.clone().objects(), minconf=trackconf, maxhistory=maxhistory)  # in-place            
+
+    def track(self, v, minconf=0.001, miniou=0.6, maxhistory=5, smoothing=None, objects=None, trackconf=0.05, verbose=False):
+        """Batch tracking"""
+        for (k,vt) in enumerate(self.__call__(v.clone(), minconf=minconf, miniou=miniou, maxhistory=maxhistory, smoothing=smoothing, trackconf=trackconf)):
+            if verbose:
+                print('[pycollector.detection.FaceTracker][%d]: %s' % (k, str(vt)))  
+        return vt
+    
     
 class MultiscaleVideoTracker(MultiscaleObjectDetector):
     """MultiscaleVideoTracker() class"""
@@ -382,7 +407,7 @@ class Proposal(ObjectDetector):
     def __call__(self, v, conf=1E-2, iou=0.8):
         return super().__call__(v, conf, iou)
     
-        
+    
 class VideoProposal(Proposal):
     """pycollector.detection.VideoProposal() class.
     
@@ -445,7 +470,32 @@ class VideoProposal(Proposal):
                 ims.append( vipy.image.Scene(array=img[i+j], objects=objs).nms(conf, iou) )        
         return ims
 
-    
+
+class FaceProposalRefinement():
+    def __call__(self, vp, vt, spatial_iou_threshold=0.2):
+        assert isinstance(vp, vipy.video.Scene) and isinstance(vt, vipy.video.Scene)        
+        assert len(vp.tracklist()) == 1 and all([t.category().lower() in ['face'] for t in vp.tracklist()])
+        assert len(vt.tracklist()) >= 0 and all([t.category().lower() in ['face'] for t in vt.tracklist()])
+
+        vc = vt.clone()
+        suppressed = set([])
+        for (ti,s,c) in sorted([(t, vp.actor().segment_percentileiou(t, percentile=0.5), t.confidence()) for t in vc.tracklist()], key=lambda x: x[1]*x[2], reverse=True):
+            if ti.id() not in suppressed and s > spatial_iou_threshold and ti.category() == vp.actor().category():
+                # Assign proposal to best track
+                for a in vp.activitylist():
+                    if a.hastrack(vp.actor()) and not vc.hasactivity(a.id()):
+                        vc.activities()[a.id()] = a.clone().replace(vp.actor(), ti)
+                    elif a.hastrack(vp.actor()) and vc.hasactivity(a.id()):
+                        vc.activities()[a.id()].append(ti)
+                
+                # Supress all other temporally overlapping tracks (not including ti)
+                suppressed = suppressed.union([t.id() for t in vc.tracklist() if t.id() != ti.id() and t.temporal_distance(ti) == 0 and t.id() not in suppressed])
+            else:
+                suppressed.add(ti.id())        
+                
+        return vc.trackfilter(lambda t: t.id() not in suppressed)
+        
+        
 class VideoProposalRefinement(VideoProposal):
     """pycollector.detection.VideoProposalRefinement() class.
     
