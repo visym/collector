@@ -70,7 +70,6 @@ class Video(Scene):
         super().__init__(url=mp4url, filename=mp4file, attributes=attributes)
 
         # Video attributes
-        # self._quicklook_url = "https://%s.s3.amazonaws.com/Quicklooks/%%s_quicklook_%%s_%%d.jpg" % (backend().s3_bucket())   # FIXME: pycollector.admin.video
         self._mp4url = mp4url
         self._mp4file = mp4file
         self._jsonurl = jsonurl
@@ -118,11 +117,11 @@ class Video(Scene):
 
     def __repr__(self):
         return str(
-            "<pycollector.video: uploaded=%s, activities=%s, scene=%s>"
+            "<pycollector.video: %s%s%s>"
             % (
-                self.timestamp().strftime("%Y-%m-%d %H:%M") if self.timestamp() is not None else str(None),
-                self.activity_categories(),
-                str(super().__repr__()),
+                ('uploaded=%s, ' % str(self.timestamp().strftime("%Y-%m-%d %H:%M"))) if (self._is_json_loaded is not None and self.timestamp() is not None) else '',
+                ('activities=%s, ' % str(self.activity_categories())) if self._is_json_loaded is not None else '',
+                ('scene=%s' % str(super().__repr__())),
             )
         )
 
@@ -397,11 +396,12 @@ class Video(Scene):
             # Minimum dimension of video for reasonably fast interactions (must happen after JSON load to get frame size from JSON)
             if self._mindim is not None:
                 if "frame_width" in self.metadata() and "frame_height" in self.metadata():  # older JSON bug
-                    s = float(min(int(self.metadata()["frame_width"]), int(self.metadata()["frame_height"])))
+                    (W,H) = (int(self.metadata()["frame_width"]), int(self.metadata()["frame_height"]))  # from device
+                    s = float(min(W, H))
                     if s > 256:
-                        newrows = int(np.round(self.metadata()["frame_height"]) * (self._mindim / float(s)))
-                        newcols = int(np.round(self.metadata()["frame_width"]) * (self._mindim / float(s)))
-                        self.resize(rows=newrows, cols=newcols)  # does not require load
+                        newrows = int(np.round(H) * (self._mindim / float(s)))
+                        newcols = int(np.round(W) * (self._mindim / float(s)))
+                        self.shape(shape=(H,W)).resize(rows=newrows, cols=newcols)  # manually set shape to avoid preview(), does not require load
                     else:
                         print("[pycollector.video]: Filtering Invalid JSON (height, width)")
                         self._is_json_loaded = False
@@ -454,7 +454,14 @@ class Video(Scene):
 
     def fetch(self, ignoreErrors=False):
         """Download JSON and MP4 if not already downloaded"""
-        self.fetchjson()  # Do we need this?
+        if not self.hasjson() or self._is_json_loaded is None:
+            try:
+                self.fetchjson()  # Do we need this?            
+                self._load_json()
+            except KeyboardInterrupt:
+                raise            
+            except Exception as e:
+                print('[pycollector.video]: fetch error "%s" - SKIPPING' % str(e))
         return self.fetchvideo()
 
     def fetchvideo(self, ignoreErrors=False):
