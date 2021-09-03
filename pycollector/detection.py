@@ -480,7 +480,7 @@ class FaceProposalRefinement():
         vc = vt.clone()
         suppressed = set([])
         for (ti,s,c) in sorted([(t, vp.actor().segment_percentileiou(t, percentile=0.5), t.confidence()) for t in vc.tracklist()], key=lambda x: x[1]*x[2], reverse=True):
-            if ti.id() not in suppressed and s > spatial_iou_threshold and ti.category() == vp.actor().category():
+            if ti.id() not in suppressed and s > spatial_iou_threshold and ti.category().lower() == vp.actor().category().lower():
                 # Assign proposal to best track
                 for a in vp.activitylist():
                     if a.hastrack(vp.actor()) and not vc.hasactivity(a.id()):
@@ -495,7 +495,32 @@ class FaceProposalRefinement():
                 
         return vc.trackfilter(lambda t: t.id() not in suppressed)
         
+
+class TrackProposalRefinement():
+    def __call__(self, vp, vt, spatial_iou_threshold=0.2):
+        assert isinstance(vp, vipy.video.Scene) and isinstance(vt, vipy.video.Scene)        
+        assert len(vp.tracklist()) == 1 
+        assert len(vt.tracklist()) >= 0 and all([t.category().lower() in vp.objects(casesensitive=False) for t in vt.tracklist()])
+
+        vc = vt.clone()
+        suppressed = set([])
+        for (ti,s,c) in sorted([(t, vp.actor().segment_percentileiou(t, percentile=0.5), t.confidence()) for t in vc.tracklist()], key=lambda x: x[1]*x[2], reverse=True):
+            if ti.id() not in suppressed and s > spatial_iou_threshold and ti.category().lower() == vp.actor().category().lower():
+                # Assign proposal to best track
+                for a in vp.activitylist():
+                    if a.hastrack(vp.actor()) and not vc.hasactivity(a.id()):
+                        vc.activities()[a.id()] = a.clone().replace(vp.actor(), ti)
+                    elif a.hastrack(vp.actor()) and vc.hasactivity(a.id()):
+                        vc.activities()[a.id()].append(ti)
+                
+                # Supress all other temporally overlapping tracks (not including ti)
+                suppressed = suppressed.union([t.id() for t in vc.tracklist() if t.id() != ti.id() and t.temporal_distance(ti) == 0 and t.id() not in suppressed])
+            else:
+                suppressed.add(ti.id())        
+                
+        return vc.trackfilter(lambda t: t.id() not in suppressed)
         
+    
 class VideoProposalRefinement(VideoProposal):
     """pycollector.detection.VideoProposalRefinement() class.
     

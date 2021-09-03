@@ -78,6 +78,7 @@ class Video(Scene):
         self._is_json_loaded = None
         self._mindim = mindim
         self._verbose = False  # FIXME
+        self._has_invalid_json = False  # to track videos with bad json due to app bugs
         if fetch:
             self._load_json()
 
@@ -191,6 +192,7 @@ class Video(Scene):
 
         else:
             print('[pycollector.video]: empty JSON "%s"' % jsonfile)
+            self._has_invalid_json = True   # for later filtering                                    
             d = None
 
         # Backwards compatible video import: should not be necessary with new app release
@@ -217,6 +219,7 @@ class Video(Scene):
                     d["metadata"]["shortname"] = ",".join([a.split("_")[2] for a in applabel])
                 except Exception as e:
                     print('[pycollector.video]: legacy json import failed for v1 JSON "%s" with error "%s"' % (str(d["metadata"]), str(e)))
+                    self._has_invalid_json = True   # for later filtering                    
                     d = None
 
             # V2 - new collection names, but activity names not in JSON
@@ -227,6 +230,7 @@ class Video(Scene):
 
                 if not backend().collections().iscollectionid(d["metadata"]["collection_id"]):
                     print('[pycollector.video]: invalid collection ID "%s"' % d["metadata"]["collection_id"])
+                    self._has_invalid_json = True   # for later filtering                                            
                     d = None
                 elif len(d["activity"]) == 1 and len(d["activity"][0]["label"]) == 0:
                     d["activity"] = []
@@ -249,12 +253,14 @@ class Video(Scene):
                         d["metadata"]["shortname"] = ",".join([s for s in shortnames])
                     except Exception as e:
                         print("[pycollector.video]: label fetch failed for %s with exception %s" % (str(d["activity"]), str(e)))
+                        self._has_invalid_json = True   # for later filtering                        
                         d = None
 
                 if version == "v1":
                     backend(org="str", env="prod", version="v1")  # switch back
             else:
                 print('[pycollector.video]: Legacy JSON import failed for JSON with metadata - "%s"' % str(d["metadata"]))
+                self._has_invalid_json = True   # for later filtering                                        
                 d = None
 
         else:
@@ -370,6 +376,7 @@ class Video(Scene):
                         '[pycollector.video]: Filtering invalid activity JSON "%s" with error "%s" for videoid=%s'
                         % (str(a), str(e), d["metadata"]["video_id"])
                     )
+                    self._has_invalid_json = True   # for later filtering
 
             # Joint activity?  Occurs simultaneously with any JSON defined activities
             if "Joint" in variant:
@@ -405,13 +412,16 @@ class Video(Scene):
                     else:
                         print("[pycollector.video]: Filtering Invalid JSON (height, width)")
                         self._is_json_loaded = False
+                        self._has_invalid_json = True   # for later filtering                        
                 else:
                     assert vipy.version.is_at_least("0.8.0")
                     self.clear()  # remove this old video from consideration
                     self._is_json_loaded = False
+                    self._has_invalid_json = True   # for later filtering                    
         else:
             print("[pycollector.video]: JSON load failed - SKIPPING")
             self._is_json_loaded = False
+            self._has_invalid_json = True   # for later filtering            
 
         # Resample tracks
         if self._dt > 1 and self._is_json_loaded:

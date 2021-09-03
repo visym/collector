@@ -107,5 +107,49 @@ class TorchTensordir(vipy.torch.TorchTensordir):
     pass
 
 class Dataset(vipy.dataset.Dataset):
-    """Moved to vipy.dataset.Dataset"""
-    pass
+    """Additional methods beyond `vipy.dataset.Dataset` that are specific to collector style datasets"""
+
+    def collectors(self, outfile=None):
+        assert self._isvipy()
+        d = vipy.util.countby(self.list(), lambda v: v.attributes['collector_id'])
+        f = lambda x,n: len([k for (k,v) in d.items() if int(v) >= n])
+        print('[vipy.dataset]: Collectors = %d ' % f(d,0))
+        print('[vipy.dataset]: Collectors with >10 submissions = %d' % f(d,10))
+        print('[vipy.dataset]: Collectors with >100 submissions = %d' % f(d,100))
+        print('[vipy.dataset]: Collectors with >1000 submissions = %d' % f(d,1000))
+        print('[vipy.dataset]: Collectors with >10000 submissions = %d' % f(d,10000))
+
+        if outfile is not None:
+            from vipy.metrics import histogram
+            (k,v) = zip(*(sorted(d.items(), key=lambda x: x[1], reverse=True))) 
+            histogram(v, list(range(len(k))), outfile=outfile, ylabel='Submissions', xlabel='Collector ID', xrot='vertical', fontsize=3, xshow=False)            
+        return d
+
+    def os(self, outfile=None):
+        assert self._isvipy()
+        d = vipy.util.countby([v for v in self.list() if v.hasattribute('device_identifier')], lambda v: v.attributes['device_identifier'])
+        print('[vipy.dataset]: Device OS = %d ' % len(d))
+        if outfile is not None:
+            from vipy.metrics import pie
+            pie(d.values(), d.keys(), explode=None, outfile=outfile,  shadow=False)
+        return d
+
+    def device(self, outfile=None, n=24, fontsize=7):
+        assert self._isvipy()
+        d_all = vipy.util.countby([v for v in self.list() if v.hasattribute('device_type') and v.attributes['device_type'] != 'unrecognized'], lambda v: v.attributes['device_type'])
+        
+        topk = [k for (k,v) in sorted(list(d_all.items()), key=lambda x: x[1])[-n:]] 
+        other = np.sum([v for (k,v) in d_all.items() if k not in set(topk)])
+
+        d = {k:v for (k,v) in d_all.items() if k in set(topk)}
+        d.update( {'Other':other} )
+        d = dict(sorted(list(d.items()), key=lambda x: x[1]))
+
+        print('[vipy.dataset.device]: Device types = %d ' % len(d_all))
+        print('[vipy.dataset.device]: Top-%d Device types = %s ' % (n, str(topk)))
+
+        if outfile is not None:
+            from vipy.metrics import pie
+            pie(d.values(), d.keys(), explode=None, outfile=outfile,  shadow=False, legend=False, fontsize=fontsize, rotatelabels=False)
+        return d
+        
