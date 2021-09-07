@@ -501,7 +501,8 @@ class TrackProposalRefinement():
         assert isinstance(vp, vipy.video.Scene) and isinstance(vt, vipy.video.Scene)        
         assert len(vp.tracklist()) == 1 
         assert len(vt.tracklist()) >= 0 and all([t.category().lower() in vp.objects(casesensitive=False) for t in vt.tracklist()])
-
+        assert vp.framerate() == vt.framerate()
+        
         vc = vt.clone()
         suppressed = set([])
         for (ti,s,c) in sorted([(t, vp.actor().segment_percentileiou(t, percentile=0.5), t.confidence()) for t in vc.tracklist()], key=lambda x: x[1]*x[2], reverse=True):
@@ -517,7 +518,8 @@ class TrackProposalRefinement():
                 suppressed = suppressed.union([t.id() for t in vc.tracklist() if t.id() != ti.id() and t.temporal_distance(ti) == 0 and t.id() not in suppressed])
             else:
                 suppressed.add(ti.id())        
-                
+
+        vc.activitymap(lambda a: a.actorid(sorted([(t.id(), a.temporal_iou(t)) for t in vc.tracklist()], key=lambda x: x[1])[-1][0]))  # actor for each activity is track with best overlap
         return vc.trackfilter(lambda t: t.id() not in suppressed)
         
     

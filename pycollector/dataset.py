@@ -97,13 +97,15 @@ def asmeva(V):
 
 
 
+
 class TorchDataset(vipy.torch.TorchDataset):
     """Moved to vipy.torch.TorchDataset"""
+    # vipy-1.11.7    
     pass
 
-
 class TorchTensordir(vipy.torch.TorchTensordir):
-    """Moved to vipy.torch.TorchTensordir"""    
+    """Moved to vipy.torch.TorchTensordir"""
+    # vipy-1.11.7    
     pass
 
 class Dataset(vipy.dataset.Dataset):

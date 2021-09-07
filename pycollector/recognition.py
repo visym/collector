@@ -3,7 +3,7 @@ import sys
 import random
 import torch
 import vipy
-import vipy.dataset.meva
+import vipy.data.meva
 import shutil
 import numpy as np
 from vipy.util import remkdir, filetail, readlist, tolist, filepath
@@ -306,7 +306,7 @@ class PIP_370k(PIP_250k, pl.LightningModule, ActivityRecognition):
 
         self._verb_to_noun = {k:set(['car','vehicle','motorcycle','bus','truck']) if (k.startswith('car') or k.startswith('motorcycle') or k.startswith('vehicle')) else set(['person']) for k in self.classlist()}        
         self._class_to_shortlabel = pycollector.label.pip_to_shortlabel
-        self._class_to_shortlabel.update( vipy.dataset.meva.d_category_to_shortlabel )
+        self._class_to_shortlabel.update( vipy.data.meva.d_category_to_shortlabel )
 
         if pretrained:
             self._load_pretrained()
