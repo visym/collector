@@ -579,7 +579,7 @@ class Video(Scene):
         """Convert from pycollector.video to vipy.video.Scene by downcasting class"""
         v = self.clone()
         v.__class__ = Scene
-        return v
+        return v.sanitize()
 
     def upcast(self):
         """Convert from pycollector.video to pycollector.admin.video by upcasting class, available to admins only"""
