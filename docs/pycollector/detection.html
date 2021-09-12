@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.2" />
+<meta name="generator" content="pdoc 0.10.0" />
 <title>pycollector.detection API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -25,580 +25,66 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L0-L572" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/73de5a297d72adf8d93b87d831ddb8805cd99e7b/pycollector/detection.py#L1-L59" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">import os
 import sys
-import torch
 import vipy
-import shutil
 import numpy as np
-import warnings
-from vipy.util import remkdir, filetail, readlist, tolist, filepath, chunklistbysize, Timer
-from pycollector.video import Video
-from pycollector.model.yolov3.network import Darknet
-from pycollector.globals import print
-from pycollector.model.face.detection import FaceRCNN 
-import copy
-import pycollector.model.yolov5.models.yolo
+import heyvi.detection
+assert heyvi.version.is_at_least(&#39;0.0.3&#39;)
 
 
-class TorchNet(object):
-
-    def gpu(self, idlist, batchsize=None):
-        assert batchsize is None or (isinstance(batchsize, int) and batchsize &gt; 0), &#34;Batchsize must be integer&#34;
-        assert idlist is None or isinstance(idlist, int) or (isinstance(idlist, list) and len(idlist)&gt;0), &#34;Input must be a non-empty list of integer GPU ids&#34;
-        self._batchsize = int(batchsize if batchsize is not None else (self._batchsize if hasattr(self, &#39;_batchsize&#39;) else 1))
-
-        idlist = tolist(idlist)
-        self._devices = [&#39;cuda:%d&#39; % k if k is not None and torch.cuda.is_available() and k != &#39;cpu&#39; else &#39;cpu&#39; for k in idlist]
-        #self._tensortype = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor       
-        self._tensortype = torch.FloatTensor       
-
-        if not hasattr(self, &#39;_gpulist&#39;) or not hasattr(self, &#39;_models&#39;) or idlist != self._gpulist  or not hasattr(self, &#39;_models&#39;):        
-            self._models = [copy.deepcopy(self._model).to(d, non_blocking=False) for d in self._devices]
-            for (d,m) in zip(self._devices, self._models):
-                m.eval()
-            self._gpulist = idlist
-        torch.set_grad_enabled(False)
-        return self
-
-    def cpu(self, batchsize=None):
-        return self.gpu(idlist=[&#39;cpu&#39;], batchsize=batchsize)
-    
-    def iscpu(self):
-        return any([&#39;cpu&#39; in d for d in self._devices])
-
-    def isgpu(self):
-        return any([&#39;cuda&#39; in d for d in self._devices])
-    
-    def __call__(self, t):
-        &#34;&#34;&#34;Parallel evaluation of tensor to split across GPUs set up in gpu().  t should be of size (ngpu*batchsize)
-        
-           * Note: Do not use DataParallel, this replicates the multi-gpu batch on device 0 and results in out of memory
-        &#34;&#34;&#34;
-        assert len(t) &lt;= self.batchsize(), &#34;Invalid batch size&#34;
-        todevice = [b.pin_memory().to(d, non_blocking=True) for (b,d) in zip(t.split(self._batchsize) , self._devices)]  # async?
-        fromdevice = [m(b) for (m,b) in zip(self._models, todevice)]   # async?
-        return torch.cat([r.detach().cpu() for r in fromdevice], dim=0)
-        
-    def batchsize(self):
-        return int(len(self._models)*self._batchsize)
-        
-
-class FaceDetector(TorchNet):
-    &#34;&#34;&#34;Faster R-CNN based face detector
-    
-    &#34;&#34;&#34;
-
-    def __init__(self, weightfile=None):    
-        indir = os.path.join(filepath(os.path.abspath(__file__)), &#39;model&#39;, &#39;face&#39;)
-
-        weightfile = os.path.join(indir, &#39;resnet-101_faster_rcnn_ohem_iter_20000.pth&#39;) if weightfile is None else weightfile
-        if not os.path.exists(weightfile) or not vipy.downloader.verify_sha1(weightfile, &#39;a759030540a4a5284baa93d3ef5e47ed40cae6d6&#39;):
-            print(&#39;[pycollector.detection]: Downloading face detector weights ...&#39;)
-            os.system(&#39;wget -c https://dl.dropboxusercontent.com/s/rdfre0oc456t5ee/resnet-101_faster_rcnn_ohem_iter_20000.pth -O %s&#39; % weightfile)  # FIXME: replace with better solution
-        assert vipy.downloader.verify_sha1(weightfile, &#39;a759030540a4a5284baa93d3ef5e47ed40cae6d6&#39;), &#34;Face detector download failed with SHA1=&#39;%s&#39;&#34; % (vipy.downloader.generate_sha1(weightfile))
-        self._model = FaceRCNN(model_path=weightfile)
-        #self._model.eval()  # Set in evaluation mode
-
-    def __call__(self, im):
-        assert isinstance(im, vipy.image.Image)
-        return vipy.image.Scene(array=im.numpy(), colorspace=im.colorspace(), objects=[vipy.object.Detection(&#39;face&#39;, xmin=bb[0], ymin=bb[1], width=bb[2], height=bb[3], confidence=bb[4]) for bb in self._model(im)]).union(im)
-
-
-class Yolov5(TorchNet):
-    &#34;&#34;&#34;Yolov5 based object detector
-
-       &gt;&gt;&gt; d = pycollector.detection.Detector()
-       &gt;&gt;&gt; d(vipy.image.vehicles()).show()
-
-    &#34;&#34;&#34;
-    
-    def __init__(self, batchsize=1, weightfile=None, gpu=None):    
-        self._mindim = 640  # must be square
-        indir = os.path.join(filepath(os.path.abspath(__file__)), &#39;model&#39;, &#39;yolov5&#39;)
-        cfgfile = os.path.join(indir, &#39;models&#39;, &#39;yolov5x.yaml&#39;)        
-        weightfile = os.path.join(indir, &#39;yolov5x.weights&#39;) if weightfile is None else weightfile
-        if not os.path.exists(weightfile):
-            print(&#39;[pycollector.detection]: Downloading weights ...&#39;)
-            os.system(&#39;wget -c https://dl.dropboxusercontent.com/s/jcwvz9ncjwpoat0/yolov5x.weights -O %s&#39; % weightfile)  # FIXME: replace with better solution
-            assert vipy.downloader.verify_sha1(weightfile, &#39;bdf2f9e0ac7b4d1cee5671f794f289e636c8d7d4&#39;), &#34;Object detector download failed&#34;
-
-        # First import: load yolov5x.pt, disable fuse() in attempt_load(), save state_dict weights and load into newly pathed model
-        with torch.no_grad():
-            self._model = pycollector.model.yolov5.models.yolo.Model(cfgfile, 3, 80)
-            self._model.load_state_dict(torch.load(weightfile))
-            self._model.fuse()
-            self._model.eval()
-
-        self._models = [self._model]
-        
-        self._batchsize = batchsize        
-        assert isinstance(self._batchsize, int), &#34;Batchsize must be integer&#34;
-        self._cls2index = {c:k for (k,c) in enumerate(readlist(os.path.join(indir, &#39;coco.names&#39;)))}
-        self._index2cls = {k:c for (c,k) in self._cls2index.items()}
-
-        self._device = None
-        #self._gpulist = gpu  # will be set in self.gpu()
-        if gpu is not None:
-            self.gpu(gpu, batchsize)
-        else:
-            self.cpu()
-        torch.set_grad_enabled(False)
-        
-    def __call__(self, imlist, conf=1E-3, iou=0.5, union=False, objects=None):
-        &#34;&#34;&#34;Run detection on an image list at specific mininum confidence and iou NMS
-
-           - yolov5 likes to split people into upper torso and lower body when in unfamilar poses (e.g. sitting, crouching)
-
-        &#34;&#34;&#34;
-        assert isinstance(imlist, vipy.image.Image) or (isinstance(imlist, list) and all([isinstance(i, vipy.image.Image) for i in imlist])), &#34;Invalid input - must be vipy.image.Image object and not &#39;%s&#39;&#34; % (str(type(imlist)))
-        assert objects is None or (isinstance(objects, list) and all([(k[0] if isinstance(k, tuple) else k) in self._cls2index for k in objects])), &#34;Objects must be a list of allowable categories&#34;
-        objects = {(k[0] if isinstance(k,tuple) else k):(k[1] if isinstance(k,tuple) else k) for k in objects} if isinstance(objects, list) else objects
-
-        with torch.no_grad():
-            imlist = tolist(imlist)
-            imlistdets = []
-            t = torch.cat([im.clone(shallow=True).maxsquare().mindim(self._mindim).gain(1.0/255.0).torch(order=&#39;NCHW&#39;) for im in imlist])  # triggers load
-            if torch.cuda.is_available() and not self.iscpu():
-                t = t.pin_memory()
-
-            assert len(t) &lt;= self.batchsize(), &#34;Invalid batch size: %d &gt; %d&#34; % (len(t), self.batchsize())
-            todevice = [b.to(d, memory_format=torch.contiguous_format, non_blocking=True) for (b,d) in zip(t.split(self._batchsize), self._devices)]  # contiguous_format required for torch-1.8.1
-            fromdevice = [m(b)[0] for (m,b) in zip(self._models, todevice)]     # detection
-        
-            t_out = [torch.squeeze(t, dim=0) for d in fromdevice for t in torch.split(d, 1, 0)]   # unpack batch to list of detections per imag
-            t_out = [torch.cat((t[:,0:5], torch.argmax(t[:,5:], dim=1, keepdim=True)), dim=1) for t in t_out]  # filter argmax on device 
-            t_out = [t[t[:,4]&gt;conf].cpu().detach().numpy() for t in t_out]  # filter conf on device (this must be last)
-
-        k_valid_objects = set([self._cls2index[k] for k in objects.keys()]) if objects is not None else self._cls2index.values()        
-        for (im, dets) in zip(imlist, t_out):
-            if len(dets) &gt; 0:
-                k_det = np.argwhere((dets[:,4] &gt; conf).flatten() &amp; np.array([int(d) in k_valid_objects for d in dets[:,5]])).flatten().tolist()
-                objectlist = [vipy.object.Detection(xcentroid=float(dets[k][0]),
-                                                    ycentroid=float(dets[k][1]),
-                                                    width=float(dets[k][2]),
-                                                    height=float(dets[k][3]),
-                                                    confidence=float(dets[k][4]),
-                                                    category=&#39;%s&#39; % self._index2cls[int(dets[k][5])],
-                                                    id=True)
-                              for k in k_det]
-                                 
-                scale = max(im.shape()) / float(self._mindim)  # to undo
-                objectlist = [obj.rescale(scale) for obj in objectlist]
-                objectlist = [obj.category(objects[obj.category()]) if objects is not None else obj for obj in objectlist]  # convert to target class before NMS
-            else:
-                objectlist = []
-
-            imd = im.objects(objectlist) if not union else im.objects(objectlist + im.objects())
-            if iou &gt; 0:
-                imd = imd.nms(conf, iou)  
-            imlistdets.append(imd)  
-            
-        return imlistdets if self._batchsize &gt; 1 else imlistdets[0]
-
-    def classlist(self):
-        return list(self._cls2index.keys())
-    
-    
-class Yolov3(TorchNet):
-    &#34;&#34;&#34;Yolov3 based object detector
-
-       &gt;&gt;&gt; d = pycollector.detection.Detector()
-       &gt;&gt;&gt; d(vipy.image.vehicles()).show()
-
-    &#34;&#34;&#34;
-    
-    def __init__(self, batchsize=1, weightfile=None, gpu=None):    
-        self._mindim = 416  # must be square
-        indir = os.path.join(filepath(os.path.abspath(__file__)), &#39;model&#39;, &#39;yolov3&#39;)
-        weightfile = os.path.join(indir, &#39;yolov3.weights&#39;) if weightfile is None else weightfile
-        cfgfile = os.path.join(indir, &#39;yolov3.cfg&#39;)
-        self._model = Darknet(cfgfile, img_size=self._mindim)
-        if not os.path.exists(weightfile) or not vipy.downloader.verify_sha1(weightfile, &#39;520878f12e97cf820529daea502acca380f1cb8e&#39;):
-            #vipy.downloader.download(&#39;https://www.dropbox.com/s/ve9cpuozbxh601r/yolov3.weights&#39;, os.path.join(indir, &#39;yolov3.weights&#39;))
-            print(&#39;[pycollector.detection]: Downloading object detector weights ...&#39;)
-            os.system(&#39;wget -c https://dl.dropboxusercontent.com/s/ve9cpuozbxh601r/yolov3.weights -O %s&#39; % weightfile)  # FIXME: replace with better solution
-        assert vipy.downloader.verify_sha1(weightfile, &#39;520878f12e97cf820529daea502acca380f1cb8e&#39;), &#34;Object detector download failed&#34;
-        self._model.load_darknet_weights(weightfile)
-        self._model.eval()  # Set in evaluation mode
-        self._batchsize = batchsize        
-        assert isinstance(self._batchsize, int), &#34;Batchsize must be integer&#34;
-        self._cls2index = {c:k for (k,c) in enumerate(readlist(os.path.join(indir, &#39;coco.names&#39;)))}
-        self._index2cls = {k:c for (c,k) in self._cls2index.items()}
-
-        self._device = None
-        self._gpulist = gpu
-        self.gpu(gpu, batchsize)
-        
-    def __call__(self, im, conf=5E-1, iou=0.5, union=False, objects=None):
-        assert isinstance(im, vipy.image.Image) or (isinstance(im, list) and all([isinstance(i, vipy.image.Image) for i in im])), &#34;Invalid input - must be vipy.image.Image object and not &#39;%s&#39;&#34; % (str(type(im)))
-        assert objects is None or (isinstance(objects, list) and all([(k[0] if isinstance(k, tuple) else k) in self._cls2index for k in objects])), &#34;Objects must be a list of allowable categories&#34;
-        objects = {(k[0] if isinstance(k,tuple) else k):(k[1] if isinstance(k,tuple) else k) for k in objects} if isinstance(objects, list) else objects
-
-        imlist = tolist(im)
-        imlistdets = []
-        t = torch.cat([im.clone().maxsquare().mindim(self._mindim).gain(1.0/255.0).torch(order=&#39;NCHW&#39;) for im in imlist]).type(self._tensortype)  # triggers load
-        t_out = super().__call__(t).detach().numpy()   # parallel multi-GPU evaluation, using TorchNet()
-        for (im, dets) in zip(imlist, t_out):
-            k_class = np.argmax(dets[:,5:], axis=1).flatten().tolist()
-            k_det = np.argwhere((dets[:,4] &gt; conf).flatten() &amp; np.array([((objects is None) or (self._index2cls[k] in objects.keys())) for k in k_class])).flatten().tolist()
-            objectlist = [vipy.object.Detection(xcentroid=float(dets[k][0]),
-                                                ycentroid=float(dets[k][1]),
-                                                width=float(dets[k][2]),
-                                                height=float(dets[k][3]),
-                                                confidence=float(dets[k][4]),
-                                                category=&#39;%s&#39; % self._index2cls[k_class[k]],
-                                                id=True)
-                          for k in k_det]
-            
-            scale = max(im.shape()) / float(self._mindim)  # to undo
-            objectlist = [obj.rescale(scale) for obj in objectlist]
-            objectlist = [obj.category(objects[obj.category()]) if objects is not None else obj for obj in objectlist]
-            imd = im.clone().array(im.numpy()).objects(objectlist).nms(conf, iou)  # clone for shared attributese
-            imlistdets.append(imd if not union else imd.union(im))
-            
-        return imlistdets if self._batchsize &gt; 1 else imlistdets[0]
-
-    def classlist(self):
-        return list(self._cls2index.keys())
-    
-
-class ObjectDetector(Yolov5):
-    &#34;&#34;&#34;Default object detector&#34;&#34;&#34;
+class TorchNet(heyvi.detection.TorchNet):
     pass
 
-
-class MultiscaleObjectDetector(ObjectDetector):  
-    &#34;&#34;&#34;Given a list of images, break each one into a set of overlapping tiles, and ObjectDetector() on each, then recombining detections&#34;&#34;&#34;
-    def __call__(self, imlist, conf=0.5, iou=0.5, maxarea=1.0, objects=None, overlapfrac=6, filterborder=True, cover=0.7):  
-        (f, n) = (super().__call__, self._mindim)
-        assert isinstance(imlist, vipy.image.Image) or isinstance(imlist, list) and all([isinstance(im, vipy.image.Image) for im in imlist]), &#34;invalid input&#34;
-        imlist = tolist(imlist)
-        scale = imlist[0].mindim() / n
-        
-        (imlist_multiscale, imlist_multiscale_flat, n_coarse, n_fine) = ([], [], [], [])
-        for im in imlist:
-            imcoarse = [im]
-
-            # FIXME: generalize this parameterization
-            if overlapfrac == 6:
-                imfine = (im.tile(n, n, overlaprows=im.height()-n, overlapcols=(3*n-im.width())//2) if (im.mindim()&gt;=n and im.mindim() == im.height()) else
-                          (im.tile(n, n, overlapcols=im.width()-n, overlaprows=(3*n-im.height())//2) if im.mindim()&gt;=n else []))  # 2x3 tile, assumes im.mindim() == (n+n/2)
-                if len(imfine) != 6:
-                    print(&#39;WARNING: len(imtile) = %d for overlapfrac = %d&#39; % (len(imfine), overlapfrac))  # Sanity check                    
-                    
-            elif overlapfrac == 2:
-                imfine = (im.tile(n, n, overlaprows=0, overlapcols=(2*n-im.width())//2) if (im.mindim()&gt;=n and im.mindim() == im.height()) else
-                          (im.tile(n, n, overlapcols=0, overlaprows=(2*n-im.height())//2) if im.mindim()&gt;=n else []))  # 1x2 tile, assumes im.mindim() == (n)
-                if len(imfine) != 2:
-                    print(&#39;WARNING: len(imtile) = %d for overlapfrac = %d&#39; % (len(imfine), overlapfrac))  # Sanity check
-                    
-            elif overlapfrac == 0:
-                imfine = []
-                
-            else:
-                raise
-            # /FIXME
-            
-            n_coarse.append(len(imcoarse))
-            n_fine.append(len(imfine))
-            imlist_multiscale.append(imcoarse+imfine)
-            imlist_multiscale_flat.extend(imcoarse + [imf.maxsquare(n) for imf in imfine])            
-
-        imlistdet_multiscale_flat = [im for iml in chunklistbysize(imlist_multiscale_flat, self.batchsize()) for im in tolist(f(iml, conf=conf, iou=0, objects=objects))]
-        
-        imlistdet = []
-        for (k, (iml, imb, nf, nc)) in enumerate(zip(imlist, imlist_multiscale, n_fine, n_coarse)):
-            im_multiscale = imlistdet_multiscale_flat[0:nf+nc]; imlistdet_multiscale_flat = imlistdet_multiscale_flat[nf+nc:];
-            imcoarsedet = im_multiscale[0].mindim(iml.mindim())
-            imcoarsedet_imagebox = imcoarsedet.imagebox()
-            if filterborder:
-                imfinedet = [im.nms(conf, iou, cover=cover).objectfilter(lambda o: ((maxarea==1 or (o.area()&lt;=maxarea*im.area())) and   # not too big relative to tile
-                                                                                    ((o.isinterior(im.width(), im.height(), border=0.9) or  # not occluded by any tile boundary 
-                                                                                      o.clone().dilatepx(0.1*im.width()+1).cover(im.imagebox()) == o.clone().dilatepx(0.1*im.width()+1).set_origin(im.attributes[&#39;tile&#39;][&#39;crop&#39;]).cover(imcoarsedet_imagebox)))))  # or only occluded by image boundary
-                             for im in im_multiscale[nc:]]
-                imfinedet = [im.objectmap(lambda o: o.set_origin(im.attributes[&#39;tile&#39;][&#39;crop&#39;])) for im in imfinedet]  # shift objects only, equivalent to untile() but faster
-                imcoarsedet = imcoarsedet.objects( imcoarsedet.objects() + [o for im in imfinedet for o in im.objects()])  # union
-            else:
-                imfinedet = iml.untile( im_multiscale[nc:] )
-                imcoarsedet = imcoarsedet.union(imfinedet) if imfinedet is not None else imcoarsedet
-            imlistdet.append(imcoarsedet.nms(conf, iou, cover=cover))
-
-        return imlistdet[0] if len(imlistdet) == 1 else imlistdet
-
+class FaceDetector(heyvi.detection.FaceDetector):
+    pass
     
-class VideoDetector(ObjectDetector):  
-    &#34;&#34;&#34;Iterate ObjectDetector() over each frame of video, yielding the detected frame&#34;&#34;&#34;
-    def __call__(self, v, conf=0.5, iou=0.5):
-        assert isinstance(v, vipy.video.Video), &#34;Invalid input&#34;        
-        for im in v.stream():
-            yield super().__call__(im, conf=conf, iou=iou)
-
-            
-class MultiscaleVideoDetector(MultiscaleObjectDetector):
-    def __call__(self, v, conf=0.5, iou=0.5):
-        assert isinstance(v, vipy.video.Video), &#34;Invalid input&#34;
-        for imf in v.stream():
-            yield super().__call__(imf, conf, iou)
-
-
-class VideoTracker(ObjectDetector):
-    def __call__(self, v, minconf=0.001, miniou=0.6, maxhistory=5, smoothing=None, objects=None, trackconf=0.05):
-        (f, n) = (super().__call__, self._mindim)
-        assert isinstance(v, vipy.video.Video), &#34;Invalid input&#34;
-        assert objects is None or all([o in self.classlist() for o in objects]), &#34;Invalid object list&#34;
-        vc = v.clone().clear()  
-        for (k, vb) in enumerate(vc.stream().batch(self.batchsize())):
-            for (j, im) in enumerate(tolist(f(vb.framelist(), minconf, miniou, union=False, objects=objects))):
-                yield vc.assign(k*self.batchsize()+j, im.clone().objects(), minconf=trackconf, maxhistory=maxhistory)  # in-place            
-
-    def track(self, v, minconf=0.001, miniou=0.6, maxhistory=5, smoothing=None, objects=None, trackconf=0.05, verbose=False):
-        &#34;&#34;&#34;Batch tracking&#34;&#34;&#34;
-        for (k,vt) in enumerate(self.__call__(v.clone(), minconf=minconf, miniou=miniou, maxhistory=maxhistory, smoothing=smoothing, objects=objects, trackconf=trackconf)):
-            if verbose:
-                print(&#39;[pycollector.detection.VideoTracker][%d]: %s&#39; % (k, str(vt)))  
-        return vt
-
+class Yolov5(heyvi.detection.Yolov5):
+    pass
     
-class MultiscaleVideoTracker(MultiscaleObjectDetector):
-    &#34;&#34;&#34;MultiscaleVideoTracker() class&#34;&#34;&#34;
-
-    def __init__(self, minconf=0.001, miniou=0.6, maxhistory=5, smoothing=None, objects=None, trackconf=0.05, verbose=False, gpu=None, batchsize=1, weightfile=None, overlapfrac=2, detbatchsize=None, gate=0):
-        super().__init__(gpu=gpu, batchsize=batchsize, weightfile=weightfile)
-        self._minconf = minconf
-        self._miniou = miniou
-        self._maxhistory = maxhistory
-        self._smoothing = smoothing
-        self._objects = objects
-        self._trackconf = trackconf
-        self._verbose = verbose
-        self._maxarea = 1.0
-        self._overlapfrac = overlapfrac
-        self._detbatchsize = detbatchsize if detbatchsize is not None else self.batchsize()
-        self._gate = gate
-
-    def _track(self, vi, stride=1):
-        &#34;&#34;&#34;Yield vipy.video.Scene(), an incremental tracked result for each frame.
-        &#34;&#34;&#34;
-        assert isinstance(vi, vipy.video.Video), &#34;Invalid input&#34;
-
-        (det, n) = (super().__call__, self._mindim)
-        for (k, vb) in enumerate(vi.stream().batch(self._detbatchsize)):
-            framelist = vb.framelist()
-            for (j, im) in zip(range(0, len(framelist), stride), tolist(det(framelist[::stride], self._minconf, self._miniou, self._maxarea, objects=self._objects, overlapfrac=self._overlapfrac))):
-                for i in range(j, j+stride):                    
-                    if i &lt; len(framelist):
-                        yield (vi.assign(k*self._detbatchsize+i, im.objects(), minconf=self._trackconf, maxhistory=self._maxhistory, gate=self._gate) if (i == j) else vi)
-
-    def __call__(self, vi, stride=1):
-        return self._track(vi, stride)
+class Yolov3(heyvi.detection.Yolov3):
+    pass
     
-    def stream(self, vi):
-        return self._track(vi)
+class ObjectDetector(heyvi.detection.ObjectDetector):
+    pass
 
-    def track(self, vi, verbose=False):
-        &#34;&#34;&#34;Batch tracking&#34;&#34;&#34;
-        for v in self.stream(vi):
-            if verbose:
-                print(vi)
-        return vi
-        
-
-
-class Proposal(ObjectDetector):
-    def __call__(self, v, conf=1E-2, iou=0.8):
-        return super().__call__(v, conf, iou)
+class MultiscaleObjectDetector(heyvi.detection.MultiscaleObjectDetector):  
+    pass
     
-        
-class VideoProposal(Proposal):
-    &#34;&#34;&#34;pycollector.detection.VideoProposal() class.
+class VideoDetector(heyvi.detection.VideoDetector):  
+    pass
+                       
+class MultiscaleVideoDetector(heyvi.detection.MultiscaleVideoDetector):
+    pass
+
+class VideoTracker(heyvi.detection.VideoTracker):
+    pass
+
+class FaceTracker(heyvi.detection.FaceTracker):
+    pass
     
-       Track-based object proposals in video.
-    &#34;&#34;&#34;
-    def allowable_objects(self):
-        return [&#39;person&#39;, &#39;vehicle&#39;, &#39;car&#39;, &#39;motorcycle&#39;, &#39;object&#39;, &#39;bicycle&#39;, &#39;motorbike&#39;, &#39;truck&#39;]
+class MultiscaleVideoTracker(heyvi.detection.MultiscaleVideoTracker):
+    pass
 
-    def isallowable(self, v):
-        assert isinstance(v, vipy.video.Video), &#34;Invalid input - must be vipy.video.Video not &#39;%s&#39;&#34; % (str(type(v)))
-        return all([c.lower() in self.allowable_objects() for c in v.objectlabels()]) # for now
-
-    def __call__(self, v, conf=1E-2, iou=0.8, dt=1, target=None, activitybox=False, dilate=4.0, dilate_height=None, dilate_width=None):
-        assert isinstance(v, vipy.video.Video), &#34;Invalid input - must be vipy.video.Video not &#39;%s&#39;&#34; % (str(type(v)))
-
-        # Optional target class
-        d_target_to_index = {&#39;person&#39;:[self._cls2index[&#39;person&#39;]],
-                             &#39;bicycle&#39;:[self._cls2index[&#39;bicycle&#39;]],
-                             &#39;vehicle&#39;:[self._cls2index[&#39;car&#39;], self._cls2index[&#39;motorbike&#39;], self._cls2index[&#39;truck&#39;]], 
-                             &#39;car&#39;:[self._cls2index[&#39;car&#39;], self._cls2index[&#39;truck&#39;]],
-                             &#39;motorcycle&#39;:[self._cls2index[&#39;motorbike&#39;]],
-                             &#39;object&#39;:[self._cls2index[k] for k in [&#39;backpack&#39;, &#39;handbag&#39;, &#39;suitcase&#39;, &#39;frisbee&#39;, &#39;sports ball&#39;, &#39;bottle&#39;, &#39;cup&#39;, &#39;bowl&#39;, &#39;laptop&#39;, &#39;book&#39;]]}
-        d_index_to_target = {i:k for (k,v) in d_target_to_index.items() for i in v}
-        assert all([k in self.allowable_objects() for k in d_target_to_index.keys()])        
-        assert target is None or (isinstance(target, list) and all([t in d_target_to_index.keys() for t in target]))
-        f_max_target_confidence = lambda d: (max([d[5+k] for t in target for k in d_target_to_index[t]]) if target is not None else max(d[5:]))
-        f_max_target_category = lambda d: (sorted([(d[5+k], t) for t in target for k in d_target_to_index[t]], key=lambda x: x[0])[-1][1] if target is not None else None)
-        
-        # Source video foveation: dilated crop of the activity box and resize (this transformation must be reversed)
-        vc = v.clone(flushforward=True)  # to avoid memory leaks
-        (dilate_height, dilate_width) = (dilate if dilate_height is None else dilate_height, dilate if dilate_width is None else dilate_width)
-        bb = vc.activitybox().dilate_height(dilate_height).dilate_width(dilate_width).imclipshape(vc.width(), vc.height()) if activitybox else vipy.geometry.imagebox(vc.shape())
-        scale = max(bb.shape()) / float(self._mindim)  # for reversal, input is maxsquare() resized to _mindim
-
-        # Batched proposals on transformed video (preloads source and transformed videos, high mem requirement)
-        ims = []
-        img = vc.numpy()[::dt]  # source video, triggers load
-        tensor = vc.flush().crop(bb, zeropad=False).maxsquare().mindim(self._mindim).torch()[::dt]  # transformed video, NxCxHxW, re-triggers load due to crop()
-
-        for i in range(0, len(tensor), self.batchsize()):
-            with torch.no_grad():
-                t = tensor[i:i+self.batchsize()]
-                todevice = [b.to(d, non_blocking=True) for (b,d) in zip(t.split(self._batchsize) , self._devices)]  # async?
-                fromdevice = [m(b)[0] for (m,b) in zip(self._models, todevice)]     # detection!
-                dets = [torch.squeeze(t, dim=0).cpu().detach().numpy() for d in fromdevice for t in torch.split(d, 1, 0)]   # unpack batch to list of detections per imag
-
-            for (j, det) in enumerate(dets):
-                # Objects in transformed video
-                objs = [vipy.object.Detection(xcentroid=float(d[0]), 
-                                              ycentroid=float(d[1]), 
-                                              width=float(d[2]), 
-                                              height=float(d[3]), 
-                                              confidence=(float(d[4]) + f_max_target_confidence(d)),
-                                              category=(&#39;%1.2f&#39; % float(d[4])) if target is None else f_max_target_category(d))
-                        for d in det
-                        if (float(d[4]) &gt; conf) and (f_max_target_confidence(d) &gt; conf)]
-        
-                # Objects in source video
-                objs = [obj.rescale(scale).translate(bb.xmin(), bb.ymin()) for obj in objs]
-                ims.append( vipy.image.Scene(array=img[i+j], objects=objs).nms(conf, iou) )        
-        return ims
-
+class Proposal(heyvi.detection.Proposal):
+    pass
     
-class VideoProposalRefinement(VideoProposal):
-    &#34;&#34;&#34;pycollector.detection.VideoProposalRefinement() class.
+class VideoProposal(heyvi.detection.VideoProposal):
+    pass
+
+class FaceProposalRefinement(heyvi.detection.FaceProposalRefinement):
+    pass
+
+class TrackProposalRefinement(heyvi.detection.TrackProposalRefinement):
+    pass
     
-       Track-based object proposal refinement of a weakly supervised loose object box from a human annotator.
-    &#34;&#34;&#34;
-    
-    def __call__(self, v, proposalconf=5E-2, proposaliou=0.8, miniou=0.2, dt=1, meanfilter=15, mincover=0.8, shapeiou=0.7, smoothing=&#39;spline&#39;, splinefactor=None, strict=True, byclass=True, dilate_height=None, dilate_width=None, refinedclass=None, pdist=False, minconf=1E-2):
-        &#34;&#34;&#34;Replace proposal in v by best (maximum overlap and confidence) object proposal in vc.  If no proposal exists, delete the proposal.&#34;&#34;&#34;
-        assert isinstance(v, vipy.video.Scene), &#34;Invalid input - must be vipy.video.Scene not &#39;%s&#39;&#34; % (str(type(v)))
-        assert not (byclass is False and refinedclass is not None), &#34;Invalid input&#34;
-        
-        if not self.isallowable(v):
-            warnings.warn(&#34;Invalid object labels &#39;%s&#39; for proposal, must be only one target object label and must be in &#39;%s&#39; - returning original video&#34; % (str(v.objectlabels()), str(self.allowable_objects())))
-            return v.clone().setattribute(&#39;unrefined&#39;)
-        target = None if not byclass else [c.lower() for c in v.objectlabels()] if refinedclass is None else [refinedclass.lower()]  # classes for proposals
-        vp = super().__call__(v, proposalconf, proposaliou, dt=dt, activitybox=True, dilate_height=dilate_height, dilate_width=dilate_width, target=target)  # subsampled proposals
-        vc = v.clone(rekey=True, flushforward=True, flushbackward=True).trackfilter(lambda t: len(t) &gt; dt)
-        for (ti, t) in vc.tracks().items():
-            if len(t) &lt;= 1:
-                continue  # no human annotation, skip
+class VideoProposalRefinement(heyvi.detection.VideoProposalRefinement):
+    pass
 
-            t.resample(dt=dt)  # interpolated keyframes for source proposal
-            bbprev = None  # last box assignment
-            s = shapeiou  # shape assignment threshold
-            for (f, bb) in zip(t.clone().keyframes(), t.clone().keyboxes()):  # clone because vc is being modified in-loop
-                fs = int(f // dt)  # subsampled frame index, guaranteed incremental [0,1,2,...] by resample()
-                if fs&gt;=0 and fs&lt;=len(vp):  
-                    # Assignment: maximum (overlap with previous box + same shape as previous box + overlap with human box) * (objectness confidence + class confidence)
-                    # Assignment constraints: (new box must not be too small relative to collector box) and (new box must be mostly contained within the collector box) and (new box must mostly overlap previous box) 
-                    assignment = sorted([(bbp, (((bbp.shapeiou(bbprev) + bbp.iou(bbprev)) if bbprev is not None else 1.0) + (bb.iou(bbp) if not pdist else bb.pdist(bbp)))*bbp.confidence())
-                                         for bbp in vp[min(fs, len(vp)-1)].objects() 
-                                         if (bb.iou(bbp)&gt;=miniou and   # refinement overlaps proposal (proposal is loose)
-                                             bbp.cover(bb)&gt;=mincover and  # refinement is covered by proposal (proposal is loose, refinement is inside)
-                                             (bbprev is None or bbprev.shapeiou(bbp)&gt;s) and  # refinement has similar shape over time
-                                             (byclass is False or (refinedclass is None and (bbp.category().lower() == bb.category().lower())) or (refinedclass is not None and bbp.category().lower()==refinedclass.lower()))  # refine by target object only
-                                         )], key=lambda x: x[1])
-
-                    (bbp, iou) = assignment[-1] if len(assignment)&gt;0 else (None, None)  # best assignment                    
-                    if iou is not None and iou &gt; minconf:
-                        newcategory = t.category() if refinedclass is None else refinedclass
-                        vc.tracks()[ti].category(newcategory).replace(f, bbp.clone().category(newcategory))
-                        bbprev = bbp.clone() # update last assignment
-                        s = shapeiou
-                    else:
-                        if strict:
-                            vc.tracks()[ti].delete(f)  # Delete proposal that has no object proposal, otherwise use source proposal for interpolation
-                        s = max(0, s-(0.01*dt))  # gate increase (shape assignment threshold decrease) for shape deformation
-
-        # Remove empty tracks:
-        # if a track does not have an assignment for the last (or first) source proposal, then it will be truncated here
-        vc = vc.trackfilter(lambda t: len(t)&gt;dt)    # may be empty
-
-        # Proposal smoothing
-        if not vc.hastracks():
-            warnings.warn(&#39;VideoProposalRefinement returned no tracks&#39;)
-            return vc.setattribute(&#39;unrefined&#39;)
-        elif smoothing == &#39;mean&#39;:
-            # Mean track smoothing: mean shape smoothing with mean coordinate smoothing with very small support for unstabilized video
-            return vc.trackmap(lambda t: t.smoothshape(width=meanfilter//dt).smooth(3))
-        elif smoothing == &#39;spline&#39;:
-            # Cubic spline track smoothing with mean shape smoothing 
-            return vc.trackmap(lambda t: t.smoothshape(width=meanfilter//dt).spline(smoothingfactor=splinefactor, strict=False))
-        elif smoothing is None:
-            return vc
-        else:
-            raise ValueError(&#39;Unknown smoothing &#34;%s&#34;&#39; % str(smoothing))
-
-
-class ActorAssociation(MultiscaleVideoTracker):
-    &#34;&#34;&#34;pycollector.detection.VideoAssociation() class
-       
-       Select the best object track of the target class associated with the primary actor class by gated spatial IOU and distance.
-       Add the best object track to the scene and associate with all activities performed by the primary actor.
-    &#34;&#34;&#34;
-
-    @staticmethod
-    def isallowable(v, actor_class, association_class, fps=None):
-        allowable_objects = [&#39;person&#39;, &#39;vehicle&#39;, &#39;car&#39;, &#39;motorcycle&#39;, &#39;object&#39;, &#39;bicycle&#39;, &#39;motorbike&#39;, &#39;truck&#39;]        
-        return (actor_class.lower() in allowable_objects and
-                all([a.lower() in allowable_objects for a in vipy.util.tolist(association_class)]) and
-                actor_class.lower() in v.objectlabels(lower=True))
-        
-
-    def __call__(self, v, actor_class, association_class, fps=None, dilate=2.0, activity_class=None, maxcover=0.8, max_associations=1, min_confidence=0.4):
-        allowable_objects = [&#39;person&#39;, &#39;vehicle&#39;, &#39;car&#39;, &#39;motorcycle&#39;, &#39;object&#39;, &#39;bicycle&#39;, &#39;motorbike&#39;, &#39;truck&#39;]        
-        association_class = [a.lower() for a in vipy.util.tolist(association_class)]
-        assert actor_class.lower() in allowable_objects, &#34;Primary Actor &#39;%s&#39; not in allowable target class &#39;%s&#39;&#34; % (actor_class.lower(), str(allowable_objects))
-        assert all([a in allowable_objects for a in allowable_objects]), &#34;Actor Association &#39;%s&#39; not in allowable target class &#39;%s&#39;&#34; % (str(association_class), str(allowable_objects))
-        assert actor_class.lower() in v.objectlabels(lower=True), &#34;Actor Association can only be performed with scenes containing an allowable actor not &#39;%s&#39;&#34; % str(v.objectlabels())
-        
-        # Track objects
-        vc = v.clone()
-        if fps is not None:
-            for t in vc.tracks().values():
-                t._framerate = v.framerate()  # HACK: backwards compatibility
-            for a in vc.activities().values():
-                a._framerate = v.framerate()  # HACK: backwards compatibility
-        vc = vc.framerate(fps) if fps is not None else vc   # downsample
-        vt = self.track(vc.clone())  # track at downsampled framerate
-
-        # Actor assignment: for every activity, find track with best target object assignment to actor (first track in video)
-        for a in vc.activities().values():
-            candidates = [t for t in vt.tracks().values() if (t.category().lower() in association_class and
-                                                              t.during_interval(a.startframe(), a.endframe()) and
-                                                              t.confidence() &gt; min_confidence and  # must have minimum confidence
-                                                              (actor_class.lower() not in association_class or t.segmentcover(vc.actor()) &lt; maxcover) and
-                                                              vc.actor().boundingbox().dilate(dilate).hasintersection(t.boundingbox()))] # candidate assignment (cannot be actor, or too far from actor)
-            if len(candidates) &gt; 0:
-                # best assignment is track closest to actor with maximum confidence and minimum dilated overlap
-                trackconf = sorted([(t, vc.actor().boundingbox().dilate(dilate).iou(t.boundingbox()) * t.confidence()) for t in candidates], key=lambda x: x[1], reverse=True)
-                for (t, conf) in trackconf[0:max_associations]:
-                    if a.during_interval(t.startframe(), t.endframe()) and activity_class is None or a.category() == activity_class:
-                        a.add(t)
-                        vc.add(t)
-
-        return vc.framerate(v.framerate()) if vc.framerate() != v.framerate() else vc   # upsample
-
-    
-def _collectorproposal_vs_objectproposal(v, dt=1, miniou=0.2, smoothing=&#39;spline&#39;):
-    &#34;&#34;&#34;Return demo video that compares the human collector annotated proposal vs. the ML annotated proposal for a vipy.video.Scene()&#34;&#34;&#34;
-    assert isinstance(v, vipy.video.Scene)
-    v_human = v.clone().trackmap(lambda t: t.shortlabel(&#39;%s (collector box)&#39; % t.category()))
-    v_object = v.clone().trackmap(lambda t: t.shortlabel(&#39;%s (ML box)&#39; % t.category()))
-    return VideoProposalRefinement()(v_object, dt=dt, miniou=miniou, smoothing=smoothing).union(v_human, spatial_iou_threshold=1)</code></pre>
+class ActorAssociation(heyvi.detection.ActorAssociation):
+    pass</code></pre>
 </details>
 </section>
 <section>
@@ -612,138 +98,87 @@ def _collectorproposal_vs_objectproposal(v, dt=1, miniou=0.2, smoothing=&#39;spl
 <dl>
 <dt id="pycollector.detection.ActorAssociation"><code class="flex name class">
 <span>class <span class="ident">ActorAssociation</span></span>
-<span>(</span><span>minconf=0.001, miniou=0.6, maxhistory=5, smoothing=None, objects=None, trackconf=0.05, verbose=False, gpu=None, batchsize=1, weightfile=None, overlapfrac=2, detbatchsize=None, gate=0)</span>
+<span>(</span><span>minconf=0.05, miniou=0.6, maxhistory=5, smoothing=None, objects=None, trackconf=0.2, verbose=False, gpu=None, batchsize=1, weightfile=None, overlapfrac=6, detbatchsize=None, gate=64)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>pycollector.detection.VideoAssociation() class</p>
+<div class="desc"><p>heyvi.detection.VideoAssociation() class</p>
 <p>Select the best object track of the target class associated with the primary actor class by gated spatial IOU and distance.
 Add the best object track to the scene and associate with all activities performed by the primary actor.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L517-L564" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/73de5a297d72adf8d93b87d831ddb8805cd99e7b/pycollector/detection.py#L57-L58" class="git-link">Browse git</a>
 </summary>
-<pre><code class="python">class ActorAssociation(MultiscaleVideoTracker):
-    &#34;&#34;&#34;pycollector.detection.VideoAssociation() class
-       
-       Select the best object track of the target class associated with the primary actor class by gated spatial IOU and distance.
-       Add the best object track to the scene and associate with all activities performed by the primary actor.
-    &#34;&#34;&#34;
-
-    @staticmethod
-    def isallowable(v, actor_class, association_class, fps=None):
-        allowable_objects = [&#39;person&#39;, &#39;vehicle&#39;, &#39;car&#39;, &#39;motorcycle&#39;, &#39;object&#39;, &#39;bicycle&#39;, &#39;motorbike&#39;, &#39;truck&#39;]        
-        return (actor_class.lower() in allowable_objects and
-                all([a.lower() in allowable_objects for a in vipy.util.tolist(association_class)]) and
-                actor_class.lower() in v.objectlabels(lower=True))
-        
-
-    def __call__(self, v, actor_class, association_class, fps=None, dilate=2.0, activity_class=None, maxcover=0.8, max_associations=1, min_confidence=0.4):
-        allowable_objects = [&#39;person&#39;, &#39;vehicle&#39;, &#39;car&#39;, &#39;motorcycle&#39;, &#39;object&#39;, &#39;bicycle&#39;, &#39;motorbike&#39;, &#39;truck&#39;]        
-        association_class = [a.lower() for a in vipy.util.tolist(association_class)]
-        assert actor_class.lower() in allowable_objects, &#34;Primary Actor &#39;%s&#39; not in allowable target class &#39;%s&#39;&#34; % (actor_class.lower(), str(allowable_objects))
-        assert all([a in allowable_objects for a in allowable_objects]), &#34;Actor Association &#39;%s&#39; not in allowable target class &#39;%s&#39;&#34; % (str(association_class), str(allowable_objects))
-        assert actor_class.lower() in v.objectlabels(lower=True), &#34;Actor Association can only be performed with scenes containing an allowable actor not &#39;%s&#39;&#34; % str(v.objectlabels())
-        
-        # Track objects
-        vc = v.clone()
-        if fps is not None:
-            for t in vc.tracks().values():
-                t._framerate = v.framerate()  # HACK: backwards compatibility
-            for a in vc.activities().values():
-                a._framerate = v.framerate()  # HACK: backwards compatibility
-        vc = vc.framerate(fps) if fps is not None else vc   # downsample
-        vt = self.track(vc.clone())  # track at downsampled framerate
-
-        # Actor assignment: for every activity, find track with best target object assignment to actor (first track in video)
-        for a in vc.activities().values():
-            candidates = [t for t in vt.tracks().values() if (t.category().lower() in association_class and
-                                                              t.during_interval(a.startframe(), a.endframe()) and
-                                                              t.confidence() &gt; min_confidence and  # must have minimum confidence
-                                                              (actor_class.lower() not in association_class or t.segmentcover(vc.actor()) &lt; maxcover) and
-                                                              vc.actor().boundingbox().dilate(dilate).hasintersection(t.boundingbox()))] # candidate assignment (cannot be actor, or too far from actor)
-            if len(candidates) &gt; 0:
-                # best assignment is track closest to actor with maximum confidence and minimum dilated overlap
-                trackconf = sorted([(t, vc.actor().boundingbox().dilate(dilate).iou(t.boundingbox()) * t.confidence()) for t in candidates], key=lambda x: x[1], reverse=True)
-                for (t, conf) in trackconf[0:max_associations]:
-                    if a.during_interval(t.startframe(), t.endframe()) and activity_class is None or a.category() == activity_class:
-                        a.add(t)
-                        vc.add(t)
-
-        return vc.framerate(v.framerate()) if vc.framerate() != v.framerate() else vc   # upsample</code></pre>
+<pre><code class="python">class ActorAssociation(heyvi.detection.ActorAssociation):
+    pass</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="pycollector.detection.MultiscaleVideoTracker" href="#pycollector.detection.MultiscaleVideoTracker">MultiscaleVideoTracker</a></li>
-<li><a title="pycollector.detection.MultiscaleObjectDetector" href="#pycollector.detection.MultiscaleObjectDetector">MultiscaleObjectDetector</a></li>
-<li><a title="pycollector.detection.ObjectDetector" href="#pycollector.detection.ObjectDetector">ObjectDetector</a></li>
-<li><a title="pycollector.detection.Yolov5" href="#pycollector.detection.Yolov5">Yolov5</a></li>
-<li><a title="pycollector.detection.TorchNet" href="#pycollector.detection.TorchNet">TorchNet</a></li>
-</ul>
-<h3>Static methods</h3>
-<dl>
-<dt id="pycollector.detection.ActorAssociation.isallowable"><code class="name flex">
-<span>def <span class="ident">isallowable</span></span>(<span>v, actor_class, association_class, fps=None)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L524-L529" class="git-link">Browse git</a>
-</summary>
-<pre><code class="python">@staticmethod
-def isallowable(v, actor_class, association_class, fps=None):
-    allowable_objects = [&#39;person&#39;, &#39;vehicle&#39;, &#39;car&#39;, &#39;motorcycle&#39;, &#39;object&#39;, &#39;bicycle&#39;, &#39;motorbike&#39;, &#39;truck&#39;]        
-    return (actor_class.lower() in allowable_objects and
-            all([a.lower() in allowable_objects for a in vipy.util.tolist(association_class)]) and
-            actor_class.lower() in v.objectlabels(lower=True))</code></pre>
-</details>
-</dd>
-</dl>
-<h3>Inherited members</h3>
-<ul class="hlist">
-<li><code><b><a title="pycollector.detection.MultiscaleVideoTracker" href="#pycollector.detection.MultiscaleVideoTracker">MultiscaleVideoTracker</a></b></code>:
-<ul class="hlist">
-<li><code><a title="pycollector.detection.MultiscaleVideoTracker.track" href="#pycollector.detection.MultiscaleVideoTracker.track">track</a></code></li>
-</ul>
-</li>
+<li>heyvi.detection.ActorAssociation</li>
+<li>heyvi.detection.MultiscaleVideoTracker</li>
+<li>heyvi.detection.MultiscaleObjectDetector</li>
+<li>heyvi.detection.ObjectDetector</li>
+<li>heyvi.detection.Yolov5</li>
+<li>heyvi.detection.TorchNet</li>
 </ul>
 </dd>
 <dt id="pycollector.detection.FaceDetector"><code class="flex name class">
 <span>class <span class="ident">FaceDetector</span></span>
-<span>(</span><span>weightfile=None)</span>
+<span>(</span><span>weightfile=None, gpu=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Faster R-CNN based face detector</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L60-L78" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/73de5a297d72adf8d93b87d831ddb8805cd99e7b/pycollector/detection.py#L12-L13" class="git-link">Browse git</a>
 </summary>
-<pre><code class="python">class FaceDetector(TorchNet):
-    &#34;&#34;&#34;Faster R-CNN based face detector
-    
-    &#34;&#34;&#34;
-
-    def __init__(self, weightfile=None):    
-        indir = os.path.join(filepath(os.path.abspath(__file__)), &#39;model&#39;, &#39;face&#39;)
-
-        weightfile = os.path.join(indir, &#39;resnet-101_faster_rcnn_ohem_iter_20000.pth&#39;) if weightfile is None else weightfile
-        if not os.path.exists(weightfile) or not vipy.downloader.verify_sha1(weightfile, &#39;a759030540a4a5284baa93d3ef5e47ed40cae6d6&#39;):
-            print(&#39;[pycollector.detection]: Downloading face detector weights ...&#39;)
-            os.system(&#39;wget -c https://dl.dropboxusercontent.com/s/rdfre0oc456t5ee/resnet-101_faster_rcnn_ohem_iter_20000.pth -O %s&#39; % weightfile)  # FIXME: replace with better solution
-        assert vipy.downloader.verify_sha1(weightfile, &#39;a759030540a4a5284baa93d3ef5e47ed40cae6d6&#39;), &#34;Face detector download failed with SHA1=&#39;%s&#39;&#34; % (vipy.downloader.generate_sha1(weightfile))
-        self._model = FaceRCNN(model_path=weightfile)
-        #self._model.eval()  # Set in evaluation mode
-
-    def __call__(self, im):
-        assert isinstance(im, vipy.image.Image)
-        return vipy.image.Scene(array=im.numpy(), colorspace=im.colorspace(), objects=[vipy.object.Detection(&#39;face&#39;, xmin=bb[0], ymin=bb[1], width=bb[2], height=bb[3], confidence=bb[4]) for bb in self._model(im)]).union(im)</code></pre>
+<pre><code class="python">class FaceDetector(heyvi.detection.FaceDetector):
+    pass</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="pycollector.detection.TorchNet" href="#pycollector.detection.TorchNet">TorchNet</a></li>
+<li>heyvi.detection.FaceDetector</li>
+<li>heyvi.detection.TorchNet</li>
+</ul>
+</dd>
+<dt id="pycollector.detection.FaceProposalRefinement"><code class="flex name class">
+<span>class <span class="ident">FaceProposalRefinement</span></span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/73de5a297d72adf8d93b87d831ddb8805cd99e7b/pycollector/detection.py#L48-L49" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class FaceProposalRefinement(heyvi.detection.FaceProposalRefinement):
+    pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>heyvi.detection.FaceProposalRefinement</li>
+</ul>
+</dd>
+<dt id="pycollector.detection.FaceTracker"><code class="flex name class">
+<span>class <span class="ident">FaceTracker</span></span>
+<span>(</span><span>weightfile=None, gpu=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Faster R-CNN based face detector</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/73de5a297d72adf8d93b87d831ddb8805cd99e7b/pycollector/detection.py#L36-L37" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">class FaceTracker(heyvi.detection.FaceTracker):
+    pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>heyvi.detection.FaceTracker</li>
+<li>heyvi.detection.FaceDetector</li>
+<li>heyvi.detection.TorchNet</li>
 </ul>
 </dd>
 <dt id="pycollector.detection.MultiscaleObjectDetector"><code class="flex name class">
@@ -755,76 +190,17 @@ def isallowable(v, actor_class, association_class, fps=None):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L244-L300" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/73de5a297d72adf8d93b87d831ddb8805cd99e7b/pycollector/detection.py#L24-L25" class="git-link">Browse git</a>
 </summary>
-<pre><code class="python">class MultiscaleObjectDetector(ObjectDetector):  
-    &#34;&#34;&#34;Given a list of images, break each one into a set of overlapping tiles, and ObjectDetector() on each, then recombining detections&#34;&#34;&#34;
-    def __call__(self, imlist, conf=0.5, iou=0.5, maxarea=1.0, objects=None, overlapfrac=6, filterborder=True, cover=0.7):  
-        (f, n) = (super().__call__, self._mindim)
-        assert isinstance(imlist, vipy.image.Image) or isinstance(imlist, list) and all([isinstance(im, vipy.image.Image) for im in imlist]), &#34;invalid input&#34;
-        imlist = tolist(imlist)
-        scale = imlist[0].mindim() / n
-        
-        (imlist_multiscale, imlist_multiscale_flat, n_coarse, n_fine) = ([], [], [], [])
-        for im in imlist:
-            imcoarse = [im]
-
-            # FIXME: generalize this parameterization
-            if overlapfrac == 6:
-                imfine = (im.tile(n, n, overlaprows=im.height()-n, overlapcols=(3*n-im.width())//2) if (im.mindim()&gt;=n and im.mindim() == im.height()) else
-                          (im.tile(n, n, overlapcols=im.width()-n, overlaprows=(3*n-im.height())//2) if im.mindim()&gt;=n else []))  # 2x3 tile, assumes im.mindim() == (n+n/2)
-                if len(imfine) != 6:
-                    print(&#39;WARNING: len(imtile) = %d for overlapfrac = %d&#39; % (len(imfine), overlapfrac))  # Sanity check                    
-                    
-            elif overlapfrac == 2:
-                imfine = (im.tile(n, n, overlaprows=0, overlapcols=(2*n-im.width())//2) if (im.mindim()&gt;=n and im.mindim() == im.height()) else
-                          (im.tile(n, n, overlapcols=0, overlaprows=(2*n-im.height())//2) if im.mindim()&gt;=n else []))  # 1x2 tile, assumes im.mindim() == (n)
-                if len(imfine) != 2:
-                    print(&#39;WARNING: len(imtile) = %d for overlapfrac = %d&#39; % (len(imfine), overlapfrac))  # Sanity check
-                    
-            elif overlapfrac == 0:
-                imfine = []
-                
-            else:
-                raise
-            # /FIXME
-            
-            n_coarse.append(len(imcoarse))
-            n_fine.append(len(imfine))
-            imlist_multiscale.append(imcoarse+imfine)
-            imlist_multiscale_flat.extend(imcoarse + [imf.maxsquare(n) for imf in imfine])            
-
-        imlistdet_multiscale_flat = [im for iml in chunklistbysize(imlist_multiscale_flat, self.batchsize()) for im in tolist(f(iml, conf=conf, iou=0, objects=objects))]
-        
-        imlistdet = []
-        for (k, (iml, imb, nf, nc)) in enumerate(zip(imlist, imlist_multiscale, n_fine, n_coarse)):
-            im_multiscale = imlistdet_multiscale_flat[0:nf+nc]; imlistdet_multiscale_flat = imlistdet_multiscale_flat[nf+nc:];
-            imcoarsedet = im_multiscale[0].mindim(iml.mindim())
-            imcoarsedet_imagebox = imcoarsedet.imagebox()
-            if filterborder:
-                imfinedet = [im.nms(conf, iou, cover=cover).objectfilter(lambda o: ((maxarea==1 or (o.area()&lt;=maxarea*im.area())) and   # not too big relative to tile
-                                                                                    ((o.isinterior(im.width(), im.height(), border=0.9) or  # not occluded by any tile boundary 
-                                                                                      o.clone().dilatepx(0.1*im.width()+1).cover(im.imagebox()) == o.clone().dilatepx(0.1*im.width()+1).set_origin(im.attributes[&#39;tile&#39;][&#39;crop&#39;]).cover(imcoarsedet_imagebox)))))  # or only occluded by image boundary
-                             for im in im_multiscale[nc:]]
-                imfinedet = [im.objectmap(lambda o: o.set_origin(im.attributes[&#39;tile&#39;][&#39;crop&#39;])) for im in imfinedet]  # shift objects only, equivalent to untile() but faster
-                imcoarsedet = imcoarsedet.objects( imcoarsedet.objects() + [o for im in imfinedet for o in im.objects()])  # union
-            else:
-                imfinedet = iml.untile( im_multiscale[nc:] )
-                imcoarsedet = imcoarsedet.union(imfinedet) if imfinedet is not None else imcoarsedet
-            imlistdet.append(imcoarsedet.nms(conf, iou, cover=cover))
-
-        return imlistdet[0] if len(imlistdet) == 1 else imlistdet</code></pre>
+<pre><code class="python">class MultiscaleObjectDetector(heyvi.detection.MultiscaleObjectDetector):  
+    pass</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="pycollector.detection.ObjectDetector" href="#pycollector.detection.ObjectDetector">ObjectDetector</a></li>
-<li><a title="pycollector.detection.Yolov5" href="#pycollector.detection.Yolov5">Yolov5</a></li>
-<li><a title="pycollector.detection.TorchNet" href="#pycollector.detection.TorchNet">TorchNet</a></li>
-</ul>
-<h3>Subclasses</h3>
-<ul class="hlist">
-<li><a title="pycollector.detection.MultiscaleVideoDetector" href="#pycollector.detection.MultiscaleVideoDetector">MultiscaleVideoDetector</a></li>
-<li><a title="pycollector.detection.MultiscaleVideoTracker" href="#pycollector.detection.MultiscaleVideoTracker">MultiscaleVideoTracker</a></li>
+<li>heyvi.detection.MultiscaleObjectDetector</li>
+<li>heyvi.detection.ObjectDetector</li>
+<li>heyvi.detection.Yolov5</li>
+<li>heyvi.detection.TorchNet</li>
 </ul>
 </dd>
 <dt id="pycollector.detection.MultiscaleVideoDetector"><code class="flex name class">
@@ -836,122 +212,42 @@ def isallowable(v, actor_class, association_class, fps=None):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L311-L315" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/73de5a297d72adf8d93b87d831ddb8805cd99e7b/pycollector/detection.py#L30-L31" class="git-link">Browse git</a>
 </summary>
-<pre><code class="python">class MultiscaleVideoDetector(MultiscaleObjectDetector):
-    def __call__(self, v, conf=0.5, iou=0.5):
-        assert isinstance(v, vipy.video.Video), &#34;Invalid input&#34;
-        for imf in v.stream():
-            yield super().__call__(imf, conf, iou)</code></pre>
+<pre><code class="python">class MultiscaleVideoDetector(heyvi.detection.MultiscaleVideoDetector):
+    pass</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="pycollector.detection.MultiscaleObjectDetector" href="#pycollector.detection.MultiscaleObjectDetector">MultiscaleObjectDetector</a></li>
-<li><a title="pycollector.detection.ObjectDetector" href="#pycollector.detection.ObjectDetector">ObjectDetector</a></li>
-<li><a title="pycollector.detection.Yolov5" href="#pycollector.detection.Yolov5">Yolov5</a></li>
-<li><a title="pycollector.detection.TorchNet" href="#pycollector.detection.TorchNet">TorchNet</a></li>
+<li>heyvi.detection.MultiscaleVideoDetector</li>
+<li>heyvi.detection.MultiscaleObjectDetector</li>
+<li>heyvi.detection.ObjectDetector</li>
+<li>heyvi.detection.Yolov5</li>
+<li>heyvi.detection.TorchNet</li>
 </ul>
 </dd>
 <dt id="pycollector.detection.MultiscaleVideoTracker"><code class="flex name class">
 <span>class <span class="ident">MultiscaleVideoTracker</span></span>
-<span>(</span><span>minconf=0.001, miniou=0.6, maxhistory=5, smoothing=None, objects=None, trackconf=0.05, verbose=False, gpu=None, batchsize=1, weightfile=None, overlapfrac=2, detbatchsize=None, gate=0)</span>
+<span>(</span><span>minconf=0.05, miniou=0.6, maxhistory=5, smoothing=None, objects=None, trackconf=0.2, verbose=False, gpu=None, batchsize=1, weightfile=None, overlapfrac=6, detbatchsize=None, gate=64)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>MultiscaleVideoTracker() class</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L336-L377" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/73de5a297d72adf8d93b87d831ddb8805cd99e7b/pycollector/detection.py#L39-L40" class="git-link">Browse git</a>
 </summary>
-<pre><code class="python">class MultiscaleVideoTracker(MultiscaleObjectDetector):
-    &#34;&#34;&#34;MultiscaleVideoTracker() class&#34;&#34;&#34;
-
-    def __init__(self, minconf=0.001, miniou=0.6, maxhistory=5, smoothing=None, objects=None, trackconf=0.05, verbose=False, gpu=None, batchsize=1, weightfile=None, overlapfrac=2, detbatchsize=None, gate=0):
-        super().__init__(gpu=gpu, batchsize=batchsize, weightfile=weightfile)
-        self._minconf = minconf
-        self._miniou = miniou
-        self._maxhistory = maxhistory
-        self._smoothing = smoothing
-        self._objects = objects
-        self._trackconf = trackconf
-        self._verbose = verbose
-        self._maxarea = 1.0
-        self._overlapfrac = overlapfrac
-        self._detbatchsize = detbatchsize if detbatchsize is not None else self.batchsize()
-        self._gate = gate
-
-    def _track(self, vi, stride=1):
-        &#34;&#34;&#34;Yield vipy.video.Scene(), an incremental tracked result for each frame.
-        &#34;&#34;&#34;
-        assert isinstance(vi, vipy.video.Video), &#34;Invalid input&#34;
-
-        (det, n) = (super().__call__, self._mindim)
-        for (k, vb) in enumerate(vi.stream().batch(self._detbatchsize)):
-            framelist = vb.framelist()
-            for (j, im) in zip(range(0, len(framelist), stride), tolist(det(framelist[::stride], self._minconf, self._miniou, self._maxarea, objects=self._objects, overlapfrac=self._overlapfrac))):
-                for i in range(j, j+stride):                    
-                    if i &lt; len(framelist):
-                        yield (vi.assign(k*self._detbatchsize+i, im.objects(), minconf=self._trackconf, maxhistory=self._maxhistory, gate=self._gate) if (i == j) else vi)
-
-    def __call__(self, vi, stride=1):
-        return self._track(vi, stride)
-    
-    def stream(self, vi):
-        return self._track(vi)
-
-    def track(self, vi, verbose=False):
-        &#34;&#34;&#34;Batch tracking&#34;&#34;&#34;
-        for v in self.stream(vi):
-            if verbose:
-                print(vi)
-        return vi</code></pre>
+<pre><code class="python">class MultiscaleVideoTracker(heyvi.detection.MultiscaleVideoTracker):
+    pass</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="pycollector.detection.MultiscaleObjectDetector" href="#pycollector.detection.MultiscaleObjectDetector">MultiscaleObjectDetector</a></li>
-<li><a title="pycollector.detection.ObjectDetector" href="#pycollector.detection.ObjectDetector">ObjectDetector</a></li>
-<li><a title="pycollector.detection.Yolov5" href="#pycollector.detection.Yolov5">Yolov5</a></li>
-<li><a title="pycollector.detection.TorchNet" href="#pycollector.detection.TorchNet">TorchNet</a></li>
+<li>heyvi.detection.MultiscaleVideoTracker</li>
+<li>heyvi.detection.MultiscaleObjectDetector</li>
+<li>heyvi.detection.ObjectDetector</li>
+<li>heyvi.detection.Yolov5</li>
+<li>heyvi.detection.TorchNet</li>
 </ul>
-<h3>Subclasses</h3>
-<ul class="hlist">
-<li><a title="pycollector.detection.ActorAssociation" href="#pycollector.detection.ActorAssociation">ActorAssociation</a></li>
-</ul>
-<h3>Methods</h3>
-<dl>
-<dt id="pycollector.detection.MultiscaleVideoTracker.stream"><code class="name flex">
-<span>def <span class="ident">stream</span></span>(<span>self, vi)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L369-L370" class="git-link">Browse git</a>
-</summary>
-<pre><code class="python">def stream(self, vi):
-    return self._track(vi)</code></pre>
-</details>
-</dd>
-<dt id="pycollector.detection.MultiscaleVideoTracker.track"><code class="name flex">
-<span>def <span class="ident">track</span></span>(<span>self, vi, verbose=False)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Batch tracking</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L372-L377" class="git-link">Browse git</a>
-</summary>
-<pre><code class="python">def track(self, vi, verbose=False):
-    &#34;&#34;&#34;Batch tracking&#34;&#34;&#34;
-    for v in self.stream(vi):
-        if verbose:
-            print(vi)
-    return vi</code></pre>
-</details>
-</dd>
-</dl>
 </dd>
 <dt id="pycollector.detection.ObjectDetector"><code class="flex name class">
 <span>class <span class="ident">ObjectDetector</span></span>
@@ -962,23 +258,16 @@ def isallowable(v, actor_class, association_class, fps=None):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L239-L241" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/73de5a297d72adf8d93b87d831ddb8805cd99e7b/pycollector/detection.py#L21-L22" class="git-link">Browse git</a>
 </summary>
-<pre><code class="python">class ObjectDetector(Yolov5):
-    &#34;&#34;&#34;Default object detector&#34;&#34;&#34;
+<pre><code class="python">class ObjectDetector(heyvi.detection.ObjectDetector):
     pass</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="pycollector.detection.Yolov5" href="#pycollector.detection.Yolov5">Yolov5</a></li>
-<li><a title="pycollector.detection.TorchNet" href="#pycollector.detection.TorchNet">TorchNet</a></li>
-</ul>
-<h3>Subclasses</h3>
-<ul class="hlist">
-<li><a title="pycollector.detection.MultiscaleObjectDetector" href="#pycollector.detection.MultiscaleObjectDetector">MultiscaleObjectDetector</a></li>
-<li><a title="pycollector.detection.Proposal" href="#pycollector.detection.Proposal">Proposal</a></li>
-<li><a title="pycollector.detection.VideoDetector" href="#pycollector.detection.VideoDetector">VideoDetector</a></li>
-<li><a title="pycollector.detection.VideoTracker" href="#pycollector.detection.VideoTracker">VideoTracker</a></li>
+<li>heyvi.detection.ObjectDetector</li>
+<li>heyvi.detection.Yolov5</li>
+<li>heyvi.detection.TorchNet</li>
 </ul>
 </dd>
 <dt id="pycollector.detection.Proposal"><code class="flex name class">
@@ -990,21 +279,17 @@ def isallowable(v, actor_class, association_class, fps=None):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L381-L383" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/73de5a297d72adf8d93b87d831ddb8805cd99e7b/pycollector/detection.py#L42-L43" class="git-link">Browse git</a>
 </summary>
-<pre><code class="python">class Proposal(ObjectDetector):
-    def __call__(self, v, conf=1E-2, iou=0.8):
-        return super().__call__(v, conf, iou)</code></pre>
+<pre><code class="python">class Proposal(heyvi.detection.Proposal):
+    pass</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="pycollector.detection.ObjectDetector" href="#pycollector.detection.ObjectDetector">ObjectDetector</a></li>
-<li><a title="pycollector.detection.Yolov5" href="#pycollector.detection.Yolov5">Yolov5</a></li>
-<li><a title="pycollector.detection.TorchNet" href="#pycollector.detection.TorchNet">TorchNet</a></li>
-</ul>
-<h3>Subclasses</h3>
-<ul class="hlist">
-<li><a title="pycollector.detection.VideoProposal" href="#pycollector.detection.VideoProposal">VideoProposal</a></li>
+<li>heyvi.detection.Proposal</li>
+<li>heyvi.detection.ObjectDetector</li>
+<li>heyvi.detection.Yolov5</li>
+<li>heyvi.detection.TorchNet</li>
 </ul>
 </dd>
 <dt id="pycollector.detection.TorchNet"><code class="flex name class">
@@ -1015,144 +300,33 @@ def isallowable(v, actor_class, association_class, fps=None):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L17-L57" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/73de5a297d72adf8d93b87d831ddb8805cd99e7b/pycollector/detection.py#L9-L10" class="git-link">Browse git</a>
 </summary>
-<pre><code class="python">class TorchNet(object):
-
-    def gpu(self, idlist, batchsize=None):
-        assert batchsize is None or (isinstance(batchsize, int) and batchsize &gt; 0), &#34;Batchsize must be integer&#34;
-        assert idlist is None or isinstance(idlist, int) or (isinstance(idlist, list) and len(idlist)&gt;0), &#34;Input must be a non-empty list of integer GPU ids&#34;
-        self._batchsize = int(batchsize if batchsize is not None else (self._batchsize if hasattr(self, &#39;_batchsize&#39;) else 1))
-
-        idlist = tolist(idlist)
-        self._devices = [&#39;cuda:%d&#39; % k if k is not None and torch.cuda.is_available() and k != &#39;cpu&#39; else &#39;cpu&#39; for k in idlist]
-        #self._tensortype = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor       
-        self._tensortype = torch.FloatTensor       
-
-        if not hasattr(self, &#39;_gpulist&#39;) or not hasattr(self, &#39;_models&#39;) or idlist != self._gpulist  or not hasattr(self, &#39;_models&#39;):        
-            self._models = [copy.deepcopy(self._model).to(d, non_blocking=False) for d in self._devices]
-            for (d,m) in zip(self._devices, self._models):
-                m.eval()
-            self._gpulist = idlist
-        torch.set_grad_enabled(False)
-        return self
-
-    def cpu(self, batchsize=None):
-        return self.gpu(idlist=[&#39;cpu&#39;], batchsize=batchsize)
-    
-    def iscpu(self):
-        return any([&#39;cpu&#39; in d for d in self._devices])
-
-    def isgpu(self):
-        return any([&#39;cuda&#39; in d for d in self._devices])
-    
-    def __call__(self, t):
-        &#34;&#34;&#34;Parallel evaluation of tensor to split across GPUs set up in gpu().  t should be of size (ngpu*batchsize)
-        
-           * Note: Do not use DataParallel, this replicates the multi-gpu batch on device 0 and results in out of memory
-        &#34;&#34;&#34;
-        assert len(t) &lt;= self.batchsize(), &#34;Invalid batch size&#34;
-        todevice = [b.pin_memory().to(d, non_blocking=True) for (b,d) in zip(t.split(self._batchsize) , self._devices)]  # async?
-        fromdevice = [m(b) for (m,b) in zip(self._models, todevice)]   # async?
-        return torch.cat([r.detach().cpu() for r in fromdevice], dim=0)
-        
-    def batchsize(self):
-        return int(len(self._models)*self._batchsize)</code></pre>
+<pre><code class="python">class TorchNet(heyvi.detection.TorchNet):
+    pass</code></pre>
 </details>
-<h3>Subclasses</h3>
+<h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="pycollector.detection.FaceDetector" href="#pycollector.detection.FaceDetector">FaceDetector</a></li>
-<li><a title="pycollector.detection.Yolov3" href="#pycollector.detection.Yolov3">Yolov3</a></li>
-<li><a title="pycollector.detection.Yolov5" href="#pycollector.detection.Yolov5">Yolov5</a></li>
+<li>heyvi.detection.TorchNet</li>
 </ul>
-<h3>Methods</h3>
-<dl>
-<dt id="pycollector.detection.TorchNet.batchsize"><code class="name flex">
-<span>def <span class="ident">batchsize</span></span>(<span>self)</span>
+</dd>
+<dt id="pycollector.detection.TrackProposalRefinement"><code class="flex name class">
+<span>class <span class="ident">TrackProposalRefinement</span></span>
 </code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L56-L57" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/73de5a297d72adf8d93b87d831ddb8805cd99e7b/pycollector/detection.py#L51-L52" class="git-link">Browse git</a>
 </summary>
-<pre><code class="python">def batchsize(self):
-    return int(len(self._models)*self._batchsize)</code></pre>
+<pre><code class="python">class TrackProposalRefinement(heyvi.detection.TrackProposalRefinement):
+    pass</code></pre>
 </details>
-</dd>
-<dt id="pycollector.detection.TorchNet.cpu"><code class="name flex">
-<span>def <span class="ident">cpu</span></span>(<span>self, batchsize=None)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L37-L38" class="git-link">Browse git</a>
-</summary>
-<pre><code class="python">def cpu(self, batchsize=None):
-    return self.gpu(idlist=[&#39;cpu&#39;], batchsize=batchsize)</code></pre>
-</details>
-</dd>
-<dt id="pycollector.detection.TorchNet.gpu"><code class="name flex">
-<span>def <span class="ident">gpu</span></span>(<span>self, idlist, batchsize=None)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L19-L35" class="git-link">Browse git</a>
-</summary>
-<pre><code class="python">def gpu(self, idlist, batchsize=None):
-    assert batchsize is None or (isinstance(batchsize, int) and batchsize &gt; 0), &#34;Batchsize must be integer&#34;
-    assert idlist is None or isinstance(idlist, int) or (isinstance(idlist, list) and len(idlist)&gt;0), &#34;Input must be a non-empty list of integer GPU ids&#34;
-    self._batchsize = int(batchsize if batchsize is not None else (self._batchsize if hasattr(self, &#39;_batchsize&#39;) else 1))
-
-    idlist = tolist(idlist)
-    self._devices = [&#39;cuda:%d&#39; % k if k is not None and torch.cuda.is_available() and k != &#39;cpu&#39; else &#39;cpu&#39; for k in idlist]
-    #self._tensortype = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor       
-    self._tensortype = torch.FloatTensor       
-
-    if not hasattr(self, &#39;_gpulist&#39;) or not hasattr(self, &#39;_models&#39;) or idlist != self._gpulist  or not hasattr(self, &#39;_models&#39;):        
-        self._models = [copy.deepcopy(self._model).to(d, non_blocking=False) for d in self._devices]
-        for (d,m) in zip(self._devices, self._models):
-            m.eval()
-        self._gpulist = idlist
-    torch.set_grad_enabled(False)
-    return self</code></pre>
-</details>
-</dd>
-<dt id="pycollector.detection.TorchNet.iscpu"><code class="name flex">
-<span>def <span class="ident">iscpu</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L40-L41" class="git-link">Browse git</a>
-</summary>
-<pre><code class="python">def iscpu(self):
-    return any([&#39;cpu&#39; in d for d in self._devices])</code></pre>
-</details>
-</dd>
-<dt id="pycollector.detection.TorchNet.isgpu"><code class="name flex">
-<span>def <span class="ident">isgpu</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L43-L44" class="git-link">Browse git</a>
-</summary>
-<pre><code class="python">def isgpu(self):
-    return any([&#39;cuda&#39; in d for d in self._devices])</code></pre>
-</details>
-</dd>
-</dl>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>heyvi.detection.TrackProposalRefinement</li>
+</ul>
 </dd>
 <dt id="pycollector.detection.VideoDetector"><code class="flex name class">
 <span>class <span class="ident">VideoDetector</span></span>
@@ -1163,20 +337,17 @@ def isallowable(v, actor_class, association_class, fps=None):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L303-L308" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/73de5a297d72adf8d93b87d831ddb8805cd99e7b/pycollector/detection.py#L27-L28" class="git-link">Browse git</a>
 </summary>
-<pre><code class="python">class VideoDetector(ObjectDetector):  
-    &#34;&#34;&#34;Iterate ObjectDetector() over each frame of video, yielding the detected frame&#34;&#34;&#34;
-    def __call__(self, v, conf=0.5, iou=0.5):
-        assert isinstance(v, vipy.video.Video), &#34;Invalid input&#34;        
-        for im in v.stream():
-            yield super().__call__(im, conf=conf, iou=iou)</code></pre>
+<pre><code class="python">class VideoDetector(heyvi.detection.VideoDetector):  
+    pass</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="pycollector.detection.ObjectDetector" href="#pycollector.detection.ObjectDetector">ObjectDetector</a></li>
-<li><a title="pycollector.detection.Yolov5" href="#pycollector.detection.Yolov5">Yolov5</a></li>
-<li><a title="pycollector.detection.TorchNet" href="#pycollector.detection.TorchNet">TorchNet</a></li>
+<li>heyvi.detection.VideoDetector</li>
+<li>heyvi.detection.ObjectDetector</li>
+<li>heyvi.detection.Yolov5</li>
+<li>heyvi.detection.TorchNet</li>
 </ul>
 </dd>
 <dt id="pycollector.detection.VideoProposal"><code class="flex name class">
@@ -1184,205 +355,48 @@ def isallowable(v, actor_class, association_class, fps=None):
 <span>(</span><span>batchsize=1, weightfile=None, gpu=None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>pycollector.detection.VideoProposal() class.</p>
+<div class="desc"><p>heyvi.detection.VideoProposal() class.</p>
 <p>Track-based object proposals in video.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L386-L446" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/73de5a297d72adf8d93b87d831ddb8805cd99e7b/pycollector/detection.py#L45-L46" class="git-link">Browse git</a>
 </summary>
-<pre><code class="python">class VideoProposal(Proposal):
-    &#34;&#34;&#34;pycollector.detection.VideoProposal() class.
-    
-       Track-based object proposals in video.
-    &#34;&#34;&#34;
-    def allowable_objects(self):
-        return [&#39;person&#39;, &#39;vehicle&#39;, &#39;car&#39;, &#39;motorcycle&#39;, &#39;object&#39;, &#39;bicycle&#39;, &#39;motorbike&#39;, &#39;truck&#39;]
-
-    def isallowable(self, v):
-        assert isinstance(v, vipy.video.Video), &#34;Invalid input - must be vipy.video.Video not &#39;%s&#39;&#34; % (str(type(v)))
-        return all([c.lower() in self.allowable_objects() for c in v.objectlabels()]) # for now
-
-    def __call__(self, v, conf=1E-2, iou=0.8, dt=1, target=None, activitybox=False, dilate=4.0, dilate_height=None, dilate_width=None):
-        assert isinstance(v, vipy.video.Video), &#34;Invalid input - must be vipy.video.Video not &#39;%s&#39;&#34; % (str(type(v)))
-
-        # Optional target class
-        d_target_to_index = {&#39;person&#39;:[self._cls2index[&#39;person&#39;]],
-                             &#39;bicycle&#39;:[self._cls2index[&#39;bicycle&#39;]],
-                             &#39;vehicle&#39;:[self._cls2index[&#39;car&#39;], self._cls2index[&#39;motorbike&#39;], self._cls2index[&#39;truck&#39;]], 
-                             &#39;car&#39;:[self._cls2index[&#39;car&#39;], self._cls2index[&#39;truck&#39;]],
-                             &#39;motorcycle&#39;:[self._cls2index[&#39;motorbike&#39;]],
-                             &#39;object&#39;:[self._cls2index[k] for k in [&#39;backpack&#39;, &#39;handbag&#39;, &#39;suitcase&#39;, &#39;frisbee&#39;, &#39;sports ball&#39;, &#39;bottle&#39;, &#39;cup&#39;, &#39;bowl&#39;, &#39;laptop&#39;, &#39;book&#39;]]}
-        d_index_to_target = {i:k for (k,v) in d_target_to_index.items() for i in v}
-        assert all([k in self.allowable_objects() for k in d_target_to_index.keys()])        
-        assert target is None or (isinstance(target, list) and all([t in d_target_to_index.keys() for t in target]))
-        f_max_target_confidence = lambda d: (max([d[5+k] for t in target for k in d_target_to_index[t]]) if target is not None else max(d[5:]))
-        f_max_target_category = lambda d: (sorted([(d[5+k], t) for t in target for k in d_target_to_index[t]], key=lambda x: x[0])[-1][1] if target is not None else None)
-        
-        # Source video foveation: dilated crop of the activity box and resize (this transformation must be reversed)
-        vc = v.clone(flushforward=True)  # to avoid memory leaks
-        (dilate_height, dilate_width) = (dilate if dilate_height is None else dilate_height, dilate if dilate_width is None else dilate_width)
-        bb = vc.activitybox().dilate_height(dilate_height).dilate_width(dilate_width).imclipshape(vc.width(), vc.height()) if activitybox else vipy.geometry.imagebox(vc.shape())
-        scale = max(bb.shape()) / float(self._mindim)  # for reversal, input is maxsquare() resized to _mindim
-
-        # Batched proposals on transformed video (preloads source and transformed videos, high mem requirement)
-        ims = []
-        img = vc.numpy()[::dt]  # source video, triggers load
-        tensor = vc.flush().crop(bb, zeropad=False).maxsquare().mindim(self._mindim).torch()[::dt]  # transformed video, NxCxHxW, re-triggers load due to crop()
-
-        for i in range(0, len(tensor), self.batchsize()):
-            with torch.no_grad():
-                t = tensor[i:i+self.batchsize()]
-                todevice = [b.to(d, non_blocking=True) for (b,d) in zip(t.split(self._batchsize) , self._devices)]  # async?
-                fromdevice = [m(b)[0] for (m,b) in zip(self._models, todevice)]     # detection!
-                dets = [torch.squeeze(t, dim=0).cpu().detach().numpy() for d in fromdevice for t in torch.split(d, 1, 0)]   # unpack batch to list of detections per imag
-
-            for (j, det) in enumerate(dets):
-                # Objects in transformed video
-                objs = [vipy.object.Detection(xcentroid=float(d[0]), 
-                                              ycentroid=float(d[1]), 
-                                              width=float(d[2]), 
-                                              height=float(d[3]), 
-                                              confidence=(float(d[4]) + f_max_target_confidence(d)),
-                                              category=(&#39;%1.2f&#39; % float(d[4])) if target is None else f_max_target_category(d))
-                        for d in det
-                        if (float(d[4]) &gt; conf) and (f_max_target_confidence(d) &gt; conf)]
-        
-                # Objects in source video
-                objs = [obj.rescale(scale).translate(bb.xmin(), bb.ymin()) for obj in objs]
-                ims.append( vipy.image.Scene(array=img[i+j], objects=objs).nms(conf, iou) )        
-        return ims</code></pre>
+<pre><code class="python">class VideoProposal(heyvi.detection.VideoProposal):
+    pass</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="pycollector.detection.Proposal" href="#pycollector.detection.Proposal">Proposal</a></li>
-<li><a title="pycollector.detection.ObjectDetector" href="#pycollector.detection.ObjectDetector">ObjectDetector</a></li>
-<li><a title="pycollector.detection.Yolov5" href="#pycollector.detection.Yolov5">Yolov5</a></li>
-<li><a title="pycollector.detection.TorchNet" href="#pycollector.detection.TorchNet">TorchNet</a></li>
+<li>heyvi.detection.VideoProposal</li>
+<li>heyvi.detection.Proposal</li>
+<li>heyvi.detection.ObjectDetector</li>
+<li>heyvi.detection.Yolov5</li>
+<li>heyvi.detection.TorchNet</li>
 </ul>
-<h3>Subclasses</h3>
-<ul class="hlist">
-<li><a title="pycollector.detection.VideoProposalRefinement" href="#pycollector.detection.VideoProposalRefinement">VideoProposalRefinement</a></li>
-</ul>
-<h3>Methods</h3>
-<dl>
-<dt id="pycollector.detection.VideoProposal.allowable_objects"><code class="name flex">
-<span>def <span class="ident">allowable_objects</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L391-L392" class="git-link">Browse git</a>
-</summary>
-<pre><code class="python">def allowable_objects(self):
-    return [&#39;person&#39;, &#39;vehicle&#39;, &#39;car&#39;, &#39;motorcycle&#39;, &#39;object&#39;, &#39;bicycle&#39;, &#39;motorbike&#39;, &#39;truck&#39;]</code></pre>
-</details>
-</dd>
-<dt id="pycollector.detection.VideoProposal.isallowable"><code class="name flex">
-<span>def <span class="ident">isallowable</span></span>(<span>self, v)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L394-L396" class="git-link">Browse git</a>
-</summary>
-<pre><code class="python">def isallowable(self, v):
-    assert isinstance(v, vipy.video.Video), &#34;Invalid input - must be vipy.video.Video not &#39;%s&#39;&#34; % (str(type(v)))
-    return all([c.lower() in self.allowable_objects() for c in v.objectlabels()]) # for now</code></pre>
-</details>
-</dd>
-</dl>
 </dd>
 <dt id="pycollector.detection.VideoProposalRefinement"><code class="flex name class">
 <span>class <span class="ident">VideoProposalRefinement</span></span>
 <span>(</span><span>batchsize=1, weightfile=None, gpu=None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>pycollector.detection.VideoProposalRefinement() class.</p>
+<div class="desc"><p>heyvi.detection.VideoProposalRefinement() class.</p>
 <p>Track-based object proposal refinement of a weakly supervised loose object box from a human annotator.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L449-L514" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/73de5a297d72adf8d93b87d831ddb8805cd99e7b/pycollector/detection.py#L54-L55" class="git-link">Browse git</a>
 </summary>
-<pre><code class="python">class VideoProposalRefinement(VideoProposal):
-    &#34;&#34;&#34;pycollector.detection.VideoProposalRefinement() class.
-    
-       Track-based object proposal refinement of a weakly supervised loose object box from a human annotator.
-    &#34;&#34;&#34;
-    
-    def __call__(self, v, proposalconf=5E-2, proposaliou=0.8, miniou=0.2, dt=1, meanfilter=15, mincover=0.8, shapeiou=0.7, smoothing=&#39;spline&#39;, splinefactor=None, strict=True, byclass=True, dilate_height=None, dilate_width=None, refinedclass=None, pdist=False, minconf=1E-2):
-        &#34;&#34;&#34;Replace proposal in v by best (maximum overlap and confidence) object proposal in vc.  If no proposal exists, delete the proposal.&#34;&#34;&#34;
-        assert isinstance(v, vipy.video.Scene), &#34;Invalid input - must be vipy.video.Scene not &#39;%s&#39;&#34; % (str(type(v)))
-        assert not (byclass is False and refinedclass is not None), &#34;Invalid input&#34;
-        
-        if not self.isallowable(v):
-            warnings.warn(&#34;Invalid object labels &#39;%s&#39; for proposal, must be only one target object label and must be in &#39;%s&#39; - returning original video&#34; % (str(v.objectlabels()), str(self.allowable_objects())))
-            return v.clone().setattribute(&#39;unrefined&#39;)
-        target = None if not byclass else [c.lower() for c in v.objectlabels()] if refinedclass is None else [refinedclass.lower()]  # classes for proposals
-        vp = super().__call__(v, proposalconf, proposaliou, dt=dt, activitybox=True, dilate_height=dilate_height, dilate_width=dilate_width, target=target)  # subsampled proposals
-        vc = v.clone(rekey=True, flushforward=True, flushbackward=True).trackfilter(lambda t: len(t) &gt; dt)
-        for (ti, t) in vc.tracks().items():
-            if len(t) &lt;= 1:
-                continue  # no human annotation, skip
-
-            t.resample(dt=dt)  # interpolated keyframes for source proposal
-            bbprev = None  # last box assignment
-            s = shapeiou  # shape assignment threshold
-            for (f, bb) in zip(t.clone().keyframes(), t.clone().keyboxes()):  # clone because vc is being modified in-loop
-                fs = int(f // dt)  # subsampled frame index, guaranteed incremental [0,1,2,...] by resample()
-                if fs&gt;=0 and fs&lt;=len(vp):  
-                    # Assignment: maximum (overlap with previous box + same shape as previous box + overlap with human box) * (objectness confidence + class confidence)
-                    # Assignment constraints: (new box must not be too small relative to collector box) and (new box must be mostly contained within the collector box) and (new box must mostly overlap previous box) 
-                    assignment = sorted([(bbp, (((bbp.shapeiou(bbprev) + bbp.iou(bbprev)) if bbprev is not None else 1.0) + (bb.iou(bbp) if not pdist else bb.pdist(bbp)))*bbp.confidence())
-                                         for bbp in vp[min(fs, len(vp)-1)].objects() 
-                                         if (bb.iou(bbp)&gt;=miniou and   # refinement overlaps proposal (proposal is loose)
-                                             bbp.cover(bb)&gt;=mincover and  # refinement is covered by proposal (proposal is loose, refinement is inside)
-                                             (bbprev is None or bbprev.shapeiou(bbp)&gt;s) and  # refinement has similar shape over time
-                                             (byclass is False or (refinedclass is None and (bbp.category().lower() == bb.category().lower())) or (refinedclass is not None and bbp.category().lower()==refinedclass.lower()))  # refine by target object only
-                                         )], key=lambda x: x[1])
-
-                    (bbp, iou) = assignment[-1] if len(assignment)&gt;0 else (None, None)  # best assignment                    
-                    if iou is not None and iou &gt; minconf:
-                        newcategory = t.category() if refinedclass is None else refinedclass
-                        vc.tracks()[ti].category(newcategory).replace(f, bbp.clone().category(newcategory))
-                        bbprev = bbp.clone() # update last assignment
-                        s = shapeiou
-                    else:
-                        if strict:
-                            vc.tracks()[ti].delete(f)  # Delete proposal that has no object proposal, otherwise use source proposal for interpolation
-                        s = max(0, s-(0.01*dt))  # gate increase (shape assignment threshold decrease) for shape deformation
-
-        # Remove empty tracks:
-        # if a track does not have an assignment for the last (or first) source proposal, then it will be truncated here
-        vc = vc.trackfilter(lambda t: len(t)&gt;dt)    # may be empty
-
-        # Proposal smoothing
-        if not vc.hastracks():
-            warnings.warn(&#39;VideoProposalRefinement returned no tracks&#39;)
-            return vc.setattribute(&#39;unrefined&#39;)
-        elif smoothing == &#39;mean&#39;:
-            # Mean track smoothing: mean shape smoothing with mean coordinate smoothing with very small support for unstabilized video
-            return vc.trackmap(lambda t: t.smoothshape(width=meanfilter//dt).smooth(3))
-        elif smoothing == &#39;spline&#39;:
-            # Cubic spline track smoothing with mean shape smoothing 
-            return vc.trackmap(lambda t: t.smoothshape(width=meanfilter//dt).spline(smoothingfactor=splinefactor, strict=False))
-        elif smoothing is None:
-            return vc
-        else:
-            raise ValueError(&#39;Unknown smoothing &#34;%s&#34;&#39; % str(smoothing))</code></pre>
+<pre><code class="python">class VideoProposalRefinement(heyvi.detection.VideoProposalRefinement):
+    pass</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="pycollector.detection.VideoProposal" href="#pycollector.detection.VideoProposal">VideoProposal</a></li>
-<li><a title="pycollector.detection.Proposal" href="#pycollector.detection.Proposal">Proposal</a></li>
-<li><a title="pycollector.detection.ObjectDetector" href="#pycollector.detection.ObjectDetector">ObjectDetector</a></li>
-<li><a title="pycollector.detection.Yolov5" href="#pycollector.detection.Yolov5">Yolov5</a></li>
-<li><a title="pycollector.detection.TorchNet" href="#pycollector.detection.TorchNet">TorchNet</a></li>
+<li>heyvi.detection.VideoProposalRefinement</li>
+<li>heyvi.detection.VideoProposal</li>
+<li>heyvi.detection.Proposal</li>
+<li>heyvi.detection.ObjectDetector</li>
+<li>heyvi.detection.Yolov5</li>
+<li>heyvi.detection.TorchNet</li>
 </ul>
 </dd>
 <dt id="pycollector.detection.VideoTracker"><code class="flex name class">
@@ -1394,52 +408,18 @@ def isallowable(v, actor_class, association_class, fps=None):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L318-L333" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/73de5a297d72adf8d93b87d831ddb8805cd99e7b/pycollector/detection.py#L33-L34" class="git-link">Browse git</a>
 </summary>
-<pre><code class="python">class VideoTracker(ObjectDetector):
-    def __call__(self, v, minconf=0.001, miniou=0.6, maxhistory=5, smoothing=None, objects=None, trackconf=0.05):
-        (f, n) = (super().__call__, self._mindim)
-        assert isinstance(v, vipy.video.Video), &#34;Invalid input&#34;
-        assert objects is None or all([o in self.classlist() for o in objects]), &#34;Invalid object list&#34;
-        vc = v.clone().clear()  
-        for (k, vb) in enumerate(vc.stream().batch(self.batchsize())):
-            for (j, im) in enumerate(tolist(f(vb.framelist(), minconf, miniou, union=False, objects=objects))):
-                yield vc.assign(k*self.batchsize()+j, im.clone().objects(), minconf=trackconf, maxhistory=maxhistory)  # in-place            
-
-    def track(self, v, minconf=0.001, miniou=0.6, maxhistory=5, smoothing=None, objects=None, trackconf=0.05, verbose=False):
-        &#34;&#34;&#34;Batch tracking&#34;&#34;&#34;
-        for (k,vt) in enumerate(self.__call__(v.clone(), minconf=minconf, miniou=miniou, maxhistory=maxhistory, smoothing=smoothing, objects=objects, trackconf=trackconf)):
-            if verbose:
-                print(&#39;[pycollector.detection.VideoTracker][%d]: %s&#39; % (k, str(vt)))  
-        return vt</code></pre>
+<pre><code class="python">class VideoTracker(heyvi.detection.VideoTracker):
+    pass</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="pycollector.detection.ObjectDetector" href="#pycollector.detection.ObjectDetector">ObjectDetector</a></li>
-<li><a title="pycollector.detection.Yolov5" href="#pycollector.detection.Yolov5">Yolov5</a></li>
-<li><a title="pycollector.detection.TorchNet" href="#pycollector.detection.TorchNet">TorchNet</a></li>
+<li>heyvi.detection.VideoTracker</li>
+<li>heyvi.detection.ObjectDetector</li>
+<li>heyvi.detection.Yolov5</li>
+<li>heyvi.detection.TorchNet</li>
 </ul>
-<h3>Methods</h3>
-<dl>
-<dt id="pycollector.detection.VideoTracker.track"><code class="name flex">
-<span>def <span class="ident">track</span></span>(<span>self, v, minconf=0.001, miniou=0.6, maxhistory=5, smoothing=None, objects=None, trackconf=0.05, verbose=False)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Batch tracking</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L328-L333" class="git-link">Browse git</a>
-</summary>
-<pre><code class="python">def track(self, v, minconf=0.001, miniou=0.6, maxhistory=5, smoothing=None, objects=None, trackconf=0.05, verbose=False):
-    &#34;&#34;&#34;Batch tracking&#34;&#34;&#34;
-    for (k,vt) in enumerate(self.__call__(v.clone(), minconf=minconf, miniou=miniou, maxhistory=maxhistory, smoothing=smoothing, objects=objects, trackconf=trackconf)):
-        if verbose:
-            print(&#39;[pycollector.detection.VideoTracker][%d]: %s&#39; % (k, str(vt)))  
-    return vt</code></pre>
-</details>
-</dd>
-</dl>
 </dd>
 <dt id="pycollector.detection.Yolov3"><code class="flex name class">
 <span>class <span class="ident">Yolov3</span></span>
@@ -1447,97 +427,22 @@ def isallowable(v, actor_class, association_class, fps=None):
 </code></dt>
 <dd>
 <div class="desc"><p>Yolov3 based object detector</p>
-<pre><code class="language-python-repl">&gt;&gt;&gt; d = pycollector.detection.Detector()
+<pre><code class="language-python-repl">&gt;&gt;&gt; d = heyvi.detection.Detector()
 &gt;&gt;&gt; d(vipy.image.vehicles()).show()
 </code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L176-L236" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/73de5a297d72adf8d93b87d831ddb8805cd99e7b/pycollector/detection.py#L18-L19" class="git-link">Browse git</a>
 </summary>
-<pre><code class="python">class Yolov3(TorchNet):
-    &#34;&#34;&#34;Yolov3 based object detector
-
-       &gt;&gt;&gt; d = pycollector.detection.Detector()
-       &gt;&gt;&gt; d(vipy.image.vehicles()).show()
-
-    &#34;&#34;&#34;
-    
-    def __init__(self, batchsize=1, weightfile=None, gpu=None):    
-        self._mindim = 416  # must be square
-        indir = os.path.join(filepath(os.path.abspath(__file__)), &#39;model&#39;, &#39;yolov3&#39;)
-        weightfile = os.path.join(indir, &#39;yolov3.weights&#39;) if weightfile is None else weightfile
-        cfgfile = os.path.join(indir, &#39;yolov3.cfg&#39;)
-        self._model = Darknet(cfgfile, img_size=self._mindim)
-        if not os.path.exists(weightfile) or not vipy.downloader.verify_sha1(weightfile, &#39;520878f12e97cf820529daea502acca380f1cb8e&#39;):
-            #vipy.downloader.download(&#39;https://www.dropbox.com/s/ve9cpuozbxh601r/yolov3.weights&#39;, os.path.join(indir, &#39;yolov3.weights&#39;))
-            print(&#39;[pycollector.detection]: Downloading object detector weights ...&#39;)
-            os.system(&#39;wget -c https://dl.dropboxusercontent.com/s/ve9cpuozbxh601r/yolov3.weights -O %s&#39; % weightfile)  # FIXME: replace with better solution
-        assert vipy.downloader.verify_sha1(weightfile, &#39;520878f12e97cf820529daea502acca380f1cb8e&#39;), &#34;Object detector download failed&#34;
-        self._model.load_darknet_weights(weightfile)
-        self._model.eval()  # Set in evaluation mode
-        self._batchsize = batchsize        
-        assert isinstance(self._batchsize, int), &#34;Batchsize must be integer&#34;
-        self._cls2index = {c:k for (k,c) in enumerate(readlist(os.path.join(indir, &#39;coco.names&#39;)))}
-        self._index2cls = {k:c for (c,k) in self._cls2index.items()}
-
-        self._device = None
-        self._gpulist = gpu
-        self.gpu(gpu, batchsize)
-        
-    def __call__(self, im, conf=5E-1, iou=0.5, union=False, objects=None):
-        assert isinstance(im, vipy.image.Image) or (isinstance(im, list) and all([isinstance(i, vipy.image.Image) for i in im])), &#34;Invalid input - must be vipy.image.Image object and not &#39;%s&#39;&#34; % (str(type(im)))
-        assert objects is None or (isinstance(objects, list) and all([(k[0] if isinstance(k, tuple) else k) in self._cls2index for k in objects])), &#34;Objects must be a list of allowable categories&#34;
-        objects = {(k[0] if isinstance(k,tuple) else k):(k[1] if isinstance(k,tuple) else k) for k in objects} if isinstance(objects, list) else objects
-
-        imlist = tolist(im)
-        imlistdets = []
-        t = torch.cat([im.clone().maxsquare().mindim(self._mindim).gain(1.0/255.0).torch(order=&#39;NCHW&#39;) for im in imlist]).type(self._tensortype)  # triggers load
-        t_out = super().__call__(t).detach().numpy()   # parallel multi-GPU evaluation, using TorchNet()
-        for (im, dets) in zip(imlist, t_out):
-            k_class = np.argmax(dets[:,5:], axis=1).flatten().tolist()
-            k_det = np.argwhere((dets[:,4] &gt; conf).flatten() &amp; np.array([((objects is None) or (self._index2cls[k] in objects.keys())) for k in k_class])).flatten().tolist()
-            objectlist = [vipy.object.Detection(xcentroid=float(dets[k][0]),
-                                                ycentroid=float(dets[k][1]),
-                                                width=float(dets[k][2]),
-                                                height=float(dets[k][3]),
-                                                confidence=float(dets[k][4]),
-                                                category=&#39;%s&#39; % self._index2cls[k_class[k]],
-                                                id=True)
-                          for k in k_det]
-            
-            scale = max(im.shape()) / float(self._mindim)  # to undo
-            objectlist = [obj.rescale(scale) for obj in objectlist]
-            objectlist = [obj.category(objects[obj.category()]) if objects is not None else obj for obj in objectlist]
-            imd = im.clone().array(im.numpy()).objects(objectlist).nms(conf, iou)  # clone for shared attributese
-            imlistdets.append(imd if not union else imd.union(im))
-            
-        return imlistdets if self._batchsize &gt; 1 else imlistdets[0]
-
-    def classlist(self):
-        return list(self._cls2index.keys())</code></pre>
+<pre><code class="python">class Yolov3(heyvi.detection.Yolov3):
+    pass</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="pycollector.detection.TorchNet" href="#pycollector.detection.TorchNet">TorchNet</a></li>
+<li>heyvi.detection.Yolov3</li>
+<li>heyvi.detection.TorchNet</li>
 </ul>
-<h3>Methods</h3>
-<dl>
-<dt id="pycollector.detection.Yolov3.classlist"><code class="name flex">
-<span>def <span class="ident">classlist</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L235-L236" class="git-link">Browse git</a>
-</summary>
-<pre><code class="python">def classlist(self):
-    return list(self._cls2index.keys())</code></pre>
-</details>
-</dd>
-</dl>
 </dd>
 <dt id="pycollector.detection.Yolov5"><code class="flex name class">
 <span>class <span class="ident">Yolov5</span></span>
@@ -1545,133 +450,22 @@ def isallowable(v, actor_class, association_class, fps=None):
 </code></dt>
 <dd>
 <div class="desc"><p>Yolov5 based object detector</p>
-<pre><code class="language-python-repl">&gt;&gt;&gt; d = pycollector.detection.Detector()
+<pre><code class="language-python-repl">&gt;&gt;&gt; d = heyvi.detection.Detector()
 &gt;&gt;&gt; d(vipy.image.vehicles()).show()
 </code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L81-L173" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/73de5a297d72adf8d93b87d831ddb8805cd99e7b/pycollector/detection.py#L15-L16" class="git-link">Browse git</a>
 </summary>
-<pre><code class="python">class Yolov5(TorchNet):
-    &#34;&#34;&#34;Yolov5 based object detector
-
-       &gt;&gt;&gt; d = pycollector.detection.Detector()
-       &gt;&gt;&gt; d(vipy.image.vehicles()).show()
-
-    &#34;&#34;&#34;
-    
-    def __init__(self, batchsize=1, weightfile=None, gpu=None):    
-        self._mindim = 640  # must be square
-        indir = os.path.join(filepath(os.path.abspath(__file__)), &#39;model&#39;, &#39;yolov5&#39;)
-        cfgfile = os.path.join(indir, &#39;models&#39;, &#39;yolov5x.yaml&#39;)        
-        weightfile = os.path.join(indir, &#39;yolov5x.weights&#39;) if weightfile is None else weightfile
-        if not os.path.exists(weightfile):
-            print(&#39;[pycollector.detection]: Downloading weights ...&#39;)
-            os.system(&#39;wget -c https://dl.dropboxusercontent.com/s/jcwvz9ncjwpoat0/yolov5x.weights -O %s&#39; % weightfile)  # FIXME: replace with better solution
-            assert vipy.downloader.verify_sha1(weightfile, &#39;bdf2f9e0ac7b4d1cee5671f794f289e636c8d7d4&#39;), &#34;Object detector download failed&#34;
-
-        # First import: load yolov5x.pt, disable fuse() in attempt_load(), save state_dict weights and load into newly pathed model
-        with torch.no_grad():
-            self._model = pycollector.model.yolov5.models.yolo.Model(cfgfile, 3, 80)
-            self._model.load_state_dict(torch.load(weightfile))
-            self._model.fuse()
-            self._model.eval()
-
-        self._models = [self._model]
-        
-        self._batchsize = batchsize        
-        assert isinstance(self._batchsize, int), &#34;Batchsize must be integer&#34;
-        self._cls2index = {c:k for (k,c) in enumerate(readlist(os.path.join(indir, &#39;coco.names&#39;)))}
-        self._index2cls = {k:c for (c,k) in self._cls2index.items()}
-
-        self._device = None
-        #self._gpulist = gpu  # will be set in self.gpu()
-        if gpu is not None:
-            self.gpu(gpu, batchsize)
-        else:
-            self.cpu()
-        torch.set_grad_enabled(False)
-        
-    def __call__(self, imlist, conf=1E-3, iou=0.5, union=False, objects=None):
-        &#34;&#34;&#34;Run detection on an image list at specific mininum confidence and iou NMS
-
-           - yolov5 likes to split people into upper torso and lower body when in unfamilar poses (e.g. sitting, crouching)
-
-        &#34;&#34;&#34;
-        assert isinstance(imlist, vipy.image.Image) or (isinstance(imlist, list) and all([isinstance(i, vipy.image.Image) for i in imlist])), &#34;Invalid input - must be vipy.image.Image object and not &#39;%s&#39;&#34; % (str(type(imlist)))
-        assert objects is None or (isinstance(objects, list) and all([(k[0] if isinstance(k, tuple) else k) in self._cls2index for k in objects])), &#34;Objects must be a list of allowable categories&#34;
-        objects = {(k[0] if isinstance(k,tuple) else k):(k[1] if isinstance(k,tuple) else k) for k in objects} if isinstance(objects, list) else objects
-
-        with torch.no_grad():
-            imlist = tolist(imlist)
-            imlistdets = []
-            t = torch.cat([im.clone(shallow=True).maxsquare().mindim(self._mindim).gain(1.0/255.0).torch(order=&#39;NCHW&#39;) for im in imlist])  # triggers load
-            if torch.cuda.is_available() and not self.iscpu():
-                t = t.pin_memory()
-
-            assert len(t) &lt;= self.batchsize(), &#34;Invalid batch size: %d &gt; %d&#34; % (len(t), self.batchsize())
-            todevice = [b.to(d, memory_format=torch.contiguous_format, non_blocking=True) for (b,d) in zip(t.split(self._batchsize), self._devices)]  # contiguous_format required for torch-1.8.1
-            fromdevice = [m(b)[0] for (m,b) in zip(self._models, todevice)]     # detection
-        
-            t_out = [torch.squeeze(t, dim=0) for d in fromdevice for t in torch.split(d, 1, 0)]   # unpack batch to list of detections per imag
-            t_out = [torch.cat((t[:,0:5], torch.argmax(t[:,5:], dim=1, keepdim=True)), dim=1) for t in t_out]  # filter argmax on device 
-            t_out = [t[t[:,4]&gt;conf].cpu().detach().numpy() for t in t_out]  # filter conf on device (this must be last)
-
-        k_valid_objects = set([self._cls2index[k] for k in objects.keys()]) if objects is not None else self._cls2index.values()        
-        for (im, dets) in zip(imlist, t_out):
-            if len(dets) &gt; 0:
-                k_det = np.argwhere((dets[:,4] &gt; conf).flatten() &amp; np.array([int(d) in k_valid_objects for d in dets[:,5]])).flatten().tolist()
-                objectlist = [vipy.object.Detection(xcentroid=float(dets[k][0]),
-                                                    ycentroid=float(dets[k][1]),
-                                                    width=float(dets[k][2]),
-                                                    height=float(dets[k][3]),
-                                                    confidence=float(dets[k][4]),
-                                                    category=&#39;%s&#39; % self._index2cls[int(dets[k][5])],
-                                                    id=True)
-                              for k in k_det]
-                                 
-                scale = max(im.shape()) / float(self._mindim)  # to undo
-                objectlist = [obj.rescale(scale) for obj in objectlist]
-                objectlist = [obj.category(objects[obj.category()]) if objects is not None else obj for obj in objectlist]  # convert to target class before NMS
-            else:
-                objectlist = []
-
-            imd = im.objects(objectlist) if not union else im.objects(objectlist + im.objects())
-            if iou &gt; 0:
-                imd = imd.nms(conf, iou)  
-            imlistdets.append(imd)  
-            
-        return imlistdets if self._batchsize &gt; 1 else imlistdets[0]
-
-    def classlist(self):
-        return list(self._cls2index.keys())</code></pre>
+<pre><code class="python">class Yolov5(heyvi.detection.Yolov5):
+    pass</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="pycollector.detection.TorchNet" href="#pycollector.detection.TorchNet">TorchNet</a></li>
+<li>heyvi.detection.Yolov5</li>
+<li>heyvi.detection.TorchNet</li>
 </ul>
-<h3>Subclasses</h3>
-<ul class="hlist">
-<li><a title="pycollector.detection.ObjectDetector" href="#pycollector.detection.ObjectDetector">ObjectDetector</a></li>
-</ul>
-<h3>Methods</h3>
-<dl>
-<dt id="pycollector.detection.Yolov5.classlist"><code class="name flex">
-<span>def <span class="ident">classlist</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/8e91c58c553d8ac70f51d16657f3b02656682fda/pycollector/detection.py#L172-L173" class="git-link">Browse git</a>
-</summary>
-<pre><code class="python">def classlist(self):
-    return list(self._cls2index.keys())</code></pre>
-</details>
-</dd>
-</dl>
 </dd>
 </dl>
 </section>
@@ -1742,12 +536,15 @@ setTimeout(() => input.focus(), 100);
 <ul>
 <li>
 <h4><code><a title="pycollector.detection.ActorAssociation" href="#pycollector.detection.ActorAssociation">ActorAssociation</a></code></h4>
-<ul class="">
-<li><code><a title="pycollector.detection.ActorAssociation.isallowable" href="#pycollector.detection.ActorAssociation.isallowable">isallowable</a></code></li>
-</ul>
 </li>
 <li>
 <h4><code><a title="pycollector.detection.FaceDetector" href="#pycollector.detection.FaceDetector">FaceDetector</a></code></h4>
+</li>
+<li>
+<h4><code><a title="pycollector.detection.FaceProposalRefinement" href="#pycollector.detection.FaceProposalRefinement">FaceProposalRefinement</a></code></h4>
+</li>
+<li>
+<h4><code><a title="pycollector.detection.FaceTracker" href="#pycollector.detection.FaceTracker">FaceTracker</a></code></h4>
 </li>
 <li>
 <h4><code><a title="pycollector.detection.MultiscaleObjectDetector" href="#pycollector.detection.MultiscaleObjectDetector">MultiscaleObjectDetector</a></code></h4>
@@ -1757,10 +554,6 @@ setTimeout(() => input.focus(), 100);
 </li>
 <li>
 <h4><code><a title="pycollector.detection.MultiscaleVideoTracker" href="#pycollector.detection.MultiscaleVideoTracker">MultiscaleVideoTracker</a></code></h4>
-<ul class="">
-<li><code><a title="pycollector.detection.MultiscaleVideoTracker.stream" href="#pycollector.detection.MultiscaleVideoTracker.stream">stream</a></code></li>
-<li><code><a title="pycollector.detection.MultiscaleVideoTracker.track" href="#pycollector.detection.MultiscaleVideoTracker.track">track</a></code></li>
-</ul>
 </li>
 <li>
 <h4><code><a title="pycollector.detection.ObjectDetector" href="#pycollector.detection.ObjectDetector">ObjectDetector</a></code></h4>
@@ -1770,44 +563,27 @@ setTimeout(() => input.focus(), 100);
 </li>
 <li>
 <h4><code><a title="pycollector.detection.TorchNet" href="#pycollector.detection.TorchNet">TorchNet</a></code></h4>
-<ul class="">
-<li><code><a title="pycollector.detection.TorchNet.batchsize" href="#pycollector.detection.TorchNet.batchsize">batchsize</a></code></li>
-<li><code><a title="pycollector.detection.TorchNet.cpu" href="#pycollector.detection.TorchNet.cpu">cpu</a></code></li>
-<li><code><a title="pycollector.detection.TorchNet.gpu" href="#pycollector.detection.TorchNet.gpu">gpu</a></code></li>
-<li><code><a title="pycollector.detection.TorchNet.iscpu" href="#pycollector.detection.TorchNet.iscpu">iscpu</a></code></li>
-<li><code><a title="pycollector.detection.TorchNet.isgpu" href="#pycollector.detection.TorchNet.isgpu">isgpu</a></code></li>
-</ul>
+</li>
+<li>
+<h4><code><a title="pycollector.detection.TrackProposalRefinement" href="#pycollector.detection.TrackProposalRefinement">TrackProposalRefinement</a></code></h4>
 </li>
 <li>
 <h4><code><a title="pycollector.detection.VideoDetector" href="#pycollector.detection.VideoDetector">VideoDetector</a></code></h4>
 </li>
 <li>
 <h4><code><a title="pycollector.detection.VideoProposal" href="#pycollector.detection.VideoProposal">VideoProposal</a></code></h4>
-<ul class="">
-<li><code><a title="pycollector.detection.VideoProposal.allowable_objects" href="#pycollector.detection.VideoProposal.allowable_objects">allowable_objects</a></code></li>
-<li><code><a title="pycollector.detection.VideoProposal.isallowable" href="#pycollector.detection.VideoProposal.isallowable">isallowable</a></code></li>
-</ul>
 </li>
 <li>
 <h4><code><a title="pycollector.detection.VideoProposalRefinement" href="#pycollector.detection.VideoProposalRefinement">VideoProposalRefinement</a></code></h4>
 </li>
 <li>
 <h4><code><a title="pycollector.detection.VideoTracker" href="#pycollector.detection.VideoTracker">VideoTracker</a></code></h4>
-<ul class="">
-<li><code><a title="pycollector.detection.VideoTracker.track" href="#pycollector.detection.VideoTracker.track">track</a></code></li>
-</ul>
 </li>
 <li>
 <h4><code><a title="pycollector.detection.Yolov3" href="#pycollector.detection.Yolov3">Yolov3</a></code></h4>
-<ul class="">
-<li><code><a title="pycollector.detection.Yolov3.classlist" href="#pycollector.detection.Yolov3.classlist">classlist</a></code></li>
-</ul>
 </li>
 <li>
 <h4><code><a title="pycollector.detection.Yolov5" href="#pycollector.detection.Yolov5">Yolov5</a></code></h4>
-<ul class="">
-<li><code><a title="pycollector.detection.Yolov5.classlist" href="#pycollector.detection.Yolov5.classlist">classlist</a></code></li>
-</ul>
 </li>
 </ul>
 </li>
@@ -1815,7 +591,7 @@ setTimeout(() => input.focus(), 100);
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.9.2</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
 </footer>
 </body>
 </html>
