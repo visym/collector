@@ -1,6 +1,5 @@
 import os
 import numpy as np
-import pycollector.detection
 from pycollector.globals import print
 from vipy.util import findpkl, toextension, filepath, filebase, jsonlist, ishtml, ispkl, filetail, temphtml, listpkl, listext, templike, tempdir, remkdir, tolist, fileext, writelist, tempcsv, newpathroot, listjson, extlist, filefull, tempdir
 import random

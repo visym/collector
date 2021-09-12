@@ -5,8 +5,14 @@ if [ "$#" -ne 1 ]; then
     exit 2
 fi
 
+# Make release
 cd ..
 git tag $1 -m "pycollector-$1"
 git push --tags origin master
-python3 setup.py sdist upload -r pypi
-python3 setup_alias.py sdist upload -r pypi
+
+python3 setup.py sdist bdist_wheel
+twine upload dist/*
+
+rm -rf dist/
+rm -rf build/
+rm -rf pycollector.egg-info/
