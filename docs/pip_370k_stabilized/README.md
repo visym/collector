@@ -19,13 +19,13 @@ This dataset contains 95990 stabilized video clips of 34 classes of activities p
 ## Download
 
 * [pip_370k.tar.gz (226 GB)](https://dl.dropboxusercontent.com/s/fai9ontpmx4xv9i/pip_370k.tar.gz)&nbsp;&nbsp;MD5:2cf844fbc78fde1c125aa250e99db19f&nbsp;&nbsp;Last Updated 16Sep21
-    * This release fixes a few problematic videos and updates the JSON format to correct for missing framerates.  
-    * This is the recommended dataset for use in all new training, as it is the union of pip-170k-stabilized, pip-250k-stabilized and pip-d370k-stabilized.
+    * This is the recommended dataset for use in all new training, as it is the union of pip-170k-stabilized, pip-250k-stabilized and pip-d370k-stabilized, which fixes a few problematic videos and updates the JSON format to correct for missing framerates.  
     * This release uses the no-meva-pad annotation style.
 
 Legacy Downloads:
 * [pip_d370k_stabilized.tar.bz2 (59.7 GB)](https://dl.dropboxusercontent.com/s/vxjik8a01lp6uif/pip_d370k_stabilized.tar.bz2)&nbsp;&nbsp;MD5:7f705d6291dfa333000e40779b595d4f&nbsp;&nbsp;Last Updated: 04Apr21
     * An incremental release which augments [pip_250k](https://github.com/visym/collector/tree/master/docs/pip_250k_stabilized)
+    * This dataset contains 95990 stabilized video clips of 34 classes of activities performed by people in public places.  
 * [pip_d370k_stabilized_objects.tar.gz (709 MB)](https://dl.dropboxusercontent.com/s/ip3w9fmt8d26h94/pip_d370k_stabilized_objects.tar.gz)&nbsp;&nbsp;MD5:5e13f783ceec1378800d0e5de81f3257&nbsp;&nbsp;&nbsp;&nbsp;Last Updated: 06May21
     * An incremental release which augments [pip_250k](https://github.com/visym/collector/tree/master/docs/pip_250k_stabilized) that includes secondary vehicle and people track annotations for 40856 of 95990 instances in pip_d370k that contain secondary objects.
     * Contains 38546 instances with both vehicle and person tracks, 1245 instances with bicycle and person tracks, 1065 instances with person and friend
