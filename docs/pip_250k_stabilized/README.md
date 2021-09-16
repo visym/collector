@@ -20,7 +20,7 @@ This dataset contains 314,332 stabilized video clips of 66 classes of activities
 
 * [pip_250k_stabilized.tar.gz (165.41 GB)](https://dl.dropboxusercontent.com/s/4j46tp640106dg9/pip_250k_stabilized.tar.gz?dl=0)&nbsp;&nbsp;MD5:7b0fe316c8e6239753a6e29b801284f2&nbsp;&nbsp;Updated:08Mar21
     * Full release, includes all of pip-175k-stabilized.
-    * New training should use the full release in [People in Public - 370k - stabilized](pip_370k_stabilized/README.md).  
+    * New training should use the full release in [People in Public - 370k - stabilized](../pip_370k_stabilized/README.md).  
     * This training set is preserved for legacy training.
 * [pip_250k_stabilized_annotations.tar.gz (0.94 GB)](https://dl.dropboxusercontent.com/s/boegvyts3kvgw8i/pip_250k_stabilized_annotations.tar.gz)&nbsp;&nbsp;MD5:d4ec1bde157f90689ee3ac9910bef25e&nbsp;&nbsp;Updated:08Mar21
     * Release of video annotations only
