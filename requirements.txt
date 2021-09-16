@@ -1,4 +1,4 @@
-vipy
+vipy[all]
 dask
 distributed
 boto3
