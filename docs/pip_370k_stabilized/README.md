@@ -20,7 +20,9 @@ This dataset contains 95990 stabilized video clips of 34 classes of activities p
 
 * [pip_370k.tar.gz (226 GB)](https://dl.dropboxusercontent.com/s/fai9ontpmx4xv9i/pip_370k.tar.gz)&nbsp;&nbsp;MD5:2cf844fbc78fde1c125aa250e99db19f&nbsp;&nbsp;Last Updated 16Sep21
     * This is the recommended dataset for use in all new training, as it is the union of pip-170k-stabilized, pip-250k-stabilized and pip-d370k-stabilized, which fixes a few problematic videos and updates the JSON format to correct for missing framerates.  
-    * This release uses the no-meva-pad annotation style.
+    * This dataset contains 405,781 background stabilized video clips of 63 classes of activities.
+    * This release uses the [no-meva-pad](../pip_250k_stabilized/README.md) annotation style.
+    * This release corrects for the [errata](#Errata) below.
 
 Legacy Downloads:
 * [pip_d370k_stabilized.tar.bz2 (59.7 GB)](https://dl.dropboxusercontent.com/s/vxjik8a01lp6uif/pip_d370k_stabilized.tar.bz2)&nbsp;&nbsp;MD5:7f705d6291dfa333000e40779b595d4f&nbsp;&nbsp;Last Updated: 04Apr21
