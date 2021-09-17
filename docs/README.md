@@ -25,8 +25,8 @@ Our goal is to make all datasets freely available to the computer vision researc
 
 <!-- Backup links:  https://htmlpreview.github.io/?https://github.com/visym/collector/blob/master/docs/pip_175k/trainset_small.html -->
 
-* **[People in Public - 370k - stabilized](pip_370k_stabilized/README.md).**  This dataset contains 95,990 background stabilized videos clips of 34 classes of activities performed by people in public places.  This dataset is a differential release that augments pip-250k stabilized.
-* **[People in Public - 250k - stabilized](pip_250k_stabilized/README.md).**  This dataset contains 314,332 background stabilized videos clips of 66 classes of activities performed by people in public places.
+* **[People in Public - 370k - stabilized](pip_370k_stabilized/README.md).**  This dataset contains 405,781 background stabilized video clips of 63 classes of activities performed by people in public places.  
+* **[People in Public - 250k - stabilized](pip_250k_stabilized/README.md).**  This dataset contains 314,332 background stabilized video clips of 66 classes of activities performed by people in public places.
 * **[People in Public - 175k](pip_175k/README.md).**  This dataset contains 184,379 video clips of 66 classes of activities performed by people in public places.  The activity labels are subsets of the 37 activities in the [Multiview Extended Video with Activities (MEVA)](https://mevadata.org) dataset and is consistent with the [Activities in Extended Video (ActEV)](https://actev.nist.gov/) challenge.  
     * Visualization of [Training set random sample (87MB)](https://rawcdn.githack.com/visym/collector/5b051c625ef458417a16ed48d5a0693ef59fd9ff/docs/pip_175k/trainset_small.html),&nbsp;[full validation set (1.1GB)](https://dl.dropboxusercontent.com/s/8fp77nvxeywrq7f/pip_175k_valset.html)
     * [People in Public - 175k - stabilized](pip_175k_stabilized/README.md).  Background stabilized videos for pip-175k.  
