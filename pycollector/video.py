@@ -442,13 +442,16 @@ class Video(Scene):
 
     def edited(self):
         """Return the datetime representation of the editedat() string"""
-        try:
-            # iOS uses a UTC formatted datetime string
-            return datetime.strptime(self.editedat(), "%Y-%m-%dT%H:%M:%S%z").astimezone(tz=None)  # iOS
-        except:
-            # Android appends milliseconds since epoch 
-            # https://github.com/visym/collector-app/blob/5dd0b649efde6166b65d4d270b3077e764cfa421/Android/strvideocapture/app/src/main/java/com/visym/collector/utils/FileUtil.java#L117
-            return datetime.fromtimestamp(int(self.editedat())//1000)
+        if self.isedited():
+            try:
+                # iOS uses a UTC formatted datetime string
+                return datetime.strptime(self.editedat(), "%Y-%m-%dT%H:%M:%S%z").astimezone(tz=None)  # iOS
+            except:
+                # Android appends milliseconds since epoch 
+                # https://github.com/visym/collector-app/blob/5dd0b649efde6166b65d4d270b3077e764cfa421/Android/strvideocapture/app/src/main/java/com/visym/collector/utils/FileUtil.java#L117
+                return datetime.fromtimestamp(int(self.editedat())//1000)
+        else:
+            return None    
  
     def variant(self):
         """Category variant"""
