@@ -367,6 +367,7 @@ class Video(Scene):
                             startframe=int(a["start_frame"]),
                             endframe=int(a["end_frame"]),
                             tracks=d_trackid_to_track,
+                            actorid=None if len(d_trackid_to_track)==0 else list(d_trackid_to_track.keys())[0], # by insertion order
                             framerate=d["metadata"]["frame_rate"],
                         )
                     )
@@ -389,6 +390,7 @@ class Video(Scene):
                         if len(d["activity"]) > 0
                         else int(np.round(float(d["metadata"]["duration"]) * float(d["metadata"]["frame_rate"]))),
                         tracks=d_trackid_to_track,
+                        actorid=None if len(d_trackid_to_track)==0 else list(d_trackid_to_track.keys())[0], # by insertion order                        
                         framerate=d["metadata"]["frame_rate"],
                     )
                 )
