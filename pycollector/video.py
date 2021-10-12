@@ -543,9 +543,12 @@ class Video(Scene):
     def timestamp(self):
         """Return collected_date from json as a datetime object,
         WARNING:  older veresion of the app do not include timezone info in this string, so this datetime is not offset aware
+
+        This timestamp is in the local timezone of the collector!  Do not use this for any datetime arithmetic without assigning a timezone from the geolocation
         """
-        et = pytz.timezone("US/Eastern")
-        return datetime.strptime(self.attributes["collected_date"], "%Y-%m-%d %H:%M:%S").astimezone(et)
+        #et = pytz.timezone("US/Eastern")
+        #return datetime.strptime(self.attributes["collected_date"], "%Y-%m-%d %H:%M:%S").astimezone(et)
+        return datetime.strptime(self.attributes["collected_date"], "%Y-%m-%d %H:%M:%S")  # we do not know what timezone this is, unless we look at the IP address
 
     def uploaded(self):
         # print("[pycollector.video]: WARNING - Reporting timestamp in the JSON, which may differ from the actual time the backend processed the video")
@@ -614,6 +617,12 @@ class Video(Scene):
     def faces(self, frame=1):
         """Alias for face_detection"""
         return self.face_detection(frame=frame)
+
+    def appversion(self):
+        return self.app_version()
+
+    def app_version(self):
+        return self.metadata()['app_version']        
 
     
 def last(n=1, program=None):
