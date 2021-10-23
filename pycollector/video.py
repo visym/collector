@@ -126,6 +126,22 @@ class Video(Scene):
             )
         )
 
+    def appjson(self, outfile=None):
+        """Export JSON that is equivalent to the output of the mobile app, with annotations relative to the video file (not the filter chain)"""
+        v = self.clone().sanitize().mindim(min(self.resolution_of_videofile()))
+        d = {'metadata': v.metadata(),
+             'activity':[{'start_frame':a.startframe(),
+                          'end_frame':a.endframe(),
+                          'label':a.shortlabel(),
+                          'object_index':list(range(len(v.tracks())))} for a in v.activitylist()],
+             'object':[{'label':t.shortlabel(),
+                        'bounding_box':[{'frame':{'x':bb.int().xmin(), 'y':bb.int().ymin(), 'width':bb.int().width(), 'height':bb.int().height()},
+                                         'frame_index':k} for (k,bb) in enumerate(t.clone())]}
+                       for t in v.tracklist()]}
+        d['metadata']['collected_date'] = d['metadata']['app_collected_date']  # restore original timestamp
+        assert outfile is None or vipy.util.isjsonfile(outfile)
+        return vipy.util.writejson(d, outfile) if outfile is not None else d                        
+                
     def _load_json(self):
         """Lazy JSON download, parse, and import"""
 
@@ -188,6 +204,7 @@ class Video(Scene):
             #    d["metadata"]["collected_date"] = uploaded.astimezone(et).strftime("%Y-%m-%d %H:%M:%S")
 
             et = pytz.timezone("US/Eastern")
+            d["metadata"]["app_collected_date"] = d["metadata"]["collected_date"]
             d["metadata"]["collected_date"] = uploaded.astimezone(et).strftime("%Y-%m-%d %H:%M:%S")
 
         else:
