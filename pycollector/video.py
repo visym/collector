@@ -330,7 +330,7 @@ class Video(Scene):
                     boundary="strict",
                 )
                 if vipy.version.is_at_least("0.8.3"):
-                    self.add(t, rangecheck=False)  # no rangecheck since all tracks are guarnanteed to be within image rectangle
+                    self.add(t, rangecheck=False)  # no rangecheck since all tracks are guaranteed to be within image rectangle
                 else:
                     self.add(t)
                 d_trackid_to_track[t.id()] = t
