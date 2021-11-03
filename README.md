@@ -3,7 +3,7 @@
 VISYM COLLECTOR
 -------------------
 
-Live Datasets for Visual AI    
+Ethical Datasets for Visual AI    
 Datasets: https://visym.github.io/collector/    
 Documentation: https://visym.github.io/collector/pycollector    
 
