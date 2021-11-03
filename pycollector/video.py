@@ -235,7 +235,7 @@ class Video(Scene):
                     )
                     d["metadata"]["shortname"] = ",".join([a.split("_")[2] for a in applabel])
                 except Exception as e:
-                    print('[pycollector.video]: legacy json import failed for v1 JSON "%s" with error "%s"' % (str(d["metadata"]), str(e)))
+                    print('[pycollector.video]: legacy json import failed for v1 JSON "%s" with metadata "%s" and error "%s"' % (jsonfile, str(d["metadata"]), str(e)))
                     self._has_invalid_json = True   # for later filtering                    
                     d = None
 
@@ -269,14 +269,14 @@ class Video(Scene):
                         d["metadata"]["category"] = ",".join([C.shortname_to_activity(s, strict=False) for s in shortnames])
                         d["metadata"]["shortname"] = ",".join([s for s in shortnames])
                     except Exception as e:
-                        print("[pycollector.video]: label fetch failed for %s with exception %s" % (str(d["activity"]), str(e)))
+                        print("[pycollector.video]: label fetch failed for %s in JSON '%s' with exception %s" % (str(d["activity"]), jsonfile, str(e)))
                         self._has_invalid_json = True   # for later filtering                        
                         d = None
 
                 if version == "v1":
                     backend(org="str", env="prod", version="v1")  # switch back
             else:
-                print('[pycollector.video]: Legacy JSON import failed for JSON with metadata - "%s"' % str(d["metadata"]))
+                print('[pycollector.video]: Legacy JSON import failed for JSON "%s" with metadata - "%s"' % (jsonfile, str(d["metadata"])))
                 self._has_invalid_json = True   # for later filtering                                        
                 d = None
 
@@ -316,8 +316,8 @@ class Video(Scene):
                 badboxes = [bb for bb in keyboxes if not bb.isvalid()]
                 if len(badboxes) > 0:
                     print(
-                        '[pycollector.video]: Removing %d bad keyboxes "%s" for videoid=%s'
-                        % (len(badboxes), str(badboxes), d["metadata"]["video_id"])
+                        '[pycollector.video]: Removing %d bad keyboxes "%s" from "%s" for videoid=%s'
+                        % (len(badboxes), str(badboxes), jsonfile, d["metadata"]["video_id"])
                     )
                 if len(badboxes) == len(keyboxes):
                     raise ValueError("all keyboxes in track are invalid")
@@ -356,6 +356,7 @@ class Video(Scene):
                 try:
                     # Legacy shortname display
                     if a["label"] not in d_shortname_to_category:
+                        from pycollector.admin.legacy import shortname_synonyms  # legacy import
                         if a["label"] not in shortname_synonyms():
                             raise ValueError(
                                 "Invalid shortname '%s' for collection shortnames '%s' and not in legacy synonyms '%s'"
@@ -391,8 +392,8 @@ class Video(Scene):
 
                 except Exception as e:
                     print(
-                        '[pycollector.video]: Filtering invalid activity JSON "%s" with error "%s" for videoid=%s'
-                        % (str(a), str(e), d["metadata"]["video_id"])
+                        '[pycollector.video]: Filtering invalid activity "%s" from JSON "%s" with error "%s" for videoid=%s'
+                        % (str(a), jsonfile, str(e), d["metadata"]["video_id"])
                     )
                     self._has_invalid_json = True   # for later filtering
 
@@ -438,7 +439,7 @@ class Video(Scene):
                     self._is_json_loaded = False
                     self._has_invalid_json = True   # for later filtering                    
         else:
-            print("[pycollector.video]: JSON load failed - SKIPPING")
+            print("[pycollector.video]: JSON '%s' load failed - SKIPPING" % jsonfile)
             self._is_json_loaded = False
             self._has_invalid_json = True   # for later filtering            
 
