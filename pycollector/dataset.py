@@ -154,3 +154,11 @@ class Dataset(vipy.dataset.Dataset):
             pie(d.values(), d.keys(), explode=None, outfile=outfile,  shadow=False, legend=False, fontsize=fontsize, rotatelabels=False)
         return d
         
+
+    def geolocation(self, outfile=None):
+        assert self._isvipy()
+        
+        L = [v[0].geolocation() for (k,v) in vipy.util.groupbyasdict(self, lambda v: v.collectorid()).items()]
+        return {'country': vipy.util.countby(L, lambda d: str(d['countryname'])),
+                'city': vipy.util.countby(L, lambda d: str(d['city']))}
+                
