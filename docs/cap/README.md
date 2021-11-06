@@ -2,7 +2,7 @@
 
 # Consented Activities of People (CAP)
 
-<iframe width="980" height="5515" src="https://www.youtube.com/embed/iKYtyZYEuP8" title="Visym Collector: Ethical Datasets for Visual AI" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+<iframe width="980" height="551" src="https://www.youtube.com/embed/iKYtyZYEuP8" title="Visym Collector: Ethical Datasets for Visual AI" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 [Explore the dataset](https://rawcdn.githack.com/visym/collector/262716860d435763815d468dd462e8b9136b7c49/docs/cap/cap_hoverpixel_06NOV21.html?min=1)
 
