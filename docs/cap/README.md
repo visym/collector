@@ -2,15 +2,15 @@
 
 # Consented Activities of People (CAP)
 
+<!--
 <iframe width="980" height="551" src="https://www.youtube.com/embed/iKYtyZYEuP8" title="Visym Collector: Ethical Datasets for Visual AI" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-
-
 
 # Explorer
 
 <iframe src="https://rawcdn.githack.com/visym/collector/262716860d435763815d468dd462e8b9136b7c49/docs/cap/cap_hoverpixel_06NOV21.html?min=1" style="width: 980px; height: 768px; border: 0px;"></iframe>
-
 <div style="text-align: right"> <a href="https://rawcdn.githack.com/visym/collector/262716860d435763815d468dd462e8b9136b7c49/docs/cap/cap_hoverpixel_06NOV21.html?min=1">Fullscreen</a> </div>
+-->
+
 
 # License
 
