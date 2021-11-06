@@ -10,7 +10,9 @@
 
 <iframe src="https://rawcdn.githack.com/visym/collector/262716860d435763815d468dd462e8b9136b7c49/docs/cap/cap_hoverpixel_06NOV21.html?min=1" style="width: 980px; height: 551px; border: 0px"></iframe>
 
-<p align="right">[Fullscreen](https://rawcdn.githack.com/visym/collector/262716860d435763815d468dd462e8b9136b7c49/docs/cap/cap_hoverpixel_06NOV21.html?min=1)</p>
+<p align="right">
+[Fullscreen](https://rawcdn.githack.com/visym/collector/262716860d435763815d468dd462e8b9136b7c49/docs/cap/cap_hoverpixel_06NOV21.html?min=1)
+</p>
 
 # License
 
