@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<!--
+    Visym Labs
+    vipy.visualize.hoverpixel_selector (https://visym.github.io/vipy)
+    Generated: 2021-11-09 11:43:47.595613
+-->
+<html>
+<script>
+  function hide_selector() {
+    document.getElementById('selector').style.visibility='hidden'; document.getElementById('hoverpixelframe').addEventListener('load', function() { document.getElementById('selector').style.visibility='visible'; });
+  }
+  function seturl(x) {
+    if (x == "Color") { hide_selector(); document.getElementById("hoverpixelframe").src = "https://rawcdn.githack.com/visym/collector/77ad7485ad1a57ada80153c31aad7a3dc87a4f19/docs/cap/cap_hoverpixel_56k.html"; }
+    if (x == "Category") { hide_selector(); document.getElementById("hoverpixelframe").src = "https://rawcdn.githack.com/visym/collector/77ad7485ad1a57ada80153c31aad7a3dc87a4f19/docs/cap/cap_hoverpixel_bycategory_56k.html"; }
+  }
+</script>
+<body style="background-color:black;">
+<select id="selector" onchange="seturl(this.value)" style="position: absolute; left:30px; top:80px; padding: 1px 8px; border-radius:4px; visibility:hidden;">
+  <option value="Color" selected="selected">Color</option>
+  <option value="Category">Category</option>
+</select>
+<iframe id="hoverpixelframe" src="https://rawcdn.githack.com/visym/collector/77ad7485ad1a57ada80153c31aad7a3dc87a4f19/docs/cap/cap_hoverpixel_56k.html" style="width:9987px; height:5631px; border:0px; visibility:hidden;" onload="this.style.visibility='visible';"></iframe>
+<script>
+  hide_selector();
+</script>
+</body>
+</html>
