@@ -23,9 +23,9 @@
   <option value="Category">Category</option>
 </select>
 
-<i title="Fullscreen" id="fullscreen" class="fas fa-expand" onclick="document.getElementById('hoverpixelframe').requestFullscreen(); document.getElementById('hoverpixelframe').webkitRequestFullscreen()" style="color:white; position:absolute; left:163px; top:82px; visibility:hidden;" onmouseover="this.style.color='black';" onmouseout="this.style.color='white';" ></i>
+<i title="Fullscreen" id="fullscreen" class="fas fa-expand" onclick="if (document.getElementById('hoverpixelframe').requestFullscreen) {document.getElementById('hoverpixelframe').requestFullscreen();} else if (document.getElementById('hoverpixelframe').webkitRequestFullscreen) {document.getElementById('hoverpixelframe').webkitRequestFullscreen();}" style="color:white; position:absolute; left:163px; top:82px; visibility:hidden;" onmouseover="this.style.color='black';" onmouseout="this.style.color='white';" ></i>
 
-<iframe id="hoverpixelframe" src="https://rawcdn.githack.com/visym/collector/45f2941c87aaa87537825226d31113e77f613bea/docs/cap/cap_hoverpixel_56K.html" style="width:9987px; height:5631px; border:0px; visibility:hidden;" onload="this.style.visibility='visible';" allowfullscreen></iframe>
+<iframe id="hoverpixelframe" src="https://rawcdn.githack.com/visym/collector/45f2941c87aaa87537825226d31113e77f613bea/docs/cap/cap_hoverpixel_56K.html" style="width:9987px; height:5631px; border:0px; visibility:hidden;" onload="this.style.visibility='visible';" allowfullscreen webkitallowfullscreen="true" mozAllowFullScreen AllowFullScreen allow="fullscreen"></iframe>
 
 <script>
   hide_selector();
