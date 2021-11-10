@@ -18,11 +18,12 @@
   }
 </script>
 <body style="background-color:black;">
-<select id="selector" onchange="seturl(this.value)" style="position: absolute; left:60px; top:80px; padding: 1px 8px; border-radius:4px; visibility:hidden;">
+<select id="selector" onchange="seturl(this.value)" style="position: absolute; left:60px; top:80px; padding: 1px 4px; border-radius:4px; visibility:hidden;">
   <option value="Color" selected="selected">Color</option>
   <option value="Category">Category</option>
 </select>
-<i title="Fullscreen" id="fullscreen" class="fas fa-expand" onclick="document.getElementById('hoverpixelframe').requestFullscreen();" style="color:white; position:absolute; left:163px; top:82px; visibility:hidden;" onmouseover="this.style.color='black';" onmouseout="this.style.color='white';" ></i>
+
+<i title="Fullscreen" id="fullscreen" class="fas fa-expand" onclick="document.getElementById('hoverpixelframe').requestFullscreen(); document.getElementById('hoverpixelframe').webkitRequestFullscreen()" style="color:white; position:absolute; left:163px; top:82px; visibility:hidden;" onmouseover="this.style.color='black';" onmouseout="this.style.color='white';" ></i>
 
 <iframe id="hoverpixelframe" src="https://rawcdn.githack.com/visym/collector/45f2941c87aaa87537825226d31113e77f613bea/docs/cap/cap_hoverpixel_56K.html" style="width:9987px; height:5631px; border:0px; visibility:hidden;" onload="this.style.visibility='visible';" allowfullscreen></iframe>
 
