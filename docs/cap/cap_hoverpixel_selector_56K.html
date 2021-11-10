@@ -2,34 +2,32 @@
 <!--
     Visym Labs
     vipy.visualize.hoverpixel_selector (https://visym.github.io/vipy)
-    Generated: 2021-11-09 11:43:47.595613
-  -->
+    Generated: 2021-11-10 16:31:46.531397
+-->
 <head>
   <link href="https://use.fontawesome.com/releases/v5.13.0/css/all.css" rel="stylesheet">
 </head>
 <html>
-<script>
-  function hide_selector() {
-    document.getElementById('selector').style.visibility='hidden'; document.getElementById('fullscreen').style.visibility='hidden'; document.getElementById('hoverpixelframe').addEventListener('load', function() { document.getElementById('selector').style.visibility='visible'; document.getElementById('fullscreen').style.visibility='visible'; });
-  }
-  function seturl(x) {
-    if (x == "Color") { hide_selector(); document.getElementById("hoverpixelframe").src = "https://rawcdn.githack.com/visym/collector/45f2941c87aaa87537825226d31113e77f613bea/docs/cap/cap_hoverpixel_56K.html"; }
-    if (x == "Category") { hide_selector(); document.getElementById("hoverpixelframe").src = "https://rawcdn.githack.com/visym/collector/45f2941c87aaa87537825226d31113e77f613bea/docs/cap/cap_hoverpixel_bycategory_56K.html"; }
-  }
-</script>
-
 <body style="background-color:black;">
+<iframe id="hoverpixelframe" src="https://rawcdn.githack.com/visym/collector/77ad7485ad1a57ada80153c31aad7a3dc87a4f19/docs/cap/cap_hoverpixel_56k.html" style="width:9987px; height:5631px; border:0px; visibility:hidden;" onload="this.style.visibility='visible';" allowfullscreen></iframe>
 <select id="selector" onchange="seturl(this.value)" style="position: absolute; left:60px; top:80px; padding: 1px 4px; border-radius:4px; visibility:hidden;">
   <option value="Color" selected="selected">Color</option>
   <option value="Category">Category</option>
 </select>
-
-<i title="Fullscreen" id="fullscreen" class="fas fa-expand fa-lg" onclick="if (document.getElementById('hoverpixelframe').requestFullscreen) {document.getElementById('hoverpixelframe').requestFullscreen();} else if (document.getElementById('hoverpixelframe').webkitRequestFullscreen) {document.getElementById('hoverpixelframe').webkitRequestFullscreen();}" style="color:white; position:absolute; left:163px; top:83px; visibility:hidden;" onmouseover="this.style.color='black';" onmouseout="this.style.color='white';" ></i>
-
-<iframe id="hoverpixelframe" src="https://rawcdn.githack.com/visym/collector/45f2941c87aaa87537825226d31113e77f613bea/docs/cap/cap_hoverpixel_56K.html" style="width:9987px; height:5631px; border:0px; visibility:hidden;" onload="this.style.visibility='visible';" allowfullscreen></iframe>
-
+<i title="Fullscreen" id="expand" class="fas fa-expand fa-lg" onclick="tofullscreen()" style="color:white; position:absolute; left:163px; top:83px; visibility:hidden;" onmouseover="this.style.color='black';" onmouseout="this.style.color='white';" ></i>
 <script>
-  hide_selector();
+  var iframe = document.getElementById('hoverpixelframe');
+  var selector = document.getElementById('selector');
+  var expand = document.getElementById('expand');
+  function tofullscreen() { if (iframe.requestFullscreen) {iframe.requestFullscreen();} else if (iframe.webkitRequestFullscreen) {iframe.webkitRequestFullscreen();} }
+  function hide_buttons_until_load() {
+    selector.style.visibility='hidden'; expand.style.visibility='hidden'; iframe.addEventListener('load', function() { selector.style.visibility='visible'; expand.style.visibility='visible';});
+  }
+  function seturl(x) {
+    if (x == "Color") { hide_buttons_until_load(); iframe.src = "https://rawcdn.githack.com/visym/collector/77ad7485ad1a57ada80153c31aad7a3dc87a4f19/docs/cap/cap_hoverpixel_56k.html"; }
+    if (x == "Category") { hide_buttons_until_load(); iframe.src = "https://rawcdn.githack.com/visym/collector/77ad7485ad1a57ada80153c31aad7a3dc87a4f19/docs/cap/cap_hoverpixel_bycategory_56k.html"; }
+  }
+  hide_buttons_until_load();
 </script>
 </body>
 </html>
