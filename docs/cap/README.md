@@ -6,7 +6,7 @@
 
 # Explorer
 
-<iframe src="https://htmlpreview.github.io/?https://github.com/visym/collector/blob/master/docs/cap/cap_hoverpixel_selector_56K.html" style="width: 980px; height: 768px; border: 0px; margin-top: 16px; margin-left: 16px;" allowfullscreen></iframe>
+<iframe src="https://htmlpreview.github.io/?https://github.com/visym/collector/blob/master/docs/cap/cap_hoverpixel_selector_56K.html" style="width: 980px; height: 768px; border: 0px;" allowfullscreen></iframe>
 
 # License
 
