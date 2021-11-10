@@ -6,12 +6,7 @@
 
 # Explorer
 
-<!-- <iframe src="https://rawcdn.githack.com/visym/collector/9479b51e1761fbe3402f0b3e46ddb469f5559522/docs/cap/cap_hoverpixel_small.html?min=1" style="width: 980px; height: 768px; border: 0px;" allowfullscreen></iframe> -->
-<iframe src="https://htmlpreview.github.io/?https://github.com/visym/collector/blob/master/docs/cap/cap_hoverpixel_selector_56K.html" style="width: 980px; height: 768px; border: 0px;" allowfullscreen></iframe>
-
-<!-- 
-<div style="text-align: right"> <a href="https://rawcdn.githack.com/visym/collector/9479b51e1761fbe3402f0b3e46ddb469f5559522/docs/cap/cap_hoverpixel_small.html?min=1">[Fullscreen]</a> <a href="https://rawcdn.githack.com/visym/collector/9479b51e1761fbe3402f0b3e46ddb469f5559522/docs/cap/cap_hoverpixel.html?min=1">[10x Larger]</a> </div> 
--->
+<iframe src="https://htmlpreview.github.io/?https://github.com/visym/collector/blob/master/docs/cap/cap_hoverpixel_selector_56K.html" style="width: 980px; height: 768px; border: 0px; margin-top: -16px; margin-left: -16px;" allowfullscreen></iframe>
 
 # License
 
