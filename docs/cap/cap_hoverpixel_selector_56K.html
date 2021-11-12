@@ -2,7 +2,7 @@
 <!--
     Visym Labs
     vipy.visualize.hoverpixel_selector (https://visym.github.io/vipy)
-    Generated: 2021-11-10 16:31:46.531397
+    Generated: 2021-11-12 17:39:12.004487
 -->
 <head>
   <link href="https://use.fontawesome.com/releases/v5.13.0/css/all.css" rel="stylesheet">
@@ -10,24 +10,26 @@
 <html>
 <body style="background-color:black;">
 <iframe id="hoverpixelframe" src="https://rawcdn.githack.com/visym/collector/77ad7485ad1a57ada80153c31aad7a3dc87a4f19/docs/cap/cap_hoverpixel_56k.html" style="width:9987px; height:5631px; border:0px; visibility:hidden;" onload="this.style.visibility='visible';" allowfullscreen></iframe>
-<select id="selector" onchange="seturl(this.value)" style="position: absolute; left:60px; top:80px; padding: 1px 4px; border-radius:4px; visibility:hidden;">
+<select id="selector" onchange="seturl(this.value)" style="position: absolute; left:60px; top:80px; padding: 1px 4px; border-radius:4px; visibility:visible;">
   <option value="Color" selected="selected">Color</option>
   <option value="Category">Category</option>
 </select>
-<i title="Fullscreen" id="expand" class="fas fa-expand fa-lg" onclick="tofullscreen()" style="color:white; position:absolute; left:163px; top:83px; visibility:hidden;" onmouseover="this.style.color='black';" onmouseout="this.style.color='white';" ></i>
+<i title="Fullscreen" id="expand" class="fas fa-expand fa-lg" onclick="tofullscreen()" style="color:white; position:absolute; left:163px; top:83px; visibility:visible;" onmouseover="this.style.color='black';" onmouseout="this.style.color='white';" ></i>
+<i title="Spinner" id="spinner" class="fas fa-spinner fa-spin fa-lg"" style="color:white; position:absolute; left:200px; top:83px; visibility:hidden;"></i>
 <script>
   var iframe = document.getElementById('hoverpixelframe');
   var selector = document.getElementById('selector');
   var expand = document.getElementById('expand');
+  var spinner = document.getElementById('spinner');
   function tofullscreen() { if (iframe.requestFullscreen) {iframe.requestFullscreen();} else if (iframe.webkitRequestFullscreen) {iframe.webkitRequestFullscreen();} }
-  function hide_buttons_until_load() {
-    selector.style.visibility='hidden'; expand.style.visibility='hidden'; iframe.addEventListener('load', function() { selector.style.visibility='visible'; expand.style.visibility='visible';});
+  function loading() {
+    spinner.style.visibility='visible'; iframe.addEventListener('load', function() { spinner.style.visibility='hidden';});
   }
   function seturl(x) {
-    if (x == "Color") { hide_buttons_until_load(); iframe.src = "https://rawcdn.githack.com/visym/collector/77ad7485ad1a57ada80153c31aad7a3dc87a4f19/docs/cap/cap_hoverpixel_56k.html"; }
-    if (x == "Category") { hide_buttons_until_load(); iframe.src = "https://rawcdn.githack.com/visym/collector/77ad7485ad1a57ada80153c31aad7a3dc87a4f19/docs/cap/cap_hoverpixel_bycategory_56k.html"; }
+    if (x == "Color") { loading(); iframe.src = "https://rawcdn.githack.com/visym/collector/77ad7485ad1a57ada80153c31aad7a3dc87a4f19/docs/cap/cap_hoverpixel_56k.html"; }
+    if (x == "Category") { loading(); iframe.src = "https://rawcdn.githack.com/visym/collector/77ad7485ad1a57ada80153c31aad7a3dc87a4f19/docs/cap/cap_hoverpixel_bycategory_56k.html"; }
   }
-  hide_buttons_until_load();
+  loading();
 </script>
 </body>
 </html>
