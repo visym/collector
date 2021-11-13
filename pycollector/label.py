@@ -585,6 +585,11 @@ cap_pip_meva_to_meva = {k:v for (k,v) in (list(pip_plus_meva_to_meva.items()) +
                                                 ('person_stands_up_from_floor', 'person_stands_up'),
                                                 ('person_texts_on_phone_while_sitting', 'person_texts_on_phone'),
                                                 ('person_texts_on_phone_while_walking', 'person_texts_on_phone'),
-                                                ('person_texts_on_phone_while_standing', 'person_texts_on_phone')]))}
+                                                ('person_texts_on_phone_while_standing', 'person_texts_on_phone'),
+                                                ('person_opens_laptop', 'person_interacts_with_laptop'),
+                                                ('person_closes_laptop', 'person_interacts_with_laptop'),
+                                                ('person_closes_door_with_foot', 'person_closes_facility_door'),
+                                                ('person_closes_door_with_hip', 'person_closes_facility_door')]))}
+
                                                 
                                                 
