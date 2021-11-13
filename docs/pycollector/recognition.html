@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.10.0" />
+<meta name="generator" content="pdoc 0.9.2" />
 <title>pycollector.recognition API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -25,7 +25,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/73de5a297d72adf8d93b87d831ddb8805cd99e7b/pycollector/recognition.py#L1-L16" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/recognition.py#L0-L15" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">import heyvi
 assert heyvi.version.is_at_least(&#39;0.0.3&#39;)
@@ -62,7 +62,7 @@ class ActivityTracker(heyvi.recognition.ActivityTracker):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/73de5a297d72adf8d93b87d831ddb8805cd99e7b/pycollector/recognition.py#L5-L6" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/recognition.py#L5-L6" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ActivityRecognition(heyvi.recognition.ActivityRecognition):
     pass</code></pre>
@@ -77,11 +77,35 @@ class ActivityTracker(heyvi.recognition.ActivityTracker):
 <span>(</span><span>stride=3, activities=None, gpus=None, batchsize=None, mlbl=False, mlfl=False, modelfile=None)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Activity recognition using people in public - 250k stabilized</p></div>
+<div class="desc"><p>Video Activity detection.</p>
+<p>Args (<strong>call</strong>):
+vi [generator of <code>vipy.video.Scene</code>]:
+The input video to be updated in place with detections.
+This is a generator which is output from heyvi.detection.MultiscaleVideoTracker.<strong>call</strong>
+activityiou [float]: The minimum temporal iou for activity assignment
+mirror [bool]:
+If true, encode using the mean of a video encoding and the mirrored video encoding.
+This is slower as it requires 2x GPU forward passes
+minprob [float]: The minimum probability for new activity detection
+trackconf [float]: The minimum object detection confidence for new tracks
+maxdets [int]:
+The maximum number of allowable detections per frame.
+If there are more detections per frame tha maxdets, sort them by confidence and use only the top maxdets best
+avgdets [int]:
+The number of allowable detections per frame if throttled
+buffered [bool]:
+If true, then buffer streams.
+This is useful for activity detection on live streams.
+<br>
+finalized [bool, int]:
+If False then do not finalize(), If True finalize() only at the end, If int, then finalize every int frames.
+This is useful for streaming activity detection on unbounded inputs. </p>
+<h2 id="returns">Returns</h2>
+<p>The input video is updated in place.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/73de5a297d72adf8d93b87d831ddb8805cd99e7b/pycollector/recognition.py#L14-L15" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/recognition.py#L14-L15" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class ActivityTracker(heyvi.recognition.ActivityTracker): 
     pass</code></pre>
@@ -93,8 +117,7 @@ class ActivityTracker(heyvi.recognition.ActivityTracker):
 <li>heyvi.recognition.PIP_250k</li>
 <li>pytorch_lightning.core.lightning.LightningModule</li>
 <li>abc.ABC</li>
-<li>pytorch_lightning.core.mixins.device_dtype_mixin.DeviceDtypeModuleMixin</li>
-<li>pytorch_lightning.core.mixins.hparams_mixin.HyperparametersMixin</li>
+<li>pytorch_lightning.utilities.device_dtype_mixin.DeviceDtypeModuleMixin</li>
 <li>pytorch_lightning.core.grads.GradInformation</li>
 <li>pytorch_lightning.core.saving.ModelIO</li>
 <li>pytorch_lightning.core.hooks.ModelHooks</li>
@@ -154,7 +177,7 @@ Don't use torch DataParallel!</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/73de5a297d72adf8d93b87d831ddb8805cd99e7b/pycollector/recognition.py#L8-L9" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/recognition.py#L8-L9" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class PIP_250k(heyvi.recognition.PIP_250k):
     pass</code></pre>
@@ -164,8 +187,7 @@ Don't use torch DataParallel!</p></div>
 <li>heyvi.recognition.PIP_250k</li>
 <li>pytorch_lightning.core.lightning.LightningModule</li>
 <li>abc.ABC</li>
-<li>pytorch_lightning.core.mixins.device_dtype_mixin.DeviceDtypeModuleMixin</li>
-<li>pytorch_lightning.core.mixins.hparams_mixin.HyperparametersMixin</li>
+<li>pytorch_lightning.utilities.device_dtype_mixin.DeviceDtypeModuleMixin</li>
 <li>pytorch_lightning.core.grads.GradInformation</li>
 <li>pytorch_lightning.core.saving.ModelIO</li>
 <li>pytorch_lightning.core.hooks.ModelHooks</li>
@@ -191,7 +213,13 @@ Don't use torch DataParallel!</p></div>
 <span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Same as :meth:<code>torch.nn.Module.forward()</code>.</p>
+<div class="desc"><p>Same as :meth:<code>torch.nn.Module.forward()</code>, however in Lightning you want this to define
+the operations you want to use for prediction (i.e.: on a server or as a feature extractor).</p>
+<p>Normally you'd call <code>self()</code> from your :meth:<code>training_step</code> method.
+This makes it easy to write a complex system for training with the outputs
+you'd want in a prediction setting.</p>
+<p>You may also find the :func:<code>~pytorch_lightning.core.decorators.auto_move_data</code> decorator useful
+when using the module outside Lightning in a production setting.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>*args</code></strong></dt>
@@ -200,7 +228,37 @@ Don't use torch DataParallel!</p></div>
 <dd>Keyword arguments are also possible.</dd>
 </dl>
 <h2 id="return">Return</h2>
-<p>Your model's output</p></div>
+<p>Predicted output</p>
+<h2 id="examples">Examples</h2>
+<p>.. code-block:: python</p>
+<pre><code># example if we were using this model as a feature extractor
+def forward(self, x):
+    feature_maps = self.convnet(x)
+    return feature_maps
+
+def training_step(self, batch, batch_idx):
+    x, y = batch
+    feature_maps = self(x)
+    logits = self.classifier(feature_maps)
+
+    # ...
+    return loss
+
+# splitting it this way allows model to be used a feature extractor
+model = MyModelAbove()
+
+inputs = server.get_request()
+results = model(inputs)
+server.write_results(results)
+
+# -------------
+# This is in stark contrast to torch.nn.Module where normally you would have this:
+def forward(self, batch):
+    x, y = batch
+    feature_maps = self.convnet(x)
+    logits = self.classifier(feature_maps)
+    return logits
+</code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -220,7 +278,7 @@ Don't use torch DataParallel!</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/73de5a297d72adf8d93b87d831ddb8805cd99e7b/pycollector/recognition.py#L11-L12" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/recognition.py#L11-L12" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class PIP_370k(heyvi.recognition.PIP_370k):
     pass</code></pre>
@@ -231,8 +289,7 @@ Don't use torch DataParallel!</p></div>
 <li>heyvi.recognition.PIP_250k</li>
 <li>pytorch_lightning.core.lightning.LightningModule</li>
 <li>abc.ABC</li>
-<li>pytorch_lightning.core.mixins.device_dtype_mixin.DeviceDtypeModuleMixin</li>
-<li>pytorch_lightning.core.mixins.hparams_mixin.HyperparametersMixin</li>
+<li>pytorch_lightning.utilities.device_dtype_mixin.DeviceDtypeModuleMixin</li>
 <li>pytorch_lightning.core.grads.GradInformation</li>
 <li>pytorch_lightning.core.saving.ModelIO</li>
 <li>pytorch_lightning.core.hooks.ModelHooks</li>
@@ -258,7 +315,13 @@ Don't use torch DataParallel!</p></div>
 <span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Same as :meth:<code>torch.nn.Module.forward()</code>.</p>
+<div class="desc"><p>Same as :meth:<code>torch.nn.Module.forward()</code>, however in Lightning you want this to define
+the operations you want to use for prediction (i.e.: on a server or as a feature extractor).</p>
+<p>Normally you'd call <code>self()</code> from your :meth:<code>training_step</code> method.
+This makes it easy to write a complex system for training with the outputs
+you'd want in a prediction setting.</p>
+<p>You may also find the :func:<code>~pytorch_lightning.core.decorators.auto_move_data</code> decorator useful
+when using the module outside Lightning in a production setting.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>*args</code></strong></dt>
@@ -267,7 +330,37 @@ Don't use torch DataParallel!</p></div>
 <dd>Keyword arguments are also possible.</dd>
 </dl>
 <h2 id="return">Return</h2>
-<p>Your model's output</p></div>
+<p>Predicted output</p>
+<h2 id="examples">Examples</h2>
+<p>.. code-block:: python</p>
+<pre><code># example if we were using this model as a feature extractor
+def forward(self, x):
+    feature_maps = self.convnet(x)
+    return feature_maps
+
+def training_step(self, batch, batch_idx):
+    x, y = batch
+    feature_maps = self(x)
+    logits = self.classifier(feature_maps)
+
+    # ...
+    return loss
+
+# splitting it this way allows model to be used a feature extractor
+model = MyModelAbove()
+
+inputs = server.get_request()
+results = model(inputs)
+server.write_results(results)
+
+# -------------
+# This is in stark contrast to torch.nn.Module where normally you would have this:
+def forward(self, batch):
+    x, y = batch
+    feature_maps = self.convnet(x)
+    logits = self.classifier(feature_maps)
+    return logits
+</code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -378,7 +471,7 @@ setTimeout(() => input.focus(), 100);
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.9.2</a>.</p>
 </footer>
 </body>
 </html>
