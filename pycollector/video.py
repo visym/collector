@@ -142,6 +142,9 @@ class Video(Scene):
         assert outfile is None or vipy.util.isjsonfile(outfile)
         return vipy.util.writejson(d, outfile) if outfile is not None else d                        
                 
+    def load_json(self):
+        return self._load_json()
+
     def _load_json(self):
         """Lazy JSON download, parse, and import"""
 
