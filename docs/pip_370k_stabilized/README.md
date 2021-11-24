@@ -15,9 +15,10 @@ classes (http://mevadata.org).  This dataset contains 405,781 background stabili
 ## Download
 
 * [pip_370k.tar.gz (226 GB)](https://dl.dropboxusercontent.com/s/fai9ontpmx4xv9i/pip_370k.tar.gz)&nbsp;&nbsp;MD5:2cf844fbc78fde1c125aa250e99db19f&nbsp;&nbsp;Last Updated 16Sep21
-    * This is the recommended dataset for use in all new training, as it is the union of pip-170k-stabilized, pip-250k-stabilized and pip-d370k-stabilized, which fixes a few problematic videos and updates the JSON format to correct for missing framerates.  
     * This dataset contains 405,781 background stabilized video clips of 63 classes of activities.
     * This release uses the [no-meva-pad](../pip_250k_stabilized/README.md) annotation style.
+    * This is the recommended dataset for download, as it is the union of pip-170k-stabilized, pip-250k-stabilized and pip-d370k-stabilized, which fixes known errata.   
+
 
 <!--
 Legacy Downloads:
