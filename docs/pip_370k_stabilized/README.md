@@ -22,8 +22,8 @@ This dataset contains 95990 stabilized video clips of 34 classes of activities p
     * This is the recommended dataset for use in all new training, as it is the union of pip-170k-stabilized, pip-250k-stabilized and pip-d370k-stabilized, which fixes a few problematic videos and updates the JSON format to correct for missing framerates.  
     * This dataset contains 405,781 background stabilized video clips of 63 classes of activities.
     * This release uses the [no-meva-pad](../pip_250k_stabilized/README.md) annotation style.
-    * This release corrects for the [errata](#Errata) below.
 
+<!--
 Legacy Downloads:
 * [pip_d370k_stabilized.tar.bz2 (59.7 GB)](https://dl.dropboxusercontent.com/s/vxjik8a01lp6uif/pip_d370k_stabilized.tar.bz2)&nbsp;&nbsp;MD5:7f705d6291dfa333000e40779b595d4f&nbsp;&nbsp;Last Updated: 04Apr21
     * An incremental release which augments [pip_250k](https://github.com/visym/collector/tree/master/docs/pip_250k_stabilized)
@@ -31,7 +31,7 @@ Legacy Downloads:
 * [pip_d370k_stabilized_objects.tar.gz (709 MB)](https://dl.dropboxusercontent.com/s/ip3w9fmt8d26h94/pip_d370k_stabilized_objects.tar.gz)&nbsp;&nbsp;MD5:5e13f783ceec1378800d0e5de81f3257&nbsp;&nbsp;&nbsp;&nbsp;Last Updated: 06May21
     * An incremental release which augments [pip_250k](https://github.com/visym/collector/tree/master/docs/pip_250k_stabilized) that includes secondary vehicle and people track annotations for 40856 of 95990 instances in pip_d370k that contain secondary objects.
     * Contains 38546 instances with both vehicle and person tracks, 1245 instances with bicycle and person tracks, 1065 instances with person and friend
-
+-->
 
 ## Quickstart
 
@@ -53,16 +53,19 @@ vs.getattribute('stabilize')   # returns a stabilization residual (bigger is wor
  
 # Errata
 
-* The classes "person_leaves_scene_through_structure" and "person_exits_scene_through_structure" are synonymous and should be merged.  
-* The classes "person_comes_into_scene_through_structure" and "person_enters_scene_through_structure" are synonymous and should be merged.
-* The classes "hand_interacts_with_person_holdhands" and "person_holds_hand" are synonymous and should be merged.
-* The classes "hand_interacts_with_person_shakehands" and "person_shakes_hand" are synonymous and should be merged.
 * A small number of videos exhibit a face detector false alarm which looks like a large pixelated circle which lasts a single frame.  This is the in-app face blurring incorrectly redacting the background.  You can filter these videos by removing videos v with 
 
 ```python
 videolist = [v for v in videolist if not v.getattribute('blurred faces') > 0]
 
 ```
+
+* The metadata for each video in IP-370k contains unique IDs that identify the collector who recorded the video and the subject in the video. A portion of the PIP-370k collection included a bug that caused subject IDs to be randomly generated. We recommend using the collector ID as the identifier of the subject. Collectors and subjects were required to work in pairs for this collection, so the collector ID uniquely identifies when the collector is behind the camera and their subject is in front of the camera. This means that collector_id for this collection will uniquely identify the subject in the pixels.  This can be accessed using the following for a video object v:
+
+```python
+v.metadata()['collector_id']
+```
+
 # Frequently Asked Questions
 
 * Are there repeated instances in this release?  For this release, we asked collectors to perform the same activity multiple times in a row per collection, but to perform the activity slightly differently each time.  This introduces a form of on-demand dataset augmentation performed by the collector.  You may identify these collections with a filename structure "VIDEOID_INSTANCEID.mp4" where the video ID identifies the collected video, and each instance ID is an integer that identifies the order of the collected activity in the collected video.  
