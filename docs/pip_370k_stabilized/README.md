@@ -9,10 +9,7 @@
 The People in Public dataset is a consented large scale video dataset of people doing things in public places.  Our team has pioneered the use of a 
 custom designed mobile app that combines video collection, activity labeling and bounding box annotation into a single step.  Our goal is to 
 make collecting annotated video datasets as easily and cheaply as recording a video.  Currently, we are collecting a dataset of the MEVA 
-classes (http://mevadata.org).  This package provides a release of this dataset, containing 95990 annotated activity instances collected by 
-over 150 subjects in 44 countries around the world. 
-
-This dataset contains 95990 stabilized video clips of 34 classes of activities performed by people in public places.  The activity labels are subsets of the 37 activities in the [Multiview Extended Video with Activities (MEVA)](https://mevadata.org) dataset and is consistent with the [Activities in Extended Video (ActEV)](https://actev.nist.gov/) challenge.  
+classes (http://mevadata.org).  This dataset contains 405,781 background stabilized video clips of 63 classes of activities collected by over 150 subjects in 44 countries around the world. 
 
 [Background stabilization](https://github.com/visym/vipy/blob/bc20f6f32492badd181faa0ccf7b0029f1f63fee/vipy/flow.py#L307-L328) was performed using an affine coarse to fine optical-flow method, followed by [actor bounding box stabilization](https://github.com/visym/collector/blob/adc5486c7f88291b77f9a707a78763c2b5958406/pycollector/detection.py#L177-L236).  Stabilization is designed to minimize distortion for small motions in the region near the center of the actor box.  Remaining stabilization artifacts are due to non-planar scene structure, rolling shutter distortion, and sub-pixel optical flow correspondence errors.  Stabilization artifacts manifest as a subtly shifting background relative to the actor which may affect optical flow based methods.  All stabilizations can be filtered using the provided stabilization residual which measures the quality of the stabilization.  
 
@@ -60,7 +57,7 @@ videolist = [v for v in videolist if not v.getattribute('blurred faces') > 0]
 
 ```
 
-* The metadata for each video in IP-370k contains unique IDs that identify the collector who recorded the video and the subject in the video. A portion of the PIP-370k collection included a bug that caused subject IDs to be randomly generated. We recommend using the collector ID as the identifier of the subject. Collectors and subjects were required to work in pairs for this collection, so the collector ID uniquely identifies when the collector is behind the camera and their subject is in front of the camera. This means that collector_id for this collection will uniquely identify the subject in the pixels.  This can be accessed using the following for a video object v:
+* The metadata for each video in PIP-370k contains unique IDs that identify the collector who recorded the video and the subject in the video. A portion of the PIP-370k collection included a bug that caused subject IDs to be randomly generated. We recommend using the collector ID as the identifier of the subject. Collectors and subjects were required to work in pairs for this collection, so the collector ID uniquely identifies when the collector is behind the camera and their subject is in front of the camera. This means that collector_id for this collection will uniquely identify the subject in the pixels.  This can be accessed using the following for a video object v:
 
 ```python
 v.metadata()['collector_id']
@@ -76,6 +73,7 @@ v.metadata()['collector_id']
 ```python
 padded_videolist = pycollector.dataset.asmeva(videolist)
 ```
+* How is this related to pip-175k and pip-250k?  This dataset is a superset of pip-175k and pip-250k.
 
 # License
 
