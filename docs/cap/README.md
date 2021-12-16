@@ -8,6 +8,14 @@
 
 <iframe src="https://htmlpreview.github.io/?https://github.com/visym/collector/blob/master/docs/cap/cap_hoverpixel_selector_56K.html" style="width: 980px; height: 768px; border: 0px;" allowfullscreen></iframe>
 
+# Summary
+
+* TBD
+
+# Download
+
+* TBD
+
 # License
 
 Creative Commons Attribution 4.0 International [(CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/)
