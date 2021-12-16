@@ -1,6 +1,6 @@
+remote_theme: pages-themes/primer@v0.2.0
+plugins:
+- jekyll-remote-theme 
 name: Ethical Datasets for Visual AI
 title: null
 google_analytics: UA-185366384-1
-remote_theme: pages-themes/primer@v0.2.0
-plugins:
-- jekyll-remote-theme # add this line to the plugins list if you already have one
