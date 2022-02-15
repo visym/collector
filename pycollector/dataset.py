@@ -123,7 +123,7 @@ class Dataset(vipy.dataset.Dataset):
         if outfile is not None:
             from vipy.metrics import histogram
             (k,v) = zip(*(sorted(d.items(), key=lambda x: x[1], reverse=True))) 
-            histogram(v, list(range(len(k))), outfile=outfile, ylabel='Submissions', xlabel='Collector ID', xrot='vertical', fontsize=3, xshow=False)            
+            histogram(v, list(range(len(k))), outfile=outfile, ylabel='Submissions', xlabel='Collector', xrot='vertical', fontsize=3, xshow=False)            
         return d
 
     def os(self, outfile=None):
@@ -158,7 +158,14 @@ class Dataset(vipy.dataset.Dataset):
     def geolocation(self, outfile=None):
         assert self._isvipy()
         
-        L = [v[0].geolocation() for (k,v) in vipy.util.groupbyasdict(self, lambda v: v.collectorid()).items()]
+        L = [v for v in self if 'ipAddress' in v.metadata()]
+        L = [v[0].geolocation() for (k,v) in vipy.util.groupbyasdict(L, lambda v: v.collectorid()).items()]
+        L = [v for v in L if v is not None]
         return {'country': vipy.util.countby(L, lambda d: str(d['countryname'])),
                 'city': vipy.util.countby(L, lambda d: str(d['city']))}
                 
+    @classmethod
+    def cast(cls, D):
+        assert isinstance(D, vipy.dataset.Dataset), "Invalid input - must be derived from vipy.dataset.Dataset"
+        return cls(list(D))
+        

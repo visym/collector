@@ -481,7 +481,8 @@ class Video(Scene):
         return self.attributes["variant"] if "variant" in self.attributes else None
 
     def geolocation(self):
-        assert "ipAddress" in self.metadata(), "Invalid JSON"
+        if 'ipAddress' not in self.metadata():
+            return None
         url = "http://api.geoiplookup.net/?query=%s" % self.metadata()["ipAddress"]
         with urllib.request.urlopen(url) as f:
             response = f.read().decode("utf-8")
