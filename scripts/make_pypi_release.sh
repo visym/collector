@@ -18,12 +18,12 @@ rm -rf build/
 rm -rf pycollector.egg-info/
 
 
-python3 setup_alias_visym_collector.py sdist bdist_wheel
+python3 setup_visym_collector.py sdist bdist_wheel
 twine upload dist/*
 rm -rf dist/
 rm -rf build/
 
-python3 setup_alias_collector.py sdist bdist_wheel
+python3 setup_collector.py sdist bdist_wheel
 twine upload dist/*
 rm -rf dist/
 rm -rf build/
