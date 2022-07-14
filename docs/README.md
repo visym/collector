@@ -21,6 +21,7 @@ Our goal is to make all datasets freely available to the computer vision researc
 
 <!-- Backup links:  https://htmlpreview.github.io/?https://github.com/visym/collector/blob/master/docs/pip_175k/trainset_small.html -->
 
+* **[Consented Activities of People](https://visym.github.io/cap).**  This dataset contains 1.45M video clips of 512 classes of activities of daily life.  Videos are recorded from mobile devices around the world from a third person viewpoint looking down on the scene from above, containing consented subjects performing every day activities.    
 * **[People in Public - 370k - stabilized](pip_370k_stabilized/README.md).**  This dataset contains 405,781 background stabilized video clips of 63 classes of activities performed by people in public places.  
 * **[People in Public - 250k - stabilized](pip_250k_stabilized/README.md).**  This dataset contains 314,332 background stabilized video clips of 66 classes of activities performed by people in public places.
 * **[People in Public - 175k](pip_175k/README.md).**  This dataset contains 184,379 video clips of 66 classes of activities performed by people in public places.  The activity labels are subsets of the 37 activities in the [Multiview Extended Video with Activities (MEVA)](https://mevadata.org) dataset and is consistent with the [Activities in Extended Video (ActEV)](https://actev.nist.gov/) challenge.  
