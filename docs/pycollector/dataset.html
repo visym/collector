@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.2" />
+<meta name="generator" content="pdoc 0.10.0" />
 <title>pycollector.dataset API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -25,7 +25,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/dataset.py#L0-L163" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/dataset.py#L1-L187" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">import os
 import numpy as np
@@ -143,16 +143,32 @@ class Dataset(vipy.dataset.Dataset):
         assert self._isvipy()
         d = vipy.util.countby(self.list(), lambda v: v.attributes[&#39;collector_id&#39;])
         f = lambda x,n: len([k for (k,v) in d.items() if int(v) &gt;= n])
-        print(&#39;[vipy.dataset]: Collectors = %d &#39; % f(d,0))
-        print(&#39;[vipy.dataset]: Collectors with &gt;10 submissions = %d&#39; % f(d,10))
-        print(&#39;[vipy.dataset]: Collectors with &gt;100 submissions = %d&#39; % f(d,100))
-        print(&#39;[vipy.dataset]: Collectors with &gt;1000 submissions = %d&#39; % f(d,1000))
-        print(&#39;[vipy.dataset]: Collectors with &gt;10000 submissions = %d&#39; % f(d,10000))
+        print(&#39;[pycollector.dataset]: Collectors = %d &#39; % f(d,0))
+        print(&#39;[pycollector.dataset]: Collectors with &gt;10 submissions = %d&#39; % f(d,10))
+        print(&#39;[pycollector.dataset]: Collectors with &gt;100 submissions = %d&#39; % f(d,100))
+        print(&#39;[pycollector.dataset]: Collectors with &gt;1000 submissions = %d&#39; % f(d,1000))
+        print(&#39;[pycollector.dataset]: Collectors with &gt;10000 submissions = %d&#39; % f(d,10000))
 
         if outfile is not None:
             from vipy.metrics import histogram
             (k,v) = zip(*(sorted(d.items(), key=lambda x: x[1], reverse=True))) 
-            histogram(v, list(range(len(k))), outfile=outfile, ylabel=&#39;Submissions&#39;, xlabel=&#39;Collector ID&#39;, xrot=&#39;vertical&#39;, fontsize=3, xshow=False)            
+            histogram(v, list(range(len(k))), outfile=outfile, ylabel=&#39;Submissions&#39;, xlabel=&#39;Collector&#39;, xrot=&#39;vertical&#39;, fontsize=3, xshow=False)            
+        return d
+
+    def subjects(self, outfile=None):
+        assert self._isvipy()
+        d = vipy.util.countby(self.list(), lambda v: v.attributes[&#39;subject_ids&#39;][0] if v.hasattribute(&#39;subject_ids&#39;) and len(v.attributes[&#39;subject_ids&#39;])&gt;0 else None)
+        f = lambda x,n: len([k for (k,v) in d.items() if int(v) &gt;= n])
+        print(&#39;[pycollector.dataset]: Subjects = %d &#39; % f(d,0))
+        print(&#39;[pycollector.dataset]: Subjects with &gt;10 submissions = %d&#39; % f(d,10))
+        print(&#39;[pycollector.dataset]: Subjects with &gt;100 submissions = %d&#39; % f(d,100))
+        print(&#39;[pycollector.dataset]: Subjects with &gt;1000 submissions = %d&#39; % f(d,1000))
+        print(&#39;[pycollector.dataset]: Subjects with &gt;10000 submissions = %d&#39; % f(d,10000))
+
+        if outfile is not None:
+            from vipy.metrics import histogram
+            (k,v) = zip(*(sorted(d.items(), key=lambda x: x[1], reverse=True))) 
+            histogram(v, list(range(len(k))), outfile=outfile, ylabel=&#39;Submissions&#39;, xlabel=&#39;Subject&#39;, xrot=&#39;vertical&#39;, fontsize=3, xshow=False)            
         return d
 
     def os(self, outfile=None):
@@ -187,10 +203,17 @@ class Dataset(vipy.dataset.Dataset):
     def geolocation(self, outfile=None):
         assert self._isvipy()
         
-        L = [v[0].geolocation() for (k,v) in vipy.util.groupbyasdict(self, lambda v: v.collectorid()).items()]
+        L = [v for v in self if &#39;ipAddress&#39; in v.metadata()]
+        L = [v[0].geolocation() for (k,v) in vipy.util.groupbyasdict(L, lambda v: v.collectorid()).items()]
+        L = [v for v in L if v is not None]
         return {&#39;country&#39;: vipy.util.countby(L, lambda d: str(d[&#39;countryname&#39;])),
                 &#39;city&#39;: vipy.util.countby(L, lambda d: str(d[&#39;city&#39;]))}
-                </code></pre>
+                
+    @classmethod
+    def cast(cls, D):
+        assert isinstance(D, vipy.dataset.Dataset), &#34;Invalid input - must be derived from vipy.dataset.Dataset&#34;
+        return cls(list(D))
+        </code></pre>
 </details>
 </section>
 <section>
@@ -208,7 +231,7 @@ class Dataset(vipy.dataset.Dataset):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/dataset.py#L36-L95" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/dataset.py#L36-L95" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def asmeva(V):
     &#34;&#34;&#34;Convert a list of collector.dataset.Video() to MEVA annotation style&#34;&#34;&#34;
@@ -280,7 +303,7 @@ class Dataset(vipy.dataset.Dataset):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/dataset.py#L27-L33" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/dataset.py#L27-L33" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def disjoint_activities(V, activitylist):    
     assert all([isinstance(v, vipy.video.Video) for v in V])
@@ -298,14 +321,14 @@ class Dataset(vipy.dataset.Dataset):
 <dl>
 <dt id="pycollector.dataset.Dataset"><code class="flex name class">
 <span>class <span class="ident">Dataset</span></span>
-<span>(</span><span>datasrc, id=None, abspath=True)</span>
+<span>(</span><span>objlist, id=None, abspath=True, loader=None, lazy=False)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Additional methods beyond <code>vipy.dataset.Dataset</code> that are specific to collector style datasets</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/dataset.py#L110-L163" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/dataset.py#L110-L186" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Dataset(vipy.dataset.Dataset):
     &#34;&#34;&#34;Additional methods beyond `vipy.dataset.Dataset` that are specific to collector style datasets&#34;&#34;&#34;
@@ -314,16 +337,32 @@ class Dataset(vipy.dataset.Dataset):
         assert self._isvipy()
         d = vipy.util.countby(self.list(), lambda v: v.attributes[&#39;collector_id&#39;])
         f = lambda x,n: len([k for (k,v) in d.items() if int(v) &gt;= n])
-        print(&#39;[vipy.dataset]: Collectors = %d &#39; % f(d,0))
-        print(&#39;[vipy.dataset]: Collectors with &gt;10 submissions = %d&#39; % f(d,10))
-        print(&#39;[vipy.dataset]: Collectors with &gt;100 submissions = %d&#39; % f(d,100))
-        print(&#39;[vipy.dataset]: Collectors with &gt;1000 submissions = %d&#39; % f(d,1000))
-        print(&#39;[vipy.dataset]: Collectors with &gt;10000 submissions = %d&#39; % f(d,10000))
+        print(&#39;[pycollector.dataset]: Collectors = %d &#39; % f(d,0))
+        print(&#39;[pycollector.dataset]: Collectors with &gt;10 submissions = %d&#39; % f(d,10))
+        print(&#39;[pycollector.dataset]: Collectors with &gt;100 submissions = %d&#39; % f(d,100))
+        print(&#39;[pycollector.dataset]: Collectors with &gt;1000 submissions = %d&#39; % f(d,1000))
+        print(&#39;[pycollector.dataset]: Collectors with &gt;10000 submissions = %d&#39; % f(d,10000))
 
         if outfile is not None:
             from vipy.metrics import histogram
             (k,v) = zip(*(sorted(d.items(), key=lambda x: x[1], reverse=True))) 
-            histogram(v, list(range(len(k))), outfile=outfile, ylabel=&#39;Submissions&#39;, xlabel=&#39;Collector ID&#39;, xrot=&#39;vertical&#39;, fontsize=3, xshow=False)            
+            histogram(v, list(range(len(k))), outfile=outfile, ylabel=&#39;Submissions&#39;, xlabel=&#39;Collector&#39;, xrot=&#39;vertical&#39;, fontsize=3, xshow=False)            
+        return d
+
+    def subjects(self, outfile=None):
+        assert self._isvipy()
+        d = vipy.util.countby(self.list(), lambda v: v.attributes[&#39;subject_ids&#39;][0] if v.hasattribute(&#39;subject_ids&#39;) and len(v.attributes[&#39;subject_ids&#39;])&gt;0 else None)
+        f = lambda x,n: len([k for (k,v) in d.items() if int(v) &gt;= n])
+        print(&#39;[pycollector.dataset]: Subjects = %d &#39; % f(d,0))
+        print(&#39;[pycollector.dataset]: Subjects with &gt;10 submissions = %d&#39; % f(d,10))
+        print(&#39;[pycollector.dataset]: Subjects with &gt;100 submissions = %d&#39; % f(d,100))
+        print(&#39;[pycollector.dataset]: Subjects with &gt;1000 submissions = %d&#39; % f(d,1000))
+        print(&#39;[pycollector.dataset]: Subjects with &gt;10000 submissions = %d&#39; % f(d,10000))
+
+        if outfile is not None:
+            from vipy.metrics import histogram
+            (k,v) = zip(*(sorted(d.items(), key=lambda x: x[1], reverse=True))) 
+            histogram(v, list(range(len(k))), outfile=outfile, ylabel=&#39;Submissions&#39;, xlabel=&#39;Subject&#39;, xrot=&#39;vertical&#39;, fontsize=3, xshow=False)            
         return d
 
     def os(self, outfile=None):
@@ -358,14 +397,40 @@ class Dataset(vipy.dataset.Dataset):
     def geolocation(self, outfile=None):
         assert self._isvipy()
         
-        L = [v[0].geolocation() for (k,v) in vipy.util.groupbyasdict(self, lambda v: v.collectorid()).items()]
+        L = [v for v in self if &#39;ipAddress&#39; in v.metadata()]
+        L = [v[0].geolocation() for (k,v) in vipy.util.groupbyasdict(L, lambda v: v.collectorid()).items()]
+        L = [v for v in L if v is not None]
         return {&#39;country&#39;: vipy.util.countby(L, lambda d: str(d[&#39;countryname&#39;])),
-                &#39;city&#39;: vipy.util.countby(L, lambda d: str(d[&#39;city&#39;]))}</code></pre>
+                &#39;city&#39;: vipy.util.countby(L, lambda d: str(d[&#39;city&#39;]))}
+                
+    @classmethod
+    def cast(cls, D):
+        assert isinstance(D, vipy.dataset.Dataset), &#34;Invalid input - must be derived from vipy.dataset.Dataset&#34;
+        return cls(list(D))</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li>vipy.dataset.Dataset</li>
 </ul>
+<h3>Static methods</h3>
+<dl>
+<dt id="pycollector.dataset.Dataset.cast"><code class="name flex">
+<span>def <span class="ident">cast</span></span>(<span>D)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/dataset.py#L183-L186" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">@classmethod
+def cast(cls, D):
+    assert isinstance(D, vipy.dataset.Dataset), &#34;Invalid input - must be derived from vipy.dataset.Dataset&#34;
+    return cls(list(D))</code></pre>
+</details>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
 <dt id="pycollector.dataset.Dataset.collectors"><code class="name flex">
@@ -376,22 +441,22 @@ class Dataset(vipy.dataset.Dataset):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/dataset.py#L113-L127" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/dataset.py#L113-L127" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def collectors(self, outfile=None):
     assert self._isvipy()
     d = vipy.util.countby(self.list(), lambda v: v.attributes[&#39;collector_id&#39;])
     f = lambda x,n: len([k for (k,v) in d.items() if int(v) &gt;= n])
-    print(&#39;[vipy.dataset]: Collectors = %d &#39; % f(d,0))
-    print(&#39;[vipy.dataset]: Collectors with &gt;10 submissions = %d&#39; % f(d,10))
-    print(&#39;[vipy.dataset]: Collectors with &gt;100 submissions = %d&#39; % f(d,100))
-    print(&#39;[vipy.dataset]: Collectors with &gt;1000 submissions = %d&#39; % f(d,1000))
-    print(&#39;[vipy.dataset]: Collectors with &gt;10000 submissions = %d&#39; % f(d,10000))
+    print(&#39;[pycollector.dataset]: Collectors = %d &#39; % f(d,0))
+    print(&#39;[pycollector.dataset]: Collectors with &gt;10 submissions = %d&#39; % f(d,10))
+    print(&#39;[pycollector.dataset]: Collectors with &gt;100 submissions = %d&#39; % f(d,100))
+    print(&#39;[pycollector.dataset]: Collectors with &gt;1000 submissions = %d&#39; % f(d,1000))
+    print(&#39;[pycollector.dataset]: Collectors with &gt;10000 submissions = %d&#39; % f(d,10000))
 
     if outfile is not None:
         from vipy.metrics import histogram
         (k,v) = zip(*(sorted(d.items(), key=lambda x: x[1], reverse=True))) 
-        histogram(v, list(range(len(k))), outfile=outfile, ylabel=&#39;Submissions&#39;, xlabel=&#39;Collector ID&#39;, xrot=&#39;vertical&#39;, fontsize=3, xshow=False)            
+        histogram(v, list(range(len(k))), outfile=outfile, ylabel=&#39;Submissions&#39;, xlabel=&#39;Collector&#39;, xrot=&#39;vertical&#39;, fontsize=3, xshow=False)            
     return d</code></pre>
 </details>
 </dd>
@@ -403,7 +468,7 @@ class Dataset(vipy.dataset.Dataset):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/dataset.py#L138-L155" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/dataset.py#L154-L171" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def device(self, outfile=None, n=24, fontsize=7):
     assert self._isvipy()
@@ -433,12 +498,14 @@ class Dataset(vipy.dataset.Dataset):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/dataset.py#L158-L163" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/dataset.py#L174-L181" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def geolocation(self, outfile=None):
     assert self._isvipy()
     
-    L = [v[0].geolocation() for (k,v) in vipy.util.groupbyasdict(self, lambda v: v.collectorid()).items()]
+    L = [v for v in self if &#39;ipAddress&#39; in v.metadata()]
+    L = [v[0].geolocation() for (k,v) in vipy.util.groupbyasdict(L, lambda v: v.collectorid()).items()]
+    L = [v for v in L if v is not None]
     return {&#39;country&#39;: vipy.util.countby(L, lambda d: str(d[&#39;countryname&#39;])),
             &#39;city&#39;: vipy.util.countby(L, lambda d: str(d[&#39;city&#39;]))}</code></pre>
 </details>
@@ -451,7 +518,7 @@ class Dataset(vipy.dataset.Dataset):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/dataset.py#L129-L136" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/dataset.py#L145-L152" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def os(self, outfile=None):
     assert self._isvipy()
@@ -460,6 +527,33 @@ class Dataset(vipy.dataset.Dataset):
     if outfile is not None:
         from vipy.metrics import pie
         pie(d.values(), d.keys(), explode=None, outfile=outfile,  shadow=False)
+    return d</code></pre>
+</details>
+</dd>
+<dt id="pycollector.dataset.Dataset.subjects"><code class="name flex">
+<span>def <span class="ident">subjects</span></span>(<span>self, outfile=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/dataset.py#L129-L143" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def subjects(self, outfile=None):
+    assert self._isvipy()
+    d = vipy.util.countby(self.list(), lambda v: v.attributes[&#39;subject_ids&#39;][0] if v.hasattribute(&#39;subject_ids&#39;) and len(v.attributes[&#39;subject_ids&#39;])&gt;0 else None)
+    f = lambda x,n: len([k for (k,v) in d.items() if int(v) &gt;= n])
+    print(&#39;[pycollector.dataset]: Subjects = %d &#39; % f(d,0))
+    print(&#39;[pycollector.dataset]: Subjects with &gt;10 submissions = %d&#39; % f(d,10))
+    print(&#39;[pycollector.dataset]: Subjects with &gt;100 submissions = %d&#39; % f(d,100))
+    print(&#39;[pycollector.dataset]: Subjects with &gt;1000 submissions = %d&#39; % f(d,1000))
+    print(&#39;[pycollector.dataset]: Subjects with &gt;10000 submissions = %d&#39; % f(d,10000))
+
+    if outfile is not None:
+        from vipy.metrics import histogram
+        (k,v) = zip(*(sorted(d.items(), key=lambda x: x[1], reverse=True))) 
+        histogram(v, list(range(len(k))), outfile=outfile, ylabel=&#39;Submissions&#39;, xlabel=&#39;Subject&#39;, xrot=&#39;vertical&#39;, fontsize=3, xshow=False)            
     return d</code></pre>
 </details>
 </dd>
@@ -474,7 +568,7 @@ class Dataset(vipy.dataset.Dataset):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/dataset.py#L100-L103" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/dataset.py#L100-L103" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class TorchDataset(vipy.torch.TorchDataset):
     &#34;&#34;&#34;Moved to vipy.torch.TorchDataset&#34;&#34;&#34;
@@ -490,14 +584,14 @@ class Dataset(vipy.dataset.Dataset):
 </dd>
 <dt id="pycollector.dataset.TorchTensordir"><code class="flex name class">
 <span>class <span class="ident">TorchTensordir</span></span>
-<span>(</span><span>tensordir, verbose=True, reseed=True, take=None)</span>
+<span>(</span><span>tensordir, verbose=True, reseed=True, take=None, mutator=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Moved to vipy.torch.TorchTensordir</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/dataset.py#L105-L108" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/dataset.py#L105-L108" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class TorchTensordir(vipy.torch.TorchTensordir):
     &#34;&#34;&#34;Moved to vipy.torch.TorchTensordir&#34;&#34;&#34;
@@ -507,6 +601,7 @@ class Dataset(vipy.dataset.Dataset):
 <h3>Ancestors</h3>
 <ul class="hlist">
 <li>vipy.torch.TorchTensordir</li>
+<li>vipy.torch.Tensordir</li>
 <li>torch.utils.data.dataset.Dataset</li>
 <li>typing.Generic</li>
 </ul>
@@ -586,11 +681,13 @@ setTimeout(() => input.focus(), 100);
 <ul>
 <li>
 <h4><code><a title="pycollector.dataset.Dataset" href="#pycollector.dataset.Dataset">Dataset</a></code></h4>
-<ul class="">
+<ul class="two-column">
+<li><code><a title="pycollector.dataset.Dataset.cast" href="#pycollector.dataset.Dataset.cast">cast</a></code></li>
 <li><code><a title="pycollector.dataset.Dataset.collectors" href="#pycollector.dataset.Dataset.collectors">collectors</a></code></li>
 <li><code><a title="pycollector.dataset.Dataset.device" href="#pycollector.dataset.Dataset.device">device</a></code></li>
 <li><code><a title="pycollector.dataset.Dataset.geolocation" href="#pycollector.dataset.Dataset.geolocation">geolocation</a></code></li>
 <li><code><a title="pycollector.dataset.Dataset.os" href="#pycollector.dataset.Dataset.os">os</a></code></li>
+<li><code><a title="pycollector.dataset.Dataset.subjects" href="#pycollector.dataset.Dataset.subjects">subjects</a></code></li>
 </ul>
 </li>
 <li>
@@ -605,7 +702,7 @@ setTimeout(() => input.focus(), 100);
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.9.2</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
 </footer>
 </body>
 </html>

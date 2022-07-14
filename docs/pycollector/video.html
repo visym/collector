@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-<meta name="generator" content="pdoc 0.9.2" />
+<meta name="generator" content="pdoc 0.10.0" />
 <title>pycollector.video API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
@@ -25,7 +25,7 @@
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L0-L647" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L1-L651" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">import os
 import random
@@ -171,6 +171,9 @@ class Video(Scene):
         assert outfile is None or vipy.util.isjsonfile(outfile)
         return vipy.util.writejson(d, outfile) if outfile is not None else d                        
                 
+    def load_json(self):
+        return self._load_json()
+
     def _load_json(self):
         &#34;&#34;&#34;Lazy JSON download, parse, and import&#34;&#34;&#34;
 
@@ -507,12 +510,12 @@ class Video(Scene):
         return self.attributes[&#34;variant&#34;] if &#34;variant&#34; in self.attributes else None
 
     def geolocation(self):
-        assert &#34;ipAddress&#34; in self.metadata(), &#34;Invalid JSON&#34;
-        url = &#34;http://api.geoiplookup.net/?query=%s&#34; % self.metadata()[&#34;ipAddress&#34;]
+        if &#39;ipAddress&#39; not in self.metadata() or self.metadata()[&#34;ipAddress&#34;] is None or len(self.metadata()[&#34;ipAddress&#34;]) == 0:
+            return None
+        url = &#34;https://json.geoiplookup.io/%s&#34; % self.metadata()[&#34;ipAddress&#34;]   # 500 queries / hr
         with urllib.request.urlopen(url) as f:
             response = f.read().decode(&#34;utf-8&#34;)
-        d = xmltodict.parse(response)
-        return dict(d[&#34;ip&#34;][&#34;results&#34;][&#34;result&#34;])
+            return json.loads(response)
 
     def fetch(self, ignoreErrors=False):
         &#34;&#34;&#34;Download JSON and MP4 if not already downloaded&#34;&#34;&#34;
@@ -601,8 +604,8 @@ class Video(Scene):
         # print(&#34;[pycollector.video]: WARNING - Reporting timestamp in the JSON, which may differ from the actual time the backend processed the video&#34;)
         return self.timestamp()
 
-    def metadata(self):
-        return self._load_json().attributes
+    def metadata(self, k=None):
+        return self._load_json().attributes if k is None else self._load_json().attributes[k]        
 
     def videoid(self):
         return self.attributes[&#34;video_id&#34;] if &#34;video_id&#34; in self._load_json().attributes else None
@@ -611,7 +614,7 @@ class Video(Scene):
         return self.attributes[&#34;collector_id&#34;] if &#34;collector_id&#34; in self._load_json().attributes else None
 
     def subjectid(self):
-        return self.attributes[&#34;subject_id&#34;][0] if &#34;subject_id&#34; in self._load_json().attributes else None
+        return self.attributes[&#34;subject_ids&#34;][0] if &#34;subject_ids&#34; in self._load_json().attributes else None
 
     def collectionid(self):
         return self.attributes[&#34;collection_id&#34;] if &#34;collection_id&#34; in self._load_json().attributes else None
@@ -692,7 +695,7 @@ def last(n=1, program=None):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L646-L648" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L649-L651" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def last(n=1, program=None):
     import pycollector.project
@@ -713,7 +716,7 @@ def last(n=1, program=None):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L42-L643" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L42-L646" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">class Video(Scene):
     &#34;&#34;&#34;pycollector.video.Video class&#34;&#34;&#34;
@@ -818,6 +821,9 @@ def last(n=1, program=None):
         assert outfile is None or vipy.util.isjsonfile(outfile)
         return vipy.util.writejson(d, outfile) if outfile is not None else d                        
                 
+    def load_json(self):
+        return self._load_json()
+
     def _load_json(self):
         &#34;&#34;&#34;Lazy JSON download, parse, and import&#34;&#34;&#34;
 
@@ -1154,12 +1160,12 @@ def last(n=1, program=None):
         return self.attributes[&#34;variant&#34;] if &#34;variant&#34; in self.attributes else None
 
     def geolocation(self):
-        assert &#34;ipAddress&#34; in self.metadata(), &#34;Invalid JSON&#34;
-        url = &#34;http://api.geoiplookup.net/?query=%s&#34; % self.metadata()[&#34;ipAddress&#34;]
+        if &#39;ipAddress&#39; not in self.metadata() or self.metadata()[&#34;ipAddress&#34;] is None or len(self.metadata()[&#34;ipAddress&#34;]) == 0:
+            return None
+        url = &#34;https://json.geoiplookup.io/%s&#34; % self.metadata()[&#34;ipAddress&#34;]   # 500 queries / hr
         with urllib.request.urlopen(url) as f:
             response = f.read().decode(&#34;utf-8&#34;)
-        d = xmltodict.parse(response)
-        return dict(d[&#34;ip&#34;][&#34;results&#34;][&#34;result&#34;])
+            return json.loads(response)
 
     def fetch(self, ignoreErrors=False):
         &#34;&#34;&#34;Download JSON and MP4 if not already downloaded&#34;&#34;&#34;
@@ -1248,8 +1254,8 @@ def last(n=1, program=None):
         # print(&#34;[pycollector.video]: WARNING - Reporting timestamp in the JSON, which may differ from the actual time the backend processed the video&#34;)
         return self.timestamp()
 
-    def metadata(self):
-        return self._load_json().attributes
+    def metadata(self, k=None):
+        return self._load_json().attributes if k is None else self._load_json().attributes[k]        
 
     def videoid(self):
         return self.attributes[&#34;video_id&#34;] if &#34;video_id&#34; in self._load_json().attributes else None
@@ -1258,7 +1264,7 @@ def last(n=1, program=None):
         return self.attributes[&#34;collector_id&#34;] if &#34;collector_id&#34; in self._load_json().attributes else None
 
     def subjectid(self):
-        return self.attributes[&#34;subject_id&#34;][0] if &#34;subject_id&#34; in self._load_json().attributes else None
+        return self.attributes[&#34;subject_ids&#34;][0] if &#34;subject_ids&#34; in self._load_json().attributes else None
 
     def collectionid(self):
         return self.attributes[&#34;collection_id&#34;] if &#34;collection_id&#34; in self._load_json().attributes else None
@@ -1324,6 +1330,10 @@ def last(n=1, program=None):
 <li>vipy.video.VideoCategory</li>
 <li>vipy.video.Video</li>
 </ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="pycollector.admin.video.Video" href="admin/video.html#pycollector.admin.video.Video">Video</a></li>
+</ul>
 <h3>Static methods</h3>
 <dl>
 <dt id="pycollector.video.Video.cast"><code class="name flex">
@@ -1335,7 +1345,7 @@ This is useful for downcast and upcast conversion of video objects.</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L85-L90" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L85-L90" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@classmethod
 def cast(self, v):
@@ -1351,12 +1361,12 @@ def cast(self, v):
 <dd>
 <div class="desc"><p>Restore an object serialized with self.json()</p>
 <p>Usage:</p>
-<pre><code class="language-python-repl">&gt;&gt;&gt; vs = vipy.video.Scene.from_json(v.json())
+<pre><code class="language-python">vs = vipy.video.Scene.from_json(v.json())
 </code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L92-L105" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L92-L105" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">@classmethod
 def from_json(obj, s):
@@ -1385,7 +1395,7 @@ def from_json(obj, s):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L536-L539" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L539-L542" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def activity_categories(self):
     &#34;&#34;&#34;Return a set of unique activity categories in the video, not including object categories&#34;&#34;&#34;
@@ -1401,7 +1411,7 @@ def from_json(obj, s):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L642-L643" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L645-L646" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def app_version(self):
     return self.metadata()[&#39;app_version&#39;]        </code></pre>
@@ -1415,7 +1425,7 @@ def from_json(obj, s):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L129-L143" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L129-L143" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def appjson(self, outfile=None):
     &#34;&#34;&#34;Export JSON that is equivalent to the output of the mobile app, with annotations relative to the video file (not the filter chain)&#34;&#34;&#34;
@@ -1442,7 +1452,7 @@ def from_json(obj, s):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L639-L640" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L642-L643" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def appversion(self):
     return self.app_version()</code></pre>
@@ -1456,7 +1466,7 @@ def from_json(obj, s):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L593-L594" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L596-L597" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def collection(self):
     return self.collection_name()</code></pre>
@@ -1470,7 +1480,7 @@ def from_json(obj, s):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L590-L591" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L593-L594" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def collection_name(self):
     return self.attributes[&#34;collection_name&#34;] if &#34;collection_name&#34; in self._load_json().attributes else None</code></pre>
@@ -1484,7 +1494,7 @@ def from_json(obj, s):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L587-L588" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L590-L591" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def collectionid(self):
     return self.attributes[&#34;collection_id&#34;] if &#34;collection_id&#34; in self._load_json().attributes else None</code></pre>
@@ -1498,7 +1508,7 @@ def from_json(obj, s):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L581-L582" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L584-L585" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def collectorid(self):
     return self.attributes[&#34;collector_id&#34;] if &#34;collector_id&#34; in self._load_json().attributes else None</code></pre>
@@ -1512,7 +1522,7 @@ def from_json(obj, s):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L604-L608" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L607-L611" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def downcast(self):
     &#34;&#34;&#34;Convert from pycollector.video to vipy.video.Scene by downcasting class&#34;&#34;&#34;
@@ -1529,7 +1539,7 @@ def from_json(obj, s):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L596-L598" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L599-L601" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def duration(self):
     &#34;&#34;&#34;Video length in seconds&#34;&#34;&#34;
@@ -1544,7 +1554,7 @@ def from_json(obj, s):
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L463-L474" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L466-L477" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def edited(self):
     &#34;&#34;&#34;Return the datetime representation of the editedat() string&#34;&#34;&#34;
@@ -1569,7 +1579,7 @@ timestamp as milliseconds since epoch (POSIX timestamp), iOS will replace the fi
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L459-L461" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L462-L464" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def editedat(self):
     &#34;&#34;&#34;Android appends an &#39;_&lt;int&gt;&#39;  timestamp as milliseconds since epoch (POSIX timestamp), iOS will replace the first &#39;_datetimestr&#39; with a new datetimest&#34;&#34;&#34;
@@ -1585,7 +1595,7 @@ It is more efficient to construct a FaceDetector() object once and reuse it.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L630-L633" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L633-L636" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def face_detection(self, frame=1):
     &#34;&#34;&#34;Run face detection on a given frame of video.  It is more efficient to construct a FaceDetector() object once and reuse it.&#34;&#34;&#34;
@@ -1601,7 +1611,7 @@ It is more efficient to construct a FaceDetector() object once and reuse it.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L635-L637" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L638-L640" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def faces(self, frame=1):
     &#34;&#34;&#34;Alias for face_detection&#34;&#34;&#34;
@@ -1616,7 +1626,7 @@ It is more efficient to construct a FaceDetector() object once and reuse it.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L488-L498" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L491-L501" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def fetch(self, ignoreErrors=False):
     &#34;&#34;&#34;Download JSON and MP4 if not already downloaded&#34;&#34;&#34;
@@ -1639,7 +1649,7 @@ It is more efficient to construct a FaceDetector() object once and reuse it.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L504-L524" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L507-L527" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def fetchjson(self):
     &#34;&#34;&#34;Download JSON if not already downloaded&#34;&#34;&#34;
@@ -1672,7 +1682,7 @@ It is more efficient to construct a FaceDetector() object once and reuse it.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L500-L502" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L503-L505" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def fetchvideo(self, ignoreErrors=False):
     super().fetch()
@@ -1687,15 +1697,15 @@ It is more efficient to construct a FaceDetector() object once and reuse it.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L480-L486" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L483-L489" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def geolocation(self):
-    assert &#34;ipAddress&#34; in self.metadata(), &#34;Invalid JSON&#34;
-    url = &#34;http://api.geoiplookup.net/?query=%s&#34; % self.metadata()[&#34;ipAddress&#34;]
+    if &#39;ipAddress&#39; not in self.metadata() or self.metadata()[&#34;ipAddress&#34;] is None or len(self.metadata()[&#34;ipAddress&#34;]) == 0:
+        return None
+    url = &#34;https://json.geoiplookup.io/%s&#34; % self.metadata()[&#34;ipAddress&#34;]   # 500 queries / hr
     with urllib.request.urlopen(url) as f:
         response = f.read().decode(&#34;utf-8&#34;)
-    d = xmltodict.parse(response)
-    return dict(d[&#34;ip&#34;][&#34;results&#34;][&#34;result&#34;])</code></pre>
+        return json.loads(response)</code></pre>
 </details>
 </dd>
 <dt id="pycollector.video.Video.hasMP4"><code class="name flex">
@@ -1706,7 +1716,7 @@ It is more efficient to construct a FaceDetector() object once and reuse it.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L533-L534" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L536-L537" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def hasMP4(self):
     return self.fetch().hasfilename()</code></pre>
@@ -1720,7 +1730,7 @@ It is more efficient to construct a FaceDetector() object once and reuse it.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L529-L531" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L532-L534" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def hasjson(self):
     self.fetchjson()
@@ -1735,7 +1745,7 @@ It is more efficient to construct a FaceDetector() object once and reuse it.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L526-L527" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L529-L530" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def is_json_loaded(self):
     return self._is_json_loaded</code></pre>
@@ -1749,7 +1759,7 @@ It is more efficient to construct a FaceDetector() object once and reuse it.</p>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L454-L457" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L457-L460" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def isedited(self):
     return (
@@ -1766,7 +1776,7 @@ This may fail if attributes contain non-json encodeable object</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L107-L117" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L107-L117" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def json(self, encode=True):
     d = super().json(encode=False)
@@ -1781,19 +1791,37 @@ This may fail if attributes contain non-json encodeable object</p></div>
     return json.dumps(d) if encode else d</code></pre>
 </details>
 </dd>
-<dt id="pycollector.video.Video.metadata"><code class="name flex">
-<span>def <span class="ident">metadata</span></span>(<span>self)</span>
+<dt id="pycollector.video.Video.load_json"><code class="name flex">
+<span>def <span class="ident">load_json</span></span>(<span>self)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Return a dictionary of metadata about this video.</p>
-<p>This is an alias for the 'attributes' dictionary.</p></div>
+<div class="desc"></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L575-L576" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L145-L146" class="git-link">Browse git</a>
 </summary>
-<pre><code class="python">def metadata(self):
-    return self._load_json().attributes</code></pre>
+<pre><code class="python">def load_json(self):
+    return self._load_json()</code></pre>
+</details>
+</dd>
+<dt id="pycollector.video.Video.metadata"><code class="name flex">
+<span>def <span class="ident">metadata</span></span>(<span>self, k=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Return a dictionary of metadata about this video.
+</p>
+<h2 id="args">Args</h2>
+<p>k [str]: If provided, return just the specified key of the attributes dictionary, otherwise return the attributes dictionary</p>
+<h2 id="returns">Returns</h2>
+<p>The 'attributes' dictionary, or just the value for the provided key k if provided</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L578-L579" class="git-link">Browse git</a>
+</summary>
+<pre><code class="python">def metadata(self, k=None):
+    return self._load_json().attributes if k is None else self._load_json().attributes[k]        </code></pre>
 </details>
 </dd>
 <dt id="pycollector.video.Video.object_detection"><code class="name flex">
@@ -1805,7 +1833,7 @@ It is more efficient to construct an ObjectDetector() object once and reuse it.<
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L625-L628" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L628-L631" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def object_detection(self, frame=1):
     &#34;&#34;&#34;Run an object detector on a given frame of video.  It is more efficient to construct an ObjectDetector() object once and reuse it.&#34;&#34;&#34;
@@ -1821,7 +1849,7 @@ It is more efficient to construct an ObjectDetector() object once and reuse it.<
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L622-L623" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L625-L626" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def program(self):
     return self.attributes[&#34;program_name&#34;]</code></pre>
@@ -1835,7 +1863,7 @@ It is more efficient to construct an ObjectDetector() object once and reuse it.<
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L619-L620" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L622-L623" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def project(self):
     return self.attributes[&#34;project_name&#34;]</code></pre>
@@ -1852,7 +1880,7 @@ It is more efficient to construct an ObjectDetector() object once and reuse it.<
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L541-L551" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L544-L554" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def quicklooks(self, n=9, dilate=1.5, mindim=256, fontsize=10, context=True):
     &#34;&#34;&#34;Return a vipy.image.Image object containing a montage quicklook for each of the activities in this video.
@@ -1875,7 +1903,7 @@ It is more efficient to construct an ObjectDetector() object once and reuse it.<
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L600-L602" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L603-L605" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def quickshow(self, framerate=10, nocaption=False):
     print(&#34;[pycollector.video]: setting quickshow input framerate=%d&#34; % framerate)
@@ -1890,10 +1918,10 @@ It is more efficient to construct an ObjectDetector() object once and reuse it.<
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L584-L585" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L587-L588" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def subjectid(self):
-    return self.attributes[&#34;subject_id&#34;][0] if &#34;subject_id&#34; in self._load_json().attributes else None</code></pre>
+    return self.attributes[&#34;subject_ids&#34;][0] if &#34;subject_ids&#34; in self._load_json().attributes else None</code></pre>
 </details>
 </dd>
 <dt id="pycollector.video.Video.timestamp"><code class="name flex">
@@ -1908,7 +1936,7 @@ Do not use this for any datetime arithmetic without assigning a timezone from th
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L561-L569" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L564-L572" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def timestamp(self):
     &#34;&#34;&#34;Return collected_date from json as a datetime object,
@@ -1930,7 +1958,7 @@ Optionally add a temporal pad of padframes before and after the clip</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L553-L559" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L556-L562" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def trim(self, padframes=0):
     &#34;&#34;&#34;Temporally clip the video so that the video start is the beginning of the first activity, and the end of the video is the end of the last activity.
@@ -1949,7 +1977,7 @@ Optionally add a temporal pad of padframes before and after the clip</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L610-L617" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L613-L620" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def upcast(self):
     &#34;&#34;&#34;Convert from pycollector.video to pycollector.admin.video by upcasting class, available to admins only&#34;&#34;&#34;
@@ -1969,7 +1997,7 @@ Optionally add a temporal pad of padframes before and after the clip</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L571-L573" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L574-L576" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def uploaded(self):
     # print(&#34;[pycollector.video]: WARNING - Reporting timestamp in the JSON, which may differ from the actual time the backend processed the video&#34;)
@@ -1984,7 +2012,7 @@ Optionally add a temporal pad of padframes before and after the clip</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L476-L478" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L479-L481" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def variant(self):
     &#34;&#34;&#34;Category variant&#34;&#34;&#34;
@@ -2001,6 +2029,8 @@ Optionally add a temporal pad of padframes before and after the clip</p></div>
 <dt><strong><code>newid</code></strong></dt>
 <dd>[str] If not None, then update the video_id as newid. </dd>
 </dl>
+<h2 id="returns">Returns</h2>
+<p>The video ID if newid=None else self</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <ul>
@@ -2012,7 +2042,7 @@ Optionally add a temporal pad of padframes before and after the clip</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
-<a href="https://github.com/visym/collector/blob/fa62cd9ad15a330b048daf3b4b336e1ae20d06ff/pycollector/video.py#L578-L579" class="git-link">Browse git</a>
+<a href="https://github.com/visym/collector/blob/b6763ced3cbb1222a55b679dfc9d30337004b343/pycollector/video.py#L581-L582" class="git-link">Browse git</a>
 </summary>
 <pre><code class="python">def videoid(self):
     return self.attributes[&#34;video_id&#34;] if &#34;video_id&#34; in self._load_json().attributes else None</code></pre>
@@ -2120,6 +2150,7 @@ setTimeout(() => input.focus(), 100);
 <li><code><a title="pycollector.video.Video.is_json_loaded" href="#pycollector.video.Video.is_json_loaded">is_json_loaded</a></code></li>
 <li><code><a title="pycollector.video.Video.isedited" href="#pycollector.video.Video.isedited">isedited</a></code></li>
 <li><code><a title="pycollector.video.Video.json" href="#pycollector.video.Video.json">json</a></code></li>
+<li><code><a title="pycollector.video.Video.load_json" href="#pycollector.video.Video.load_json">load_json</a></code></li>
 <li><code><a title="pycollector.video.Video.metadata" href="#pycollector.video.Video.metadata">metadata</a></code></li>
 <li><code><a title="pycollector.video.Video.object_detection" href="#pycollector.video.Video.object_detection">object_detection</a></code></li>
 <li><code><a title="pycollector.video.Video.program" href="#pycollector.video.Video.program">program</a></code></li>
@@ -2141,7 +2172,7 @@ setTimeout(() => input.focus(), 100);
 </nav>
 </main>
 <footer id="footer">
-<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.9.2</a>.</p>
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
 </footer>
 </body>
 </html>
