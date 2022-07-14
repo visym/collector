@@ -481,13 +481,12 @@ class Video(Scene):
         return self.attributes["variant"] if "variant" in self.attributes else None
 
     def geolocation(self):
-        if 'ipAddress' not in self.metadata():
+        if 'ipAddress' not in self.metadata() or self.metadata()["ipAddress"] is None or len(self.metadata()["ipAddress"]) == 0:
             return None
-        url = "http://api.geoiplookup.net/?query=%s" % self.metadata()["ipAddress"]
+        url = "https://json.geoiplookup.io/%s" % self.metadata()["ipAddress"]   # 500 queries / hr
         with urllib.request.urlopen(url) as f:
             response = f.read().decode("utf-8")
-        d = xmltodict.parse(response)
-        return dict(d["ip"]["results"]["result"])
+            return json.loads(response)
 
     def fetch(self, ignoreErrors=False):
         """Download JSON and MP4 if not already downloaded"""
@@ -576,8 +575,8 @@ class Video(Scene):
         # print("[pycollector.video]: WARNING - Reporting timestamp in the JSON, which may differ from the actual time the backend processed the video")
         return self.timestamp()
 
-    def metadata(self):
-        return self._load_json().attributes
+    def metadata(self, k=None):
+        return self._load_json().attributes if k is None else self._load_json().attributes[k]        
 
     def videoid(self):
         return self.attributes["video_id"] if "video_id" in self._load_json().attributes else None

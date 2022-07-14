@@ -114,16 +114,32 @@ class Dataset(vipy.dataset.Dataset):
         assert self._isvipy()
         d = vipy.util.countby(self.list(), lambda v: v.attributes['collector_id'])
         f = lambda x,n: len([k for (k,v) in d.items() if int(v) >= n])
-        print('[vipy.dataset]: Collectors = %d ' % f(d,0))
-        print('[vipy.dataset]: Collectors with >10 submissions = %d' % f(d,10))
-        print('[vipy.dataset]: Collectors with >100 submissions = %d' % f(d,100))
-        print('[vipy.dataset]: Collectors with >1000 submissions = %d' % f(d,1000))
-        print('[vipy.dataset]: Collectors with >10000 submissions = %d' % f(d,10000))
+        print('[pycollector.dataset]: Collectors = %d ' % f(d,0))
+        print('[pycollector.dataset]: Collectors with >10 submissions = %d' % f(d,10))
+        print('[pycollector.dataset]: Collectors with >100 submissions = %d' % f(d,100))
+        print('[pycollector.dataset]: Collectors with >1000 submissions = %d' % f(d,1000))
+        print('[pycollector.dataset]: Collectors with >10000 submissions = %d' % f(d,10000))
 
         if outfile is not None:
             from vipy.metrics import histogram
             (k,v) = zip(*(sorted(d.items(), key=lambda x: x[1], reverse=True))) 
             histogram(v, list(range(len(k))), outfile=outfile, ylabel='Submissions', xlabel='Collector', xrot='vertical', fontsize=3, xshow=False)            
+        return d
+
+    def subjects(self, outfile=None):
+        assert self._isvipy()
+        d = vipy.util.countby(self.list(), lambda v: v.attributes['subject_ids'][0] if v.hasattribute('subject_ids') and len(v.attributes['subject_ids'])>0 else None)
+        f = lambda x,n: len([k for (k,v) in d.items() if int(v) >= n])
+        print('[pycollector.dataset]: Subjects = %d ' % f(d,0))
+        print('[pycollector.dataset]: Subjects with >10 submissions = %d' % f(d,10))
+        print('[pycollector.dataset]: Subjects with >100 submissions = %d' % f(d,100))
+        print('[pycollector.dataset]: Subjects with >1000 submissions = %d' % f(d,1000))
+        print('[pycollector.dataset]: Subjects with >10000 submissions = %d' % f(d,10000))
+
+        if outfile is not None:
+            from vipy.metrics import histogram
+            (k,v) = zip(*(sorted(d.items(), key=lambda x: x[1], reverse=True))) 
+            histogram(v, list(range(len(k))), outfile=outfile, ylabel='Submissions', xlabel='Subject', xrot='vertical', fontsize=3, xshow=False)            
         return d
 
     def os(self, outfile=None):
