@@ -40,7 +40,7 @@ Quickstart
 
 * **Install.** Get the Visym Collector app and sign-up as a new user in the public beta.
 
-* **Collect.**  Collect a labeled video using your own collections in the mobile app
+* **Collect.**  Collect a labeled video using [collections you define](https://github.com/visym/collector/blob/master/demo/Custom%20Collections.ipynb) in the mobile app.
 * **Visualize**.  Download your annotated videos and visualize them using the python tools:
 
 ```python
