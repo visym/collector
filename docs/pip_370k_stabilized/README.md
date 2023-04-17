@@ -16,7 +16,7 @@ classes (http://mevadata.org).  This dataset contains 405,781 background stabili
     * This dataset contains 405,781 background stabilized video clips of 63 classes of activities.
     * This release uses the [no-meva-pad](../pip_250k_stabilized/README.md) annotation style.
     * This is the recommended dataset for download, as it is the union of pip-170k-stabilized, pip-250k-stabilized and pip-d370k-stabilized, which fixes known errata.   
-    * The annotations of the [pip-175k](https://visym.github.io/collector/pip_175k/) subset can be [downloaded separately](https://dl.dropboxusercontent.com/s/axg020ge1ham6na/pip_175k_in_370k.json.bz2].&nbsp;&nbsp;Last Updated 16Apr23
+    * The annotations of the [pip-175k](https://visym.github.io/collector/pip_175k/) subset can be [downloaded separately](https://dl.dropboxusercontent.com/s/axg020ge1ham6na/pip_175k_in_370k.json.bz2). &nbsp;&nbsp;Last Updated 16Apr23
 
 <!--
 Legacy Downloads:
