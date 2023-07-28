@@ -48,7 +48,7 @@ class Video(Scene):
         mp4url=None,
         jsonurl=None,
         jsonfile=None,
-        mindim=512,
+        mindim=None,
         dt=1,
         fetch=True,
         attributes=None,
