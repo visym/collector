@@ -123,7 +123,7 @@ class Dataset(vipy.dataset.Dataset):
         if outfile is not None:
             from vipy.metrics import histogram
             (k,v) = zip(*(sorted(d.items(), key=lambda x: x[1], reverse=True))) 
-            histogram(v, list(range(len(k))), outfile=outfile, ylabel='Submissions', xlabel='Collector', xrot='vertical', fontsize=3, xshow=False)            
+            histogram(v, list(range(len(k))), outfile=outfile, ylabel='Submissions', xlabel='Collector ID', xrot='vertical', fontsize=3, xshow=False)            
         return d
 
     def subjects(self, outfile=None):
