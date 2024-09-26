@@ -11,8 +11,8 @@ Visym Collector provides:
 * On-demand collection of rare classes  
 * Simultaneous video recording, annotation and verification into a single platform
 * Touchscreen UI for live annotation of bounding boxes, activity clips and object categories
-* Ethical and Consented videos of people for dataset construction with in-app face anonymization
-* [Python tools](https://github.com/visym/collector) for hard negative mining, [dataset transformation](https://github.com/visym/vipy), active learning and live model testing in PyTorch
+* Ethical and Consented videos of people for dataset construction with face and license plate anonymization
+<!-- * [Python tools](https://github.com/visym/collector) for hard negative mining, [dataset transformation](https://github.com/visym/vipy), active learning and live model testing in PyTorch -->
 
 Our goal is to make all datasets freely available to the computer vision research community.
 
