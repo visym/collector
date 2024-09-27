@@ -10,3 +10,4 @@ pytorch_lightning
 ujson
 pdoc3
 heyvi
+requests

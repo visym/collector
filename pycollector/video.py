@@ -600,6 +600,9 @@ class Video(Scene):
         #return datetime.strptime(self.attributes["collected_date"], "%Y-%m-%d %H:%M:%S").astimezone(et)
         return datetime.strptime(self.attributes["collected_date"], "%Y-%m-%d %H:%M:%S")  # we do not know what timezone this is, unless we look at the IP address
 
+    def timestamp_in_utc(self):
+        return self.timestamp().astimezone(pytz.timezone('UTC'))
+    
     def uploaded(self):
         # print("[pycollector.video]: WARNING - Reporting timestamp in the JSON, which may differ from the actual time the backend processed the video")
         return self.timestamp()
