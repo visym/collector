@@ -13,7 +13,9 @@ import hashlib
 import uuid
 import urllib
 import xmltodict
+import boto3
 from boto3.dynamodb.conditions import Key, Attr
+from botocore.exceptions import ClientError
 import webbrowser
 
 import vipy
@@ -519,6 +521,33 @@ class Video(Scene):
                         self._jsonurl, self._jsonfile
                     )  # TODO - this is a problem to assume vipy user also has access to S3. We should decouple this dependency of using vipy
 
+                except ClientError as e:
+                    # Glacier storage?
+                    if e.response['Error']['Code'] == 'InvalidObjectState':
+                        try:
+                            # Attempt to restore from glacial storage (can request only once)
+                            assert 'VIPY_AWS_ACCESS_KEY_ID' in os.environ and 'VIPY_AWS_SECRET_ACCESS_KEY' in os.environ, \
+                                "AWS access keys not found - You need to create ENVIRONMENT variables ['VIPY_AWS_ACCESS_KEY_ID', 'VIPY_AWS_SECRET_ACCESS_KEY'] with S3 access credentials"
+                            
+                            s3 = boto3.client('s3',
+                                              aws_access_key_id=os.environ['VIPY_AWS_ACCESS_KEY_ID'],
+                                              aws_secret_access_key=os.environ['VIPY_AWS_SECRET_ACCESS_KEY'],
+                                              aws_session_token=os.environ['VIPY_AWS_SESSION_TOKEN'] if 'VIPY_AWS_SESSION_TOKEN' in os.environ else None                      
+                                              )
+                            
+                            # url format: s3://BUCKETNAME.s3.amazonaws.com/OBJECTNAME.json
+                            bucket_name = urllib.parse.urlparse(self._jsonurl).netloc.split('.')[0]
+                            object_name = urllib.parse.urlparse(self._jsonurl).path[1:]
+                            s3.restore_object(Bucket=bucket_name,Key=object_name, RestoreRequest={'Days': 30,'GlacierJobParameters':{'Tier': 'Standard'}})
+                            
+                            # url format: s3://BUCKETNAME.s3.amazonaws.com/OBJECTNAME.mp4
+                            bucket_name = urllib.parse.urlparse(self._mp4url).netloc.split('.')[0]
+                            object_name = urllib.parse.urlparse(self._mp4url).path[1:]
+                            s3.restore_object(Bucket=bucket_name,Key=object_name, RestoreRequest={'Days': 30,'GlacierJobParameters':{'Tier': 'Standard'}})
+                        except:
+                            pass  # may be other errors here ...                        
+                        raise ValueError('[pycollector.video]: object archived in glacial storage - restore requested (may take up to 12 hours, so check back later ...) ')
+                    raise e
                 except KeyboardInterrupt:
                     raise
                 except Exception as e:
