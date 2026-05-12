@@ -147,6 +147,16 @@ class Video(Scene):
     def load_json(self):
         return self._load_json()
 
+    def category(self, c=None):
+        if vipy.version.is_at_least("1.16.4"):
+            if c is None:
+                return super().category()
+            else:
+                return super().new_category(c)
+        else:
+            return super().category(c)
+
+    
     def _load_json(self):
         """Lazy JSON download, parse, and import"""
 
