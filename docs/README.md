@@ -1,7 +1,5 @@
 <iframe width="1280" height="720" position="absolute" top="0" left="0" src="https://www.youtube.com/embed/HjNa7_T-Xkc" title="Visym Collector: Consented and On-demand Visual Datasets" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
-<a href="https://apps.apple.com/app/id1498077968"><img alt="iOS" src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg" height="50"/></a>  <a href="https://play.google.com/store/apps/details?id=com.visym.collector"><img alt="Android" src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" height="50"/></a> <a href="https://github.com/visym/collector"><img alt="Github" src="https://github.com/fluidicon.png" height="50"/></a> <a href="https://visym.com/collector"><img alt="Visym Labs" src="https://www.visym.com/labs/images/visym_logo_black_notext.png" height="50"/></a> 
-
 ## VISYM COLLECTOR
 
 [Visym Collector](https://visym.com/collector) is a mobile app for collecting large scale, on-demand and consented video datasets of people for visual AI applications. Collector is able to record, annotate and verify custom video datasets of rarely occuring activities for training visual AI systems, at an order of magnitude lower cost than existing methods. Our distributed data collection team is spread over five continents and fifty countries to collect unbiased datasets for global visual AI applications.
@@ -21,6 +19,7 @@ Our goal is to make all datasets freely available to the computer vision researc
 
 <!-- Backup links:  https://htmlpreview.github.io/?https://github.com/visym/collector/blob/master/docs/pip_175k/trainset_small.html -->
 
+* **[VisymScenes](https://doppelgangers25.github.io/doppelgangers_plusplus/).**  This dataset includes residential areas, landmarks, historical sites, business districts, and more. This dataset contains 258K images with GPS/IMU metadata, recorded at 149 sites in 42 cities and 15 countries. 
 * **[Consented Activities of People](https://visym.github.io/cap).**  This dataset contains 1.45M video clips of 512 classes of activities of daily life.  Videos are recorded from mobile devices around the world from a third person viewpoint looking down on the scene from above, containing consented subjects performing every day activities.    
 * **[People in Public - 370k - stabilized](pip_370k_stabilized/README.md).**  This dataset contains 405,781 background stabilized video clips of 63 classes of activities performed by people in public places.  
 * **[People in Public - 250k - stabilized](pip_250k_stabilized/README.md).**  This dataset contains 314,332 background stabilized video clips of 66 classes of activities performed by people in public places.
