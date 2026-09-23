@@ -94,7 +94,48 @@ class Video(Scene):
     @classmethod
     def from_json(obj, s):
         d = json.loads(s) if not isinstance(s, dict) else s
-        v = Scene.from_json(d)
+
+        # The historical implementation was:
+        #     v = Scene.from_json(d)
+        #     v.__class__ = Video
+        # which relied on Python's __class__ reassignment working between
+        # Scene and its subclass Video.  Modern vipy declares __slots__ on
+        # Scene (and its parent vipy.video.Video), and pycollector's
+        # Video(Scene) does NOT declare __slots__, so a Video instance's
+        # memory layout is "Scene slots + implicit __dict__".  That's a
+        # different layout from a bare Scene ("Scene slots only, no
+        # __dict__"), and Python correctly refuses the __class__ swap with
+        #     TypeError: __class__ assignment: 'Video' object layout
+        #     differs from 'Scene'.
+        # Additionally, before the layout check, setting any pycollector-
+        # only attribute on the Scene object (e.g. ``v._is_json_loaded =
+        # ...``) fails with "no __dict__ for setting new attributes".
+        #
+        # Fix: build the Video instance directly with __new__ (bypasses
+        # Video.__init__'s file/URL/fetch invariants), hand-populate
+        # Scene's slots by copying from a temporary Scene.from_json
+        # result, and then populate pycollector's own attributes onto the
+        # Video's __dict__.  This produces the same end state as the
+        # historical class-swap without requiring layout compatibility.
+        scene = Scene.from_json(d)
+        v = Video.__new__(Video)
+
+        # Copy every vipy-level slot from the scene onto the new Video.
+        # ``Scene.__slots__`` is the authoritative list; iterate rather
+        # than hard-coding so a future vipy release adding/removing slots
+        # doesn't silently drop state here.  The getattr defaults to a
+        # sentinel because Scene doesn't guarantee every slot is set on
+        # every from_json result (unpopulated slots raise AttributeError).
+        _MISSING = object()
+        for slot in Scene.__slots__:
+            val = getattr(scene, slot, _MISSING)
+            if val is not _MISSING:
+                setattr(v, slot, val)
+
+        # pycollector-specific state.  ``_has_invalid_json`` isn't in the
+        # JSON dict (it's a runtime flag set by __init__ when JSON load
+        # fails), so default it to False -- a from_json call implies the
+        # JSON parsed cleanly.
         v._is_json_loaded = d["_is_json_loaded"]
         v._dt = d["_dt"]
         v._mindim = d["_mindim"]
@@ -103,7 +144,7 @@ class Video(Scene):
         v._jsonurl = d["_jsonurl"]
         v._mp4file = d["_mp4file"]
         v._mp4url = d["_mp4url"]
-        v.__class__ = Video
+        v._has_invalid_json = False
         return v
 
     def json(self, encode=True):
