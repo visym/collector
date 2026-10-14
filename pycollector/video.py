@@ -8,6 +8,7 @@ import copy
 import decimal
 from decimal import Decimal
 import calendar
+import unicodedata
 import pytz
 import hashlib
 import uuid
@@ -243,6 +244,11 @@ class Video(Scene):
                 d["metadata"]["rotate"] = "rot90ccw"  # iOS (7) bug, different than iOS (6)
 
             # FIXME: "collected_date":"2020-06-19T18:34:33+0000" on both now
+            # 14Oct26: apps <= 2.9.25 could write collected_date in the phone's
+            # native digits (e.g. Arabic-Indic "٢٠٢٦-١٠-١٤T..."); map any
+            # Unicode decimal digit to ASCII before parsing.
+            d["metadata"]["collected_date"] = "".join(str(unicodedata.decimal(c)) if (c.isdigit() and not c.isascii()) else c
+                                                      for c in str(d["metadata"]["collected_date"]))
             try:
                 uploaded = datetime.strptime(d["metadata"]["collected_date"], "%Y-%m-%d %H:%M:%S %z")  # iOS 1.0 (6)
             except:
